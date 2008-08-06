@@ -1,0 +1,16 @@
+<% title "Exchange" %>
+
+<p>
+  <strong>Symbol:</strong>
+  <%=h @exchange.symbol %>
+</p>
+<p>
+  <strong>Name:</strong>
+  <%=h @exchange.name %>
+</p>
+
+<p>
+  <%= link_to "Edit", edit_exchange_path(@exchange) %> |
+  <%= link_to "Destroy", @exchange, :confirm => 'Are you sure?', :method => :delete %> |
+  <%= link_to "View All", exchanges_path %>
+</p>

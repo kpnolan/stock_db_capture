@@ -1,0 +1,12 @@
+<%= error_messages_for :ticker %>
+<% form_for @ticker do |f| %>
+  <p>
+    <%= f.label :symbol %><br />
+    <%= f.text_field :symbol %>
+  </p>
+  <p>
+    <%= f.label :exchange_id %><br />
+    <%= f.text_field :exchange_id %>
+  </p>
+  <p><%= f.submit "Submit" %></p>
+<% end %>

@@ -2,7 +2,7 @@
 #   gem install sqlite3-ruby (not necessary on OS X Leopard)
 development:
   adapter: mysql
-  database: active_trader_developement
+  database: active_trader_development
   encoding: utf8
   username: root
   password:

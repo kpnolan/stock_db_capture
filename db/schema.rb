@@ -9,18 +9,11 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080806041608) do
+ActiveRecord::Schema.define(:version => 20080806033620) do
 
   create_table "exchanges", :force => true do |t|
     t.string "symbol", :limit => 7
     t.string "name"
   end
-
-  create_table "tickers", :force => true do |t|
-    t.string "symbol",      :limit => 7
-    t.string "exchange_id"
-  end
-
-  add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
 
 end

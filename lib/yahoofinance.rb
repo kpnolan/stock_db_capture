@@ -72,7 +72,7 @@ module YahooFinance
     "v" => [ "volume", "val.to_i" ],
     "m" => [ "day_range", "range(val)" ],
     "t7" => [ "tickertrend", "trend(val)" ],
-    "a2" => [ "average_daily_volume", "val.to_i" ],
+    "a2" => [ "avg_volumn", "val.to_i" ],
     "b" => [ "bid", "val.to_f" ],
     "a" => [ "ask", "val.to_f" ],
 # These return integers like "1,000".  The CVS parser gets confused by this
@@ -85,8 +85,8 @@ module YahooFinance
   EXTENDEDHASH = {
     "s" => [ "symbol", "val" ],
     "n" => [ "name", "val" ],
-    "w" => [ "weeks_52_range", "range(val)" ],
-    "j5" => [ "weeks_52_change_from_low", "val.to_f" ],
+    "w" => [ "weeks52_range", "range(val)" ],
+    "j5" => [ "weeks52_change_from_low", "val.to_f" ],
     "j6" => [ "weeks52_change_percent_from_low", "percent(val)" ],
     "k4" => [ "weeks52_change_from_high", "val.to_f" ],
     "k5" => [ "weeks52_change_percent_from_high", "percent(val)" ],
@@ -95,9 +95,9 @@ module YahooFinance
     "s7" => [ "short_ratio", "val.to_f" ],
     "r1" => [ "dividend_paydate", "dbdate(val)" ],
     "q" => [ "ex_dividend_date", "dbdate(val)" ],
-    "d" => [ "dividend_per_share", "convert(val)" ],
-    "y" => [ "dividend_yield", "convert(val)" ],
-    "j1" => [ "market_cap", "convert(val)" ],
+    "d" => [ "dividend_per_share", "convert_f(val)" ],
+    "y" => [ "dividend_yield", "convert_f(val)" ],
+    "j1" => [ "market_cap", "decimal(val)" ],
     "t8" => [ "oneyear_target_price", "val.to_f" ],
     "e7" => [ "eps_estimate_current_year", "val.to_f" ],
     "e8" => [ "eps_estimate_next_year", "val.to_f" ],
@@ -108,16 +108,15 @@ module YahooFinance
     "b4" => [ "book_value", "val.to_f" ],
     "p6" => [ "price_perbook", "val.to_f" ],
     "p5" => [ "price_persales", "val.to_f" ],
-    "j4" => [ "ebitda", "val" ],
-#    "f6" => [ "float_shares", "val" ],
+    "j4" => [ "ebitda", "decimal(val)" ],
     "m3" => [ "moving_ave_50_days", "val.to_f" ],
     "m7" => [ "moving_ave_50_days_change_from", "val.to_f" ],
     "m8" => [ "moving_ave_50_days_change_percent_from", "percent(val)" ],
     "m4" => [ "moving_ave_200_days", "val.to_f" ],
     "m5" => [ "moving_ave_200_days_change_from", "val.to_f" ],
     "m6" => [ "moving_ave_200_days_change_percent_from", "percent(val)" ],
-#   "w1" => [ "day_value_change", "val" ],
     "x" => [ "stock_exchange", "val" ]
+#   "w1" => [ "day_value_change", "val" ],
 # This returns an integer like "1,000,000".
 # The CVS parser gets confused by this
 # so I've removed it for the time being.
@@ -129,11 +128,11 @@ module YahooFinance
     "n" => [ "name" , "val" ],
     "b2" => [ "ask", "val.to_f" ],
     "b3" => [ "bid", "val.to_f" ],
-    "k2" => [ "change", "range(val)" ],
-    "k1" => [ "lastTradeWithTime", "val_with_time(val)" ],
-    "c6" => [ "changePoints", "val.to_f" ],
+    "k2" => [ "change", "opt_pair(val)" ],
+    "l1" => [ "last_trade", "val.to_f" ],
+    "t1" => [ "last_trade_time", "dbtime(val)" ],
+    "c6" => [ "change_points", "val.to_f" ],
 #    "m2" => [ "dayRange", "val" ],
-#     "j3" => [ "marketCap", "convert(val)" ],
 #      "v7" => [ "holdingsValue", "val" ],
 #      "w4" => [ "dayValueChange", "val" ],
 #      "g5" => [ "holdingsGainPercent", "val" ],
@@ -214,6 +213,7 @@ module YahooFinance
     end
     ret
   end
+
   def YahooFinance.get_standard_quotes( symbols )
     csvquotes = YahooFinance::get( symbols, STDHASH.keys.join )
     ret = Hash.new
@@ -244,6 +244,15 @@ module YahooFinance
         instance_eval( "def #{@formathash[elem][0]}=(val) " +
                          "@#{@formathash[elem][0]}=#{@formathash[elem][1]} " +
                          "end" )
+        # Create extra *_low and *_high getters for attributes representing a range
+        if @formathash[elem][0] =~ /range/
+          instance_eval( "def #{@formathash[elem][0]}_low() " +
+                         "get_pair(#{@formathash[elem][0]}(),0) " +
+                         "end" )
+          instance_eval( "def #{@formathash[elem][0]}_high() " +
+                         "get_pair(#{@formathash[elem][0]}(),1) " +
+                         "end" )
+        end
       }
 
       parse( valarray ) if valarray
@@ -259,6 +268,10 @@ module YahooFinance
       # Not sure this is the best way to do this, but OK for now.
       return self.name != self.symbol if self.name
       false
+    end
+
+    def [](key)
+      send(key)
     end
 
     def get_info()
@@ -291,14 +304,32 @@ module YahooFinance
       end
     end
 
+    def convert_f ( value )
+      value
+    end
+
+    def get_pair( value, index )
+      debugger
+      value.split(value, '-')[index].strip
+    end
+
     def convert( value )
       if ( value == "N/A" )
         return value
       elsif ( value =~ /.*\..*B/ )
+        puts "*************************** billion #{value}"
         return value
       else
         return value
       end
+    end
+
+    def opt_pair ( value )
+      value
+    end
+
+    def decimal ( value )
+      return value
     end
 
     def dbdate ( value )
@@ -306,18 +337,6 @@ module YahooFinance
     end
 
     def dbtime ( value )
-      value
-    end
-
-    def val_percent ( value )
-      value
-    end
-
-    def time ( value )
-      time
-    end
-
-    def val_with_time ( value )
       value
     end
 

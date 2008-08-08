@@ -21,15 +21,43 @@
 #
 # See the "GNU General Public License" for more detail.
 #
-require 'rubygems'
 require 'net/http'
-require 'faster_csv'
-require 'date'
 require 'optparse'
 require 'ostruct'
 
+require 'rubygems'
 require 'pp'
+require 'date'
+require 'faster_csv'
 require 'ruby-debug'
+
+class String
+
+  NA = 'N/A'
+
+  def to_time
+    self
+  end
+
+  def to_date
+    self
+  end
+
+  def to_f_with_check_for_na
+    self == NA ? self : to_f_without_check_for_na
+  end
+
+  def to_i_with_check_for_na
+    self == NA ? self :  to_i_without_check_for_na
+  end
+
+  alias_method :to_f_without_check_for_na, :to_f
+  alias_method :to_f, :to_f_with_check_for_na
+  alias_method :to_i_without_check_for_na, :to_i
+  alias_method :to_i, :to_i_with_check_for_na
+
+end
+
 
 # Was using this to test a theory about why requests would hang
 # randomly, but since upgrading to ruby 1.8.4, I haven't had many
@@ -61,8 +89,8 @@ module YahooFinance
     "s" => [ "symbol", "val" ],
     "n" => [ "name", "val" ],
     "l1" => [ "last_trade", "val.to_f" ],
-    "d1" => [ "last_trade_date", "dbdate(val)" ],
-    "t1" => [ "last_trade_time", "dbtime(val)" ],
+    "d1" => [ "last_trade_date", "val.to_date" ],
+    "t1" => [ "last_trade_time", "val.to_time" ],
     "c1" => [ "change_points", "val.to_f" ],
     "p2" => [ "change_percent", "val.to_f" ],
     "p" => [ "previous_close", "val.to_f" ],
@@ -70,8 +98,8 @@ module YahooFinance
     "h" => [ "day_high", "val.to_f" ],
     "g" => [ "day_low", "val.to_f" ],
     "v" => [ "volume", "val.to_i" ],
-    "m" => [ "day_range", "range(val)" ],
-    "t7" => [ "tickertrend", "trend(val)" ],
+    "m" => [ "day_range", "val" ],
+    "t7" => [ "tickertrend", "val" ],
     "a2" => [ "avg_volumn", "val.to_i" ],
     "b" => [ "bid", "val.to_f" ],
     "a" => [ "ask", "val.to_f" ],
@@ -85,19 +113,19 @@ module YahooFinance
   EXTENDEDHASH = {
     "s" => [ "symbol", "val" ],
     "n" => [ "name", "val" ],
-    "w" => [ "weeks52_range", "range(val)" ],
+    "w" => [ "weeks52_range", "val" ],
     "j5" => [ "weeks52_change_from_low", "val.to_f" ],
-    "j6" => [ "weeks52_change_percent_from_low", "percent(val)" ],
+    "j6" => [ "weeks52_change_percent_from_low", "val.to_f" ],
     "k4" => [ "weeks52_change_from_high", "val.to_f" ],
-    "k5" => [ "weeks52_change_percent_from_high", "percent(val)" ],
+    "k5" => [ "weeks52_change_percent_from_high", "val.to_f" ],
     "e" => [ "eps", "val.to_f" ],
     "r" => [ "pe_ratio", "val.to_f" ],
     "s7" => [ "short_ratio", "val.to_f" ],
-    "r1" => [ "dividend_paydate", "dbdate(val)" ],
-    "q" => [ "ex_dividend_date", "dbdate(val)" ],
-    "d" => [ "dividend_per_share", "convert_f(val)" ],
-    "y" => [ "dividend_yield", "convert_f(val)" ],
-    "j1" => [ "market_cap", "decimal(val)" ],
+    "r1" => [ "dividend_paydate", "val.to_date" ],
+    "q" => [ "ex_dividend_date", "val.to_date" ],
+    "d" => [ "dividend_per_share", "val.to_f" ],
+    "y" => [ "dividend_yield", "val.to_f" ],
+    "j1" => [ "market_cap", "convert(val)" ],
     "t8" => [ "oneyear_target_price", "val.to_f" ],
     "e7" => [ "eps_estimate_current_year", "val.to_f" ],
     "e8" => [ "eps_estimate_next_year", "val.to_f" ],
@@ -108,13 +136,13 @@ module YahooFinance
     "b4" => [ "book_value", "val.to_f" ],
     "p6" => [ "price_perbook", "val.to_f" ],
     "p5" => [ "price_persales", "val.to_f" ],
-    "j4" => [ "ebitda", "decimal(val)" ],
+    "j4" => [ "ebitda", "convert(val)" ],
     "m3" => [ "moving_ave_50_days", "val.to_f" ],
     "m7" => [ "moving_ave_50_days_change_from", "val.to_f" ],
-    "m8" => [ "moving_ave_50_days_change_percent_from", "percent(val)" ],
+    "m8" => [ "moving_ave_50_days_change_percent_from", "val.to_f" ],
     "m4" => [ "moving_ave_200_days", "val.to_f" ],
     "m5" => [ "moving_ave_200_days_change_from", "val.to_f" ],
-    "m6" => [ "moving_ave_200_days_change_percent_from", "percent(val)" ],
+    "m6" => [ "moving_ave_200_days_change_percent_from", "val.to_f" ],
     "x" => [ "stock_exchange", "val" ]
 #   "w1" => [ "day_value_change", "val" ],
 # This returns an integer like "1,000,000".
@@ -130,7 +158,7 @@ module YahooFinance
     "b3" => [ "bid", "val.to_f" ],
     "k2" => [ "change", "opt_pair(val)" ],
     "l1" => [ "last_trade", "val.to_f" ],
-    "t1" => [ "last_trade_time", "dbtime(val)" ],
+    "t1" => [ "last_trade_time", "val.to_time" ],
     "c6" => [ "change_points", "val.to_f" ],
 #    "m2" => [ "dayRange", "val" ],
 #      "v7" => [ "holdingsValue", "val" ],
@@ -280,7 +308,6 @@ module YahooFinance
 
     def to_s()
       ret = String.new
-      ret << self.class.name << "\n"
       @formathash.each_value { |val|
         ret << "#{val[0]} = "
         ret << send( val[0] ).to_s unless send( val[0] ) == nil
@@ -304,12 +331,7 @@ module YahooFinance
       end
     end
 
-    def convert_f ( value )
-      value
-    end
-
     def get_pair( value, index )
-      debugger
       value.split(value, '-')[index].strip
     end
 
@@ -317,7 +339,6 @@ module YahooFinance
       if ( value == "N/A" )
         return value
       elsif ( value =~ /.*\..*B/ )
-        puts "*************************** billion #{value}"
         return value
       else
         return value
@@ -325,30 +346,6 @@ module YahooFinance
     end
 
     def opt_pair ( value )
-      value
-    end
-
-    def decimal ( value )
-      return value
-    end
-
-    def dbdate ( value )
-      value
-    end
-
-    def dbtime ( value )
-      value
-    end
-
-    def percent ( value )
-      value
-    end
-
-    def range ( value )
-      value
-    end
-
-    def trend ( value )
       value
     end
 

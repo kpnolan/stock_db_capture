@@ -4,7 +4,7 @@ class CreateListings < ActiveRecord::Migration
 
   def self.up
     create_table :listings do |t|
-      TradingDBLoader.create_table_from_fields(t, 'x')
+      TradingDBLoader.create_table_from_fields(t, :listings, 'x')
     end
   end
 

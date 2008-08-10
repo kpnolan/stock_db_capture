@@ -33,8 +33,6 @@ require 'ruby-debug'
 
 class String
 
-  NA = 'N/A'
-
   def to_time
     self
   end
@@ -44,11 +42,11 @@ class String
   end
 
   def to_f_with_check_for_na
-    self == NA ? self : to_f_without_check_for_na
+    self == 'N/A' ? self : to_f_without_check_for_na
   end
 
   def to_i_with_check_for_na
-    self == NA ? self :  to_i_without_check_for_na
+    self == 'N/A' ? self :  to_i_without_check_for_na
   end
 
   alias_method :to_f_without_check_for_na, :to_f
@@ -87,7 +85,7 @@ module YahooFinance
 
   STDHASH = {
     "s" => [ "symbol", "val" ],
-    "n" => [ "name", "val" ],
+#    "n" => [ "name", "val" ],
     "l1" => [ "last_trade", "val.to_f" ],
     "d1" => [ "last_trade_date", "val.to_date" ],
     "t1" => [ "last_trade_time", "val.to_time" ],
@@ -103,6 +101,7 @@ module YahooFinance
     "a2" => [ "avg_volumn", "val.to_i" ],
     "b" => [ "bid", "val.to_f" ],
     "a" => [ "ask", "val.to_f" ],
+    "x" => [ "stock_exchange", "val" ]
 # These return integers like "1,000".  The CVS parser gets confused by this
 # so I've removed them for the time being.
 #    "b6" => [ "bidSize", "val" ],
@@ -153,7 +152,7 @@ module YahooFinance
 
   REALTIMEHASH = {
     "s" => [ "symbol", "val" ],
-    "n" => [ "name" , "val" ],
+#    "n" => [ "name" , "val" ],
     "b2" => [ "ask", "val.to_f" ],
     "b3" => [ "bid", "val.to_f" ],
     "k2" => [ "change", "opt_pair(val)" ],
@@ -245,7 +244,7 @@ module YahooFinance
   def YahooFinance.get_standard_quotes( symbols )
     csvquotes = YahooFinance::get( symbols, STDHASH.keys.join )
     ret = Hash.new
-    begin
+#    begin
       FasterCSV.parse( csvquotes ) do |row|
         qt = StandardQuote.new( row )
         if block_given?
@@ -253,14 +252,16 @@ module YahooFinance
         end
         ret[qt.symbol] = qt
       end
-    rescue => e
-      puts e.message
-      puts row
-    end
+#    rescue => e
+#      puts e.message
+#    end
     ret
   end
 
   class BaseQuote
+
+    attr_accessor :nil_count, :field_count
+
     def initialize( hash, valarray=nil )
       @formathash = hash
       @formathash.each_key { |elem|
@@ -282,7 +283,8 @@ module YahooFinance
                          "end" )
         end
       }
-
+      self.nil_count = 0
+      self.field_count = hash.length
       parse( valarray ) if valarray
 
     end
@@ -294,8 +296,7 @@ module YahooFinance
 
     def valid?()
       # Not sure this is the best way to do this, but OK for now.
-      return self.name != self.symbol if self.name
-      false
+      raise 'This will never return a correct answer'
     end
 
     def [](key)
@@ -324,6 +325,7 @@ module YahooFinance
         results.each { |elem|
           # Call the setter method for this element.
           send "#{@formathash[@formathash.keys[ctr]][0]}=", elem
+          self.nil_count += 1 if elem == 'N/A'
           ctr += 1
         }
       rescue
@@ -443,20 +445,30 @@ module YahooFinance
 
   end
 
-  def YahooFinance.retrieve_raw_historical_quotes( symbol, startDate, endDate )
-
+  def YahooFinance.retrieve_raw_historical_quotes( symbol, startDate, endDate, qtype = 'd' )
+#http://ichart.yahoo.com/table.csv?s=IBM&a=11&b=31&c=2007&d=06&e=28&f=2008&g=w&ignore=.csv
     # Don't try to download anything if the starting date is before
     # the end date.
     return [] if startDate > endDate
+
+    if qtype == 'd'
+      host = "itable.finance.yahoo.com"
+    else
+      host = "ichart.yahoo.com"
+      # if we're doing weekly aggregations, run the start and the end date back to the previous
+      # Monday. Yahoo get's confused when it's not on a Monday.
+      delta = startDate.wday >= 1 ? -startDate.wday+1 : -6
+      startDate += delta
+      endDate += delta
+    end
 
     proxy = ENV['http_proxy'] ? URI.parse( ENV['http_proxy'] ) : OpenStruct.new
     Net::HTTP::Proxy( proxy.host,
                       proxy.port,
                       proxy.user,
-                      proxy.password ).start( "itable.finance.yahoo.com",
-                                                          80 ) { |http|
+                      proxy.password ).start(host, 80 ) { |http|
       #Net::HTTP.start( "itable.finance.yahoo.com", 80 ) { |http|
-      query = "/table.csv?s=#{symbol}&g=d" +
+      query = "/table.csv?s=#{symbol}&g=#{qtype}" +
         "&a=#{startDate.month-1}&b=#{startDate.mday}&c=#{startDate.year}" +
         "&d=#{endDate.month-1}&e=#{endDate.mday}&f=#{endDate.year.to_s}"
       #puts "#{query}"
@@ -478,7 +490,7 @@ module YahooFinance
     }
   end
 
-  def YahooFinance.get_historical_quotes( symbol, startDate, endDate )
+  def YahooFinance.get_historical_quotes( symbol, startDate, endDate, qtype = 'd' )
     rows = []
     rowct = 0
     gotchunk = false
@@ -493,7 +505,7 @@ module YahooFinance
     begin
       gotchunk = false
       r = YahooFinance.retrieve_raw_historical_quotes( symbol,
-                                                       startDate, endDate )
+                                                       startDate, endDate, qtype )
       if block_given?
         # If we were given a block, yield to it for every row of data
         # downloaded.
@@ -522,15 +534,15 @@ module YahooFinance
 
   end
 
-  def YahooFinance.get_historical_quotes_days( symbol, days, &block )
+  def YahooFinance.get_historical_quotes_days( symbol, days, qtype, &block )
     endDate = Date.today()
     startDate = Date.today() - days
-    YahooFinance.get_historical_quotes( symbol, startDate, endDate, &block )
+    YahooFinance.get_historical_quotes( symbol, startDate, endDate, qtype, &block )
   end
 
-  def YahooFinance.get_HistoricalQuotes( symbol, startDate, endDate )
+  def YahooFinance.get_HistoricalQuotes( symbol, startDate, endDate, qtype )
     ret = []
-    YahooFinance.get_historical_quotes( symbol, startDate, endDate ) { |row|
+    YahooFinance.get_historical_quotes( symbol, startDate, endDate, qtype ) { |row|
       if block_given?
         yield HistoricalQuote.new( symbol, row )
       else
@@ -544,10 +556,10 @@ module YahooFinance
     end
   end
 
-  def YahooFinance.get_HistoricalQuotes_days( symbol, days, &block )
+  def YahooFinance.get_HistoricalQuotes_days( symbol, days, qtype, &block )
     endDate = Date.today()
     startDate = Date.today() - days
-    YahooFinance.get_HistoricalQuotes( symbol, startDate, endDate, &block )
+    YahooFinance.get_HistoricalQuotes( symbol, startDate, endDate, qtype, &block )
   end
 
 end
@@ -580,8 +592,13 @@ if $0 == __FILE__
         opts.on( "-r", "Retrieve real-time quotes." ) {
           options.quote_class = YahooFinance::RealTimeQuote
         }
-        opts.on( '-z', "Retrieve historical quotes." ) {
+        opts.on( '-z', "Retrieve daily historical quotes." ) {
           options.quote_class = nil
+          options.historical_type = 'd'
+        }
+        opts.on( '-w', "Retrieve weekly historical quotes." ) {
+          options.quote_class = nil
+          options.historical_type = 'w'
         }
         opts.on( "-d", "--days N", Integer, "Number of days of historical " +
                  "quotes to retrieve. Default is 90." ) { |days|
@@ -621,6 +638,7 @@ if $0 == __FILE__
   $options.symbol = nil
   $options.quote_class = YahooFinance::StandardQuote
   $options.historical_days = 90
+  $options.historical_type
 
   CLIOpts.parse( ARGV, $options )
   puts "Retrieving quotes for: #{$options.symbol}"
@@ -634,7 +652,8 @@ if $0 == __FILE__
   else
     $options.symbol.split( ',' ).each do |s|
       YahooFinance::get_historical_quotes_days( s,
-                                                $options.historical_days ) do
+                                                $options.historical_days,
+                                                $options.historical_type ) do
         |row|
         puts "#{s},#{row.join(',')}"
       end

@@ -1,0 +1,1 @@
+select symbol from tickers

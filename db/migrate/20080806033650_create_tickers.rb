@@ -1,5 +1,3 @@
-require 'populate_db'
-
 class CreateTickers < ActiveRecord::Migration
   def self.up
      create_table :tickers do |t|

@@ -1,0 +1,14 @@
+#!/usr/bin/env /home/kevin/stock_db_capture/script/runner
+
+require "#{RAILS_ROOT}/lib/populate_db.rb"
+
+if ARGV.first =~ /-(x|s|r)/
+  TradingDBLoader.new(ARGV.first.last, :source => 'config/tickers.csv').load
+elsif ARGV.first == '-w'
+  TradingDBLoader.new(ARGV.first.last, :source => 'config/tickers.csv',
+                                       :start_date => (Date.today-2.year),
+                                       :end_date => Date.today).load
+else
+  p 'usage: loaddb -[xszrw]'
+end
+

@@ -2,43 +2,54 @@ require 'rubygems'
 require 'yahoofinance'
 require 'pp'
 require 'ruby-debug'
+require 'yaml'
 
+# TODO use extend protocol
 class String
 
-  NA = 'N/A'
-
   def to_time
-    self == NA ? nil : DateTime.parse(self)
+    self == 'N/A' ? nil : DateTime.parse(self)
   end
 
   def to_date
-    self == NA ? nil : Date.parse(self)
+    self == 'N/A' ? nil : Date.parse(self)
   end
 
-  def to_f
-    self == NA ? nil : BigDecimal.new(self)
+  def to_i_with_check_for_na
+    self == 'N/A' ? nil :  to_i_without_check_for_na
   end
 
-   def to_i_with_check_for_na
-     self == NA ? nil :  to_i_without_check_for_na
-   end
+  def to_f_with_check_for_na
+    self == 'N/A' ? nil :  to_f_without_check_for_na
+  end
 
-  alias_method_chain :to_i, :check_for_na unless method_defined?(:to_i_without_check_for_na)
+   alias_method :to_i_without_check_for_na, :to_i unless method_defined?(:to_i_without_check_for_na)
+   alias_method :to_i, :to_i_with_check_for_na
+
+   alias_method :to_f_without_check_for_na, :to_f unless method_defined?(:to_f_without_check_for_na)
+   alias_method :to_f, :to_f_with_check_for_na
 
 end
 
+ # TOTO use extend protocol
 module YahooFinance
   class BaseQuote
 
     NA = 'N/A'
 
+    # it's a hueristic, but it seems reasonable
+    def valid?
+      #puts "#{self.symbol} #{nil_count} #{field_count}" unless nil_count < field_count / 2
+      nil_count < field_count / 2
+    end
+
     def opt_pair ( value )
-      percent(value.split(value, '-').last.strip)
+      value.split('-').last.strip
     end
 
     def convert ( value )
       case value
-        when NA                         : nil
+        when 'N/A'                      : nil
         when /[0-9]+\.?[0-9]*(M|B)/     : value.last == 'M' ? value.to_f * 10**6 : value.to_f * 10**9
         else                              value.to_f
       end
@@ -46,13 +57,13 @@ module YahooFinance
 
     def get_pair( value, index )
       val = value.split('-')[index].strip
-      val == NA ? nil : value.to_f
+      val == 'N/A' ? nil : value.to_f
     end
   end
 end
 
 def critical_section(&block)
-  File.open('LOCK', File::RDWR|File::CREAT) do |f|
+  Tempfile.new("LOCK") do |f|
     f.flock(File::LOCK_EX)
     yield
   end
@@ -69,88 +80,157 @@ class TradingDBLoader
     :host => 'localhost'
   }
 
-  attr_accessor :exchange, :ticker, :listing, :live_statistics, :realtime_statistics, :history
-  attr_accessor :child_count, :ticker_file, :ticker_array
+  attr_accessor :child_count, :source , :ticker_array, :query_type, :query_protocol
+  attr_accessor :aggregate, :target_model, :start_date, :end_date
 
-  def initialize(opts = {})
-    opts.reverse_merge! :ticker_file => "config/tickers.csv"
+  def initialize(query_type, opts = {})
+    opts.reverse_merge! :source => :database
     opts.reverse_merge! :child_count => ENV['CHILD_COUNT'].to_i unless ENV['CHILD_COUNT'].nil?
-    opts.reverse_merge! :child_count => 1, :ticker_file => "config/tickers.csv"
+    opts.reverse_merge! :child_count => 0
+
+    self.query_type = query_type
+    self.query_protocol, self.target_model = get_query_params(query_type)
 
     opts.each_pair do |k, v|
       send("#{k}=", v)
     end
 
-    File.open("#{RAILS_ROOT}/#{ticker_file}", 'r') do |f|
-      self.ticker_array = f.readlines
+    if query_type == 'w' || query_type == 'z'
+      raise ArgumentError, 'start and end date must be specified' if start_date.nil? || end_date.nil?
     end
-    self.ticker_array = ticker_array
-  end
 
-  def load(table_type)
-    start = 0
-    child_count.times do |idx|
-      chuck_size = ticker_array.length / child_count
-      pid = Process.fork do
-        critical_section {  puts "Child #{idx} starting..." }
-        dispatch_to_loader(table_type, ticker_array[start, chuck_size])
-        critical_section { puts "Child #{idx} finished..." }
+    if opts[:source] == :database
+      self.ticker_array = Ticker.symbols
+    else
+      File.open("#{RAILS_ROOT}/#{source}", 'r') do |f|
+        self.ticker_array = f.readlines.collect! { |s| s.chomp }
       end
-      start += chuck_size
-    end
-    dispatch_to_loader(table_type, ticker_array[start, ticker_array.length - start])
-    Process.waitall
-  end
-
-  def dispatch_to_loader(table_type, tickers)
-    case table_type
-    when 's' : add_live_statistics(tickers)
-    when 'x' : add_listings(tickers)
-    when 'r' : add_realtime_statistics(tickers)
-    when 's' : add_history(tickers)
     end
   end
 
-  def add_listings(tickers)
-    xchg = nil
-    tickers.each do |ticker|
-      YahooFinance::get_quotes( YahooFinance::ExtendedQuote, ticker.chomp ) do |qt|
-        if qt.valid?
-          critical_section do
-            create_listing(qt)
-            puts "#{Process.pid}: Created #{ticker}"
+  def load()
+    start = 0
+    target_model.benchmark("Loading #{target_model}s with #{child_count} processes") do
+      target_model.silence do
+        child_count.times do |idx|
+          chuck_size = ticker_array.length / child_count
+          pid = Process.fork do
+            critical_section {  puts "Child #{idx} starting..." }
+            dispatch_to_loader(ticker_array[start, chuck_size])
+            critical_section { puts "Child #{idx} finished..." }
           end
-        else
-          critical_section { puts "                                       Uknown #{ticker}" }
+          start += chuck_size
+        end
+        dispatch_to_loader(ticker_array[start, ticker_array.length - start])
+        Process.waitall
+      end
+    end
+  end
+
+  def get_query_params(query_type)
+    case query_type
+    when 's' : [ YahooFinance::StandardQuote, DailyReturn ]
+    when 'x' : [ YahooFinance::ExtendedQuote, Listing ]
+    when 'r' : [ YahooFinance::RealTimeQuote, RealTimeQuote ]
+    when 'z' : [ YahooFinance::HistoricalQuote, DailyClose ]
+    when 'w' : [ YahooFinance::HistoricalQuote, Aggregation ]
+    else       raise ArgumentError, "Uknown Query Type: #{query_type}"
+    end
+  end
+
+  def establish_connection
+    env == ENV['RAILS_ENV'].nil? ? 'development' : ENV['RAILS_ENV']
+    hash = YAML.load_file("#{RAILS_ROOT}/config/database.yml")[env]
+    ActiveRecord::Base.establish_connection(hash)
+  end
+
+  def dispatch_to_loader(tickers)
+    if %w{ s x r }.include?(query_type)
+      load_quotes(tickers)
+    elsif query_type == 'z' || query_type == 'w'
+      load_historical_quotes(tickers)
+    else
+      raise "Unknown query type: #{query_type}"
+    end
+  end
+
+  def load_quotes(tickers)
+    ActiveRecord::Base.silence do
+      tickers.each do |ticker|
+        YahooFinance::get_quotes(query_protocol, ticker.chomp) do |qt|
+          if qt.valid?
+            create_quote_row(target_model, qt)
+          else
+            puts "Unnown symbol: #{ticker}"
+          end
+        end
+      end
+    end
+  end
+
+  def load_historical_quotes(tickers)
+    ActiveRecord::Base.silence do
+      tickers.each do |ticker|
+        YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type).each do |row|
+          create_history_row(ticker, row)
         end
       end
     end
   end
 
   def find_or_create_exchange(symbol)
-    (e = exchange.first(:conditions => {:symbol => symbol})) ? e : exchange.create(:symbol => symbol)
+    e = Exchange.first(:conditions => {:symbol => symbol})
+    e ||= Exchange.create(:symbol => symbol, :country => 'USA', :currency => 'USD')
   end
 
   def find_or_create_ticker(ename, tname)
     e = find_or_create_exchange(ename)
-    (t = ticker.first(:conditions => { :symbol => tname })) ? t : ticker.create(:exchange_id => e.id, :symbol => tname)
+    t = Ticker.first(:conditions => { :symbol => tname })
+    t ||= Ticker.create(:exchange_id => e.id, :symbol => tname)
   end
 
-  def create_listing(qt)
-    attributes = TradingDBLoader.get_attributes('x')
-    if qt.valid?
-      begin
+  def create_quote_row(model, qt)
+    attributes = TradingDBLoader.get_attributes(query_type)
+    begin
+      if source == :database
+        ticker = Ticker.first(:conditions => { :symbol => qt.symbol })
+      else
         ticker = find_or_create_ticker(qt.stock_exchange, qt.symbol)
-        listing.new do |l|
-          l.ticker_id = ticker.id
-          attributes.each { |attr| l[attr] = qt[attr] }
-        end.save!
-      rescue ActiveRecord::StatementInvalid => e
-        if e.to_s =~ /away/
-          ActiveRecord::Base.establish_connection and retry
-        else
-          raise e
-        end
+      end
+      model.new do |ar|
+        ar.ticker_id = ticker.id
+        attributes.each { |attr| ar[attr] = qt[attr] }
+      end.save!
+    rescue ActiveRecord::StatementInvalid => e
+      if e.to_s =~ /away/
+        establish_connection and retry
+      else
+        puts " ActiveRecord::Base exception #{e.message}"
+        retry
+      end
+    end
+  end
+  #http://ichart.yahoo.com/table.csv?s=IBM&a=11&b=31&c=2007&d=06&e=30&f=2008&g=w&ignore=.csv
+  #http://ichart.yahoo.com/table.csv?s=IBM&a=00&b=1&c=2008&d=06&e=30&f=2008&g=w&ignore=.csv
+  def create_history_row(symbol, row)
+    attrs = [ :date, :open, :high, :low, :close, :volume, :adj_close]
+    model = query_type == 'z' ? DailyClose : Aggregation
+
+    begin
+      ticker = Ticker.first(:conditions => { :symbol => symbol })
+      model.new do |ar|
+        attrs.each {  |attr| ar[attr] = row.shift }
+        ar.ticker_id = ticker.id
+        ar.month = ar.date.month
+        ar.week = ar.date.cweek
+        ar.sample_count = 7 if model == Aggregation
+      end.save!
+    rescue ActiveRecord::StatementInvalid => e
+      if e.to_s =~ /away/
+        establish_connection and retry
+      else
+        puts " ActiveRecord::Base exception #{e.message}"
+        retry
       end
     end
   end
@@ -171,7 +251,7 @@ class TradingDBLoader
     end.compact.flatten
   end
 
-  def self.create_table_from_fields(table, type)
+  def self.create_table_from_fields(table, tname, type)
     hash = case type
            when 's' : YahooFinance::STDHASH
            when 'x' : YahooFinance::EXTENDEDHASH
@@ -198,11 +278,11 @@ class TradingDBLoader
   def self.map_column_type(name, method)
     case
     when name == 'symbol'               : [ :integer, { } ]
-    when name == 'market_cap'           : [ :decimal, { :precision => 10,  :scale => 2 } ]
-    when name == 'ebitda'               : [ :decimal, { :precision => 10,  :scale => 2 } ]
+    when name == 'market_cap'           : [ :float, { } ]
+    when name == 'ebitda'               : [ :float, { } ]
     when name =~ /trend/                : [ :string, { :limit => 7 } ]
-    when name =~ /range/                : [ :decimal, { :precision => 8,  :scale => 2 } ]
-    when method =~ /to_f/               : [ :decimal, { :precision => 8,  :scale => 2 } ]
+    when name =~ /range/                : [ :float, { } ]
+    when method =~ /to_f/               : [ :float, { } ]
     when method =~ /to_i/               : [ :integer, { } ]
     when method =~ /to_bd/              : [ :decimal, { :precision => 10,  :scale => 2 } ]
     when method =~ /to_date/            : [ :date, { } ]
@@ -211,9 +291,5 @@ class TradingDBLoader
     when method =~ /^val$/              : [ :string, { } ]
     else raise "Uknown column type #{method}"
     end
-
   end
-
-  private
-
 end

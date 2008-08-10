@@ -1,0 +1,19 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  ticker_id: 
+  open: 
+  close: 
+  high: 
+  low: 
+  volume: 
+  adj_close: 1.5
+
+two:
+  ticker_id: 
+  open: 
+  close: 
+  high: 
+  low: 
+  volume: 
+  adj_close: 1.5

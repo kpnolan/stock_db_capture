@@ -133,7 +133,7 @@ class TradingDBLoader
     when 'x' : [ YahooFinance::ExtendedQuote, Listing ]
     when 'r' : [ YahooFinance::RealTimeQuote, RealTimeQuote ]
     when 'z' : [ YahooFinance::HistoricalQuote, DailyClose ]
-    when 'w' : [ YahooFinance::HistoricalQuote, Aggregation ]
+    when 'w','W' : [ YahooFinance::HistoricalQuote, Aggregation ]
     else       raise ArgumentError, "Uknown Query Type: #{query_type}"
     end
   end
@@ -149,6 +149,8 @@ class TradingDBLoader
       load_quotes(tickers)
     elsif query_type == 'z' || query_type == 'w'
       load_historical_quotes(tickers)
+    elsif query_type == 'W'
+      update_historical_quotes(tickers)
     else
       raise "Unknown query type: #{query_type}"
     end
@@ -173,6 +175,21 @@ class TradingDBLoader
       tickers.each do |ticker|
         YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type).each do |row|
           create_history_row(ticker, row)
+        end
+      end
+    end
+  end
+
+  def update_historical_quotes(tickers)
+    ActiveRecord::Base.silence do
+      tickers.each do |ticker|
+        t = Ticker.find_by_symbol(ticker)
+        puts "unknown ticker: #{ticker}" if t.nil?
+        if t && t.aggregations.empty?
+          puts "getting aggregations for #{t.symbol}"
+          YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type).each do |row|
+            create_history_row(ticker, row)
+          end
         end
       end
     end

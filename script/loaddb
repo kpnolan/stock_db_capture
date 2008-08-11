@@ -4,8 +4,8 @@ require "#{RAILS_ROOT}/lib/populate_db.rb"
 
 if ARGV.first =~ /-(x|s|r)/
   TradingDBLoader.new(ARGV.first.last, :source => 'config/tickers.csv').load
-elsif ARGV.first == '-w'
-  TradingDBLoader.new(ARGV.first.last, :source => 'test.csv',
+elsif ARGV.first =~ /-(w|W)/
+  TradingDBLoader.new(ARGV.first.last, :source => 'config/tickers.csv',
                                        :start_date => (Date.today-2.year),
                                        :end_date => Date.today).load
 elsif ARGV.first == '-Z'

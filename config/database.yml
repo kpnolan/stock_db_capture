@@ -4,9 +4,9 @@ development:
   adapter: mysql
   database: active_trader_development
   encoding: utf8
-  username: root
-  password:
-  host: localhost
+  username: kevin
+  password: Troika3.
+  host: amd64
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".

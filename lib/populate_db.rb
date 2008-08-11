@@ -81,7 +81,7 @@ class TradingDBLoader
   }
 
   attr_accessor :child_count, :source , :ticker_array, :query_type, :query_protocol
-  attr_accessor :aggregate, :target_model, :start_date, :end_date
+  attr_accessor :aggregate, :target_model, :start_date, :end_date, :child_index
 
   def initialize(query_type, opts = {})
     opts.reverse_merge! :source => :database
@@ -113,8 +113,10 @@ class TradingDBLoader
     target_model.benchmark("Loading #{target_model}s with #{child_count} processes") do
       target_model.silence do
         child_count.times do |idx|
+          self.child_index = idx
           chuck_size = ticker_array.length / child_count
           pid = Process.fork do
+
             critical_section {  puts "Child #{idx} starting..." }
             dispatch_to_loader(ticker_array[start, chuck_size])
             critical_section { puts "Child #{idx} finished..." }
@@ -186,7 +188,7 @@ class TradingDBLoader
         t = Ticker.find_by_symbol(ticker)
         puts "unknown ticker: #{ticker}" if t.nil?
         if t && t.aggregations.empty?
-          puts "getting aggregations for #{t.symbol}"
+          puts "[#{child_index}] getting aggregations for #{t.symbol}"
           YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type).each do |row|
             create_history_row(ticker, row)
           end

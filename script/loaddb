@@ -15,7 +15,7 @@ elsif ARGV.first == '-z'
   ldr.load
 
 elsif ARGV.first == '-Z'
-  ldr = TradingDBLoader.new('z', :start_date => (Date.today-2.year),
+  ldr = TradingDBLoader.new('z', :start_date => (Date.today-3.month),
                                  :end_date => Date.today)
   ldr.load_historical_quotes(ARGV[1..10])
 else

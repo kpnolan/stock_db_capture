@@ -210,24 +210,7 @@ class TradingDBLoader
       tickers.each do |ticker|
         t = Ticker.find_by_symbol(ticker)
         puts "unknown ticker: #{ticker}" if t.nil?
-        if t && t.aggregations.empty?
-          print "[#{child_index}] fetching #{ticker}..."
-          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type.downcase)
-          puts "[#{child_index}] got #{rows.length} rows for #{t.symbol}"
-          rows.each do |row|
-            create_history_row(ticker, row)
-          end
-        end
-      end
-    end
-  end
-
-  def update_historical_quotes(tickers)
-    ActiveRecord::Base.silence do
-      tickers.each do |ticker|
-        t = Ticker.find_by_symbol(ticker)
-        puts "unknown ticker: #{ticker}" if t.nil?
-        if t && t.aggregations.empty?
+        unless t.nil?
           print "[#{child_index}] fetching #{ticker}..."
           rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type.downcase)
           puts "[#{child_index}] got #{rows.length} rows for #{t.symbol}"

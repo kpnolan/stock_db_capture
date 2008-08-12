@@ -123,6 +123,7 @@ class TradingDBLoader
           end
           start += chuck_size
         end
+        self.child_index = -1
         dispatch_to_loader(ticker_array[start, ticker_array.length - start])
         Process.waitall
       end
@@ -188,8 +189,10 @@ class TradingDBLoader
         t = Ticker.find_by_symbol(ticker)
         puts "unknown ticker: #{ticker}" if t.nil?
         if t && t.aggregations.empty?
-          puts "[#{child_index}] getting aggregations for #{t.symbol}"
-          YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type).each do |row|
+          print "[#{child_index}] fetching #{ticker}..."
+          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type)
+          puts "[#{child_index}] got #{rows.length} rows for #{t.symbol}"
+          rows.each do |row|
             create_history_row(ticker, row)
           end
         end

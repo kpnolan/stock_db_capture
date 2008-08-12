@@ -111,15 +111,16 @@ class TradingDBLoader
   def load()
     start = 0
     target_model.benchmark("Loading #{target_model}s with #{child_count} processes") do
+    puts "starting #{child_count} processes"
       target_model.silence do
         child_count.times do |idx|
           self.child_index = idx
           chuck_size = ticker_array.length / child_count
           pid = Process.fork do
 
-            critical_section {  puts "Child #{idx} starting..." }
+            puts "Child #{idx} starting..."
             dispatch_to_loader(ticker_array[start, chuck_size])
-            critical_section { puts "Child #{idx} finished..." }
+            puts "Child #{idx} finished..."
           end
           start += chuck_size
         end

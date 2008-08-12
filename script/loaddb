@@ -8,6 +8,12 @@ elsif ARGV.first =~ /-(w|W)/
   TradingDBLoader.new(ARGV.first.last, :source => 'config/tickers.csv',
                                        :start_date => (Date.today-2.year),
                                        :end_date => Date.today).load
+elsif ARGV.first == '-z'
+  ldr = TradingDBLoader.new('z', :start_date => (Date.today-3.month),
+                                 :end_date => Date.today,
+                                 :source => 'config/tickers.csv')
+  ldr.load
+
 elsif ARGV.first == '-Z'
   ldr = TradingDBLoader.new('z', :start_date => (Date.today-2.year),
                                  :end_date => Date.today)

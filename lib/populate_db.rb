@@ -130,6 +130,28 @@ class TradingDBLoader
     end
   end
 
+  def load_with_threads()
+    start = 0
+    target_model.benchmark("Loading #{target_model}s with #{child_count} processes") do
+    puts "starting #{child_count} processes"
+      target_model.silence do
+        child_count.times do |idx|
+          self.child_index = idx
+          chuck_size = ticker_array.length / child_count
+          pid = Process.fork do
+            puts "Child #{idx} starting..."
+            dispatch_to_loader(ticker_array[start, chuck_size])
+            puts "Child #{idx} finished..."
+          end
+          start += chuck_size
+        end
+        self.child_index = -1
+        dispatch_to_loader(ticker_array[start, ticker_array.length - start])
+        Process.waitall
+      end
+    end
+  end
+
   def get_query_params(query_type)
     case query_type
     when 's' : [ YahooFinance::StandardQuote, DailyReturn ]
@@ -190,7 +212,7 @@ class TradingDBLoader
         puts "unknown ticker: #{ticker}" if t.nil?
         if t && t.aggregations.empty?
           print "[#{child_index}] fetching #{ticker}..."
-          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, 'w')
+          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type.downcase)
           puts "[#{child_index}] got #{rows.length} rows for #{t.symbol}"
           rows.each do |row|
             create_history_row(ticker, row)
@@ -207,7 +229,7 @@ class TradingDBLoader
         puts "unknown ticker: #{ticker}" if t.nil?
         if t && t.aggregations.empty?
           print "[#{child_index}] fetching #{ticker}..."
-          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, 'w')
+          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type.downcase)
           puts "[#{child_index}] got #{rows.length} rows for #{t.symbol}"
           rows.each do |row|
             create_history_row(ticker, row)

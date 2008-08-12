@@ -190,7 +190,7 @@ class TradingDBLoader
         puts "unknown ticker: #{ticker}" if t.nil?
         if t && t.aggregations.empty?
           print "[#{child_index}] fetching #{ticker}..."
-          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type)
+          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, 'w')
           puts "[#{child_index}] got #{rows.length} rows for #{t.symbol}"
           rows.each do |row|
             create_history_row(ticker, row)

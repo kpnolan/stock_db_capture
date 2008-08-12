@@ -9,9 +9,9 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080809062913) do
+ActiveRecord::Schema.define(:version => 20080809063202) do
 
-  create_table "aggregated_closes", :force => true do |t|
+  create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false
     t.date     "date"
     t.float    "open"
@@ -68,6 +68,10 @@ ActiveRecord::Schema.define(:version => 20080809062913) do
     t.string "country"
     t.string "currency"
     t.string "timezone"
+  end
+
+  create_table "foo", :id => false, :force => true do |t|
+    t.integer "ticker_id", :null => false
   end
 
   create_table "listings", :force => true do |t|

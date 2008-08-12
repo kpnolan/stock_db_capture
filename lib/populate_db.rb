@@ -117,7 +117,6 @@ class TradingDBLoader
           self.child_index = idx
           chuck_size = ticker_array.length / child_count
           pid = Process.fork do
-
             puts "Child #{idx} starting..."
             dispatch_to_loader(ticker_array[start, chuck_size])
             puts "Child #{idx} finished..."
@@ -174,11 +173,28 @@ class TradingDBLoader
     end
   end
 
+#   def load_historical_quotes(tickers)
+#     ActiveRecord::Base.silence do
+#       tickers.each do |ticker|
+#         YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type).each do |row|
+#           create_history_row(ticker, row)
+#         end
+#       end
+#     end
+#   end
+
   def load_historical_quotes(tickers)
     ActiveRecord::Base.silence do
       tickers.each do |ticker|
-        YahooFinance::get_historical_quotes(ticker, start_date, end_date, query_type).each do |row|
-          create_history_row(ticker, row)
+        t = Ticker.find_by_symbol(ticker)
+        puts "unknown ticker: #{ticker}" if t.nil?
+        if t && t.aggregations.empty?
+          print "[#{child_index}] fetching #{ticker}..."
+          rows = YahooFinance::get_historical_quotes(ticker, start_date, end_date, 'w')
+          puts "[#{child_index}] got #{rows.length} rows for #{t.symbol}"
+          rows.each do |row|
+            create_history_row(ticker, row)
+          end
         end
       end
     end

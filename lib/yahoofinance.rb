@@ -446,7 +446,7 @@ module YahooFinance
   end
 
   def YahooFinance.retrieve_raw_historical_quotes( symbol, startDate, endDate, qtype = 'd' )
-#http://ichart.yahoo.com/table.csv?s=IBM&a=11&b=31&c=2007&d=06&e=28&f=2008&g=w&ignore=.csv
+    #http://ichart.yahoo.com/table.csv?s=IBM&a=11&b=31&c=2007&d=06&e=28&f=2008&g=w&ignore=.csv
     # Don't try to download anything if the starting date is before
     # the end date.
     return [] if startDate > endDate
@@ -463,31 +463,35 @@ module YahooFinance
     end
 
     proxy = ENV['http_proxy'] ? URI.parse( ENV['http_proxy'] ) : OpenStruct.new
-    Net::HTTP::Proxy( proxy.host,
-                      proxy.port,
-                      proxy.user,
-                      proxy.password ).start(host, 80 ) { |http|
-      #Net::HTTP.start( "itable.finance.yahoo.com", 80 ) { |http|
-      query = "/table.csv?s=#{symbol}&g=#{qtype}" +
+    begin
+      Net::HTTP::Proxy( proxy.host,
+                        proxy.port,
+                        proxy.user,
+                        proxy.password ).start(host, 80 ) { |http|
+        #Net::HTTP.start( "itable.finance.yahoo.com", 80 ) { |http|
+        query = "/table.csv?s=#{symbol}&g=#{qtype}" +
         "&a=#{startDate.month-1}&b=#{startDate.mday}&c=#{startDate.year}" +
         "&d=#{endDate.month-1}&e=#{endDate.mday}&f=#{endDate.year.to_s}"
-      #puts "#{query}"
-      response = http.get( query )
-      #puts "#{response.body}"
-      body = response.body.chomp
+        #puts "#{query}"
+        response = http.get( query )
+        #puts "#{response.body}"
+        body = response.body.chomp
 
-      # If we don't get the first line like this, there was something
-      # wrong with the data (404 error, new data formet, etc).
-      return [] if body !~ /Date,Open,High,Low,Close,Volume,Adj Close/
+        # If we don't get the first line like this, there was something
+        # wrong with the data (404 error, new data formet, etc).
+        return [] if body !~ /Date,Open,High,Low,Close,Volume,Adj Close/
 
-      # Parse into an array of arrays.
-      rows = FasterCSV.parse( body )
-      # Remove the first array since it is just the field headers.
-      rows.shift
-      #puts "#{rows.length}"
+        # Parse into an array of arrays.
+        rows = FasterCSV.parse( body )
+        # Remove the first array since it is just the field headers.
+        rows.shift
+        #puts "#{rows.length}"
 
-      return rows
-    }
+        return rows
+      }
+    end
+  rescue
+    retry
   end
 
   def YahooFinance.get_historical_quotes( symbol, startDate, endDate, qtype = 'd' )

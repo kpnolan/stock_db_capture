@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080812190631) do
+ActiveRecord::Schema.define(:version => 20080813192644) do
 
   create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false
@@ -74,6 +74,10 @@ ActiveRecord::Schema.define(:version => 20080812190631) do
     t.string "name"
   end
 
+  create_table "listing_categories", :force => true do |t|
+    t.string "name"
+  end
+
   create_table "listings", :force => true do |t|
     t.float   "moving_ave_50_days_change_percent_from"
     t.float   "weeks52_change_from_low"
@@ -110,6 +114,11 @@ ActiveRecord::Schema.define(:version => 20080812190631) do
     t.float   "weeks52_change_percent_from_high"
   end
 
+  create_table "memberships", :force => true do |t|
+    t.integer "ticker_id"
+    t.integer "listing_category_id"
+  end
+
   create_table "real_time_quotes", :force => true do |t|
     t.float    "last_trade"
     t.float    "ask"
@@ -118,6 +127,29 @@ ActiveRecord::Schema.define(:version => 20080812190631) do
     t.float    "change"
     t.float    "change_points"
     t.integer  "ticker_id"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "stat_values", :force => true do |t|
+    t.integer  "historical_attribute_id"
+    t.integer  "ticker_id"
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "sample_count"
+    t.float    "mean"
+    t.float    "min"
+    t.float    "max"
+    t.float    "stddev"
+    t.float    "absdev"
+    t.float    "skew"
+    t.float    "kurtosis"
+    t.float    "slope"
+    t.float    "yinter"
+    t.float    "cov00"
+    t.float    "cov01"
+    t.float    "cov11"
+    t.float    "chisq"
     t.datetime "created_at"
     t.datetime "updated_at"
   end

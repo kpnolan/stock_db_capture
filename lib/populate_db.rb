@@ -2,6 +2,7 @@ require 'rubygems'
 require 'yahoofinance'
 require 'pp'
 require 'ruby-debug'
+require 'faster_csv'
 require 'yaml'
 
 # TODO use extend protocol
@@ -276,6 +277,28 @@ class TradingDBLoader
         puts " ActiveRecord::Base exception #{e.message}"
         retry
       end
+    end
+  end
+
+  def self.load_memberships
+    sp500 = ListingCategory.find_by_name('Sp500')
+    FasterCSV.foreach("#{RAILS_ROOT}/db/data/sp500.csv") do |row|
+      symbol, name, segment = row
+      t = Ticker.find_by_symbol(symbol)
+      lc = ListingCategory.find_by_name(segment)
+      if t
+        Membership.create(:ticker_id => t.id, :listing_category_id => sp500.id)
+        if lc
+          Membership.create(:ticker_id => t.id, :listing_category_id => lc.id)
+        end
+      end
+    end
+  end
+
+  def self.load_listing_categories
+    FasterCSV.foreach("#{RAILS_ROOT}/db/data/listing_categories.csv") do |row|
+      name = row.first
+      ListingCategory.create(:name => name)
     end
   end
 

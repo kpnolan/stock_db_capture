@@ -254,12 +254,12 @@ class TradingDBLoader
       end
     end
   end
+
   #http://ichart.yahoo.com/table.csv?s=IBM&a=11&b=31&c=2007&d=06&e=30&f=2008&g=w&ignore=.csv
   #http://ichart.yahoo.com/table.csv?s=IBM&a=00&b=1&c=2008&d=06&e=30&f=2008&g=w&ignore=.csv
   def create_history_row(symbol, row)
     attrs = [ :date, :open, :high, :low, :close, :volume, :adj_close]
     model = query_type == 'z' ? DailyClose : Aggregation
-
     begin
       ticker = Ticker.first(:conditions => { :symbol => symbol })
       model.new do |ar|

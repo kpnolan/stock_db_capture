@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080809063202) do
+ActiveRecord::Schema.define(:version => 20080812190631) do
 
   create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false
@@ -70,8 +70,8 @@ ActiveRecord::Schema.define(:version => 20080809063202) do
     t.string "timezone"
   end
 
-  create_table "foo", :id => false, :force => true do |t|
-    t.integer "ticker_id", :null => false
+  create_table "historical_attributes", :force => true do |t|
+    t.string "name"
   end
 
   create_table "listings", :force => true do |t|
@@ -128,5 +128,15 @@ ActiveRecord::Schema.define(:version => 20080809063202) do
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
+
+  create_table "tracking_event_types", :force => true do |t|
+    t.string   "name",                 :null => false
+    t.string   "notification_address"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+    t.integer  "value",                :null => false
+    t.string   "abbrev",               :null => false
+    t.string   "select_name"
+  end
 
 end

@@ -1,0 +1,460 @@
+# Logfile created on Mon Aug 11 11:11:22 -0700 2008  [4;36;1mSQL (0.000106)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000065)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.001880)[0m   [0;1mSELECT * FROM `tickers` [0m
+  [4;35;1mTicker Columns (0.002713)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mSQL (0.006444)[0m   [0;1mSELECT symbol FROM tickers[0m
+  [4;36;1mSQL (0.000101)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000064)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.004402)[0m   [0;1mSELECT * FROM `tickers` [0m
+  [4;35;1mTicker Columns (0.002143)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mSQL (0.001503)[0m   [0;1mSELECT symbol FROM tickers[0m
+  [4;36;1mSQL (0.000106)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000064)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.001870)[0m   [0;1mSELECT * FROM `tickers` [0m
+  [4;35;1mTicker Columns (0.002171)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mSQL (0.001483)[0m   [0;1mSELECT symbol FROM tickers[0m
+  [4;36;1mSQL (0.000110)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000064)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.001858)[0m   [0;1mSELECT * FROM `tickers` [0m
+  [4;35;1mTicker Columns (0.002178)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mSQL (0.001467)[0m   [0;1mSELECT symbol FROM tickers[0m
+  [4;36;1mSQL (0.000351)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000300)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mSQL (0.000516)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mSQL (0.000560)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000351)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000369)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000328)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000333)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000333)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000332)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateExchanges (20080806033620)
+  [4;36;1mSQL (0.000337)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateTickers (20080806033650)
+  [4;35;1mSQL (0.000363)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateListings (20080806200116)
+  [4;36;1mSQL (0.000350)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateDailyReturns (20080808055338)
+  [4;35;1mSQL (0.000341)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateRealTimeQuotes (20080808182350)
+  [4;36;1mSQL (0.000348)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateDailyCloses (20080809060514)
+  [4;35;1mSQL (0.000346)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateAggregation (20080809063202)
+  [4;36;1mSQL (0.000348)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateHistoricalAttributes (20080812190631)
+  [4;35;1mSQL (0.000348)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.008537)[0m   [0;1mCREATE TABLE `historical_attributes` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `name` varchar(255)) ENGINE=InnoDB[0m
+  [4;35;1mHistoricalAttribute Columns (0.001005)[0m   [0mSHOW FIELDS FROM `historical_attributes`[0m
+  [4;36;1mSQL (0.000321)[0m   [0;1mBEGIN[0m
+  [4;35;1mHistoricalAttribute Create (0.000389)[0m   [0mINSERT INTO `historical_attributes` (`name`) VALUES('open')[0m
+  [4;36;1mSQL (0.000492)[0m   [0;1mCOMMIT[0m
+  [4;35;1mSQL (0.000279)[0m   [0mBEGIN[0m
+  [4;36;1mHistoricalAttribute Create (0.000348)[0m   [0;1mINSERT INTO `historical_attributes` (`name`) VALUES('close')[0m
+  [4;35;1mSQL (0.000460)[0m   [0mCOMMIT[0m
+  [4;36;1mSQL (0.000289)[0m   [0;1mBEGIN[0m
+  [4;35;1mHistoricalAttribute Create (0.000314)[0m   [0mINSERT INTO `historical_attributes` (`name`) VALUES('low')[0m
+  [4;36;1mSQL (0.000461)[0m   [0;1mCOMMIT[0m
+  [4;35;1mSQL (0.000307)[0m   [0mBEGIN[0m
+  [4;36;1mHistoricalAttribute Create (0.000314)[0m   [0;1mINSERT INTO `historical_attributes` (`name`) VALUES('high')[0m
+  [4;35;1mSQL (0.000461)[0m   [0mCOMMIT[0m
+  [4;36;1mSQL (0.000820)[0m   [0;1mBEGIN[0m
+  [4;35;1mHistoricalAttribute Create (0.000356)[0m   [0mINSERT INTO `historical_attributes` (`name`) VALUES('volume')[0m
+  [4;36;1mSQL (0.000465)[0m   [0;1mCOMMIT[0m
+  [4;35;1mSQL (0.000294)[0m   [0mBEGIN[0m
+  [4;36;1mHistoricalAttribute Create (0.000341)[0m   [0;1mINSERT INTO `historical_attributes` (`name`) VALUES('adjclose')[0m
+  [4;35;1mSQL (0.000435)[0m   [0mCOMMIT[0m
+  [4;36;1mSQL (0.000303)[0m   [0;1mBEGIN[0m
+  [4;35;1mHistoricalAttribute Create (0.000336)[0m   [0mINSERT INTO `historical_attributes` (`name`) VALUES('lhratio')[0m
+  [4;36;1mSQL (0.000450)[0m   [0;1mCOMMIT[0m
+  [4;35;1mSQL (0.000503)[0m   [0mINSERT INTO schema_migrations (version) VALUES ('20080812190631')[0m
+  [4;36;1mSQL (0.000455)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000495)[0m   [0mSHOW TABLES[0m
+  [4;36;1mSQL (0.001190)[0m   [0;1mSHOW FIELDS FROM `aggregations`[0m
+  [4;35;1mSQL (0.001108)[0m   [0mdescribe `aggregations`[0m
+  [4;36;1mSQL (0.001185)[0m   [0;1mSHOW KEYS FROM `aggregations`[0m
+  [4;35;1mSQL (0.001073)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+  [4;36;1mSQL (0.001001)[0m   [0;1mdescribe `daily_closes`[0m
+  [4;35;1mSQL (0.000605)[0m   [0mSHOW KEYS FROM `daily_closes`[0m
+  [4;36;1mSQL (0.001335)[0m   [0;1mSHOW FIELDS FROM `daily_returns`[0m
+  [4;35;1mSQL (0.001290)[0m   [0mdescribe `daily_returns`[0m
+  [4;36;1mSQL (0.000587)[0m   [0;1mSHOW KEYS FROM `daily_returns`[0m
+  [4;35;1mSQL (0.000870)[0m   [0mSHOW FIELDS FROM `exchanges`[0m
+  [4;36;1mSQL (0.000864)[0m   [0;1mdescribe `exchanges`[0m
+  [4;35;1mSQL (0.000597)[0m   [0mSHOW KEYS FROM `exchanges`[0m
+  [4;36;1mSQL (0.000718)[0m   [0;1mSHOW FIELDS FROM `historical_attributes`[0m
+  [4;35;1mSQL (0.000710)[0m   [0mdescribe `historical_attributes`[0m
+  [4;36;1mSQL (0.001830)[0m   [0;1mSHOW KEYS FROM `historical_attributes`[0m
+  [4;35;1mSQL (0.001798)[0m   [0mSHOW FIELDS FROM `listings`[0m
+  [4;36;1mSQL (0.001771)[0m   [0;1mdescribe `listings`[0m
+  [4;35;1mSQL (0.043379)[0m   [0mSHOW KEYS FROM `listings`[0m
+  [4;36;1mSQL (0.005830)[0m   [0;1mSHOW FIELDS FROM `real_time_quotes`[0m
+  [4;35;1mSQL (0.000994)[0m   [0mdescribe `real_time_quotes`[0m
+  [4;36;1mSQL (0.000576)[0m   [0;1mSHOW KEYS FROM `real_time_quotes`[0m
+  [4;35;1mSQL (0.000733)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mSQL (0.000736)[0m   [0;1mdescribe `tickers`[0m
+  [4;35;1mSQL (0.017550)[0m   [0mSHOW KEYS FROM `tickers`[0m
+  [4;36;1mSQL (0.001039)[0m   [0;1mSHOW FIELDS FROM `tracking_event_types`[0m
+  [4;35;1mSQL (0.000919)[0m   [0mdescribe `tracking_event_types`[0m
+  [4;36;1mSQL (0.000556)[0m   [0;1mSHOW KEYS FROM `tracking_event_types`[0m
+  [4;36;1mSQL (0.000350)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000305)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mSQL (0.000567)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mSQL (0.000405)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000347)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000364)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000365)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000367)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000366)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000368)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000354)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateExchanges (20080806033620)
+  [4;35;1mSQL (0.000362)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateTickers (20080806033650)
+  [4;36;1mSQL (0.000341)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateListings (20080806200116)
+  [4;35;1mSQL (0.000340)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateDailyReturns (20080808055338)
+  [4;36;1mSQL (0.000358)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateRealTimeQuotes (20080808182350)
+  [4;35;1mSQL (0.000364)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateDailyCloses (20080809060514)
+  [4;36;1mSQL (0.000340)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateAggregation (20080809063202)
+  [4;35;1mSQL (0.000340)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateHistoricalAttributes (20080812190631)
+  [4;36;1mSQL (0.000339)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateStatValues (20080812193717)
+  [4;35;1mSQL (0.000340)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.009521)[0m   [0;1mCREATE TABLE `stat_values` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `historical_attribute_id` int(11), `ticker_id` int(11), `start_date` date, `end_date` date, `sample_count` int(11), `mean` double, `min` double, `max` double, `stddev` double, `absdev` double, `skew` double, `kurtosis` double, `created_at` datetime, `updated_at` datetime) ENGINE=InnoDB[0m
+  [4;35;1mSQL (0.000524)[0m   [0mINSERT INTO schema_migrations (version) VALUES ('20080812193717')[0m
+  [4;36;1mSQL (0.000483)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000492)[0m   [0mSHOW TABLES[0m
+  [4;36;1mSQL (0.001270)[0m   [0;1mSHOW FIELDS FROM `aggregations`[0m
+  [4;35;1mSQL (0.001136)[0m   [0mdescribe `aggregations`[0m
+  [4;36;1mSQL (0.001140)[0m   [0;1mSHOW KEYS FROM `aggregations`[0m
+  [4;35;1mSQL (0.001105)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+  [4;36;1mSQL (0.000978)[0m   [0;1mdescribe `daily_closes`[0m
+  [4;35;1mSQL (0.000523)[0m   [0mSHOW KEYS FROM `daily_closes`[0m
+  [4;36;1mSQL (0.001335)[0m   [0;1mSHOW FIELDS FROM `daily_returns`[0m
+  [4;35;1mSQL (0.001319)[0m   [0mdescribe `daily_returns`[0m
+  [4;36;1mSQL (0.000604)[0m   [0;1mSHOW KEYS FROM `daily_returns`[0m
+  [4;35;1mSQL (0.000874)[0m   [0mSHOW FIELDS FROM `exchanges`[0m
+  [4;36;1mSQL (0.000818)[0m   [0;1mdescribe `exchanges`[0m
+  [4;35;1mSQL (0.000502)[0m   [0mSHOW KEYS FROM `exchanges`[0m
+  [4;36;1mSQL (0.000708)[0m   [0;1mSHOW FIELDS FROM `historical_attributes`[0m
+  [4;35;1mSQL (0.000752)[0m   [0mdescribe `historical_attributes`[0m
+  [4;36;1mSQL (0.000543)[0m   [0;1mSHOW KEYS FROM `historical_attributes`[0m
+  [4;35;1mSQL (0.001842)[0m   [0mSHOW FIELDS FROM `listings`[0m
+  [4;36;1mSQL (0.001822)[0m   [0;1mdescribe `listings`[0m
+  [4;35;1mSQL (0.000535)[0m   [0mSHOW KEYS FROM `listings`[0m
+  [4;36;1mSQL (0.041445)[0m   [0;1mSHOW FIELDS FROM `real_time_quotes`[0m
+  [4;35;1mSQL (0.006026)[0m   [0mdescribe `real_time_quotes`[0m
+  [4;36;1mSQL (0.000589)[0m   [0;1mSHOW KEYS FROM `real_time_quotes`[0m
+  [4;35;1mSQL (0.001249)[0m   [0mSHOW FIELDS FROM `stat_values`[0m
+  [4;36;1mSQL (0.001170)[0m   [0;1mdescribe `stat_values`[0m
+  [4;35;1mSQL (0.000532)[0m   [0mSHOW KEYS FROM `stat_values`[0m
+  [4;36;1mSQL (0.000757)[0m   [0;1mSHOW FIELDS FROM `tickers`[0m
+  [4;35;1mSQL (0.000745)[0m   [0mdescribe `tickers`[0m
+  [4;36;1mSQL (0.001373)[0m   [0;1mSHOW KEYS FROM `tickers`[0m
+  [4;35;1mSQL (0.000965)[0m   [0mSHOW FIELDS FROM `tracking_event_types`[0m
+  [4;36;1mSQL (0.000912)[0m   [0;1mdescribe `tracking_event_types`[0m
+  [4;35;1mSQL (0.000541)[0m   [0mSHOW KEYS FROM `tracking_event_types`[0m
+  [4;36;1mSQL (0.000352)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000308)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mSQL (0.000521)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mSQL (0.000379)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000447)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mSQL (0.000374)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateStatValues (20080812193717)
+  [4;36;1mSQL (0.000342)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.009916)[0m   [0mDROP TABLE `stat_values`[0m
+  [4;36;1mSQL (0.000702)[0m   [0;1mDELETE FROM schema_migrations WHERE version = '20080812193717'[0m
+  [4;35;1mSQL (0.000505)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000494)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mSQL (0.001238)[0m   [0mSHOW FIELDS FROM `aggregations`[0m
+  [4;36;1mSQL (0.001122)[0m   [0;1mdescribe `aggregations`[0m
+  [4;35;1mSQL (0.001118)[0m   [0mSHOW KEYS FROM `aggregations`[0m
+  [4;36;1mSQL (0.001076)[0m   [0;1mSHOW FIELDS FROM `daily_closes`[0m
+  [4;35;1mSQL (0.000995)[0m   [0mdescribe `daily_closes`[0m
+  [4;36;1mSQL (0.000534)[0m   [0;1mSHOW KEYS FROM `daily_closes`[0m
+  [4;35;1mSQL (0.001326)[0m   [0mSHOW FIELDS FROM `daily_returns`[0m
+  [4;36;1mSQL (0.001312)[0m   [0;1mdescribe `daily_returns`[0m
+  [4;35;1mSQL (0.000521)[0m   [0mSHOW KEYS FROM `daily_returns`[0m
+  [4;36;1mSQL (0.000853)[0m   [0;1mSHOW FIELDS FROM `exchanges`[0m
+  [4;35;1mSQL (0.000853)[0m   [0mdescribe `exchanges`[0m
+  [4;36;1mSQL (0.001274)[0m   [0;1mSHOW KEYS FROM `exchanges`[0m
+  [4;35;1mSQL (0.000733)[0m   [0mSHOW FIELDS FROM `historical_attributes`[0m
+  [4;36;1mSQL (0.001047)[0m   [0;1mdescribe `historical_attributes`[0m
+  [4;35;1mSQL (0.000512)[0m   [0mSHOW KEYS FROM `historical_attributes`[0m
+  [4;36;1mSQL (0.001839)[0m   [0;1mSHOW FIELDS FROM `listings`[0m
+  [4;35;1mSQL (0.001797)[0m   [0mdescribe `listings`[0m
+  [4;36;1mSQL (0.046612)[0m   [0;1mSHOW KEYS FROM `listings`[0m
+  [4;35;1mSQL (0.005629)[0m   [0mSHOW FIELDS FROM `real_time_quotes`[0m
+  [4;36;1mSQL (0.001009)[0m   [0;1mdescribe `real_time_quotes`[0m
+  [4;35;1mSQL (0.000527)[0m   [0mSHOW KEYS FROM `real_time_quotes`[0m
+  [4;36;1mSQL (0.000788)[0m   [0;1mSHOW FIELDS FROM `tickers`[0m
+  [4;35;1mSQL (0.000761)[0m   [0mdescribe `tickers`[0m
+  [4;36;1mSQL (0.001245)[0m   [0;1mSHOW KEYS FROM `tickers`[0m
+  [4;35;1mSQL (0.000966)[0m   [0mSHOW FIELDS FROM `tracking_event_types`[0m
+  [4;36;1mSQL (0.000908)[0m   [0;1mdescribe `tracking_event_types`[0m
+  [4;35;1mSQL (0.000545)[0m   [0mSHOW KEYS FROM `tracking_event_types`[0m
+  [4;36;1mSQL (0.000431)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mSQL (0.000374)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000356)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000358)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000462)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000339)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000359)[0m   [0;1mSELECT version FROM schema_migrations[0m
+  [4;35;1mSQL (0.000341)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.000361)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateExchanges (20080806033620)
+  [4;35;1mSQL (0.002398)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateTickers (20080806033650)
+  [4;36;1mSQL (0.000356)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateListings (20080806200116)
+  [4;35;1mSQL (0.000364)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateDailyReturns (20080808055338)
+  [4;36;1mSQL (0.000368)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateRealTimeQuotes (20080808182350)
+  [4;35;1mSQL (0.000371)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateDailyCloses (20080809060514)
+  [4;36;1mSQL (0.000372)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateAggregation (20080809063202)
+  [4;35;1mSQL (0.000369)[0m   [0mSELECT version FROM schema_migrations[0m
+Migrating to CreateHistoricalAttributes (20080812190631)
+  [4;36;1mSQL (0.000369)[0m   [0;1mSELECT version FROM schema_migrations[0m
+Migrating to CreateStatValues (20080812193717)
+  [4;35;1mSQL (0.000380)[0m   [0mSELECT version FROM schema_migrations[0m
+  [4;36;1mSQL (0.002578)[0m   [0;1mCREATE TABLE `stat_values` (`id` int(11) DEFAULT NULL auto_increment PRIMARY KEY, `historical_attribute_id` int(11), `ticker_id` int(11), `start_date` date, `end_date` date, `sample_count` int(11), `mean` double, `min` double, `max` double, `stddev` double, `absdev` double, `skew` double, `kurtosis` double, `slope` double, `yinter` double, `cov00` double, `cov01` double, `cov11` double, `chisq` double, `created_at` datetime, `updated_at` datetime) ENGINE=InnoDB[0m
+  [4;35;1mSQL (0.000545)[0m   [0mINSERT INTO schema_migrations (version) VALUES ('20080812193717')[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000390)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000324)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mSQL (0.000591)[0m   [0;1mSHOW TABLES[0m
+  [4;35;1mStatValue Columns (0.001501)[0m   [0mSHOW FIELDS FROM `stat_values`[0m
+  [4;36;1mSQL (0.000665)[0m   [0;1mSHOW TABLES[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000348)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000312)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000708)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000926)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000607)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000346)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000296)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000385)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000966)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000498)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000381)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000334)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000514)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000948)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000620)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mTicker Load (0.000490)[0m   [0mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;36;1mDailyClose Load (0.000520)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000373)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000310)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000386)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000967)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000502)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000409)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000336)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000421)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000928)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000520)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000342)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000297)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000397)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000956)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000520)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000369)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000304)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000392)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.010285)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000521)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000369)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000301)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000412)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000968)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000675)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000378)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000304)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000415)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000935)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000545)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000373)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000300)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000409)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000972)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000510)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000382)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000320)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000414)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000933)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000509)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000368)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000299)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000415)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000960)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000513)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000372)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000306)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000393)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000967)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000546)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000372)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000333)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000419)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000940)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000599)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000363)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000337)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000690)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'oog') LIMIT 1[0m
+  [4;35;1mTicker Load (0.000475)[0m   [0mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;36;1mTicker Columns (0.001085)[0m   [0;1mSHOW FIELDS FROM `tickers`[0m
+  [4;35;1mDailyClose Load (0.000510)[0m   [0mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;36;1mTicker Load (0.000483)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'oog') LIMIT 1[0m
+  [4;35;1mTicker Load (0.000443)[0m   [0mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'oog') LIMIT 1[0m
+  [4;36;1mTicker Load (0.000501)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'oog') LIMIT 1[0m
+  [4;35;1mTicker Load (0.000479)[0m   [0mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'oog') LIMIT 1[0m
+  [4;36;1mTicker Load (0.000489)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mDailyClose Load (0.000520)[0m   [0mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000391)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000318)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000392)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.001539)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000522)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mTicker Load (0.000506)[0m   [0mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;36;1mDailyClose Load (0.000539)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000377)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000298)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000396)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000947)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000516)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000366)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000292)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000390)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000934)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000510)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000333)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000313)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000388)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000955)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.000503)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mTicker Load (0.000490)[0m   [0mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;36;1mDailyClose Load (0.000524)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000372)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000293)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000390)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000969)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.251856)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001347)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000390)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000327)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000412)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000958)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001125)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001025)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000379)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000331)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000406)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000977)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001116)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001011)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000380)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000317)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000387)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000996)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001144)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001350)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000353)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000306)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000403)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.001045)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001130)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001023)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000353)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000308)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000395)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000956)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001130)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001028)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000349)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000308)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000416)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000995)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001118)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001011)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000391)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000308)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000435)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.001001)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001126)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001225)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000345)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000300)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000398)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000987)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001131)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001035)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000382)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000289)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000394)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000951)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001154)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001070)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000401)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000326)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000408)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000956)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001136)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001074)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+DEPRECATION WARNING: COUNTRIES is deprecated! Use ActionView::Helpers::FormCountryHelper::COUNTRIES instead.  See http://www.rubyonrails.org/deprecation for details. (called from include_all_modules_from at /home/kevin/stock_db_capture/vendor/rails/railties/lib/console_with_helpers.rb:5)
+  [4;36;1mSQL (0.000365)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000297)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mTicker Load (0.000404)[0m   [0;1mSELECT * FROM `tickers` WHERE (`tickers`.`symbol` = 'goog') LIMIT 1[0m
+  [4;35;1mTicker Columns (0.000965)[0m   [0mSHOW FIELDS FROM `tickers`[0m
+  [4;36;1mDailyClose Load (0.001208)[0m   [0;1mSELECT * FROM `daily_closes` WHERE (`daily_closes`.`ticker_id` = 696) ORDER BY date[0m
+  [4;35;1mDailyClose Columns (0.001241)[0m   [0mSHOW FIELDS FROM `daily_closes`[0m
+  [4;36;1mSQL (0.000349)[0m   [0;1mSET NAMES 'utf8'[0m
+  [4;35;1mSQL (0.000309)[0m   [0mSET SQL_AUTO_IS_NULL=0[0m
+  [4;36;1mSQL (0.007228)[0m   [0;1mSELECT symbol FROM tickers[0m

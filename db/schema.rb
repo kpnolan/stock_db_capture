@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080812190631) do
+ActiveRecord::Schema.define(:version => 20080812193717) do
 
   create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false
@@ -70,6 +70,10 @@ ActiveRecord::Schema.define(:version => 20080812190631) do
     t.string "timezone"
   end
 
+  create_table "foo", :id => false, :force => true do |t|
+    t.integer "ticker_id", :null => false
+  end
+
   create_table "historical_attributes", :force => true do |t|
     t.string "name"
   end
@@ -122,21 +126,34 @@ ActiveRecord::Schema.define(:version => 20080812190631) do
     t.datetime "updated_at"
   end
 
+  create_table "stat_values", :force => true do |t|
+    t.integer  "historical_attribute_id"
+    t.integer  "ticker_id"
+    t.date     "start_date"
+    t.date     "end_date"
+    t.integer  "sample_count"
+    t.float    "mean"
+    t.float    "min"
+    t.float    "max"
+    t.float    "stddev"
+    t.float    "absdev"
+    t.float    "skew"
+    t.float    "kurtosis"
+    t.float    "slope"
+    t.float    "yinter"
+    t.float    "cov00"
+    t.float    "cov01"
+    t.float    "cov11"
+    t.float    "chisq"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "tickers", :force => true do |t|
     t.string "symbol",      :limit => 8
     t.string "exchange_id"
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
-
-  create_table "tracking_event_types", :force => true do |t|
-    t.string   "name",                 :null => false
-    t.string   "notification_address"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "value",                :null => false
-    t.string   "abbrev",               :null => false
-    t.string   "select_name"
-  end
 
 end

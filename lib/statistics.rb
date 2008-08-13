@@ -68,7 +68,7 @@ module StatisticsSet
 
     def to_hash
       all_vals = SIMPLE_VALS + COMPLEX_VALS + [:sample_count]
-      all_vals.inject({}) { |h, k| h[k] = call(k); h }
+      all_vals.inject({}) { |h, k| h[k] = send(k); h }
     end
   end
 
@@ -80,8 +80,7 @@ module StatisticsSet
           sample_vec = rows.collect(&attr)
           StatSet.new(sample_vec) do |ss|
             ss.compute()
-            debugger
-            StatValue.create_row(attr, t, rows.first.date, rows.last.date, ss.to_hash)
+            StatValue.create_row(attr.to_s, t, rows.first.date, rows.last.date, ss.to_hash)
           end
         end
       end

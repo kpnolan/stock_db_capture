@@ -1,4 +1,4 @@
-# This file is auto-generated from the current state of the database. Instead of editing this file, 
+# This file is auto-generated from the current state of the database. Instead of editing this file,
 # please use the migrations feature of Active Record to incrementally modify your database, and
 # then regenerate this schema definition.
 #
@@ -68,6 +68,10 @@ ActiveRecord::Schema.define(:version => 20080813192644) do
     t.string "country"
     t.string "currency"
     t.string "timezone"
+  end
+
+  create_table "foo", :id => false, :force => true do |t|
+    t.integer "ticker_id", :null => false
   end
 
   create_table "historical_attributes", :force => true do |t|
@@ -160,15 +164,5 @@ ActiveRecord::Schema.define(:version => 20080813192644) do
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
-
-  create_table "tracking_event_types", :force => true do |t|
-    t.string   "name",                 :null => false
-    t.string   "notification_address"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.integer  "value",                :null => false
-    t.string   "abbrev",               :null => false
-    t.string   "select_name"
-  end
 
 end

@@ -1,15 +1,12 @@
 class StatValue < ActiveRecord::Base
 
-  belongs_to :ticker_id
+  belongs_to :ticker
 
-  def self.create_row(attr, ticker_name, start_date, end_date, attr_hash)
-    ha = HistoricalAttribute.find_by_name(attr)
-    ticker = Ticker.find_by_symbol(ticker_name)
-    debugger
-    ar = self.create(attr_hash.merge(:ticker_id => ticker.id,
-                           :historical_attribute_id => ha.id,
-                           :start_date => start_date,
-                           :end_date => end_date))
-    debugger
+  def self.create_row(attr, ticker, start_date, end_date, attr_hash)
+    attr_hash.merge!(:ticker_id => ticker.id,
+                     :historical_attribute_id => HistoricalAttribute.find_by_name(attr),
+                     :start_date => start_date,
+                     :end_date => end_date)
+    create(attr_hash)
   end
 end

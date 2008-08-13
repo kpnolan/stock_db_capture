@@ -9,13 +9,13 @@ elsif ARGV.first =~ /-(w|W)/
                                        :start_date => (Date.today-2.year),
                                        :end_date => Date.today).load
 elsif ARGV.first == '-z'
-  ldr = TradingDBLoader.new('z', :start_date => (Date.today-3.month),
+  ldr = TradingDBLoader.new('z', :start_date => (Date.today-1.year),
                                  :end_date => Date.today,
                                  :source => 'config/tickers.csv')
   ldr.load
 
 elsif ARGV.first == '-Z'
-  ldr = TradingDBLoader.new('z', :start_date => (Date.today-3.month),
+  ldr = TradingDBLoader.new('z', :start_date => (Date.today-1.year),
                                  :end_date => Date.today)
   ldr.load_historical_quotes(ARGV[1..10])
 else

@@ -1,0 +1,29 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  historical_attribute_id: 
+  ticker_id: 
+  start_date: 
+  end_date: 
+  sample_count: 
+  mean: 
+  min: 
+  max: 
+  stddev: 1.5
+  absdev: 
+  skew: 
+  kurtosis: 1.5
+
+two:
+  historical_attribute_id: 
+  ticker_id: 
+  start_date: 
+  end_date: 
+  sample_count: 
+  mean: 
+  min: 
+  max: 
+  stddev: 1.5
+  absdev: 
+  skew: 
+  kurtosis: 1.5

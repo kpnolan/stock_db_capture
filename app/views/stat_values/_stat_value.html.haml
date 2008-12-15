@@ -1,0 +1,47 @@
+%tr[stat_value]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.historical_attribute_id
+    = lkup stat_value.historical_attribute
+  %td.ticker_id
+    = lkup stat_value.ticker
+  %td.start_date
+    = h stat_value.start_date
+  %td.end_date
+    = h stat_value.end_date
+  %td.sample_count
+    = h stat_value.sample_count
+  %td.mean
+    = h stat_value.mean
+  %td.min
+    = h stat_value.min
+  %td.max
+    = h stat_value.max
+  %td.stddev
+    = h stat_value.stddev
+  %td.absdev
+    = h stat_value.absdev
+  %td.skew
+    = h stat_value.skew
+  %td.kurtosis
+    = h stat_value.kurtosis
+  %td.slope
+    = h stat_value.slope
+  %td.yinter
+    = h stat_value.yinter
+  %td.cov00
+    = h stat_value.cov00
+  %td.cov01
+    = h stat_value.cov01
+  %td.cov11
+    = h stat_value.cov11
+  %td.chisq
+    = h stat_value.chisq
+  %td.created_at
+    = h stat_value.created_at
+  %td.updated_at
+    = h stat_value.updated_at
+  %td.show
+    = link_to 'Show', object_path(stat_value)
+  %td.edit
+    = link_to 'Edit', edit_object_path(stat_value)
+  %td.destroy
+    = link_to 'Destroy', object_path(stat_value), :confirm => 'Really destroy stat_value?', :method => :delete

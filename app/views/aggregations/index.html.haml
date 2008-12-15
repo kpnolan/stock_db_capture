@@ -1,0 +1,20 @@
+%h1 Listing aggregations
+%table
+  %tr.heading
+    %th Ticker
+    %th Date
+    %th Open
+    %th Close
+    %th High
+    %th Low
+    %th Adj Close
+    %th Volume
+    %th Week
+    %th Month
+    %th Sample Count
+    %th Created At
+    %th Updated At
+
+  = render :partial => 'aggregation', :collection => current_objects
+
+= link_to 'New aggregation', new_object_path 

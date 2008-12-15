@@ -1,7 +1,111 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-# one:
-#   column: value
+# == Schema Information
+# Schema version: 20080813192644
 #
-# two:
-#   column: value
+# Table name: listings
+#
+#  id                                      :integer(4)      not null, primary key
+#  moving_ave_50_days_change_percent_from  :float
+#  weeks52_change_from_low                 :float
+#  weeks52_change_percent_from_low         :float
+#  weeks52_range_low                       :float
+#  weeks52_range_high                      :float
+#  peg_ratio                               :float
+#  dividend_yield                          :float
+#  name                                    :string(255)
+#  price_per_eps_estimate_current_year     :float
+#  oneyear_target_price                    :float
+#  dividend_per_share                      :float
+#  short_ratio                             :float
+#  price_persales                          :float
+#  price_per_eps_estimate_next_year        :float
+#  eps                                     :float
+#  moving_ave_50_days                      :float
+#  price_perbook                           :float
+#  ex_dividend_date                        :date
+#  moving_ave_200_days                     :float
+#  book_value                              :float
+#  eps_estimate_current_year               :float
+#  market_cap                              :float
+#  pe_ratio                                :float
+#  moving_ave_200_days_change_from         :float
+#  eps_estimate_next_year                  :float
+#  ticker_id                               :integer(4)
+#  moving_ave_200_days_change_percent_from :float
+#  eps_estimate_next_quarter               :float
+#  dividend_paydate                        :date
+#  weeks52_change_from_high                :float
+#  moving_ave_50_days_change_from          :float
+#  ebitda                                  :float
+#  weeks52_change_percent_from_high        :float
+#
+
+one:
+  id: 1
+  moving_ave_50_days_change_percent_from: 1.5
+  weeks52_change_from_low: 1.5
+  weeks52_change_percent_from_low: 1.5
+  weeks52_range_low: 1.5
+  weeks52_range_high: 1.5
+  peg_ratio: 1.5
+  dividend_yield: 1.5
+  name: MyString
+  price_per_eps_estimate_current_year: 1.5
+  oneyear_target_price: 1.5
+  dividend_per_share: 1.5
+  short_ratio: 1.5
+  price_persales: 1.5
+  price_per_eps_estimate_next_year: 1.5
+  eps: 1.5
+  moving_ave_50_days: 1.5
+  price_perbook: 1.5
+  ex_dividend_date: 2008-12-14
+  moving_ave_200_days: 1.5
+  book_value: 1.5
+  eps_estimate_current_year: 1.5
+  market_cap: 1.5
+  pe_ratio: 1.5
+  moving_ave_200_days_change_from: 1.5
+  eps_estimate_next_year: 1.5
+  ticker_id: 1
+  moving_ave_200_days_change_percent_from: 1.5
+  eps_estimate_next_quarter: 1.5
+  dividend_paydate: 2008-12-14
+  weeks52_change_from_high: 1.5
+  moving_ave_50_days_change_from: 1.5
+  ebitda: 1.5
+  weeks52_change_percent_from_high: 1.5
+two:
+  id: 2
+  moving_ave_50_days_change_percent_from: 1.5
+  weeks52_change_from_low: 1.5
+  weeks52_change_percent_from_low: 1.5
+  weeks52_range_low: 1.5
+  weeks52_range_high: 1.5
+  peg_ratio: 1.5
+  dividend_yield: 1.5
+  name: MyString
+  price_per_eps_estimate_current_year: 1.5
+  oneyear_target_price: 1.5
+  dividend_per_share: 1.5
+  short_ratio: 1.5
+  price_persales: 1.5
+  price_per_eps_estimate_next_year: 1.5
+  eps: 1.5
+  moving_ave_50_days: 1.5
+  price_perbook: 1.5
+  ex_dividend_date: 2008-12-14
+  moving_ave_200_days: 1.5
+  book_value: 1.5
+  eps_estimate_current_year: 1.5
+  market_cap: 1.5
+  pe_ratio: 1.5
+  moving_ave_200_days_change_from: 1.5
+  eps_estimate_next_year: 1.5
+  ticker_id: 1
+  moving_ave_200_days_change_percent_from: 1.5
+  eps_estimate_next_quarter: 1.5
+  dividend_paydate: 2008-12-14
+  weeks52_change_from_high: 1.5
+  moving_ave_50_days_change_from: 1.5
+  ebitda: 1.5
+  weeks52_change_percent_from_high: 1.5

@@ -1,54 +1,57 @@
-require 'test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
+require 'tickers_controller'
 
-class TickersControllerTest < ActionController::TestCase
-  def test_index
+# Re-raise errors caught by the controller.
+class TickersController; def rescue_action(e) raise e end; end
+
+class TickersControllerTest < Test::Unit::TestCase
+  fixtures :tickers
+
+  def setup
+    @controller = TickersController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+  end
+
+  def test_should_get_index
     get :index
-    assert_template 'index'
+    assert_response :success
+    assert assigns(:tickers)
   end
-  
-  def test_show
-    get :show, :id => Ticker.first
-    assert_template 'show'
-  end
-  
-  def test_new
+
+  def test_should_get_new
     get :new
-    assert_template 'new'
+    assert_response :success
   end
-  
-  def test_create_invalid
-    Ticker.any_instance.stubs(:valid?).returns(false)
-    post :create
-    assert_template 'new'
+
+  def test_should_create_ticker
+    old_count = Ticker.count
+    post :create, :ticker => { }
+    assert_equal old_count + 1, Ticker.count
+
+    assert_redirected_to ticker_path(assigns(:ticker))
   end
-  
-  def test_create_valid
-    Ticker.any_instance.stubs(:valid?).returns(true)
-    post :create
-    assert_redirected_to ticker_url(assigns(:ticker))
+
+  def test_should_show_ticker
+    get :show, :id => 1
+    assert_response :success
   end
-  
-  def test_edit
-    get :edit, :id => Ticker.first
-    assert_template 'edit'
+
+  def test_should_get_edit
+    get :edit, :id => 1
+    assert_response :success
   end
-  
-  def test_update_invalid
-    Ticker.any_instance.stubs(:valid?).returns(false)
-    put :update, :id => Ticker.first
-    assert_template 'edit'
+
+  def test_should_update_ticker
+    put :update, :id => 1, :ticker => { }
+    assert_redirected_to ticker_path(assigns(:ticker))
   end
-  
-  def test_update_valid
-    Ticker.any_instance.stubs(:valid?).returns(true)
-    put :update, :id => Ticker.first
-    assert_redirected_to ticker_url(assigns(:ticker))
-  end
-  
-  def test_destroy
-    ticker = Ticker.first
-    delete :destroy, :id => ticker
-    assert_redirected_to tickers_url
-    assert !Ticker.exists?(ticker.id)
+
+  def test_should_destroy_ticker
+    old_count = Ticker.count
+    delete :destroy, :id => 1
+    assert_equal old_count-1, Ticker.count
+
+    assert_redirected_to tickers_path
   end
 end

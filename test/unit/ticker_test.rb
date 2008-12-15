@@ -1,7 +1,7 @@
-require 'test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 
-class TickerTest < ActiveSupport::TestCase
-  def test_should_be_valid
-    assert Ticker.new.valid?
+class TickerTest < Test::Unit::TestCase
+  def test_truth
+    assert true
   end
 end

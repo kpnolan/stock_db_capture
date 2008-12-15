@@ -1,0 +1,12 @@
+%h1 Listing exchanges
+%table
+  %tr.heading
+    %th Symbol
+    %th Name
+    %th Country
+    %th Currency
+    %th Timezone
+
+  = render :partial => 'exchange', :collection => current_objects
+
+= link_to 'New exchange', new_object_path 

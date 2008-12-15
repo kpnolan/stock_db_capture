@@ -1,0 +1,12 @@
+VisualizeModels
+===============
+This program is based on the Annotate Models plugin written by Dave Thomas
+For more information about Annotate Models, see http://blogs.pragprog.com/cgi-bin/pragdave.cgi/Tech/Ruby/AnnotateModels.rdoc
+
+Authors:
+	Nils Franzen
+   	Dave Thomas (Annotate Models)
+
+Does not cope with models in sub-directories of app/models.
+   
+Released under the same license as Ruby. No Support. No Warranty.

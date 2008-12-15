@@ -1,7 +1,18 @@
-one:
-  symbol: 
-  exchange_id: MyString
+# == Schema Information
+# Schema version: 20080813192644
+#
+# Table name: tickers
+#
+#  id          :integer(4)      not null, primary key
+#  symbol      :string(8)
+#  exchange_id :string(255)
+#
 
+one:
+  id: 1
+  symbol: MyString
+  exchange_id: 1
 two:
-  symbol: 
-  exchange_id: MyString
+  id: 2
+  symbol: MyString
+  exchange_id: 1

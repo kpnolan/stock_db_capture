@@ -1,0 +1,33 @@
+%tr[aggregation]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.ticker_id
+    = lkup aggregation.ticker
+  %td.date
+    = h aggregation.date
+  %td.open
+    = h aggregation.open
+  %td.close
+    = h aggregation.close
+  %td.high
+    = h aggregation.high
+  %td.low
+    = h aggregation.low
+  %td.adj_close
+    = h aggregation.adj_close
+  %td.volume
+    = h aggregation.volume
+  %td.week
+    = h aggregation.week
+  %td.month
+    = h aggregation.month
+  %td.sample_count
+    = h aggregation.sample_count
+  %td.created_at
+    = h aggregation.created_at
+  %td.updated_at
+    = h aggregation.updated_at
+  %td.show
+    = link_to 'Show', object_path(aggregation)
+  %td.edit
+    = link_to 'Edit', edit_object_path(aggregation)
+  %td.destroy
+    = link_to 'Destroy', object_path(aggregation), :confirm => 'Really destroy aggregation?', :method => :delete

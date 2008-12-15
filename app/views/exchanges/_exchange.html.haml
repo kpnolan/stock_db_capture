@@ -1,0 +1,17 @@
+%tr[exchange]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.symbol
+    = h exchange.symbol
+  %td.name
+    = h exchange.name
+  %td.country
+    = h exchange.country
+  %td.currency
+    = h exchange.currency
+  %td.timezone
+    = h exchange.timezone
+  %td.show
+    = link_to 'Show', object_path(exchange)
+  %td.edit
+    = link_to 'Edit', edit_object_path(exchange)
+  %td.destroy
+    = link_to 'Destroy', object_path(exchange), :confirm => 'Really destroy exchange?', :method => :delete

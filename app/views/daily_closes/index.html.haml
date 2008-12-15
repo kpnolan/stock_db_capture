@@ -1,0 +1,17 @@
+%h1 Listing daily_closes
+%table
+  %tr.heading
+    %th Ticker
+    %th Date
+    %th Open
+    %th Close
+    %th High
+    %th Low
+    %th Adj Close
+    %th Volume
+    %th Week
+    %th Month
+
+  = render :partial => 'daily_close', :collection => current_objects
+
+= link_to 'New daily_close', new_object_path 

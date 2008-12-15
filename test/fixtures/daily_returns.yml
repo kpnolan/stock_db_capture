@@ -1,7 +1,69 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-# one:
-#   column: value
+# == Schema Information
+# Schema version: 20080813192644
 #
-# two:
-#   column: value
+# Table name: daily_returns
+#
+#  id              :integer(4)      not null, primary key
+#  volume          :integer(4)
+#  ask             :float
+#  bid             :float
+#  day_range_low   :float
+#  day_range_high  :float
+#  change_percent  :float
+#  last_trade_date :date
+#  tickertrend     :string(7)
+#  change_points   :float
+#  open            :float
+#  previous_close  :float
+#  last_trade      :float
+#  avg_volumn      :integer(4)
+#  day_low         :float
+#  last_trade_time :datetime
+#  day_high        :float
+#  ticker_id       :integer(4)
+#  created_at      :datetime
+#  updated_at      :datetime
+#
+
+one:
+  id: 1
+  volume: 1
+  ask: 1.5
+  bid: 1.5
+  day_range_low: 1.5
+  day_range_high: 1.5
+  change_percent: 1.5
+  last_trade_date: 2008-12-14
+  tickertrend: MyString
+  change_points: 1.5
+  open: 1.5
+  previous_close: 1.5
+  last_trade: 1.5
+  avg_volumn: 1
+  day_low: 1.5
+  last_trade_time: 2008-12-14 17:50:19
+  day_high: 1.5
+  ticker_id: 1
+  created_at: 2008-12-14 17:50:19
+  updated_at: 2008-12-14 17:50:19
+two:
+  id: 2
+  volume: 1
+  ask: 1.5
+  bid: 1.5
+  day_range_low: 1.5
+  day_range_high: 1.5
+  change_percent: 1.5
+  last_trade_date: 2008-12-14
+  tickertrend: MyString
+  change_points: 1.5
+  open: 1.5
+  previous_close: 1.5
+  last_trade: 1.5
+  avg_volumn: 1
+  day_low: 1.5
+  last_trade_time: 2008-12-14 17:50:19
+  day_high: 1.5
+  ticker_id: 1
+  created_at: 2008-12-14 17:50:19
+  updated_at: 2008-12-14 17:50:19

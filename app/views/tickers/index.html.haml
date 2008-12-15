@@ -1,0 +1,10 @@
+%h1 Listing tickers
+%table
+  %tr.heading
+    %th Symbol
+    %th Exchange
+    %th Name
+
+  = render :partial => 'ticker', :collection => current_objects
+
+= link_to 'New ticker', new_object_path

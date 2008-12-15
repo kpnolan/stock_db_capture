@@ -1,19 +1,42 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+# == Schema Information
+# Schema version: 20080813192644
+#
+# Table name: daily_closes
+#
+#  id        :integer(4)      not null, primary key
+#  ticker_id :integer(4)      not null
+#  date      :date
+#  open      :float
+#  close     :float
+#  high      :float
+#  low       :float
+#  adj_close :float
+#  volume    :integer(4)
+#  week      :integer(4)
+#  month     :integer(4)
+#
 
 one:
-  ticker_id: 
-  open: 
-  close: 
-  high: 
-  low: 
-  volume: 
+  id: 1
+  ticker_id: 1
+  date: 2008-12-14
+  open: 1.5
+  close: 1.5
+  high: 1.5
+  low: 1.5
   adj_close: 1.5
-
+  volume: 1
+  week: 1
+  month: 1
 two:
-  ticker_id: 
-  open: 
-  close: 
-  high: 
-  low: 
-  volume: 
+  id: 2
+  ticker_id: 1
+  date: 2008-12-14
+  open: 1.5
+  close: 1.5
+  high: 1.5
+  low: 1.5
   adj_close: 1.5
+  volume: 1
+  week: 1
+  month: 1

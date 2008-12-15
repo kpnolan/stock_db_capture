@@ -1,0 +1,26 @@
+%html{ "xml:lang" => "en", :lang => "en", :xmlns => "http://www.w3.org/1999/xhtml" }
+  %head
+    %meta{ :content => "text/html;charset=UTF-8", "http-equiv" => "content-type" }/
+    %title
+      = controller.controller_name.titleize + ': ' + controller.action_name
+    = stylesheet_link_tag 'scaffold', 'application', 'admin', 'pagination', 'live_validation'
+    = javascript_include_tag :defaults, 'live_validation.js', 'application.js'
+  %body
+    #banner
+      = image_tag('rails.png')
+      = @page_title || 'Active Trader to Riches beyond Imagination'
+    #container
+      #left.column{ :style => "display:inline;" }
+      #side_content
+        = yield :side_content
+      #main
+        - if flash[:notice]
+          #notice
+            = flash[:notice]
+        - if flash[:warning]
+          #warning
+            = flash[:warning]
+        - if flash[:error]
+          #error
+            = flash[:error]
+        = yield :layout

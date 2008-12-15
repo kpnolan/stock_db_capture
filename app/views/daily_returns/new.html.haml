@@ -1,0 +1,10 @@
+%h1 Creating Daily Return
+
+= error_messages_for :daily_return
+
+%fieldset
+  - smart_form_for(current_object) do |f|
+    = render :partial => "form", :locals => {:f => f}
+    %p= f.submit "Create"
+
+= link_to 'Back', objects_path

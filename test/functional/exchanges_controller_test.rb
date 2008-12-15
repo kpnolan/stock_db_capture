@@ -1,54 +1,57 @@
-require 'test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
+require 'exchanges_controller'
 
-class ExchangesControllerTest < ActionController::TestCase
-  def test_index
+# Re-raise errors caught by the controller.
+class ExchangesController; def rescue_action(e) raise e end; end
+
+class ExchangesControllerTest < Test::Unit::TestCase
+  fixtures :exchanges
+
+  def setup
+    @controller = ExchangesController.new
+    @request    = ActionController::TestRequest.new
+    @response   = ActionController::TestResponse.new
+  end
+
+  def test_should_get_index
     get :index
-    assert_template 'index'
+    assert_response :success
+    assert assigns(:exchanges)
   end
-  
-  def test_show
-    get :show, :id => Exchange.first
-    assert_template 'show'
-  end
-  
-  def test_new
+
+  def test_should_get_new
     get :new
-    assert_template 'new'
+    assert_response :success
   end
-  
-  def test_create_invalid
-    Exchange.any_instance.stubs(:valid?).returns(false)
-    post :create
-    assert_template 'new'
+
+  def test_should_create_exchange
+    old_count = Exchange.count
+    post :create, :exchange => { }
+    assert_equal old_count + 1, Exchange.count
+
+    assert_redirected_to exchange_path(assigns(:exchange))
   end
-  
-  def test_create_valid
-    Exchange.any_instance.stubs(:valid?).returns(true)
-    post :create
-    assert_redirected_to exchange_url(assigns(:exchange))
+
+  def test_should_show_exchange
+    get :show, :id => 1
+    assert_response :success
   end
-  
-  def test_edit
-    get :edit, :id => Exchange.first
-    assert_template 'edit'
+
+  def test_should_get_edit
+    get :edit, :id => 1
+    assert_response :success
   end
-  
-  def test_update_invalid
-    Exchange.any_instance.stubs(:valid?).returns(false)
-    put :update, :id => Exchange.first
-    assert_template 'edit'
+
+  def test_should_update_exchange
+    put :update, :id => 1, :exchange => { }
+    assert_redirected_to exchange_path(assigns(:exchange))
   end
-  
-  def test_update_valid
-    Exchange.any_instance.stubs(:valid?).returns(true)
-    put :update, :id => Exchange.first
-    assert_redirected_to exchange_url(assigns(:exchange))
-  end
-  
-  def test_destroy
-    exchange = Exchange.first
-    delete :destroy, :id => exchange
-    assert_redirected_to exchanges_url
-    assert !Exchange.exists?(exchange.id)
+
+  def test_should_destroy_exchange
+    old_count = Exchange.count
+    delete :destroy, :id => 1
+    assert_equal old_count-1, Exchange.count
+
+    assert_redirected_to exchanges_path
   end
 end

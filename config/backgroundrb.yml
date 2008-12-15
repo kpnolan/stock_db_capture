@@ -1,0 +1,11 @@
+--- 
+port: "22222"
+load_rails: true
+environment: development
+host: localhost
+database_yml: config/database.yml
+timer_sleep: 60
+acl: 
+  allow: localhost 127.0.0.1
+  deny: all
+  order: deny,allow

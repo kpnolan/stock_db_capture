@@ -1,0 +1,8 @@
+%h1 Listing historical_attributes
+%table
+  %tr.heading
+    %th Name
+
+  = render :partial => 'historical_attribute', :collection => current_objects
+
+= link_to 'New historical_attribute', new_object_path 

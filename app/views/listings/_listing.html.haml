@@ -1,0 +1,73 @@
+%tr[listing]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.moving_ave_50_days_change_percent_from
+    = h listing.moving_ave_50_days_change_percent_from
+  %td.weeks52_change_from_low
+    = h listing.weeks52_change_from_low
+  %td.weeks52_change_percent_from_low
+    = h listing.weeks52_change_percent_from_low
+  %td.weeks52_range_low
+    = h listing.weeks52_range_low
+  %td.weeks52_range_high
+    = h listing.weeks52_range_high
+  %td.peg_ratio
+    = h listing.peg_ratio
+  %td.dividend_yield
+    = h listing.dividend_yield
+  %td.name
+    = h listing.name
+  %td.price_per_eps_estimate_current_year
+    = h listing.price_per_eps_estimate_current_year
+  %td.oneyear_target_price
+    = h listing.oneyear_target_price
+  %td.dividend_per_share
+    = h listing.dividend_per_share
+  %td.short_ratio
+    = h listing.short_ratio
+  %td.price_persales
+    = h listing.price_persales
+  %td.price_per_eps_estimate_next_year
+    = h listing.price_per_eps_estimate_next_year
+  %td.eps
+    = h listing.eps
+  %td.moving_ave_50_days
+    = h listing.moving_ave_50_days
+  %td.price_perbook
+    = h listing.price_perbook
+  %td.ex_dividend_date
+    = h listing.ex_dividend_date
+  %td.moving_ave_200_days
+    = h listing.moving_ave_200_days
+  %td.book_value
+    = h listing.book_value
+  %td.eps_estimate_current_year
+    = h listing.eps_estimate_current_year
+  %td.market_cap
+    = h listing.market_cap
+  %td.pe_ratio
+    = h listing.pe_ratio
+  %td.moving_ave_200_days_change_from
+    = h listing.moving_ave_200_days_change_from
+  %td.eps_estimate_next_year
+    = h listing.eps_estimate_next_year
+  %td.ticker_id
+    = lkup listing.ticker
+  %td.moving_ave_200_days_change_percent_from
+    = h listing.moving_ave_200_days_change_percent_from
+  %td.eps_estimate_next_quarter
+    = h listing.eps_estimate_next_quarter
+  %td.dividend_paydate
+    = h listing.dividend_paydate
+  %td.weeks52_change_from_high
+    = h listing.weeks52_change_from_high
+  %td.moving_ave_50_days_change_from
+    = h listing.moving_ave_50_days_change_from
+  %td.ebitda
+    = h listing.ebitda
+  %td.weeks52_change_percent_from_high
+    = h listing.weeks52_change_percent_from_high
+  %td.show
+    = link_to 'Show', object_path(listing)
+  %td.edit
+    = link_to 'Edit', edit_object_path(listing)
+  %td.destroy
+    = link_to 'Destroy', object_path(listing), :confirm => 'Really destroy listing?', :method => :delete

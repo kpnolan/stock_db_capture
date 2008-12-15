@@ -1,0 +1,40 @@
+%h1 Listing listings
+%table
+  %tr.heading
+    %th Moving Ave 50 Days Change Percent From
+    %th Weeks52 Change From Low
+    %th Weeks52 Change Percent From Low
+    %th Weeks52 Range Low
+    %th Weeks52 Range High
+    %th Peg Ratio
+    %th Dividend Yield
+    %th Name
+    %th Price Per Eps Estimate Current Year
+    %th Oneyear Target Price
+    %th Dividend Per Share
+    %th Short Ratio
+    %th Price Persales
+    %th Price Per Eps Estimate Next Year
+    %th Eps
+    %th Moving Ave 50 Days
+    %th Price Perbook
+    %th Ex Dividend Date
+    %th Moving Ave 200 Days
+    %th Book Value
+    %th Eps Estimate Current Year
+    %th Market Cap
+    %th Pe Ratio
+    %th Moving Ave 200 Days Change From
+    %th Eps Estimate Next Year
+    %th Ticker
+    %th Moving Ave 200 Days Change Percent From
+    %th Eps Estimate Next Quarter
+    %th Dividend Paydate
+    %th Weeks52 Change From High
+    %th Moving Ave 50 Days Change From
+    %th Ebitda
+    %th Weeks52 Change Percent From High
+
+  = render :partial => 'listing', :collection => current_objects
+
+= link_to 'New listing', new_object_path 

@@ -1,0 +1,10 @@
+%h1 Listing <%= plural_name %>
+%table
+  %tr.heading
+<%- for attribute in attributes -%>
+    %th <%= attribute.name.titleize %>
+<% end -%>
+
+  = render :partial => '<%= singular_name %>', :collection => current_objects
+
+= link_to 'New <%= singular_name %>', new_object_path 

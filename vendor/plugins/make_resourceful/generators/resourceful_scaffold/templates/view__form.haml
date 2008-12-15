@@ -1,0 +1,7 @@
+<%- for attribute in attributes -%>
+  <%- if attribute.name =~ /_id$/ -%>
+= f.table_select :<%= attribute.name %>
+  <%- else -%>
+= f.<%= attribute.field_type %> :<%= attribute.name %>
+  <%- end -%>
+<% end -%>

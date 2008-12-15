@@ -1,9 +1,0 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
-
-one:
-  ticker_id: 
-  listing_category_id: 1
-
-two:
-  ticker_id: 
-  listing_category_id: 1

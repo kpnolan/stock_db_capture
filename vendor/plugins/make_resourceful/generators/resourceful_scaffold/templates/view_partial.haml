@@ -1,0 +1,15 @@
+%tr[<%= singular_name %>]{:class => cycle('list-line-even', 'list-line-odd')}
+<% for attribute in attributes -%>
+  %td.<%= attribute.name %>
+  <%- if attribute.name =~ /_id$/ -%>
+    = lkup <%= singular_name %>.<%= attribute.name.gsub(/_id$/,'') %>
+  <%- else -%>
+    = h <%= singular_name %>.<%= attribute.name %>
+  <%- end -%>
+<% end -%>
+  %td.show
+    = link_to 'Show', object_path(<%= singular_name %>)
+  %td.edit
+    = link_to 'Edit', edit_object_path(<%= singular_name %>)
+  %td.destroy
+    = link_to 'Destroy', object_path(<%= singular_name %>), :confirm => 'Really destroy <%= singular_name %>?', :method => :delete

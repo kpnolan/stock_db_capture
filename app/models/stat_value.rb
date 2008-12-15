@@ -1,3 +1,31 @@
+# == Schema Information
+# Schema version: 20080813192644
+#
+# Table name: stat_values
+#
+#  id                      :integer(4)      not null, primary key
+#  historical_attribute_id :integer(4)
+#  ticker_id               :integer(4)
+#  start_date              :date
+#  end_date                :date
+#  sample_count            :integer(4)
+#  mean                    :float
+#  min                     :float
+#  max                     :float
+#  stddev                  :float
+#  absdev                  :float
+#  skew                    :float
+#  kurtosis                :float
+#  slope                   :float
+#  yinter                  :float
+#  cov00                   :float
+#  cov01                   :float
+#  cov11                   :float
+#  chisq                   :float
+#  created_at              :datetime
+#  updated_at              :datetime
+#
+
 class StatValue < ActiveRecord::Base
 
   belongs_to :ticker

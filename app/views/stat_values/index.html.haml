@@ -1,0 +1,27 @@
+%h1 Listing stat_values
+%table
+  %tr.heading
+    %th Historical Attribute
+    %th Ticker
+    %th Start Date
+    %th End Date
+    %th Sample Count
+    %th Mean
+    %th Min
+    %th Max
+    %th Stddev
+    %th Absdev
+    %th Skew
+    %th Kurtosis
+    %th Slope
+    %th Yinter
+    %th Cov00
+    %th Cov01
+    %th Cov11
+    %th Chisq
+    %th Created At
+    %th Updated At
+
+  = render :partial => 'stat_value', :collection => current_objects
+
+= link_to 'New stat_value', new_object_path 

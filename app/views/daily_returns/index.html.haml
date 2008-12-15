@@ -1,0 +1,26 @@
+%h1 Listing daily_returns
+%table
+  %tr.heading
+    %th Volume
+    %th Ask
+    %th Bid
+    %th Day Range Low
+    %th Day Range High
+    %th Change Percent
+    %th Last Trade Date
+    %th Tickertrend
+    %th Change Points
+    %th Open
+    %th Previous Close
+    %th Last Trade
+    %th Avg Volumn
+    %th Day Low
+    %th Last Trade Time
+    %th Day High
+    %th Ticker
+    %th Created At
+    %th Updated At
+
+  = render :partial => 'daily_return', :collection => current_objects
+
+= link_to 'New daily_return', new_object_path 

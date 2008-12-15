@@ -1,0 +1,27 @@
+%tr[daily_close]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.ticker_id
+    = lkup daily_close.ticker
+  %td.date
+    = h daily_close.date
+  %td.open
+    = h daily_close.open
+  %td.close
+    = h daily_close.close
+  %td.high
+    = h daily_close.high
+  %td.low
+    = h daily_close.low
+  %td.adj_close
+    = h daily_close.adj_close
+  %td.volume
+    = h daily_close.volume
+  %td.week
+    = h daily_close.week
+  %td.month
+    = h daily_close.month
+  %td.show
+    = link_to 'Show', object_path(daily_close)
+  %td.edit
+    = link_to 'Edit', edit_object_path(daily_close)
+  %td.destroy
+    = link_to 'Destroy', object_path(daily_close), :confirm => 'Really destroy daily_close?', :method => :delete

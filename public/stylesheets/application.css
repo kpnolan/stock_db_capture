@@ -1,0 +1,458 @@
+
+/* Global styles */
+/* START:notice */
+
+#error {
+    border: 2px solid red;
+    padding: 1em;
+    margin-bottom: 2em;
+    background-color: #f0f0f0;
+    font: bold larger sans-serif;
+}
+
+#notice {
+    border: 2px solid green;
+    padding: 1em;
+    margin-bottom: 2em;
+    background-color: #f0f0f0;
+    font: bold larger sans-serif;
+}
+
+#warning {
+    border: 2px solid yellow;
+    padding: 1em;
+    margin-bottom: 2em;
+    background-color: #f0f0f0;
+    font: bold sans-serif;
+}
+
+/* END:notice */
+/* Styles for main page */
+
+
+#banner {
+    background-image: url(/images/bg_grad.jpg);
+    padding-top: 10px;
+    padding-bottom: 20px;
+    border-bottom: 4px solid;
+    font-family: Arial, Helvetica, sans-serif;
+    font: small-caps 50px/50px sans-serif;
+    color: #333333;
+    text-align: center;
+}
+
+a.plain {
+    text-decoration: none;
+}
+
+#banner img {
+    float: left;
+}
+
+#container {
+/*      overflow: hidden;*/
+}
+
+#container .column {
+    position: relative;
+    float: left;
+    padding-bottom: 20010px;  /* X + padding-bottom */
+    margin-bottom: -20000px;  /* X */
+}
+
+#main {
+    margin-left: 12em;
+    padding-top: 4ex;
+    padding-left: 2em;
+    background: white;
+}
+
+#left {
+    float: left;
+    padding-top: 1em;
+    padding-left: 1em;
+    padding-bottom: 1em;
+    width: 12em;
+    background-image: url(/images/bg_grad.jpg);
+}
+
+#left a {
+    color: #333333;
+    font-size: small;
+}
+
+#left a:hover { color: #000; background-color:#DDDDDD; }
+
+a.plain {
+    text-decoration: none;
+}
+
+fieldset {
+    background-color: DDDDDD
+}
+
+#side_content div {
+    border-top: groove medium gray;
+    padding-top: 20px;
+}
+
+#form { background: #DDDDDD }
+
+#error {
+  background-color: #FFFFFF;
+  color: black;
+}
+
+
+#error_modelec {
+  background-color: #000000;
+  color: red;
+}
+
+#errorExplanation ul, li {
+  list-style-type: square;
+}
+
+#main h1 {
+    font: 150% sans-serif;
+    color: #226;
+    border-bottom: 3px dotted #77d;
+}
+
+tr.heading {
+    font: bold sans-serif;
+    background: #a0a0a0;
+    font-size: 0.9em;
+}
+
+/*
+ * These styles cause the colors of adjacing rows to alternate
+ */
+.list-line-even { background: #e0e0e0; }
+.list-line-odd  { background: #c0c0c0; }
+
+.red { color: red }
+.blue { color: blue }
+.yellow { color: yellow }
+.grey { color: grey; }
+.green { color: green }
+.light-blue { color: #0955C5 }
+.bold { font-weight: bold }
+.center { align: center; text-align: center; }
+.black { color: black; }
+
+/*
+ * Allows forms to be aligned without using tables
+ */
+input.form-field {
+    display:       block;
+    float:         left;
+}
+
+input.form-field.right {
+    text-align:   right;
+}
+
+input.form-field.currency {
+    text-align:   right;
+    width:        75px;
+}
+
+label.form-field {
+    display: block;
+    text-align: right;
+    float: left;
+    width: 100px;
+    padding-right: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+input.mini-form-field {
+    display:       block;
+    float:         left;
+    font-size: 12px;
+}
+
+select.mini-form-field {
+  font-size: 12px;
+}
+
+
+label.mini-form-field {
+    display: block;
+    text-align: right;
+    float: left;
+    width: 75px;
+    padding-right: 10px;
+    font-size: 12px;
+#    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+span.form-field {
+    display: block;
+    text-align: right;
+    float: left;
+    width: 100px;
+    padding-right: 20px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+span.numeric-8 {
+    border: #3532ff 1px solid;
+    display: block;
+    text-align: right;
+    float: left;
+    width: 4em;
+    padding-right: 5px;
+    font-weight: bold;
+    margin-bottom: 15px;
+    margin-right: 5px;
+}
+
+.fieldWithErrors {
+    padding: 2px;
+    background-color: red;
+    display: inline;
+}
+
+img.thumbnail {
+    border-style: solid;
+    border-color: blue;
+    border-width: 1px;
+}
+
+select.form-field {
+    width: 150px;
+    float: left;
+}
+
+select.small {
+    width: 50;
+}
+
+select.medium {
+    width: 75;
+}
+
+br.form-field {
+    clear: left;
+}
+
+br.mini-form-field {
+  clear: left;
+}
+
+td.currency {
+    text-align: right;
+}
+
+td.currency-red {
+    text-align: right;
+    color: red;
+}
+td.left {
+    text-align: left;
+}
+td.center {
+    text-align: center;
+}
+td.right {
+    text-align: right;
+}
+
+th.small {
+    width: 4em;
+}
+
+.form-button {
+    width: 75px;
+    margin-left: 120px;
+    float: left;
+}
+
+.mini-form-button {
+  margin-left: 100;
+  width: 50px;
+  font-size: 12px;
+  float: left;
+}
+
+
+input[disabled], input[readonly], select[disabled], select[readonly], checkbox[disabled], checkbox[readonly], textarea[disabled], textarea[readonly]
+{
+    background-color: #dcdcdc;
+    border: #3532ff 1px solid;
+    color: #000000;
+    cursor: default;
+}
+
+#shopping_cart {
+  width: 650px;
+  border-width: 1px;
+  border-collapse: collapse;
+  border-color: black;
+  align: center;
+}
+
+td.product_number {  width: 4em; }
+td.description { width: 30em; }
+td.qty { width: 1em; text-align: right; padding: 3px }
+td.cost { width: 4em; text-align: right; padding: 3px }
+td.subtotal { width: 5em; text-align: right; padding: 3px }
+
+#shopping_cart th { font-weight: bold; text-align: center; }
+
+#shopping_cart input { width: 4em; }
+
+#error_panel {
+  font-weight: bold;
+  color: red;
+  background-color: white;
+}
+
+div#main_black_container a {
+  color: white;
+}
+
+#user_info {
+}
+
+#billing_info {
+  display:  inline;
+  float: left;
+}
+
+#shipping_info {
+  display:  block;
+  float: right;
+}
+
+#page_container { width: 750px; text-align: center; clear: both }
+
+#acceptance_form {
+  margin-top: 20px;
+  width: 600px;
+  text-align: center;
+}
+
+p#reg_postamble {
+  padding: 25px;
+  text-align: left;
+  color: white;
+}
+
+div#agreement_body {
+  text-align: center;
+  background-color: #DDDDDD;
+  color: black;
+  padding: 15px;
+  margin-bottom: 25px;
+  height: 600px;
+  width: 735px;
+  overflow: auto;
+}
+
+#agreement_body p {
+  text-align: left;
+}
+
+#agreement_body h3 {
+  margin-top: 15px;
+  text-align: left;
+  font-weight: bold;
+  font-size: 125%;
+}
+
+#form_view {
+  margin-left: 120px;
+  text-align: left;
+  padding-bottom: 25px;
+}
+
+#agreement_body .modelec-logo {
+    text-align: center;
+    font-size: 300%;
+    font-weight: bold;
+    font-style: italic;
+    color: red;
+    margin-bottom: 12px;
+}
+
+#agreement_body .modelec-subheading {
+  font-size: 125%;
+  text-align: center;
+  font-weight: bold;
+  font-style: oblique;
+}
+
+#agreement_body .modelec-title {
+  text-align: center;
+  font-size: 150%;
+  font-weight: bold;
+  font-style: bold;
+  margin-top: 20px;
+  margin-bottom: 30px;
+}
+
+#agreement_body .modelec-contact {
+  display: inline;
+  float: left;
+  width: 33%;
+  margin-left: 10%;
+  text-align: center;
+  font-weight: bold;
+}
+
+table.order {
+  text-align: center;
+  align: center;
+}
+
+table#account_summary td {
+  padding-right: 5px;
+  margin-right: 5px;
+}
+
+table.order td {
+  padding-right: 5px;
+  margin-right: 5px;
+}
+
+table.order th {
+  text-align: center;
+  padding-right: 5px;
+  margin-right: 5px;
+
+}
+
+div#history_detail {
+  align: center;
+  height: 200px;
+  overflow: auto;
+}
+
+div#pending_detail {
+  height: 100px;
+  overflow: auto;
+}
+
+#component_error {
+  font-weight: bold;
+  font-size: larger;
+  color: red
+}
+
+#login_info {
+  float: right;
+  color: white;
+}
+
+ul.product li {
+  font-size: 10px;
+}
+
+#cart_container { width: 150px; margin-top: 25px; height: 50px; background-color: #bbb; float: left; }
+

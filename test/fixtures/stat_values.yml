@@ -1,29 +1,72 @@
-# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+# == Schema Information
+# Schema version: 20080813192644
+#
+# Table name: stat_values
+#
+#  id                      :integer(4)      not null, primary key
+#  historical_attribute_id :integer(4)
+#  ticker_id               :integer(4)
+#  start_date              :date
+#  end_date                :date
+#  sample_count            :integer(4)
+#  mean                    :float
+#  min                     :float
+#  max                     :float
+#  stddev                  :float
+#  absdev                  :float
+#  skew                    :float
+#  kurtosis                :float
+#  slope                   :float
+#  yinter                  :float
+#  cov00                   :float
+#  cov01                   :float
+#  cov11                   :float
+#  chisq                   :float
+#  created_at              :datetime
+#  updated_at              :datetime
+#
 
 one:
-  historical_attribute_id: 
-  ticker_id: 
-  start_date: 
-  end_date: 
-  sample_count: 
-  mean: 
-  min: 
-  max: 
+  id: 1
+  historical_attribute_id: 1
+  ticker_id: 1
+  start_date: 2008-12-14
+  end_date: 2008-12-14
+  sample_count: 1
+  mean: 1.5
+  min: 1.5
+  max: 1.5
   stddev: 1.5
-  absdev: 
-  skew: 
+  absdev: 1.5
+  skew: 1.5
   kurtosis: 1.5
-
+  slope: 1.5
+  yinter: 1.5
+  cov00: 1.5
+  cov01: 1.5
+  cov11: 1.5
+  chisq: 1.5
+  created_at: 2008-12-14 17:50:09
+  updated_at: 2008-12-14 17:50:09
 two:
-  historical_attribute_id: 
-  ticker_id: 
-  start_date: 
-  end_date: 
-  sample_count: 
-  mean: 
-  min: 
-  max: 
+  id: 2
+  historical_attribute_id: 1
+  ticker_id: 1
+  start_date: 2008-12-14
+  end_date: 2008-12-14
+  sample_count: 1
+  mean: 1.5
+  min: 1.5
+  max: 1.5
   stddev: 1.5
-  absdev: 
-  skew: 
+  absdev: 1.5
+  skew: 1.5
   kurtosis: 1.5
+  slope: 1.5
+  yinter: 1.5
+  cov00: 1.5
+  cov01: 1.5
+  cov11: 1.5
+  chisq: 1.5
+  created_at: 2008-12-14 17:50:09
+  updated_at: 2008-12-14 17:50:09

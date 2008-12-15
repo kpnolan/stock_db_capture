@@ -1,4 +1,24 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :daily_returns
+
+  map.resources :aggregations
+
+  map.resources :real_time_quotes
+
+  map.resources :tickers
+
+  map.resources :historical_attributes
+
+  map.resources :stat_values
+
+  map.resources :listings
+
+  map.resources :exchanges
+
+  map.resources :daily_closes
+
+  map.resources :foos
+
   map.resources :tickers
 
   map.resources :exchanges

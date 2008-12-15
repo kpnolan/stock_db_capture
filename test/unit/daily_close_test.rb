@@ -1,7 +1,6 @@
-require 'test_helper'
+require File.dirname(__FILE__) + '/../test_helper'
 
-class DailyCloseTest < ActiveSupport::TestCase
-  # Replace this with your real tests.
+class DailyCloseTest < Test::Unit::TestCase
   def test_truth
     assert true
   end

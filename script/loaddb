@@ -22,3 +22,9 @@ else
   p 'usage: loaddb -[xszrwZ]'
 end
 
+## Local Variables: **
+## mode:ruby **
+## comment-column:0 **
+## comment-start: "#"  **
+## End: **
+

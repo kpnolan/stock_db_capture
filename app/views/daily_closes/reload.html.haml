@@ -1,0 +1,15 @@
+%h1 Historical Returns Reload Parameters
+
+%fieldset
+  - form_remote_tag(:url => begin_load_daily_closes_path) do
+    = label_tag :num_workers, 'Num Workers', :class => 'form-field'
+    = select_tag :num_workers, options_for_select (Array.new(8) { |i| i+1 }), :class => 'form-field'
+    %br{:class => 'form-field'}
+    %p= submit_tag 'Submit', :class => 'form-button'
+
+%p= link_to_remote 'Progress', { :url => progress_daily_closes_path, :method => :get}, :class => 'form-button'
+
+%br/
+%br/
+
+#progress_bars

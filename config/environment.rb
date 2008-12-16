@@ -67,3 +67,5 @@ Rails::Initializer.run do |config|
 end
 
 require 'smart_form_builder'
+require "#{RAILS_ROOT}/lib/populate_db.rb"
+

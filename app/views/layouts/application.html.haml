@@ -11,6 +11,25 @@
       = @page_title || 'Active Trader to Riches beyond Imagination'
     #container
       #left.column{ :style => "display:inline;" }
+        = link_to 'Tickers', tickers_path
+        %br/
+        = link_to 'Listings', listings_path
+        %br/
+        = link_to 'Listing Categories', listing_categories_path
+        %br/
+        = link_to 'Daily Closes', daily_closes_path
+        %br/
+        = link_to 'Daily Returns', daily_returns_path
+        %br/
+        = link_to 'Exchanges', exchanges_path
+        %br/
+        = link_to 'Historical Attributes', historical_attributes_path
+        %br/
+        = link_to 'Real-time Quotes', real_time_quotes_path
+        %br/
+        = link_to 'Derived Stat Values', stat_values_path
+        %br/
+        = link_to 'Update Historical Closes', reload_daily_closes_path
       #side_content
         = yield :side_content
       #main
@@ -23,4 +42,5 @@
         - if flash[:error]
           #error
             = flash[:error]
+
         = yield :layout

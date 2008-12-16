@@ -1,27 +1,19 @@
 ActionController::Routing::Routes.draw do |map|
+
+  map.resources :listing_categories
   map.resources :daily_returns
-
   map.resources :aggregations
-
   map.resources :real_time_quotes
-
   map.resources :tickers
-
   map.resources :historical_attributes
-
   map.resources :stat_values
-
   map.resources :listings
-
   map.resources :exchanges
-
-  map.resources :daily_closes
-
-  map.resources :foos
-
+  map.resources :daily_closes, :collection => { :reload => :get, :begin_load => :post, :progress => :get }
   map.resources :tickers
-
   map.resources :exchanges
+
+  map.root :controller => 'real_time_quotes', :action => 'index'
 
   # The priority is based upon order of creation: first created -> highest priority.
 
@@ -41,7 +33,7 @@ ActionController::Routing::Routes.draw do |map|
 
   # Sample resource route with sub-resources:
   #   map.resources :products, :has_many => [ :comments, :sales ], :has_one => :seller
-  
+
   # Sample resource route with more complex sub-resources
   #   map.resources :products do |products|
   #     products.resources :comments

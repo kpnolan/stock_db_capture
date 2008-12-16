@@ -1,0 +1,8 @@
+%h1 Listing listing_categories
+%table
+  %tr.heading
+    %th Name
+
+  = render :partial => 'listing_category', :collection => current_objects
+
+= link_to 'New listing_category', new_object_path 

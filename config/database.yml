@@ -26,5 +26,4 @@ production:
   username: kevin
   password: Troika3.
   host: amd64
-  port: 3306
 

@@ -1,0 +1,9 @@
+%tr[listing_category]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.name
+    = h listing_category.name
+  %td.show
+    = link_to 'Show', object_path(listing_category)
+  %td.edit
+    = link_to 'Edit', edit_object_path(listing_category)
+  %td.destroy
+    = link_to 'Destroy', object_path(listing_category), :confirm => 'Really destroy listing_category?', :method => :delete

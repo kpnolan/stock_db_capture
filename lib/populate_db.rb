@@ -1,7 +1,5 @@
 require 'rubygems'
 require 'yahoofinance'
-require 'pp'
-require 'ruby-debug'
 require 'faster_csv'
 require 'yaml'
 

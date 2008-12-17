@@ -1,4 +1,4 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 #
 # YahooFinance ruby module.
 # Homepage: http://www.transparentech.com/projects/yahoofinance

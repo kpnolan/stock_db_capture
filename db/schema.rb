@@ -1,4 +1,4 @@
-# This file is auto-generated from the current state of the database. Instead of editing this file,
+# This file is auto-generated from the current state of the database. Instead of editing this file, 
 # please use the migrations feature of Active Record to incrementally modify your database, and
 # then regenerate this schema definition.
 #
@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20080813192644) do
+ActiveRecord::Schema.define(:version => 20081217012719) do
 
   create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false
@@ -28,7 +28,7 @@ ActiveRecord::Schema.define(:version => 20080813192644) do
   end
 
   create_table "daily_closes", :force => true do |t|
-    t.integer "ticker_id", :null => false
+    t.integer "ticker_id",  :null => false
     t.date    "date"
     t.float   "open"
     t.float   "close"
@@ -38,6 +38,9 @@ ActiveRecord::Schema.define(:version => 20080813192644) do
     t.integer "volume"
     t.integer "week"
     t.integer "month"
+    t.float   "return"
+    t.float   "log_return"
+    t.float   "alr"
   end
 
   create_table "daily_returns", :force => true do |t|
@@ -70,15 +73,7 @@ ActiveRecord::Schema.define(:version => 20080813192644) do
     t.string "timezone"
   end
 
-  create_table "foo", :id => false, :force => true do |t|
-    t.integer "ticker_id", :null => false
-  end
-
   create_table "historical_attributes", :force => true do |t|
-    t.string "name"
-  end
-
-  create_table "listing_categories", :force => true do |t|
     t.string "name"
   end
 
@@ -118,11 +113,6 @@ ActiveRecord::Schema.define(:version => 20080813192644) do
     t.float   "weeks52_change_percent_from_high"
   end
 
-  create_table "memberships", :force => true do |t|
-    t.integer "ticker_id"
-    t.integer "listing_category_id"
-  end
-
   create_table "real_time_quotes", :force => true do |t|
     t.float    "last_trade"
     t.float    "ask"
@@ -133,6 +123,11 @@ ActiveRecord::Schema.define(:version => 20080813192644) do
     t.integer  "ticker_id"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "shorts", :force => true do |t|
+    t.string  "symbol", :limit => 8
+    t.integer "count",  :limit => 8, :default => 0, :null => false
   end
 
   create_table "stat_values", :force => true do |t|

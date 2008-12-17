@@ -8,6 +8,7 @@ module LogReturns
     symbols.each do |symbol|
       ids, closes = get_vectors(symbol)
       compute_returns(ids, closes)
+      puts symbol
     end
   end
 

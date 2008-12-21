@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20081217012719) do
+ActiveRecord::Schema.define(:version => 20081221004325) do
 
   create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false
@@ -42,6 +42,8 @@ ActiveRecord::Schema.define(:version => 20081217012719) do
     t.float   "log_return"
     t.float   "alr"
   end
+
+  add_index "daily_closes", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
   create_table "daily_returns", :force => true do |t|
     t.integer  "volume"
@@ -122,7 +124,6 @@ ActiveRecord::Schema.define(:version => 20081217012719) do
     t.float    "change_points"
     t.integer  "ticker_id"
     t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "shorts", :force => true do |t|
@@ -151,6 +152,7 @@ ActiveRecord::Schema.define(:version => 20081217012719) do
     t.float    "chisq"
     t.datetime "created_at"
     t.datetime "updated_at"
+    t.float    "cv"
   end
 
   create_table "tickers", :force => true do |t|

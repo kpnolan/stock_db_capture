@@ -32,7 +32,7 @@ Rails::Initializer.run do |config|
   # config.plugins = [ :exception_notification, :ssl_requirement, :all ]
 
   # Add additional load paths for your own custom dirs
-  # config.load_paths += %W( #{RAILS_ROOT}/extras )
+   config.load_paths += %W( #{RAILS_ROOT}/lib/workers )
 
   # Force all environments to use the same logger level
   # (by default production uses :info, the others :debug)
@@ -68,4 +68,12 @@ end
 
 require 'smart_form_builder'
 require "#{RAILS_ROOT}/lib/populate_db.rb"
+require 'memcached'
+
+$cache = Memcached.new("localhost:11211", :support_cas => true)
+
+$cache.set 'Ticker:DailyCloseWorker:index:Date.today.tos(:db)', 0, nil, false
+$cache.set 'Ticker:DailyReturnsWorker:index:Date.today.tos(:db)', 0, nil, false
+
+
 

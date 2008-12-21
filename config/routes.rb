@@ -3,7 +3,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :listing_categories
   map.resources :daily_returns
   map.resources :aggregations
-  map.resources :real_time_quotes
+  map.resources :real_time_quotes, :collection => { :reload => :get, :begin_load => :post, :progress => :get }
   map.resources :tickers
   map.resources :historical_attributes
   map.resources :stat_values
@@ -13,7 +13,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :tickers
   map.resources :exchanges
 
-  map.root :controller => 'real_time_quotes', :action => 'index'
+  map.root :controller => 'real_time_quotes', :action => 'reload'
 
   # The priority is based upon order of creation: first created -> highest priority.
 

@@ -97,7 +97,7 @@ module YahooFinance
     "g" => [ "day_low", "val.to_f" ],
     "v" => [ "volume", "val.to_i" ],
     "m" => [ "day_range", "val" ],
-    "t7" => [ "tickertrend", "val" ],
+    "t7" => [ "tickertrend", "strip_html(val)" ],
     "a2" => [ "avg_volumn", "val.to_i" ],
     "b" => [ "bid", "val.to_f" ],
     "a" => [ "ask", "val.to_f" ],
@@ -351,6 +351,14 @@ module YahooFinance
       value
     end
 
+    def strip_html( value )
+      if value =~ /^&nbsp;(.*)&nbsp;$/
+        $1
+      else
+        value
+      end
+
+    end
   end
 
   class RealTimeQuote < YahooFinance::BaseQuote
@@ -451,12 +459,10 @@ module YahooFinance
     # the end date.
     return [] if startDate > endDate
 
-    if qtype == 'd'
-      host = "itable.finance.yahoo.com"
-    else
-      host = "ichart.yahoo.com"
-      # if we're doing weekly aggregations, run the start and the end date back to the previous
-      # Monday. Yahoo get's confused when it's not on a Monday.
+    host = "ichart.yahoo.com"
+    # if we're doing weekly aggregations, run the start and the end date back to the previous
+    # Monday. Yahoo get's confused when it's not on a Monday.
+    if qtype == 'w'
       delta = startDate.wday >= 1 ? -startDate.wday+1 : -6
       startDate += delta
       endDate += delta
@@ -468,11 +474,10 @@ module YahooFinance
                         proxy.port,
                         proxy.user,
                         proxy.password ).start(host, 80 ) { |http|
-        #Net::HTTP.start( "itable.finance.yahoo.com", 80 ) { |http|
         query = "/table.csv?s=#{symbol}&g=#{qtype}" +
         "&a=#{startDate.month-1}&b=#{startDate.mday}&c=#{startDate.year}" +
-        "&d=#{endDate.month-1}&e=#{endDate.mday}&f=#{endDate.year.to_s}"
-        #puts "#{query}"
+        "&d=#{endDate.month-1}&e=#{endDate.mday}&f=#{endDate.year.to_s}&ignore.csv"
+        puts "#{query}"
         response = http.get( query )
         #puts "#{response.body}"
         body = response.body.chomp
@@ -561,8 +566,10 @@ module YahooFinance
   end
 
   def YahooFinance.get_HistoricalQuotes_days( symbol, days, qtype, &block )
-    endDate = Date.today()
-    startDate = Date.today() - days
+#    endDate = Date.today()
+#    startDate = Date.today() - days
+    endDate = Date.parse('2008-12-19')
+    startDate = Date.parse('2008-12-17')
     YahooFinance.get_HistoricalQuotes( symbol, startDate, endDate, qtype, &block )
   end
 

@@ -1,16 +1,13 @@
 %h1 Listing real_time_quotes
 %table
   %tr.heading
-    %th Last Trade
-    %th Ask
-    %th Bid
-    %th Last Trade Time
-    %th Change
-    %th Change Points
     %th Ticker
+    %th Bid
+    %th Ask
+    %th Last Trade
+    %th Change
+    %th % Change
+    %th Time
     %th Created At
-    %th Updated At
 
   = render :partial => 'real_time_quote', :collection => current_objects
-
-= link_to 'New real_time_quote', new_object_path 

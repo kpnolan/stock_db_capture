@@ -467,3 +467,23 @@ ul.product li {
   padding-left: 5px;
 }
 
+#statusProgressBar {
+  width: 0px;
+  height: 29px;
+  background: #f4f4f4;
+}
+
+#statusProgress {
+  position: relative;
+  top: -29px;
+  left: 0;
+  text-align: center;
+  width: 675px;
+  padding-top: 3px;
+  height: 26px;
+  margin-bottom: -29px;
+  color: #00a;
+  font-size: 10px;
+}
+
+

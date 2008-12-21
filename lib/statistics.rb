@@ -1,14 +1,12 @@
 require 'rubygems'
-require 'pp'
-require 'ruby-debug'
 require 'gsl'
 
-module StatisticsSet
+module Statistics
   ATTRS = [ :open, :high, :low, :close, :volume, :adj_close ]
 
   class StatSet
 
-    SIMPLE_VALS = [:mean, :min, :max, :stddev, :absdev, :skew, :kurtosis]
+    SIMPLE_VALS = [:mean, :min, :max, :stddev, :absdev, :skew, :kurtosis, :cv]
     COMPLEX_VALS = [ :slope, :yinter, :cov00, :cov01, :cov11, :chisq ]
 
 
@@ -46,6 +44,10 @@ module StatisticsSet
       self.absdev = samples.absdev(mean)
     end
 
+    def compute_cv
+      self.cv = self.stddev / self.mean
+    end
+
     def compute_skew
       self.skew = samples.skew
     end
@@ -72,10 +74,10 @@ module StatisticsSet
     end
   end
 
-  def self.generate(tickers)
+  def self.generate(tickers,  attrs=ATTRS, extra_conditions={ })
     tickers.each do |ticker|
-      t = Ticker.first(:conditions => { :symbol => ticker })
-      if t and not (rows = DailyClose.all(:conditions => { :ticker_id => t.id }, :order => 'date')).empty?
+      t = Ticker.find_by_symbol(ticker)
+      if t and not (rows = DailyClose.all(:conditions => { :ticker_id => t.id }.merge(extra_conditions), :order => 'date')).empty?
         ATTRS.each do |attr|
           sample_vec = rows.collect(&attr)
           StatSet.new(sample_vec) do |ss|
@@ -83,6 +85,25 @@ module StatisticsSet
             StatValue.create_row(attr.to_s, t, rows.first.date, rows.last.date, ss.to_hash)
           end
         end
+      end
+    end
+  end
+
+  # Return all stocks ordered by the coefficient of variance of the entire year.
+  def self.most_volatile()
+    sql = "select symbol as cv from daily_closes join tickers on tickers.id = ticker_id group by ticker_id order by cv desc"
+    vs = DailyClose.connection.select_values(sql)
+    $cache.set('VolatileStocks', vs.join(','), nil, false)
+  end
+
+  def self.crunch_and_store
+    vs = most_volatile()
+    vs.each do |symbol|
+      $cache.set('CurrentSymbol', symbol, nil, false)
+      generate([symbol], [:close])
+      1.upto(12) do |month|
+        $cache.set('CurrentSymbol', "symbol:#{month}", nil, false)
+        generate(symbol, [:close], { :month => month })
       end
     end
   end

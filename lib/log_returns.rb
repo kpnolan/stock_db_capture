@@ -1,47 +1,42 @@
 module LogReturns
 
-  def symbols
-    Ticker.connection.select_values('select symbol from tickers order by symbol')
+  def ticker_ids
+    DailyReturn.connection.select_values('select distinct ticker_id from daily_closes where daily_closes.return is null order by ticker_id')
   end
 
-  def update_returns
-    symbols.each do |symbol|
-      ids, closes = get_vectors(symbol)
-      compute_returns(ids, closes)
-      puts symbol
+  def update_returns()
+    ticker_ids.each do |tid|
+      next if (tuples = get_tuples(tid)).empty?
+      tuples.unshift(get_last_close(tid).first)
+      compute_returns(tuples)
+      puts Ticker.find(tid).symbol
     end
+    ticker_ids.length
   end
 
-  def compute_returns(idvec, cvec)
-    return if idvec == []
+  def compute_returns(tuples)
+    return if tuples.empty?
 
-    rvec = Array.new(252)
-    lrvec = Array.new(252)
-    arvec = Array.new(252)
+    len = tuples.length
 
-    1.upto(cvec.length-1) do |i|
-      r = (cvec[i].to_f/cvec[i-1].to_f)
+    1.upto(len-1) do |i|
+      r = (tuples[i].second.to_f/tuples[i-1].second.to_f)
       lr = Math.log(r)
-      ar = lr*252.0
-      rvec[i] = r
-      lrvec[i] = lr
-      arvec[i] = ar
-      rvec[0] = 1
-      lrvec[0] = arvec[0] = 0
-    end
-    idvec.each do |id|
-      obj = DailyClose.find id
-      obj.update_attributes!(:return => rvec.shift, :log_return => lrvec.shift, :alr => arvec.shift)
+      alr = lr*252.0
+
+      dc = DailyClose.find tuples[i].first
+      dc.update_attributes!(:return => r, :log_return => lr, :alr => alr)
     end
     nil
   end
 
-  def get_vectors(symbol)
-    sql1 = "SELECT close from daily_closes join tickers on tickers.id = ticker_id where symbol = '#{symbol}' order by date"
-    sql2 = "SELECT daily_closes.id from daily_closes join tickers on tickers.id = ticker_id where symbol = '#{symbol}' order by date"
-    close_vec = DailyReturn.connection.select_values(sql1)
-    id_vec = DailyReturn.connection.select_values(sql2)
-    [id_vec, close_vec]
+  def get_last_close(ticker_id)
+    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} and daily_closes.return IS NOT NULL having max(date)"
+    tuples = DailyReturn.connection.select_rows(sql)
   end
 
+  def get_tuples(ticker_id)
+    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND daily_closes.return is null order by date"
+    tuples = DailyReturn.connection.select_rows(sql)
+  end
 end

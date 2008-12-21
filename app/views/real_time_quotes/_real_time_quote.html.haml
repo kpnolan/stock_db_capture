@@ -1,25 +1,19 @@
 %tr[real_time_quote]{:class => cycle('list-line-even', 'list-line-odd')}
-  %td.last_trade
-    = h real_time_quote.last_trade
-  %td.ask
-    = h real_time_quote.ask
-  %td.bid
+  %td.center
+    = lkup real_time_quote.ticker, :symbol
+  %td.right
     = h real_time_quote.bid
-  %td.last_trade_time
-    = h real_time_quote.last_trade_time
-  %td.change
+  %td.right
+    = h real_time_quote.ask
+  %td.l.center
+    = h real_time_quote.last_trade
+  %td.center
     = h real_time_quote.change
-  %td.change_points
+  %td.center
     = h real_time_quote.change_points
-  %td.ticker_id
-    = lkup real_time_quote.ticker
+  %td.center
+    = h real_time_quote.last_trade_time
   %td.created_at
     = h real_time_quote.created_at
-  %td.updated_at
-    = h real_time_quote.updated_at
   %td.show
     = link_to 'Show', object_path(real_time_quote)
-  %td.edit
-    = link_to 'Edit', edit_object_path(real_time_quote)
-  %td.destroy
-    = link_to 'Destroy', object_path(real_time_quote), :confirm => 'Really destroy real_time_quote?', :method => :delete

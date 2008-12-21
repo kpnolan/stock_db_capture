@@ -6,82 +6,105 @@ require 'gsl/gnuplot'
 module Plot
   include GSL
 
-  def vec(symbol, attrs=nil, bdate=nil, edate=nil)
-    vhash = DailyClose.get_vectors(symbol, attrs, bdate, edate)
-    vclose = vhash[:close]
-    gvclose = vclose.to_gv
-    len = gvclose.len
-    ymax = gvclose.max
+  def plotdc(symbol, attrs = [])
+
+    vhash = DailyClose.get_vectors(symbol, attrs)
 
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
 
-        plot.xrange "[0:#{len-1}]"
-        plot.yrange "[0:#{ymax}]"
-        plot.title  "#{symbol}: #{attrs.join(',')}"
+#        plot.xrange "[0:#{len-1}]"
+#        plot.yrange "[0:#{ymax}]"
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "#{symbol}: #{vhash.keys.join(',')}"
         plot.xlabel "Date"
-        plot.ylabel "Attr"
+        plot.ylabel "#{vhash.keys.join(', ')}"
         plot.pointsize 3
         plot.grid
 
-        x = GSL::Vector[0..10]
-#        x = (0..(len-1)).to_a
-        y = gvclose
-
-        plot.data = [
-          Gnuplot::DataSet.new( [x, y] ) do |ds|
-                       ds.with = "lines"
-                     end
-                    ]
-
+        plot.data = []
+        vhash.keys.each do |attr|
+          if attr == :volume
+            new_vec = scale(vhash[attr])
+            plot.data << Gnuplot::DataSet.new( new_vec ) {  |ds|  ds.with = "boxes" }
+          else
+            plot.data << Gnuplot::DataSet.new( vhash[attr] ) {  |ds|  ds.with = "lines" }
+          end
+        end
       end
     end
+    nil
   end
 
-  def vec1(symbol, attrs=nil, bdate=nil, edate=nil)
-    vhash = DailyClose.get_vectors(symbol, attrs, bdate, edate)
-    gvclose = vhash[:close].to_gv
-    len = gvclose.len
-    ymax = gvclose.max
+  def plotrt(symbol, attrs = [])
 
-    plot = Gnuplot::Plot.new( );
-    debugger
-    a = 1
-    b = 2
-  end
+    vhash = RealTimeQuote.get_vectors(symbol, attrs)
 
-  def plot1
-    plot =  Gnuplot::Plot.new(  ) do |plot|
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
 
-      plot.xrange "[0:10]"
-      plot.yrange "[-1.5:1.5]"
-      plot.title  "Sin Wave Example"
-      plot.xlabel "x"
-      plot.ylabel "sin(x)"
-      plot.pointsize 3
-      plot.grid
+#        plot.xrange "[0:#{len-1}]"
+#        plot.yrange "[0:#{ymax}]"
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "#{symbol}: #{vhash.keys.join(',')}"
+        plot.xlabel "Date"
+        plot.ylabel "#{vhash.keys.join(', ')}"
+        plot.pointsize 3
+        plot.grid
 
+        plot.data = []
 
-      x = (0..10).to_a
-      y = x.collect { |i| Math.sin(i) }
-
-      plot.data = [
-                   Gnuplot::DataSet.new( "sin(x)" ) do |ds|
-                     ds.with = "lines"
-                     ds.title = "String function"
-                     ds.linewidth = 40
-      end,
-
-       Gnuplot::DataSet.new( [x, y] ) { |ds|
-         ds.with = "linespoints"
-         ds.title = "Array data"
-       }
-                ]
-
+        vhash.keys.each do |attr|
+          if attr == :volume
+            new_vec = scale(vhash[attr])
+            plot.data << Gnuplot::DataSet.new( new_vec ) {  |ds|  ds.with = "boxes" }
+          else
+            plot.data << Gnuplot::DataSet.new( vhash[attr] ) {  |ds|  ds.with = "lines" }
+          end
+        end
+      end
     end
-    debugger
-    a =1
-    b =2
+    nil
   end
-end
 
+  def scale(vec)
+    gvec = vec.to_gv
+    max = gvec.max
+    lmax = Math.log10(max)-1
+    gvec.scale!(1/10**lmax)
+    gvec.to_a
+  end
+
+  def histogram(symbol, attr)
+    vhash = DailyClose.get_vectors(symbol, attr)
+    gvec = vhash[attr].to_gv
+    h = gvec.histogram(50)
+    xvec = GSL::Vector.linspace(gvec.min, gvec.max, 50).to_a
+
+    bins = h.bin.to_a
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+        plot.style "histogram clustered gap 3"
+        plot.style "fill solid 1.0 border -1"
+        plot.xrange "[#{gvec.min}:#{gvec.max}]"
+
+        plot.data = [ Gnuplot::DataSet.new( [xvec, bins] ) { |ds| ds.with = "boxes" } ]
+      end
+    end
+    nil
+  end
+
+  def wma(periodLength, values)
+    sum = 0;
+    weightedSum = 0;
+    for n in 0..periodLength
+      weightedSum = weightedSum + ((periodLength - n) * values[n]);
+      sum = sum + n;
+    end
+    return weightedSum / sum;
+  end
+
+end

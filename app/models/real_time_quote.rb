@@ -17,4 +17,17 @@
 
 class RealTimeQuote < ActiveRecord::Base
   belongs_to :ticker
+
+  ATTRS = [ :bid, :ask, :change, :change_points, :last_trade ]
+
+  def self.default_attrs()
+    ATTRS
+  end
+
+  def self.order
+    'last_trade_time, id'
+  end
+
+  extend TableExtract
+
 end

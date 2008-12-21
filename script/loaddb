@@ -1,16 +1,16 @@
-#!/usr/bin/env /home/kevin/stock_db_capture/script/runner
+#!/usr/bin/env /work/railsapps/stock_db_capture/script/runner
 
 require "#{RAILS_ROOT}/lib/populate_db.rb"
 
 if ARGV.first =~ /-(x|s|r)/
-  TradingDBLoader.new(ARGV.first.last, :source => 'config/tickers.csv').load
+  TradingDBLoader.new(ARGV.first.last).load_quotes(ARGV[1..10])
 elsif ARGV.first =~ /-(w|W)/
   TradingDBLoader.new(ARGV.first.last, :source => 'config/tickers.csv',
                                        :start_date => (Date.today-2.year),
                                        :end_date => Date.today).load
 elsif ARGV.first == '-z'
-  ldr = TradingDBLoader.new('z', :start_date => (Date.today-1.year),
-                                 :end_date => Date.today,
+  ldr = TradingDBLoader.new('z', :start_date => Date.parse('2008-12-17')
+                                 :end_date => Date.yesterday,
                                  :source => 'config/tickers.csv')
   ldr.load
 

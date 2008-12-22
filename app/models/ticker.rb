@@ -25,10 +25,6 @@ class Ticker < ActiveRecord::Base
     self.connection.select_values('SELECT symbol FROM tickers order by id').collect!(&:to_i)
   end
 
-  def self.count
-    Ticker.count(:all)
-  end
-
   def self.id_groups(count)
     ids = Ticker.connection.select_values('select id from tickers order by id').collect!(&:to_i)
     ids.in_groups_of(ids.length/count)

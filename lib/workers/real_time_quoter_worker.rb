@@ -5,7 +5,7 @@
 class RealTimeQuoterWorker < BackgrounDRb::Rails
 
   repeat_every 5.minutes
-  first_run Time.parse('12/19/2008 5:00')
+  first_run Time.parse('12/22/2008 5:00')
 
   def do_work(args)
     @cache = $cache.clone

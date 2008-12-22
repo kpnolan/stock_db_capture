@@ -69,6 +69,7 @@ end
 require 'smart_form_builder'
 require "#{RAILS_ROOT}/lib/populate_db.rb"
 require 'memcached'
+require 'will_paginate'
 
 $cache = Memcached.new("localhost:11211", :support_cas => true)
 

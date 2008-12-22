@@ -1,4 +1,7 @@
 %h1 Listing tickers
+
+= text_field_with_auto_complete :ticker, :symbol, :size => 4
+
 %table
   %tr.heading
     %th Symbol
@@ -8,3 +11,9 @@
   = render :partial => 'ticker', :collection => current_objects
 
 = link_to 'New ticker', new_object_path
+
+%div{:class => "digg_pagination", :style => "float:right"}
+  %div{:class => "page_info"}
+    = page_entries_info current_objects
+  = will_paginate current_objects, :container => false
+

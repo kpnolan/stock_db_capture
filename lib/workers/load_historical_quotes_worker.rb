@@ -8,6 +8,7 @@ class LoadHistoricalQuotesWorker < BackgrounDRb::Rails
     @index = 0
     ActiveRecord::Base.silence do
       symbols.each do |symbol|
+        tid = Ticker.find_by_symbol(symbol).id
         rows = YahooFinance::get_historical_quotes(symbol, start_date, end_date, 'd')
         @logger.info("#{symbol} returned #{rows.length} rows")
         rows.each do |row|

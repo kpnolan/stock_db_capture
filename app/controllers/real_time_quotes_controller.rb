@@ -34,7 +34,7 @@ class RealTimeQuotesController < ApplicationController
 
   def progress
     render_js do |page|
-      while true
+      while false
         count = 0
         status = $cache.get('RealTimeQuote:Status', false)
         total = $cache.get('RealTimeQuote:TotalCount', false).to_i

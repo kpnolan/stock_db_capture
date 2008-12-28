@@ -13,7 +13,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :tickers
   map.resources :exchanges
 
-  map.root :controller => 'real_time_quotes', :action => 'reload'
+  map.root :controller => 'daily_closes', :action => 'reload'
 
   # The priority is based upon order of creation: first created -> highest priority.
 

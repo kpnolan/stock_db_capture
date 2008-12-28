@@ -6,10 +6,10 @@ module LogReturns
 
   def update_returns()
     ticker_ids.each do |tid|
+      puts Ticker.find(tid).symbol
       next if (tuples = get_tuples(tid)).empty?
 #      tuples.unshift(get_last_close(tid).first)
       compute_returns(tuples)
-      puts Ticker.find(tid).symbol
     end
     ticker_ids.length
   end
@@ -36,8 +36,7 @@ module LogReturns
   end
 
   def get_tuples(ticker_id)
-#    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND daily_closes.return is null order by date"
-    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} order by date"
+    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND daily_closes.return is null order by date"
     tuples = DailyClose.connection.select_rows(sql)
   end
 end

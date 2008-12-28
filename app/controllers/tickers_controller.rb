@@ -10,6 +10,11 @@ class TickersController < ApplicationController
 
   end
 
+  def launch_pad
+    symbol = params[:ticker][:symbol]
+    @current_object = Ticker.find_by_symbol(symbol)
+  end
+
   def current_objects()
     @current_objects ||= current_model.paginate(:all, :page => params[:page], :per_page => 30, :include => [ :exchange, :listing] , :order => 'symbol')
   end

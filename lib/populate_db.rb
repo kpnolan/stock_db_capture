@@ -84,7 +84,7 @@ class TradingDBLoader
 
   def get_query_params(query_type)
     case query_type
-    when 's' : [ YahooFinance::StandardQuote, DailyReturn ]
+    when 's' : [ YahooFinance::StandardQuote, LiveQuote ]
     when 'x' : [ YahooFinance::ExtendedQuote, Listing ]
     when 'r' : [ YahooFinance::RealTimeQuote, RealTimeQuote ]
     when 'z' : [ YahooFinance::HistoricalQuote, DailyClose ]

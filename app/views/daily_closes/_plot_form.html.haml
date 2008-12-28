@@ -1,0 +1,11 @@
+= f.table_select :ticker_id
+
+- %w{ open close high low adj_close volume return log_return alr }.each do |col|
+  = label_tag col
+  = check_box_tag col
+
+  = label_tag 'period_length'
+  = select_tag :period_length, options_for_select %{all month week}
+  = label_tag 'period'
+  = select_tag :period, (1..52).to_a
+

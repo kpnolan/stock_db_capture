@@ -1,11 +1,12 @@
 # == Schema Information
-# Schema version: 20080813192644
+# Schema version: 20081227180640
 #
 # Table name: tickers
 #
 #  id          :integer(4)      not null, primary key
 #  symbol      :string(8)
 #  exchange_id :string(255)
+#  active      :boolean(1)
 #
 
 class Ticker < ActiveRecord::Base
@@ -18,7 +19,7 @@ class Ticker < ActiveRecord::Base
   has_many :aggregations
 
   def self.symbols
-    self.connection.select_values('SELECT symbol FROM tickers order by symbol')
+    self.connection.select_values('SELECT symbol FROM tickers ORDER BY symbol WHERE active = 1')
   end
 
   def self.ids

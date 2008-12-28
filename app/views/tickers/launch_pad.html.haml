@@ -1,0 +1,11 @@
+%h1 Launch Pad for Plot Functions
+
+%fieldset
+  - smart_form_for(current_object, :readonly => true) do |f|
+    = render :partial => "form", :locals => {:f => f}
+
+= link_to 'Plot Daily Closes', plot_daily_close_path(current_object)
+|
+= link_to 'Plot Real-time Quote', plot_real_time_quote_path(current_object)
+|
+= link_to 'Back', objects_path

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20080813192644
+# Schema version: 20081226051847
 #
 # Table name: real_time_quotes
 #
@@ -11,8 +11,6 @@
 #  change          :float
 #  change_points   :float
 #  ticker_id       :integer(4)
-#  created_at      :datetime
-#  updated_at      :datetime
 #
 
 one:

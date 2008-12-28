@@ -9,7 +9,7 @@ elsif ARGV.first =~ /-(w|W)/
                                        :start_date => (Date.today-2.year),
                                        :end_date => Date.today).load
 elsif ARGV.first == '-z'
-  ldr = TradingDBLoader.new('z', :start_date => Date.parse('2008-12-17')
+  ldr = TradingDBLoader.new('z', :start_date => Date.parse('2008-12-17'),
                                  :end_date => Date.yesterday,
                                  :source => 'config/tickers.csv')
   ldr.load

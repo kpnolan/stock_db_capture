@@ -1,0 +1,40 @@
+# == Schema Information
+# Schema version: 20081227180640
+#
+# Table name: aggregates
+#
+#  id        :integer(4)      not null, primary key
+#  ticker_id :integer(4)
+#  date      :date
+#  start     :datetime
+#  open      :float
+#  close     :float
+#  high      :float
+#  low       :float
+#  volume    :integer(4)
+#  period    :integer(4)
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  ticker_id: 1
+  date: 2008-12-27
+  start: 2008-12-27 10:06:40
+  open: 1.5
+  close: 1.5
+  high: 1.5
+  low: 1.5
+  volume: 1
+  period: 1
+
+two:
+  ticker_id: 1
+  date: 2008-12-27
+  start: 2008-12-27 10:06:40
+  open: 1.5
+  close: 1.5
+  high: 1.5
+  low: 1.5
+  volume: 1
+  period: 1

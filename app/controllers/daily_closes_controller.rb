@@ -1,6 +1,15 @@
 class DailyClosesController < ApplicationController
   make_resourceful do
+    belongs_to :ticker
     actions :all
+  end
+
+  def plot
+    if request.remote_ip == '127.0.0.1'
+      render :action => plot_local
+    else
+      render :action => plot_remote
+    end
   end
 
   def reload

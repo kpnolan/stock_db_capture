@@ -1,7 +1,7 @@
 class RealTimeQuotesController < ApplicationController
-  protect_from_forgery :except => [ :progress
-                                  ]
+  protect_from_forgery :except => [ :progress ]
   make_resourceful do
+    belongs_to :ticker
     actions :all
   end
 

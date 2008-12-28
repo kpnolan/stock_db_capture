@@ -1,6 +1,8 @@
 %h1 Listing tickers
 
-= text_field_with_auto_complete :ticker, :symbol, :size => 4
+- form_tag(launch_pad_tickers_path, :method => :get) do
+  = text_field_with_auto_complete :ticker, :symbol, :size => 4
+  = submit_tag 'Launch'
 
 %table
   %tr.heading

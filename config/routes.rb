@@ -3,13 +3,13 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :listing_categories
   map.resources :daily_returns
   map.resources :aggregations
-  map.resources :real_time_quotes, :collection => { :reload => :get, :begin_load => :post, :progress => :get }
-  map.resources :tickers
+  map.resources :real_time_quotes, :member => { :plot => :get }, :collection => { :reload => :get, :begin_load => :post, :progress => :get }
+  map.resources :tickers, :collection => { :launch_pad => :get }
   map.resources :historical_attributes
   map.resources :stat_values
   map.resources :listings
   map.resources :exchanges
-  map.resources :daily_closes, :collection => { :reload => :get, :begin_load => :post, :progress => :get }
+  map.resources :daily_closes, :member => { :plot => :get },:collection => { :reload => :get, :begin_load => :post, :progress => :get }
   map.resources :tickers
   map.resources :exchanges
 

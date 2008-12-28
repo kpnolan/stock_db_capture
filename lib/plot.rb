@@ -37,6 +37,151 @@ module Plot
     nil
   end
 
+  def test(symbol, attrs = [])
+
+    attr = :close
+    vhash = DailyClose.get_vectors(symbol, [:date, :close])
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "#{symbol}: #{vhash.keys.join(',')}"
+        plot.xlabel "Date"
+        plot.ylabel "#{vhash.keys.join(', ')}"
+        plot.pointsize 3
+        plot.grid
+        plot.xdata "time"
+        plot.timefmt '"%Y-%m-%d"'
+
+        date = vhash[:date].collect { |date| date.to_s(:db) }
+
+        plot.data = []
+        if attr == :volume
+          new_vec = scale(vhash[attr])
+          plot.data << Gnuplot::DataSet.new( new_vec ) {  |ds|  ds.with = "boxes" }
+        else
+          plot.data << Gnuplot::DataSet.new( [date, vhash[:close]] ) {  |ds| ds.using = "1:2"; ds.with = "lines" }
+        end
+      end
+    end
+    nil
+  end
+
+  def candle_dc(symbol, bdate, period)
+
+    attrs = [:date, :open, :low, :high, :close, :volume ]
+
+    vhash = DailyClose.get_vectors(symbol, attrs, bdate, period)
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "Candlestics for #{symbol}"
+        plot.xlabel "Date"
+        plot.ylabel 'OCHL'
+        plot.pointsize 3
+        plot.grid
+        plot.xdata "time"
+        plot.timefmt '"%Y-%m-%d"'
+        plot.xtics 'scale default'
+
+        open = vhash[:open]
+        close = vhash[:close]
+        high = vhash[:high]
+        low = vhash[:low]
+        date = vhash[:date]
+
+        plot.data = []
+        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds|  ds.using="1:2:3:4:5"; ds.with = "candlesticks" }
+        volume = scale(vhash[:volume])
+        plot.data << Gnuplot::DataSet.new( volume ) {  |ds|  ds.with = "boxes" }
+      end
+    end
+    nil
+  end
+
+  def candle_live(symbol, bdate, period)
+
+    attrs = [:start, :low, :high, :open, :close, :volume ]
+
+    vhash = Aggregate.get_vectors(symbol, attrs, bdate, period)
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "Intra Day Candlestics for #{symbol}"
+        plot.xlabel "Date/Time"
+        plot.ylabel 'OCHL'
+        plot.pointsize 3
+        plot.grid
+        plot.xdata "time"
+        plot.xtic 60*60
+        plot.timefmt '"%Y-%m-%d^%H:%M:%S"'
+        plot.xformat "%d/%m\n%H:%M"
+
+        timevec = vhash[:start].collect { |td| td.to_s(:db).gsub(/[ ]/,'^') }
+        vhash.delete :start
+
+        open = vhash[:open]
+        close = vhash[:close]
+        high = vhash[:high]
+        low = vhash[:low]
+
+        plot.data = []
+        plot.data << Gnuplot::DataSet.new( [timevec, open, low, high, close] ) {  |ds|  ds.using="1:2:3:4:5"; ds.with = "candlesticks rgb black" }
+        volume = scale(vhash[:volume])
+        plot.data << Gnuplot::DataSet.new( volume ) {  |ds|  ds.with = "boxes" }
+      end
+    end
+    nil
+  end
+
+  def plotrt1(symbol, attrs = [])
+
+    vhash = RealTimeQuote.get_vectors(symbol, attrs + [:last_trade_time])
+    min_time = vhash[:last_trade_time].first
+    max_time = min_time + 8.hour
+    vhash = RealTimeQuote.get_vectors(symbol, attrs + [:last_trade_time], min_time, max_time)
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "#{symbol}: #{vhash.keys.join(',')}"
+        plot.xlabel "Date"
+        plot.ylabel "#{vhash.keys.join(', ')}"
+        plot.pointsize 3
+        plot.grid
+        plot.xdata "time"
+        plot.xtic 60*60
+        plot.timefmt '"%Y-%m-%d-%H:%M:%S"'
+
+
+        timevec = vhash[:last_trade_time].collect { |td| td.to_s(:db).gsub(/[ ]/,'-') }
+        vhash.delete :last_trade_time
+
+        plot.data = []
+
+        vhash.keys.each do |attr|
+          if attr == :volume
+            new_vec = scale(vhash[attr])
+            plot.data << Gnuplot::DataSet.new( [timevec, new_vec] ) {  |ds|  ds.using = "1:2"; ds.with = "boxes" }
+          else
+            plot.data << Gnuplot::DataSet.new( [timevec, vhash[attr]] ) {  |ds| ds.using="1:2";  ds.with = "lines" }
+          end
+        end
+      end
+    end
+    nil
+  end
+
   def plotrt(symbol, attrs = [])
 
     vhash = RealTimeQuote.get_vectors(symbol, attrs)
@@ -68,6 +213,39 @@ module Plot
     end
     nil
   end
+
+  def plotrt1(symbol, attrs = [])
+
+    vhash = RealTimeQuote.get_vectors(symbol, attrs)
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+#        plot.xrange "[0:#{len-1}]"
+#        plot.yrange "[0:#{ymax}]"
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "#{symbol}: #{vhash.keys.join(',')}"
+        plot.xlabel "Date"
+        plot.ylabel "#{vhash.keys.join(', ')}"
+        plot.pointsize 3
+        plot.grid
+
+        plot.data = []
+
+        vhash.keys.each do |attr|
+          if attr == :volume
+            new_vec = scale(vhash[attr])
+            plot.data << Gnuplot::DataSet.new( new_vec ) {  |ds|  ds.with = "boxes" }
+          else
+            plot.data << Gnuplot::DataSet.new( vhash[attr] ) {  |ds|  ds.with = "lines" }
+          end
+        end
+      end
+    end
+    nil
+  end
+
 
   def scale(vec)
     gvec = vec.to_gv

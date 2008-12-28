@@ -4,8 +4,7 @@
 # config file. You also get @logger inside of this class by default.
 class RealTimeQuoterWorker < BackgrounDRb::Rails
 
-  repeat_every 5.minutes
-  first_run Time.parse('12/22/2008 5:00')
+  first_run Time.parse('12/26/2008 6:30')
 
   def do_work(args)
     @cache = $cache.clone
@@ -14,7 +13,7 @@ class RealTimeQuoterWorker < BackgrounDRb::Rails
     csize = args[:chunk_size]
 
     len = symbols.length
-    ldr = TradingDBLoader.new('r', :logger => @logger, :memcache => @cache)
+    ldr = TradingDBLoader.new('s', :logger => @logger, :memcache => @cache)
     @cache.set('QuoteCount:RealTimeQuote', len, nil, false)
     @cache.set('QuoteCounter:RealTimeQuote', 0, nil, false)
     @cache.set('RealTimeQuote:Status', 'processing', nil, false)
@@ -28,7 +27,6 @@ class RealTimeQuoterWorker < BackgrounDRb::Rails
         ldr.load_quotes(working_ids)
       else
         reset(idx)
-        break
       end
     end
   end

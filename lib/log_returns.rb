@@ -1,13 +1,13 @@
 module LogReturns
 
   def ticker_ids
-    DailyReturn.connection.select_values('select distinct ticker_id from daily_closes where daily_closes.return is null order by ticker_id')
+    DailyClose.connection.select_values('select distinct ticker_id from daily_closes where daily_closes.return is null order by ticker_id')
   end
 
   def update_returns()
     ticker_ids.each do |tid|
       next if (tuples = get_tuples(tid)).empty?
-      tuples.unshift(get_last_close(tid).first)
+#      tuples.unshift(get_last_close(tid).first)
       compute_returns(tuples)
       puts Ticker.find(tid).symbol
     end
@@ -32,11 +32,12 @@ module LogReturns
 
   def get_last_close(ticker_id)
     sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} and daily_closes.return IS NOT NULL having max(date)"
-    tuples = DailyReturn.connection.select_rows(sql)
+    tuples = DailyClose.connection.select_rows(sql)
   end
 
   def get_tuples(ticker_id)
-    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND daily_closes.return is null order by date"
-    tuples = DailyReturn.connection.select_rows(sql)
+#    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND daily_closes.return is null order by date"
+    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} order by date"
+    tuples = DailyClose.connection.select_rows(sql)
   end
 end

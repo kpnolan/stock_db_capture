@@ -9,7 +9,7 @@ class RealTimeQuotesController < ApplicationController
   end
 
   def begin_load
-    symbols = Ticker.symbols
+    symbols = Ticker.active_symbols
 
     $cache.set('Ticker:RealTimeQuoteWorker:index', 0, nil, false)
     $cache.set('Ticker:RealTimeQuoteWorker:iteration_count', 0, nil, false)
@@ -17,7 +17,7 @@ class RealTimeQuotesController < ApplicationController
     $cache.set('RealTimeQuote:TotalCount', symbols.length, nil, false)
     $cache.set('RealTimeQuote:Counter', 0, nil, false)
 
-        count = $cache.get('RealTimeQuote:Counter', false).to_i
+    count = $cache.get('RealTimeQuote:Counter', false).to_i
     num_workers = session[:num_real_time_workers] = params[:num_workers].to_i
     session[:real_time_job_keys] = []
     1.upto(num_workers).each do |i|

@@ -19,6 +19,10 @@ class Ticker < ActiveRecord::Base
   has_many :aggregations
 
   def self.symbols
+    self.connection.select_values('SELECT symbol FROM tickers ORDER BY symbol')
+  end
+
+  def self.active_symbols
     self.connection.select_values('SELECT symbol FROM tickers ORDER BY symbol WHERE active = 1')
   end
 

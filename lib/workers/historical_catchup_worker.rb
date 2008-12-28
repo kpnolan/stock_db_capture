@@ -1,15 +1,17 @@
-class LoadHistoricalQuotesWorker < BackgrounDRb::Rails
+class HistoricalCatchupWorker < BackgrounDRb::Rails
 
   def do_work(args)
-    start_date = args[:start_date]
     end_date = args[:end_date]
-    symbols = args[:symbols]
-    @length = symbols.length
+    @wary = args[:worker_array]
+    @length = @wary.length
     @index = 0
     ActiveRecord::Base.silence do
-      symbols.each do |symbol|
-        rows = YahooFinance::get_historical_quotes(symbol, start_date, end_date, 'd')
-        @logger.info("#{symbol} returned #{rows.length} rows")
+      @wary.each do |tuple|
+        tid = tuple.first.to_i
+        symbol = tuple.second
+        max_date = Date.parse(tuple.third)
+        rows = YahooFinance::get_historical_quotes(symbol, max_date+1.day, end_date, 'd')
+        @logger.info("#{symbol} returned #{rows.length}")
         rows.each do |row|
           create_history_row(tid, row)
         end

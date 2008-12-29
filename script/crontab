@@ -1,0 +1,1 @@
+30 6 * * 1-5 cd /work/railsapps/stock_db_caputre && /usr/local/bin/rake RAILS_ENV=production active_trader:capture_live_quotes

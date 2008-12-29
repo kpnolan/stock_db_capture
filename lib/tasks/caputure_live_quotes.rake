@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'memcached'
+
 namespace :active_trader do
 
   desc "Setup the environment for live quote capture"
@@ -8,22 +11,33 @@ namespace :active_trader do
     $cache.set('LiveQuotes:index', 0, nil, false)
     $cache.set('LiveQuotes:iteration_count', 0, nil, false)
     $cache.set('LiveQuotes:chunk_size', 500, nil, false)
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ENV, 'log', 'capture_live_quotes.log'))
-    @ldr = TradingDBLoader.new('s', :logger => logger, :memcache => $cache)
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'capture_live_quotes.log'))
+    @logger.add(5, "\n")
+    @ldr = TradingDBLoader.new('s', :logger => @logger, :memcache => $cache)
   end
 
   desc "Start the process which retrieves live quotes from yahoo"
   task :capture_live_quotes => :setup do
-    while true
-      csize = $cache.get('LiveQuotes:chunk_size', false).to_i
-      idx = next_chunk(csize)
-      ids_remaining = (@len - idx) - 1
-      working_size = ids_remaining > csize ? csize : ids_remaining
-      if working_size > 0
-        working_ids = @symbols.slice(idx, working_size)
-        @ldr.load_quotes(working_ids)
+    begin
+      while true
+        csize = $cache.get('LiveQuotes:chunk_size', false).to_i
+        idx = next_chunk(csize)
+        ids_remaining = (@len - idx) - 1
+        working_size = ids_remaining > csize ? csize : ids_remaining
+        if working_size > 0
+          working_ids = @symbols.slice(idx, working_size)
+          @ldr.load_quotes(working_ids)
+        else
+          reset(idx)
+        end
+      end
+    rescue ActiveRecord::RecordInvalid => e
+      puts e.inspect
+      if (t = Time.now) && t.hour >= 13
+        @logger.info("Shutting Down Live Capture at #{Time.now}")
+        @logger.close
       else
-        reset(idx)
+        @logger.error(e.to_s)
       end
     end
   end
@@ -31,7 +45,7 @@ namespace :active_trader do
   desc "Display progress counters for live quote capture"
   task :stats do
     cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)
-    index, iter = cache.get('LiveQuotes:index', false), $cache.get('LiveQuotes:iteration_count', false)
+    index, iter = cache.get('LiveQuotes:index', false), cache.get('LiveQuotes:iteration_count', false)
     puts "Iteration: #{index} Index: #{iter}"
   end
 

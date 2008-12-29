@@ -95,11 +95,10 @@ class TradingDBLoader
 
   def load_quotes(tickers)
     ActiveRecord::Base.silence do
-      tickers.in_groups_of(10, false) do |group|
+      tickers.in_groups_of(50, false) do |group|
         YahooFinance::get_quotes(query_protocol, group) do |qt|
           if qt.valid?
             create_quote_row(target_model, qt)
-            #memcache.increment('#{target_model.to_s}:Counter')
           else
             logger.error("Invalid quote reqturned: #{qt.symbol}") if logger
           end
@@ -113,10 +112,23 @@ class TradingDBLoader
 
     ticker = Ticker.find_by_symbol(qt.symbol)
     return if ticker.nil?
-    model.new do |ar|
-      ar.ticker_id = ticker.id
-      attributes.each { |attr| ar[attr] = qt[attr] }
-    end.save!
+    begin
+      model.new do |ar|
+        ar.ticker_id = ticker.id
+        attributes.each { |attr| ar[attr] = qt[attr] }
+      end.save!
+      # if this is a duplicate record because the exchange has
+      # shut down (normal hours) then we pass it up to stop
+      # the capture process, otherwise we sampled this symbol
+      # withing the last minute of the prior sample. So, we'll just
+      # through out the sample and press on
+    rescue ActiveRecord::RecordInvalid => e
+      if (t = Time.now) && t.hour >= 13
+        raise e
+      else
+        logger.info("#{e.to_s} on symbol #{qt.symbol}")
+      end
+    end
   end
 
   def self.load_memberships

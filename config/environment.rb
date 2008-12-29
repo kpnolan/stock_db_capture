@@ -71,10 +71,8 @@ require "#{RAILS_ROOT}/lib/populate_db.rb"
 require 'memcached'
 require 'will_paginate'
 
-$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
-
-$cache.set "Ticker:DailyCloseWorker:index:#{Date.today.to_s(:db)}", 0, nil, false
-$cache.set "Ticker:DailyReturnsWorker:index:#{Date.today.to_s(:db)}", 0, nil, false
+#$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
+$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 
 
 

@@ -8,7 +8,7 @@ module TableExtract
       raise ArgumentError, 'ticker should be Fixnum or String'
     end
 
-    edate = bdate + period.days
+    edate = bdate + period
 
     dc = find(:all, :conditions => form_conditions(ticker_id, bdate, edate), :order => order)
     result = { }

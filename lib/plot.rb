@@ -13,8 +13,6 @@ module Plot
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
 
-#        plot.xrange "[0:#{len-1}]"
-#        plot.yrange "[0:#{ymax}]"
         plot.auto "x"
         plot.auto "y"
         plot.title  "#{symbol}: #{vhash.keys.join(',')}"
@@ -37,33 +35,63 @@ module Plot
     nil
   end
 
-  def test(symbol, attrs = [])
+  def daily_close(symbol, bdate, period)
 
-    attr = :close
-    vhash = DailyClose.get_vectors(symbol, [:date, :close])
+    bdate = Date.parse(bdate) if bdate.class == String
+
+    vhash = DailyClose.get_vectors(symbol, [:date, :close], bdate, period)
+    len = vhash[:date].length
 
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
 
         plot.auto "x"
         plot.auto "y"
-        plot.title  "#{symbol}: #{vhash.keys.join(',')}"
-        plot.xlabel "Date"
-        plot.ylabel "#{vhash.keys.join(', ')}"
+        plot.title  "#{symbol}(#{Ticker.lname(symbol)}): Daily Close"
+        plot.xlabel "Date from #{bdate.to_s(:db)} to #{bdate+period} (#{len} points)"
+        plot.ylabel "Close"
         plot.pointsize 3
         plot.grid
         plot.xdata "time"
         plot.timefmt '"%Y-%m-%d"'
+        plot.format 'x "%m/%d"'
 
         date = vhash[:date].collect { |date| date.to_s(:db) }
 
         plot.data = []
-        if attr == :volume
-          new_vec = scale(vhash[attr])
-          plot.data << Gnuplot::DataSet.new( new_vec ) {  |ds|  ds.with = "boxes" }
-        else
-          plot.data << Gnuplot::DataSet.new( [date, vhash[:close]] ) {  |ds| ds.using = "1:2"; ds.with = "lines" }
-        end
+        plot.data << Gnuplot::DataSet.new( [date, vhash[:close]] ) {  |ds| ds.using = "1:2"; ds.with = "lines" }
+      end
+    end
+    nil
+  end
+
+  def daily_volume(symbol, bdate, period)
+
+    bdate = Date.parse(bdate) if bdate.class == String
+
+    vhash = DailyClose.get_vectors(symbol, [:date, :volume], bdate, period)
+    len = vhash[:date].length
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "#{symbol}(#{Ticker.lname(symbol)}): Daily Volume"
+        plot.xlabel "Date from #{bdate.to_s(:db)} to #{bdate+period} (#{len} points)"
+        plot.ylabel "Volume"
+        plot.pointsize 3
+        plot.grid
+        plot.xdata "time"
+        plot.timefmt '"%Y-%m-%d"'
+        plot.format 'x "%m/%d"'
+        plot.style "fill solid 1.0"
+        plot.boxwidth "0.9 relative"
+
+        date = vhash[:date].collect { |date| date.to_s(:db) }
+
+        plot.data = []
+        plot.data << Gnuplot::DataSet.new( [date, vhash[:volume]] ) {  |ds|  ds.using = "1:2"; ds.with = "boxes" }
       end
     end
     nil

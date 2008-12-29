@@ -12,7 +12,7 @@
 class Ticker < ActiveRecord::Base
   belongs_to :exchange
 
-  has_one :listing
+  has_one  :current_listing
   has_many :real_time_quotes
   has_many :daily_returns
   has_many :daily_closes
@@ -23,7 +23,7 @@ class Ticker < ActiveRecord::Base
   end
 
   def self.active_symbols
-    self.connection.select_values('SELECT symbol FROM tickers ORDER BY symbol WHERE active = 1')
+    self.connection.select_values('SELECT symbol FROM tickers WHERE active = 1 ORDER BY symbol')
   end
 
   def self.ids
@@ -33,5 +33,10 @@ class Ticker < ActiveRecord::Base
   def self.id_groups(count)
     ids = Ticker.connection.select_values('select id from tickers order by id').collect!(&:to_i)
     ids.in_groups_of(ids.length/count)
+  end
+
+  def self.lname(symbol)
+    t = find_by_symbol(symbol.to_s.upcase)
+    t.current_listing.name.split(' ').collect(&:capitalize).join(' ') if t && t.current_listing
   end
 end

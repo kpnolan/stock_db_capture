@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20081227180640
+# Schema version: 20081228175347
 #
 # Table name: listings
 #
@@ -39,7 +39,8 @@
 #  weeks52_change_percent_from_high        :float
 #
 
-class Listing < ActiveRecord::Base
+class CurrentListing < ActiveRecord::Base
+  set_table_name 'listings'
   belongs_to :ticker
 
   def symbol=(name)

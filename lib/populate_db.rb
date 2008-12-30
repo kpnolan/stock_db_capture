@@ -134,16 +134,15 @@ class TradingDBLoader
       dt = DateTime.parse(dtstr)
       qt[:last_trade_time] = dt
     end
-    if last_close[qt.symbol].nil?
+    if self.last_close[qt.symbol].nil?
       self.last_close[qt.symbol] = qt.last_trade - qt.change_points if qt.last_trade && qt.change_points
     end
-    change_points = qt.last_trade - last_close[qt.symbol]
-    last_close[qt.symbol] = qt.last_trade
+    change_points = qt.last_trade - self.last_close[qt.symbol]
     # if either the numerator or denominator are zero we have problems, so scrub them first
-    if qt.last_trade == 0.0 || last_close[qt.symbol] == 0.0
+    if qt.last_trade == 0.0 || self.last_close[qt.symbol] == 0.0
       r, logr = -1.0, -1.0
     else
-      r = qt.last_trade/last_close[qt.symbol]
+      r = qt.last_trade/self.last_close[qt.symbol]
       logr = Math.log(r)
     end
     self.last_close[qt.symbol] = qt.last_trade if qt.last_trade

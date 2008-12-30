@@ -18,6 +18,9 @@ class LiveQuote < ActiveRecord::Base
   def symbol=(value)
   end
 
+  def last_trade_date=(value)
+  end
+
   def self.order
     'last_trade_time, id'
   end

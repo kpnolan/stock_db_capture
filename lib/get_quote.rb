@@ -90,7 +90,7 @@ module YahooFinance
     "d1" => [ "last_trade_date", "val.to_date" ],
     "t1" => [ "last_trade_time", "val.to_time" ],
     "c1" => [ "change_points", "val.to_f" ],
-#    "p2" => [ "change_percent", "val.to_f" ],
+    "p2" => [ "change_percent", "val.to_f" ],
 #    "p" => [ "previous_close", "val.to_f" ],
 #    "o" => [ "open", "val.to_f" ],
 #    "h" => [ "day_high", "val.to_f" ],
@@ -301,10 +301,6 @@ module YahooFinance
 
     def [](key)
       send(key)
-    end
-
-    def []=(key, value)
-      send("#{key.to_s}=".to_sym, value)
     end
 
     def get_info()

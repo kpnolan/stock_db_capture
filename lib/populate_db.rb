@@ -4,8 +4,11 @@ require 'ruby-debug'
 require 'memcache'
 require 'faster_csv'
 require 'yaml'
+require 'retired_symbol_exception'
 
 # TODO use extend protocol
+
+
 class String
 
   def to_time
@@ -66,7 +69,7 @@ end
 class TradingDBLoader
 
   attr_accessor :ticker_array, :query_type, :query_protocol, :memcache
-  attr_accessor :target_model, :start_date, :end_date, :logger
+  attr_accessor :target_model, :start_date, :end_date, :logger, :last_close
 
   def initialize(query_type, opts = {})
 
@@ -76,6 +79,8 @@ class TradingDBLoader
     opts.each_pair do |k, v|
       send("#{k}=", v)
     end
+
+    self.last_close = Hash.new
 
     if query_type == 'w' || query_type == 'z'
       raise ArgumentError, 'start and end date must be specified' if start_date.nil? || end_date.nil?
@@ -108,25 +113,50 @@ class TradingDBLoader
   end
 
   def create_quote_row(model, qt)
+    logger.info("creating row with #{qt.to_s}")
+    last_raised_symbol = nil
     attributes = TradingDBLoader.get_attributes(query_type)
 
     ticker = Ticker.find_by_symbol(qt.symbol)
-    return if ticker.nil?
+    return if ticker.nil? || qt[:last_trade_time].nil?
+
+    if qt[:last_trade_time].to_s(:db) =~ /^.+[ ](\d\d):(\d\d):(\d\d)/
+      hour, minute, second = $1, $2, $3
+      date = qt[:last_trade_date]
+      dtstr  = "#{date.to_s(:db)} #{hour}:#{minute}:#{second}"
+      dt = DateTime.parse(dtstr)
+      qt[:last_trade_time] = dt
+    end
+    if last_close[qt.symbol].nil?
+      self.last_close[qt.symbol] = qt.last_trade - qt.change_points
+    end
+    change_points = qt.last_trade - last_close[qt.symbol]
+    # if either the numerator or denominator are zero we have problems, so scrub them first
+    if qt.last_trade == 0.0 || last_close[qt.symbol] == 0.0
+      r, logr = nil, nil
+    else
+      r = qt.last_trade/last_close[qt.symbol]
+      logr = Math.log(r)
+    end
+    self.last_close[qt.symbol] = qt.last_trade
     begin
-      model.new do |ar|
-        ar.ticker_id = ticker.id
-        attributes.each { |attr| ar[attr] = qt[attr] }
-      end.save!
+      model.create!(:ticker_id => ticker.id, :last_trade => qt.last_trade, :last_trade_time => qt.last_trade_time,
+                    :change_points => qt.change_points, :r => r, :logr => logr, :volume => qt.volume)
       # if this is a duplicate record because the exchange has
       # shut down (normal hours) then we pass it up to stop
       # the capture process, otherwise we sampled this symbol
       # withing the last minute of the prior sample. So, we'll just
       # through out the sample and press on
     rescue ActiveRecord::RecordInvalid => e
-      if (t = Time.now) && t.hour >= 13
-        raise e
+      time = dt.to_time
+      throw (:done) if time.hour >= 16 && time.min >= 0
+      if dt.to_date < Date.today
+        unless last_raised_symbol == qt.symbol
+          last_raised_symbol = qt.symbol
+          raise RetiredSymbolException.new(qt.symbol)
+        end
       else
-        logger.info("#{e.to_s} on symbol #{qt.symbol}")
+        return
       end
     end
   end
@@ -210,6 +240,4 @@ class TradingDBLoader
     else raise "Uknown column type #{method}"
     end
   end
-
-
 end

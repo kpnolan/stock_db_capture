@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20081227191313) do
+ActiveRecord::Schema.define(:version => 20081230031957) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -56,6 +56,8 @@ ActiveRecord::Schema.define(:version => 20081227191313) do
     t.float   "log_return"
     t.float   "alr"
   end
+
+  add_index "daily_closes", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
   create_table "daily_closes_back", :force => true do |t|
     t.integer "ticker_id",  :null => false
@@ -143,11 +145,12 @@ ActiveRecord::Schema.define(:version => 20081227191313) do
 
   create_table "live_quotes", :force => true do |t|
     t.integer  "volume"
-    t.float    "change_percent"
+    t.float    "r"
     t.float    "change_points"
     t.float    "last_trade"
     t.datetime "last_trade_time"
     t.integer  "ticker_id"
+    t.float    "logr"
   end
 
   add_index "live_quotes", ["ticker_id", "last_trade_time"], :name => "index_live_quotes_on_ticker_id_and_last_trade_time", :unique => true
@@ -155,6 +158,15 @@ ActiveRecord::Schema.define(:version => 20081227191313) do
   create_table "memberships", :force => true do |t|
     t.integer "ticker_id"
     t.integer "listing_category_id"
+  end
+
+  create_table "minute_quotes", :force => true do |t|
+    t.integer  "volume"
+    t.float    "change_percent"
+    t.float    "change_points"
+    t.float    "last_trade"
+    t.datetime "last_trade_time"
+    t.integer  "ticker_id"
   end
 
   create_table "real_time_quotes", :force => true do |t|

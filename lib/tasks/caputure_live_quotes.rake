@@ -37,9 +37,8 @@ namespace :active_trader do
     @iteration += 1
     delta = (Time.now - @start_time)
     @sleep_seconds = 60.0 - delta
-    @logger.info("Given #{@symbols.length} symbols")
     @logger.info("Iteration #{@iteration} took #{delta} seconds for #{@ldr.symbol_count} symbols, #{@ldr.row_count} rows, #{@ldr.rejected_count} rejects; sleeping #{@sleep_seconds}")
-    #sleep(@sleep_seconds) if @sleep_seconds > 0.0
+    sleep(@sleep_seconds) if @sleep_seconds > 0.0
     @start_time = Time.now
     @ldr.row_count = 0
     @ldr.symbol_count = 0

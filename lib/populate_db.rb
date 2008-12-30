@@ -113,7 +113,6 @@ class TradingDBLoader
   end
 
   def create_quote_row(model, qt)
-    logger.info("creating row with #{qt.to_s}")
     last_raised_symbol = nil
     attributes = TradingDBLoader.get_attributes(query_type)
 
@@ -149,7 +148,8 @@ class TradingDBLoader
       # through out the sample and press on
     rescue ActiveRecord::RecordInvalid => e
       time = dt.to_time
-      throw (:done) if time.hour >= 16 && time.min >= 0
+      t = Time.now
+      throw (:done) if t.hour >= 13 && time.hour >= 16 && time.min >= 0
       if dt.to_date < Date.today
         unless last_raised_symbol == qt.symbol
           last_raised_symbol = qt.symbol

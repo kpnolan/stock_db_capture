@@ -19,4 +19,14 @@ class TickersController < ApplicationController
   def current_objects()
     @current_objects ||= current_model.paginate(:all, :page => params[:page], :per_page => 30, :include => [ :exchange, :current_listing] , :order => 'symbol')
   end
+
+  def plot_daily
+  end
+
+  def plot_live
+  end
+
+  def plot_histogram
+  end
+
 end

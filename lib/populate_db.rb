@@ -181,7 +181,11 @@ class TradingDBLoader
       self.rejected_count += 1
       time = dt.to_time
       t = Time.now
-      throw (:done) if t.hour >= 13 && time.hour >= 16 && time.min >= 0
+      if t.hour >= 13 && time.hour >= 16 && time.min >= 0
+        logger.info("Shutting Down Live Capture at #{Time.now}")
+        logger.close
+        throw :done
+      end
       self.retired_symbols << qt.symbol if dt.to_date < Date.today && time.hour >= 8 # wait 1.5 hours b/4 retiring
     end
   end

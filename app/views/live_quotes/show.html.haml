@@ -1,4 +1,4 @@
-%h1 Viewing Daily Return
+%h1 Viewing Live Quote
 
 %fieldset
   - smart_form_for(current_object, :readonly => true) do |f|
@@ -6,6 +6,6 @@
 
 = link_to 'Edit', edit_object_path
 |
-= link_to 'Destroy', object_path, :confirm => 'Really destroy daily_return?', :method => :delete
+= link_to 'Destroy', object_path, :confirm => 'Really destroy live_quote?', :method => :delete
 |
 = link_to 'Back', objects_path

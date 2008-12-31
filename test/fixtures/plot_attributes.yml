@@ -1,0 +1,16 @@
+one:
+  id: 1
+  name: MyString
+  symbol_id: 1
+  type: MyString
+  anchor_date: 2008-12-30 14:58:36
+  period: 1
+  attributes: MyString
+two:
+  id: 2
+  name: MyString
+  symbol_id: 1
+  type: MyString
+  anchor_date: 2008-12-30 14:58:36
+  period: 1
+  attributes: MyString

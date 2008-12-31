@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20081227180640
+# Schema version: 20081230211500
 #
 # Table name: tickers
 #
@@ -17,6 +17,10 @@ class Ticker < ActiveRecord::Base
   has_many :daily_returns
   has_many :daily_closes
   has_many :aggregations
+
+  def listing
+    current_listing
+  end
 
   def self.symbols
     self.connection.select_values('SELECT symbol FROM tickers ORDER BY symbol')

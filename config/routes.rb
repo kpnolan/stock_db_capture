@@ -1,19 +1,20 @@
 ActionController::Routing::Routes.draw do |map|
 
+  map.resources :plot_types
+  map.resources :plot_attributes
   map.resources :listing_categories
   map.resources :daily_returns
   map.resources :aggregations
-  map.resources :real_time_quotes, :member => { :plot => :get }, :collection => { :reload => :get, :begin_load => :post, :progress => :get }
-  map.resources :tickers, :collection => { :launch_pad => :get }
+  map.resources :tickers, :collection => { :find => :get }
   map.resources :historical_attributes
   map.resources :stat_values
-  map.resources :listings
+  map.resources :current_listings
   map.resources :exchanges
   map.resources :daily_closes, :member => { :plot => :get },:collection => { :reload => :get, :begin_load => :post, :progress => :get }
-  map.resources :tickers
   map.resources :exchanges
+  map.resources :live_quotes
 
-  map.root :controller => 'daily_closes', :action => 'reload'
+  map.root :controller => 'tickers', :action => 'index'
 
   # The priority is based upon order of creation: first created -> highest priority.
 

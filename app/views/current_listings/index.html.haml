@@ -1,4 +1,4 @@
-%h1 Listing listings
+%h1 Current Listing
 %table
   %tr.heading
     %th Moving Ave 50 Days Change Percent From
@@ -35,6 +35,4 @@
     %th Ebitda
     %th Weeks52 Change Percent From High
 
-  = render :partial => 'listing', :collection => current_objects
-
-= link_to 'New listing', new_object_path 
+  = render :partial => 'current_listing', :collection => current_objects

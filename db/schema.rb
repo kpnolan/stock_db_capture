@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20081230031957) do
+ActiveRecord::Schema.define(:version => 20081231002802) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -41,8 +41,44 @@ ActiveRecord::Schema.define(:version => 20081230031957) do
     t.datetime "updated_at"
   end
 
+  create_table "current_listings", :force => true do |t|
+    t.float   "moving_ave_50_days_change_percent_from"
+    t.float   "weeks52_change_from_low"
+    t.float   "weeks52_change_percent_from_low"
+    t.float   "weeks52_range_low"
+    t.float   "weeks52_range_high"
+    t.float   "peg_ratio"
+    t.float   "dividend_yield"
+    t.string  "name"
+    t.float   "price_per_eps_estimate_current_year"
+    t.float   "oneyear_target_price"
+    t.float   "dividend_per_share"
+    t.float   "short_ratio"
+    t.float   "price_persales"
+    t.float   "price_per_eps_estimate_next_year"
+    t.float   "eps"
+    t.float   "moving_ave_50_days"
+    t.float   "price_perbook"
+    t.date    "ex_dividend_date"
+    t.float   "moving_ave_200_days"
+    t.float   "book_value"
+    t.float   "eps_estimate_current_year"
+    t.float   "market_cap"
+    t.float   "pe_ratio"
+    t.float   "moving_ave_200_days_change_from"
+    t.float   "eps_estimate_next_year"
+    t.integer "ticker_id"
+    t.float   "moving_ave_200_days_change_percent_from"
+    t.float   "eps_estimate_next_quarter"
+    t.date    "dividend_paydate"
+    t.float   "weeks52_change_from_high"
+    t.float   "moving_ave_50_days_change_from"
+    t.float   "ebitda"
+    t.float   "weeks52_change_percent_from_high"
+  end
+
   create_table "daily_closes", :force => true do |t|
-    t.integer "ticker_id",  :null => false
+    t.integer "ticker_id", :null => false
     t.date    "date"
     t.float   "open"
     t.float   "close"
@@ -52,8 +88,8 @@ ActiveRecord::Schema.define(:version => 20081230031957) do
     t.integer "volume"
     t.integer "week"
     t.integer "month"
-    t.float   "return"
-    t.float   "log_return"
+    t.float   "r"
+    t.float   "logr"
     t.float   "alr"
   end
 
@@ -107,42 +143,6 @@ ActiveRecord::Schema.define(:version => 20081230031957) do
     t.string "name"
   end
 
-  create_table "listings", :force => true do |t|
-    t.float   "moving_ave_50_days_change_percent_from"
-    t.float   "weeks52_change_from_low"
-    t.float   "weeks52_change_percent_from_low"
-    t.float   "weeks52_range_low"
-    t.float   "weeks52_range_high"
-    t.float   "peg_ratio"
-    t.float   "dividend_yield"
-    t.string  "name"
-    t.float   "price_per_eps_estimate_current_year"
-    t.float   "oneyear_target_price"
-    t.float   "dividend_per_share"
-    t.float   "short_ratio"
-    t.float   "price_persales"
-    t.float   "price_per_eps_estimate_next_year"
-    t.float   "eps"
-    t.float   "moving_ave_50_days"
-    t.float   "price_perbook"
-    t.date    "ex_dividend_date"
-    t.float   "moving_ave_200_days"
-    t.float   "book_value"
-    t.float   "eps_estimate_current_year"
-    t.float   "market_cap"
-    t.float   "pe_ratio"
-    t.float   "moving_ave_200_days_change_from"
-    t.float   "eps_estimate_next_year"
-    t.integer "ticker_id"
-    t.float   "moving_ave_200_days_change_percent_from"
-    t.float   "eps_estimate_next_quarter"
-    t.date    "dividend_paydate"
-    t.float   "weeks52_change_from_high"
-    t.float   "moving_ave_50_days_change_from"
-    t.float   "ebitda"
-    t.float   "weeks52_change_percent_from_high"
-  end
-
   create_table "live_quotes", :force => true do |t|
     t.integer  "volume"
     t.float    "r"
@@ -160,13 +160,25 @@ ActiveRecord::Schema.define(:version => 20081230031957) do
     t.integer "listing_category_id"
   end
 
-  create_table "minute_quotes", :force => true do |t|
-    t.integer  "volume"
-    t.float    "change_percent"
-    t.float    "change_points"
-    t.float    "last_trade"
-    t.datetime "last_trade_time"
+  create_table "plot_attributes", :force => true do |t|
+    t.string   "name"
     t.integer  "ticker_id"
+    t.string   "type"
+    t.datetime "anchor_date"
+    t.integer  "period"
+    t.string   "attributes"
+  end
+
+  add_index "plot_attributes", ["ticker_id"], :name => "ticker_id"
+
+  create_table "plot_types", :force => true do |t|
+    t.string  "name"
+    t.string  "source_model"
+    t.string  "method"
+    t.string  "time_class"
+    t.string  "resolution"
+    t.string  "inputs"
+    t.integer "num_outputs"
   end
 
   create_table "real_time_quotes", :force => true do |t|
@@ -217,5 +229,7 @@ ActiveRecord::Schema.define(:version => 20081230031957) do
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
 
   add_foreign_key "aggregates", ["ticker_id"], "tickers", ["id"], :name => "aggregates_ibfk_1"
+
+  add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 
 end

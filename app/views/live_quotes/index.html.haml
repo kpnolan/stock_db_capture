@@ -1,0 +1,18 @@
+%h1 Listing live_quotes
+%table
+  %tr.heading
+    %th Ticker
+    %th Last Trade
+    %th Last Trade Time
+    %th Change Points
+    %th Return
+    %th Log Return
+    %th Volume
+
+  = render :partial => 'live_quote', :collection => current_objects
+
+%div{:class => "digg_pagination", :style => "float:right"}
+  %div{:class => "page_info"}
+    = page_entries_info current_objects
+  = will_paginate current_objects, :container => false
+

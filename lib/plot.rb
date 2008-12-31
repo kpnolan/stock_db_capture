@@ -4,6 +4,9 @@ require 'rbgsl'
 require 'gsl/gnuplot'
 
 module Plot
+
+  PLOT_TYPES = [ :line, :bar, :candlestick ]
+
   include GSL
 
   def plotdc(symbol, attrs = [])

@@ -160,7 +160,7 @@ class TradingDBLoader
       time = dt.to_time
       t = Time.now
       throw (:done) if t.hour >= 13 && time.hour >= 16 && time.min >= 0
-      self.retired_symbols << qt.symbol if dt.to_date < Date.today
+      self.retired_symbols << qt.symbol if dt.to_date < Date.today && time.hour >= 8 # wait 1.5 hours b/4 retiring
     end
   end
 

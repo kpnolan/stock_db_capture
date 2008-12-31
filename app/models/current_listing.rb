@@ -1,7 +1,7 @@
 # == Schema Information
-# Schema version: 20081228175347
+# Schema version: 20081230211500
 #
-# Table name: listings
+# Table name: current_listings
 #
 #  id                                      :integer(4)      not null, primary key
 #  moving_ave_50_days_change_percent_from  :float
@@ -40,7 +40,6 @@
 #
 
 class CurrentListing < ActiveRecord::Base
-  set_table_name 'listings'
   belongs_to :ticker
 
   def symbol=(name)

@@ -1,0 +1,13 @@
+%h1 Listing plot_attributes
+%table
+  %tr.heading
+    %th Name
+    %th Symbol
+    %th Type
+    %th Anchor Date
+    %th Period
+    %th Attributes
+
+  = render :partial => 'plot_attributes', :collection => current_objects
+
+= link_to 'New plot_attributes', new_object_path 

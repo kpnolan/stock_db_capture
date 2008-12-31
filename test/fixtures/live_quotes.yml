@@ -1,0 +1,33 @@
+# == Schema Information
+# Schema version: 20081230211500
+#
+# Table name: live_quotes
+#
+#  id              :integer(4)      not null, primary key
+#  volume          :integer(4)
+#  r               :float
+#  change_points   :float
+#  last_trade      :float
+#  last_trade_time :datetime
+#  ticker_id       :integer(4)
+#  logr            :float
+#
+
+one:
+  id: 1
+  ticker_id: 1
+  last_trade: 1.5
+  last_trade_time: 2008-12-30 12:19:47
+  change_points: 1.5
+  r: 1.5
+  logr: 1.5
+  volume: 1
+two:
+  id: 2
+  ticker_id: 1
+  last_trade: 1.5
+  last_trade_time: 2008-12-30 12:19:47
+  change_points: 1.5
+  r: 1.5
+  logr: 1.5
+  volume: 1

@@ -1,0 +1,14 @@
+%h1 Listing plot_types
+%table
+  %tr.heading
+    %th Name
+    %th Source Model
+    %th Method
+    %th Time Class
+    %th Resolution
+    %th Inputs
+    %th Num Outputs
+
+  = render :partial => 'plot_type', :collection => current_objects
+
+= link_to 'New plot_type', new_object_path 

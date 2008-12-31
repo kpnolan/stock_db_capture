@@ -4,7 +4,7 @@
   %td.exchange_id
     = lkup ticker.exchange, 'symbol'
   %td.listing
-    = lkup ticker.listing, 'name'
+    = lkup ticker.current_listing, 'name'
   %td.show
     = link_to 'Show', object_path(ticker)
   %td.edit

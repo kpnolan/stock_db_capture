@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20081228175347
+# Schema version: 20081230211500
 #
 # Table name: memberships
 #

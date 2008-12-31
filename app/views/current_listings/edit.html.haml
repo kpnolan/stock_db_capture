@@ -1,10 +1,12 @@
-%h1 Creating Listing
+%h1 Editing Current Listing
 
-= error_messages_for :listing
+= error_messages_for :current_listing
 
 %fieldset
   - smart_form_for(current_object) do |f|
     = render :partial => "form", :locals => {:f => f}
-    %p= f.submit "Create"
+    %p= f.submit "Update"
 
+= link_to 'Show', object_path
+|
 = link_to 'Back', objects_path

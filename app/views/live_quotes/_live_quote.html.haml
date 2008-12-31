@@ -1,0 +1,21 @@
+%tr[live_quote]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.ticker_id
+    = lkup live_quote.ticker
+  %td.last_trade
+    = h live_quote.last_trade
+  %td.last_trade_time
+    = h live_quote.last_trade_time
+  %td.change_points
+    = h live_quote.change_points
+  %td.r
+    = h live_quote.r
+  %td.logr
+    = h live_quote.logr
+  %td.volume
+    = h live_quote.volume
+  %td.show
+    = link_to 'Show', object_path(live_quote)
+  %td.edit
+    = link_to 'Edit', edit_object_path(live_quote)
+  %td.destroy
+    = link_to 'Destroy', object_path(live_quote), :confirm => 'Really destroy live_quote?', :method => :delete

@@ -13,25 +13,24 @@
       #left.column{ :style => "display:inline;" }
         = link_to 'Tickers', tickers_path
         %br/
-        = link_to 'Listings', listings_path
+        = link_to 'Listings', current_listings_path
         %br/
         = link_to 'Listing Categories', listing_categories_path
         %br/
         = link_to 'Daily Closes', daily_closes_path
         %br/
-        = link_to 'Daily Returns', daily_returns_path
-        %br/
         = link_to 'Exchanges', exchanges_path
         %br/
         = link_to 'Historical Attributes', historical_attributes_path
         %br/
-        = link_to 'Real-time Quotes', real_time_quotes_path
+        = link_to 'Live Quotes', live_quotes_path
         %br/
         = link_to 'Derived Stat Values', stat_values_path
         %br/
-        = link_to 'Update Historical Closes', reload_daily_closes_path
+        = link_to 'Plot Type', plot_types_path
         %br/
-        = link_to 'Initiate Real-time quotes', reload_real_time_quotes_path
+        = link_to 'Plot Attributes', plot_attributes_path
+        %br/
       #side_content
         = yield :side_content
       #main

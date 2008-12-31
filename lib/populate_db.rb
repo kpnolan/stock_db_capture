@@ -69,7 +69,7 @@ end
 class TradingDBLoader
 
   attr_accessor :ticker_array, :query_type, :query_protocol, :row_count, :symbol_count, :rejected_count
-  attr_accessor :target_model, :start_date, :end_date, :logger, :last_close, :retired_symbols
+  attr_accessor :target_model, :start_date, :end_date, :logger, :last_close, :retired_symbols, :iteration, :start_time
 
   def initialize(query_type, opts = {})
 
@@ -85,6 +85,7 @@ class TradingDBLoader
     self.symbol_count = 0
     self.rejected_count = 0
     self.retired_symbols = 0
+    self.iteration = 0
 
     if query_type == 'w' || query_type == 'z'
       raise ArgumentError, 'start and end date must be specified' if start_date.nil? || end_date.nil?
@@ -104,6 +105,8 @@ class TradingDBLoader
 
   def load_quotes(tickers)
     self.retired_symbols = []
+    self.start_time = Time.now
+    logger.info("Starting with #{tickers.count} symbols")
     ActiveRecord::Base.silence do
       tickers.in_groups_of(100, false) do |group|
         YahooFinance::get_quotes(query_protocol, group) do |qt|
@@ -117,8 +120,19 @@ class TradingDBLoader
         end
       end
     end
-    logger.info("returning from load quotes")
-    retired_symbols
+    cleanup_iteration(tickers)
+  end
+
+  def cleanup_iteration(tickers)
+    self.iteration += 1
+    delta = (Time.now - start_time)
+    sleep_seconds = 60.0 - delta
+    logger.info("Iteration #{@iteration} took #{delta} seconds for #{tickers.length} tickers(#{symbol_count}), #{row_count} rows, #{rejected_count} rejects; #{retired_symbols.length} retireies; sleeping #{sleep_seconds}")
+    sleep(sleep_seconds) if sleep_seconds > 0.0
+    self.row_count = 0
+    self.rejected_count = 0
+    self.symbol_count = 0
+    self.retired_symbols
   end
 
   def create_quote_row(model, qt)

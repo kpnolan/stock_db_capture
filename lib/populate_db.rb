@@ -137,7 +137,14 @@ class TradingDBLoader
     if self.last_close[qt.symbol].nil?
       self.last_close[qt.symbol] = qt.last_trade - qt.change_points if qt.last_trade && qt.change_points
     end
-    change_points = qt.last_trade - self.last_close[qt.symbol]
+    begin
+      change_points = qt.last_trade - self.last_close[qt.symbol]
+    rescue => e
+      @logger.error(e.to_s)
+      p "#{qt.last_trade} - #{self.last_close[qt.symbol]} (#{qt.symbol})"
+      return
+    end
+
     # if either the numerator or denominator are zero we have problems, so scrub them first
     if qt.last_trade == 0.0 || self.last_close[qt.symbol] == 0.0
       r, logr = -1.0, -1.0

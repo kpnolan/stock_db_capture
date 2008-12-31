@@ -1,5 +1,5 @@
 require 'rubygems'
-require 'hpricot'
+#require 'hpricot'
 require 'retired_symbol_exception'
 
 namespace :active_trader do

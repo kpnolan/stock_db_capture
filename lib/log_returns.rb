@@ -1,15 +1,14 @@
 module LogReturns
 
   def ticker_ids
-#    DailyClose.connection.select_values('select distinct ticker_id from daily_closes where daily_closes.return is null order by ticker_id')
-    DailyClose.connection.select_values('select ticker_id from daily_closes where ticker_id > 1556 order by ticker_id')
+    DailyClose.connection.select_values('select distinct ticker_id from daily_closes where daily_closes.return is null order by ticker_id')
   end
 
   def update_returns()
     ticker_ids.each do |tid|
       puts Ticker.find(tid).symbol
       next if (tuples = get_tuples(tid)).empty?
-#      tuples.unshift(get_last_close(tid).first)
+      tuples.unshift(get_last_close(tid).first)
       compute_returns(tuples)
     end
     ticker_ids.length
@@ -24,7 +23,7 @@ module LogReturns
       curval = tuples[i].second.to_f
       preval = tuples[i-1].second.to_f
       if preval == 0.0 || curval == 0
-        r, lr, alr = 0.0, 0.0, 0.0
+        r, lr, alr = 1.0, 0.0, 0.0
       else
         r = (curval/preval)
         lr = Math.log(r)

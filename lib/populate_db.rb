@@ -117,6 +117,7 @@ class TradingDBLoader
         end
       end
     end
+    logger.info("returning from load quotes")
     retired_symbols
   end
 
@@ -140,8 +141,8 @@ class TradingDBLoader
     begin
       change_points = qt.last_trade - self.last_close[qt.symbol]
     rescue => e
-      @logger.error(e.to_s)
-      p "#{qt.last_trade} - #{self.last_close[qt.symbol]} (#{qt.symbol})"
+      logger.error(e.to_s)
+      logger.error("#{qt.last_trade} - #{self.last_close[qt.symbol]} (#{qt.symbol})")
       return
     end
 

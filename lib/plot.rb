@@ -9,18 +9,18 @@ module Plot
 
   include GSL
 
-  def plotdc(symbol, attrs = [])
+  def plot_lines(symbol, attrs = [], start=nil, num_points=nil)
 
-    vhash = DailyClose.get_vectors(symbol, attrs)
+    vhash = simple_vectors(symbol, attrs, start, num_points)
 
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
 
         plot.auto "x"
         plot.auto "y"
-        plot.title  "#{symbol}: #{vhash.keys.join(',')}"
-        plot.xlabel "Date"
-        plot.ylabel "#{vhash.keys.join(', ')}"
+        plot.title  "#{symbol}: #{titleize(vhash.keys)}"
+        plot.xlabel time_class.to_s
+        plot.ylabel "#{titleize(vhash.keys)}"
         plot.pointsize 3
         plot.grid
 
@@ -38,12 +38,14 @@ module Plot
     nil
   end
 
-  def daily_close(symbol, bdate, period)
+  def plot_times(symbol, attrs, start, period)
 
-    bdate = Date.parse(bdate) if bdate.class == String
+    start = time_class.parse(start) if start.class == String
+    start = start.send(time_convert)
 
-    vhash = DailyClose.get_vectors(symbol, [:date, :close], bdate, period)
-    len = vhash[:date].length
+    vhash = general_vectors(symbol, attrs, start, period)
+    timevec = simple_vector(symbol, time_col, start, period)
+    len = timevec.length
 
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
@@ -51,7 +53,7 @@ module Plot
         plot.auto "x"
         plot.auto "y"
         plot.title  "#{symbol}(#{Ticker.lname(symbol)}): Daily Close"
-        plot.xlabel "Date from #{bdate.to_s(:db)} to #{bdate+period} (#{len} points)"
+        plot.xlabel "Date from #{start.to_s(:db)} to #{start+period} (#{len} points)"
         plot.ylabel "Close"
         plot.pointsize 3
         plot.grid
@@ -59,10 +61,15 @@ module Plot
         plot.timefmt '"%Y-%m-%d"'
         plot.format 'x "%m/%d"'
 
-        date = vhash[:date].collect { |date| date.to_s(:db) }
-
         plot.data = []
-        plot.data << Gnuplot::DataSet.new( [date, vhash[:close]] ) {  |ds| ds.using = "1:2"; ds.with = "lines" }
+        vhash.keys.each do |attr|
+          if attr == :volume
+            new_vec = scale(vhash[attr])
+            plot.data << Gnuplot::DataSet.new( new_vec ) {  |ds|  ds.with = "boxes" }
+          else
+            plot.data << Gnuplot::DataSet.new( [timevec, vhash[attr]] ) {  |ds|  ds.using = "1:2"; ds.with = "lines" }
+          end
+        end
       end
     end
     nil
@@ -306,14 +313,7 @@ module Plot
     nil
   end
 
-  def wma(periodLength, values)
-    sum = 0;
-    weightedSum = 0;
-    for n in 0..periodLength
-      weightedSum = weightedSum + ((periodLength - n) * values[n]);
-      sum = sum + n;
-    end
-    return weightedSum / sum;
+  def titleize(syms)
+    syms.map { |sym| sym.to_s.titleize }.join(', ')
   end
-
 end

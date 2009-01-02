@@ -1,15 +1,22 @@
+require 'retired_symbol_exception'
+
 module LogReturns
 
   def ticker_ids
-    DailyClose.connection.select_values('select distinct ticker_id from daily_closes where daily_closes.return is null order by ticker_id')
+    DailyClose.connection.select_values('SELECT DISTINCT ticker_id FROM daily_closes WHERE r IS NULL ORDER BY ticker_id')
   end
 
   def update_returns()
     ticker_ids.each do |tid|
-      puts Ticker.find(tid).symbol
-      next if (tuples = get_tuples(tid)).empty?
-      tuples.unshift(get_last_close(tid).first)
-      compute_returns(tuples)
+      symbol = Ticker.find(tid).symbol
+      next if (tuples = get_tuples(symbol, tid)).empty?
+      begin
+        tuples.unshift(get_last_close(tid).first)
+        compute_returns(tuples)
+      rescue RetiredSymbolException => e
+        tuples.unshift(tuples.first)
+        compute_returns(tuples)
+      end
     end
     ticker_ids.length
   end
@@ -30,18 +37,25 @@ module LogReturns
         alr = lr*252.0
       end
       dc = DailyClose.find tuples[i].first
-      dc.update_attributes!(:return => r, :log_return => lr, :alr => alr)
+      dc.update_attributes!(:r => r, :logr => lr, :alr => alr)
     end
     nil
   end
 
   def get_last_close(ticker_id)
-    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} and daily_closes.return IS NOT NULL having max(date)"
+    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} and r IS NOT NULL having max(date)"
     tuples = DailyClose.connection.select_rows(sql)
+    if tuples.length != 1
+      raise RetiredSymbolException.new(Ticker.find(ticker_id).symbol)
+    else
+      tuples
+    end
   end
 
-  def get_tuples(ticker_id)
-    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND daily_closes.return is null order by date"
+  def get_tuples(symbol, ticker_id)
+    sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND r is null order by date"
     tuples = DailyClose.connection.select_rows(sql)
+    puts "computing #{tuples.length} returns for #{symbol}"
+    tuples
   end
 end

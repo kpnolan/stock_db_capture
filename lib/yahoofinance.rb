@@ -481,7 +481,6 @@ module YahooFinance
         query = "/table.csv?s=#{symbol}&g=#{qtype}" +
         "&a=#{startDate.month-1}&b=#{startDate.mday}&c=#{startDate.year}" +
         "&d=#{endDate.month-1}&e=#{endDate.mday}&f=#{endDate.year.to_s}&ignore.csv"
-        puts "#{query}"
         response = http.get( query )
         #puts "#{response.body}"
         body = response.body.chomp

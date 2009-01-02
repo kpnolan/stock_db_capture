@@ -5,7 +5,7 @@ module LoadDailyClose
   end
 
   def tickers_with_partial_history
-    tids = DailyClose.connection.select_rows("SELECT ticker_id, MAX(date) AS MAX FROM daily_closes WHERE max < #{Date.today.to_s(:db)}")
+    tids = DailyClose.connection.select_values("select ticker_id from daily_closes group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}'")
   end
 
   def update_history()
@@ -19,7 +19,8 @@ module LoadDailyClose
     tids.each do |ticker_id|
       symbol = Ticker.find_by_id(ticker_id).symbol
       rows = YahooFinance::get_historical_quotes(symbol, min_date, Date.today, 'd')
-      @logger.info("#{symbol} returned #{rows.length} rows")
+      Ticker.find_by_id(ticker_id).update_attribute(:active => false) if rows == 0
+      puts ("#{symbol} returned #{rows.length} rows")
       rows.each do |row|
         create_history_row(ticker_id, row)
       end
@@ -30,11 +31,12 @@ module LoadDailyClose
     tids = tickers_with_partial_history()
     tids.each do |ticker_id|
       min_date = DailyClose.connection.select_value("SELECT MAX(date) FROM daily_closes WHERE ticker_id = #{ticker_id}")
+      min_date = Date.parse(min_date)+1.day
       symbol = Ticker.find_by_id(ticker_id).symbol
       rows = YahooFinance::get_historical_quotes(symbol, min_date, Date.today, 'd')
-      @logger.info("#{symbol} returned #{rows.length} rows")
+      puts ("#{symbol} returned #{rows.length} rows")
       rows.each do |row|
-        create_history_row(tid, row)
+        create_history_row(ticker_id, row)
       end
     end
   end
@@ -54,8 +56,7 @@ module LoadDailyClose
       # we arrive here when we have a dup ticker_id/date
       # which is to be expected since we start the history capture
       # from the last (max) date
-      @logger.info(e.to_s)
-      @logger.info("offending record: #{ar}")
+      puts ("rejected record: #{ar.inspect}")
       return
     end
   end

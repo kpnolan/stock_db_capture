@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20081231002802) do
+ActiveRecord::Schema.define(:version => 20090103173409) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -224,6 +224,7 @@ ActiveRecord::Schema.define(:version => 20081231002802) do
     t.string  "symbol",      :limit => 8
     t.string  "exchange_id"
     t.boolean "active"
+    t.boolean "dormant",                  :default => false
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"

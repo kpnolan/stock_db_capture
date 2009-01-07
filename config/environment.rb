@@ -70,9 +70,13 @@ require 'smart_form_builder'
 require "#{RAILS_ROOT}/lib/populate_db.rb"
 require 'memcached'
 require 'will_paginate'
+require 'gsl'
+require 'talib'
+Talib.ta_initialize();
+
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
-$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)
+#$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 
 
 

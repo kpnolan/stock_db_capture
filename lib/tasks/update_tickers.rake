@@ -1,3 +1,6 @@
+require 'populate_db'
+require 'hpricot'
+
 namespace :active_trader do
   desc "Populate tickers with Russell 3000"
   task :update_r3000 => :environment do
@@ -24,5 +27,12 @@ namespace :active_trader do
       t = Ticker.create!(:symbol => pair.first, :exchange_id => eid, :active => true)
       e = CurrentListing.create!(:ticker_id => t.id, :name => pair.last)
     end
+  end
+
+  desc "Update Listings with current info"
+  task :update_listings => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_listings.log'))
+    ldr = TradingDBLoader.new('x', :logger => logger)
+    ldr.load_listings(Ticker.symbols)
   end
 end

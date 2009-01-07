@@ -1,5 +1,7 @@
 module TableExtract
 
+  FUNCTIONS = [ :ema_9, :ema_21 ]
+
   def simple_vector(ticker, attr, start, period)
     ticker_id = normalize_ticker(ticker)
     start = start.send(time_convert)
@@ -9,13 +11,21 @@ module TableExtract
   end
 
   def simple_vectors(ticker, attrs=[], start=nil, num_points=nil)
-    recs = find(:all, :conditions => form_conditions(ticker, start), :order => order, :limit => num_points)
+    bdate = start.send(time_convert)
+    recs = find(:all, :conditions => form_conditions(ticker, bdate), :order => order, :limit => num_points)
     form_result_hash(recs, attrs)
   end
 
-  def general_vectors(ticker, attrs, bdate, period)
+  def general_vectors_by_interval(ticker, attrs, bdate, period)
     bdate = bdate.send(time_convert)
     edate = bdate + period
+    recs = find(:all, :conditions => form_conditions(ticker, bdate, edate), :order => order)
+    form_result_hash(recs, attrs)
+  end
+
+  def general_vectors(ticker, attrs, bdate, edate)
+    bdate = bdate.send(time_convert)
+    edate = edate.send(time_convert)
     recs = find(:all, :conditions => form_conditions(ticker, bdate, edate), :order => order)
     form_result_hash(recs, attrs)
   end

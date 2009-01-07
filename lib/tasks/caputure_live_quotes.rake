@@ -6,7 +6,6 @@ namespace :active_trader do
 
   desc "Setup the environment for live quote capture"
   task :setup => :environment do
-    rake log:clear
     @symbols = Ticker.active_symbols
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'capture_live_quotes.log'))
     @ldr = TradingDBLoader.new('s', :logger => @logger)

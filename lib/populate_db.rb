@@ -95,7 +95,7 @@ class TradingDBLoader
   def get_query_params(query_type)
     case query_type
     when 's' : [ YahooFinance::StandardQuote, LiveQuote ]
-    when 'x' : [ YahooFinance::ExtendedQuote, Listing ]
+    when 'x' : [ YahooFinance::ExtendedQuote, CurrentListing ]
     when 'r' : [ YahooFinance::RealTimeQuote, RealTimeQuote ]
     when 'z' : [ YahooFinance::HistoricalQuote, DailyClose ]
     when 'w','W' : [ YahooFinance::HistoricalQuote, Aggregation ]
@@ -123,6 +123,23 @@ class TradingDBLoader
     cleanup_iteration(tickers)
   end
 
+  def load_listings(symbols)
+    ActiveRecord::Base.silence do
+      symbols.in_groups_of(50, false) do |group|
+        YahooFinance::get_quotes(query_protocol, group) do |qt|
+          if qt.valid?
+            self.symbol_count += 1
+            create_listing(qt)
+          else
+            logger.error("Invalid Listing reqturned, retiring: #{qt.symbol}") if logger
+            ticker = Ticker.find_by_symbol(qt.symbol)
+            ticker.update_attribute(:dormant, true)
+          end
+        end
+      end
+    end
+  end
+
   def cleanup_iteration(tickers)
     self.iteration += 1
     delta = (Time.now - start_time)
@@ -133,6 +150,20 @@ class TradingDBLoader
     self.rejected_count = 0
     self.symbol_count = 0
     self.retired_symbols
+  end
+
+  def create_listing(qt)
+    ticker = Ticker.find_by_symbol(qt.symbol)
+    if (cl = ticker.current_listing).nil?
+      cl = CurrentListing.new(:ticker_id => ticker.id)
+    end
+    syms = CurrentListing.content_columns.collect { |col| col.name.to_sym }
+    attrs = syms.inject({}) { |hash, sym| hash[sym] = qt.send(sym); hash }
+    begin
+      CurrentListing.create!(attrs)
+    rescue => e
+      logger.error("Error creating #{qt.symbol}, msg: #{e.message}") if logger
+    end
   end
 
   def create_quote_row(model, qt)
@@ -156,7 +187,7 @@ class TradingDBLoader
       change_points = qt.last_trade - self.last_close[qt.symbol]
     rescue => e
       logger.error(e.to_s)
-      logger.error("#{qt.last_trade} - #{self.last_close[qt.symbol]} (#{qt.symbol})")
+      logger.error("#{qt.last_trade} - #{self.last_close[qt.symbol]} (#{qt.symbol})") if logger
       return
     end
 
@@ -182,8 +213,8 @@ class TradingDBLoader
       time = dt.to_time
       t = Time.now
       if t.hour >= 13 && time.hour >= 16 && time.min >= 0
-        logger.info("Shutting Down Live Capture at #{Time.now}")
-        logger.close
+        logger.info("Shutting Down Live Capture at #{Time.now}") if logger
+        logger.close if logger
         throw :done
       end
       self.retired_symbols << qt.symbol if dt.to_date < Date.today && time.hour >= 8 # wait 1.5 hours b/4 retiring

@@ -6,6 +6,10 @@ module LogReturns
     DailyClose.connection.select_values('SELECT DISTINCT ticker_id FROM daily_closes WHERE r IS NULL ORDER BY ticker_id')
   end
 
+  def all_ticker_ids
+    Ticker.ids
+  end
+
   def update_returns()
     ticker_ids.each do |tid|
       symbol = Ticker.find(tid).symbol

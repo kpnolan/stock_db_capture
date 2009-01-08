@@ -10,6 +10,11 @@ module TableExtract
                              "#{time_col} >= '#{start.to_s(:db)}' AND #{time_col} <= '#{end_date.to_s(:db)}' ORDER BY #{order}")
   end
 
+  def time_vector(ticker)
+    ticker_id = normalize_ticker(ticker)
+    connection.select_values("SELECT #{time_col} FROM #{to_s.tableize} WHERE ticker_id = #{ticker_id} ORDER BY #{time_col}")
+  end
+
   def simple_vectors(ticker, attrs=[], start=nil, num_points=nil)
     bdate = start.send(time_convert)
     recs = find(:all, :conditions => form_conditions(ticker, bdate), :order => order, :limit => num_points)

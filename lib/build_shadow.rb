@@ -17,7 +17,7 @@ class BuildShadow
   end
 
   def emit_preamble
-    preamble << __PREAMBLE__
+    buffer <<-DONE
     ###############################################################################################################
     # DON'T EDIT THIS FILE !!!
     # This file was automatically generated from 'ta_func.xml'
@@ -26,8 +26,7 @@ class BuildShadow
     # I think the Swig interface is still to low-level and created this higher-level interface that really is designed
     # to be a mixin to the Timeseries class upon with talib functions operate.
     ################################################################################################################
-    __PREAMBLE__
-    buffer preamble
+    DONE
   end
 
   def emit_trailer
@@ -44,11 +43,10 @@ class BuildShadow
     emit_input_args(iargs)
     emit_decl_close
     emit_default_options(opt_args)
-    emit_prelude
+    emit_prelude(opt_args)
     emit_invoke_primative
     emit_input_args()
     emit_internal_args
-    buffer ', ' unless opt_args.empty?
     emit_opt_args(opt_args)
     emit_primative_close
     emit_post_processing
@@ -66,8 +64,9 @@ class BuildShadow
     buffer "options={})\n"
   end
 
-  def emit_prelude
-    buffer "    beg_idx, end_idx = calc_indexes(:ta_#{name}_lookback, time_range, options)\n"
+  def emit_prelude(opt_args)
+    options = expand_opt_args(opt_args)
+    buffer "    beg_idx, end_idx = calc_indexes(:ta_#{name}_lookback, time_range#{options})\n"
   end
 
   def emit_invoke_primative
@@ -139,15 +138,19 @@ class BuildShadow
   end
 
   def emit_opt_args(opt_args)
+    buffer expand_opt_args(opt_args)
+  end
+
+  def expand_opt_args(opt_args)
     if opt_args.empty?
-      ret = ''
+      ret = nil
     else
       ret =  opt_args.map do |arg|
         name = arg["Name"].first.gsub(/[ ]/, '_').downcase
         "options[:#{name}]"
       end.join(', ')
     end
-    buffer ret
+    ret.nil? ? '' : ', '+ret
   end
 
   def buffer(str)

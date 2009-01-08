@@ -28,7 +28,7 @@ class DailyClose < ActiveRecord::Base
   def symbol=(value) ;  end
   def last_trade_date=(value) ;  end
   def self.order ; 'date, id'; end
-  def self.time_col ; 'date';  end
+  def self.time_col ; :date ;  end
   def self.time_convert ; :to_date ;  end
   def self.time_class ; Date ;  end
   def self.time_res; 1; end

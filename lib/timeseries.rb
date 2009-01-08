@@ -10,90 +10,135 @@ class Timeseries
                                     :end_time => Time.now }
   }
   attr_accessor :symbol, :source_model, :value_hash, :time_interval
-  attr_accessor :start_time, :end_time, :num_points, :sample_period
-  attr_accessor :attrs, :derived_values
-  attr_accessor :timevec, :time_map, :local_focus
+  attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
+  attr_accessor :attrs, :derived_values, :output_offset
+  attr_accessor :timevec, :time_map, :index_map, :local_focus
 
-  def initialize(symbol, source_model, options)
+  def initialize(symbol, source_model, options={})
     raise ArgumentError, "source_model must be one of #{DEFAULT_OPTIONS.keys.join(' or ')}" unless [ DailyClose, LiveQuote ].include? source_model
     self.symbol = symbol
-    self.value_hash = {}
-    self.time_map = {}
-    self.local_focus = nil
-    self.derived_values = []
+    self.source_model = source_model
+    initialize_state
     options.reverse_merge!(DEFAULT_OPTIONS[source_model])
-    apply_options()
-    repopulate({}) if options[:populate]
+    apply_options(options)
+    options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
+  end
+
+  def inspect
+    super
+  end
+
+  def init_timevec
+    value_hash[source_model.time_col.to_sym] = source_model.time_vector(symbol)
+    compute_timestamps
   end
 
   def repopulate(options)
     apply_options unless options.empty?
-    if num_points
+    attrs = (timevec.empty? ? self.attrs | [ source_model.time_col.to_sym ] : self.attrs)
+    if num_points > 0
       self.value_hash = source_model.simple_vectors(symbol, attrs, start_time, num_points)
-    elsif time_interval
+    elsif time_interval > 0
       self.value_hash = source_model.general_vectors_by_interval(symbol, attrs, start_time, time_interval)
     else
       self.value_hash = source_model.general_vectors(symbol, attrs, start_time, end_time)
     end
-    compute_timestamps
+    compute_timestamps if time_map.empty?
   end
 
-  private
+#  private
 
-  def apply_options
+  def apply_options(options)
     options.keys.each do |key|
-      self.send(key, options[key]) if respond_to? key
+      self.send("#{key}=", options[key]) if respond_to? key
     end
   end
 
   def compute_timestamps
-    self.timevec = value_hash[source_model.timecol].collect(&:to_time)
+    self.timevec = value_hash[source_model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time }
     self.timevec.each_with_index { |time, idx| self.time_map[time] = idx }
-    self.value_hash.delete(source_model.timecol)
+    self.index_map = time_map.invert
     nil
   end
 
-  def beg_index(ta_fun, *args)
-    loopback_fun = (ta_fun.to_s+'_loopback').to_sym
-    idx = Talib.send(loopback_fun, args)
+  def minimal_samples(lookback_fun, *args)
+    Talib.send(lookback_fun, *args)
   end
 
-  def memoize_result(fcn, time_range, options, outidx, vec)
-    self.derived_values << ParamBlock.new(fcn, time_range, options, outidx, vec)
+  def calc_indexes(loopback_fun, time_range, *args)
+    begin_time = time_range.begin
+    end_time = time_range.end
+    begin_index, fall_back = time2index(begin_time, -1)
+    end_index, fall_fwd = time2index(end_index, 1)
+    raise TimeseriesException.new if fall_back || fall_fwd
+    self.output_offset = begin_index >= (ms = minimal_samples(loopback_fcn, *args)) ? 0 : ms - begin_index
+    return begin_index, end_index
   end
 
-  def ad(time_range=nil, options={ })
-    beg_idx, end_idx = calc_indexes(time_range, options)
-    status, outidx, vec = Talib.ta_ad(beg_idx, end_idx, high, low, close, volume)
-    memoize_result(:ad, time_range, options, outidx, vec, :line)
+  def time2index(time, direction)
+    time = time.to_time.utc+utc_offset
+    if direction == -1
+      until time_map.include?(time) || time < timevec.first
+        last_back_time = time
+        time -= sample_period
+      end
+      return time_map[time].nil? ? [nil, last_back_time] : time_map[time]
+    else # this is split into two loop to simplify the boundry test
+      until time_map.include?(time) || time > timevec.last
+        last_fwd_time = time
+        time += sample_period
+      end
+    end
+    return time_map[time].nil? ? [nil, last_fwd_time] : time_map[time]
+  end
+
+  def memoize_result(fcn, time_range, options, results, graph_type=nil)
+    status = results.shift
+    outidx = results.shift
+    self.derived_values << ParamBlock.new(fcn, time_range, options, outidx, graph_type, results)
   end
 
   def add_methods_for_attributes(attrs)
     attrs.each do |attr|
-      instance_eval("def #{attr}(); self.value_hash[#{attr}.to_sym]; end")
+      instance_eval("def #{attr}(); self.value_hash['#{attr}'.to_sym].to_gv; end")
     end
   end
 
-  def method_missing(meth, *args)
-    source_model.content_columns.map(&:name).include? meth
+#  def method_missing(meth, *args)
+#    source_model.content_columns.map(&:name).include? meth
+#  end
+
+  def initialize_state
+    self.value_hash, self.time_map, self.index_map = {}, {}, {}
+    self.local_focus = nil
+    self.derived_values,  self.attrs = [], []
+    self.timevec = []
+    self.time_interval, self.num_points, self.sample_period = 0, 0, 0
+    self.start_time, self.end_time = nil, nil
+    self.utc_offset = Time.now.utc_offset
   end
 end
 
 class ParamBlock
   attr_accessor :function
-  attr_accessor :time_rage
+  attr_accessor :time_range
   attr_accessor :options
   attr_accessor :outidx
-  attr_accessor :result
+  attr_accessor :vectors
   attr_accessor :graph_type
 
-  def initialize(fcn, tr, opts, outidx, result, gtype)
+  def initialize(fcn, time_range, options, outidx, graph_type, results)
     self.function = fcn
-    self.time_range = tr
-    self.options = opts
+    self.time_range = time_range
+    self.options = options
     self.outidx = outidx
-    self.result = result
-    self.graph_type = gtype
+    self.vectors = results
+    self.graph_type = graph_type
   end
+end
+
+def ts(symbol, model, options={ })
+  $ts = Timeseries.new(symbol, DailyClose, options)
+  nil
 end

@@ -66,18 +66,22 @@ class BuildShadow
 
   def emit_prelude(opt_args)
     options = expand_opt_args(opt_args)
-    buffer "    beg_idx, end_idx = calc_indexes(:ta_#{name}_lookback, time_range#{options})\n"
+    buffer "    idx_range = calc_indexes(:ta_#{format_name(name)}_lookback, time_range#{options})\n"
+  end
+
+  def format_name(name)
+    name.gsub(/cdl([0-9])/, 'cdl_\1')
   end
 
   def emit_invoke_primative
-    buffer "    result = Talib.ta_#{self.name}(beg_idx, end_idx, "
+    buffer "    result = Talib.ta_#{format_name(name)}(idx_range.begin, idx_range.end, "
   end
 
   def emit_post_processing
     if graph_hint
-      buffer "    memoize_result(:#{name}, time_range, options, result, :#{graph_hint})\n"
+      buffer "    memoize_result(:#{name}, time_range, idx_range, options, result, :#{graph_hint})\n"
     else
-      buffer "    memoize_result(:#{name}, time_range, options, result)\n"
+      buffer "    memoize_result(:#{name}, time_range, idx_range, options, result)\n"
     end
   end
 

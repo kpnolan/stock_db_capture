@@ -9,118 +9,110 @@ module Plot
 
   include GSL
 
-  def plot_vectors(timevec, *vecs)
+  def plot_lines(index_range, timevec, *vecs_or_params)
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
 
         plot.auto "x"
         plot.auto "y"
-#        plot.title  "#{symbol}: #{titleize(vhash.keys)}"
-        plot.xlabel "Time"
-#        plot.ylabel "#{titleize(vhash.keys)}"
+        plot.unset 'title'
+        plot.unset 'xlabel'
+        plot.unset 'ylabel'
         plot.pointsize 3
         plot.grid
-
-        timevec = set_xvalues(plot, timevec)
-
-        plot.data = []
-        vecs.each do |vec|
-          plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.with = "lines" }
-        end
-      end
-    end
-    nil
-  end
-
-  def plot_lines(symbol, attrs = [], start=nil, num_points=nil)
-
-    vhash = simple_vectors(symbol, attrs, start, num_points)
-
-    Gnuplot.open do |gp|
-      Gnuplot::Plot.new( gp ) do |plot|
-
-        plot.auto "x"
-        plot.auto "y"
-        plot.title  "#{symbol}: #{titleize(vhash.keys)}"
-        plot.xlabel time_class.to_s
-        plot.ylabel "#{titleize(vhash.keys)}"
-        plot.pointsize 3
-        plot.grid
+        timevec = set_xvalues(plot, timevec[index_range])
 
         plot.data = []
-        vhash.keys.each do |attr|
-          if attr == :volume
-            new_vec = scale(vhash[attr])
-            plot.data << Gnuplot::DataSet.new( new_vec ) {  |ds|  ds.with = "boxes" }
+        vecs_or_params.each do |vec|
+          if vec.class == ParamBlock
+            plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.with = "lines" }
           else
-            plot.data << Gnuplot::DataSet.new( vhash[attr] ) {  |ds|  ds.with = "lines" }
+            plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a[index_range]] ) {  |ds|  ds.using = "1:2"; ds.notitle; ds.with = "lines" }
           end
         end
       end
+      nil
     end
-    nil
   end
 
-  def set_xvalues(plot, time_vector)
-    time_convert = :to_date unless self.respond_to? :time_convert
-    time_class = time_vector.first.send(time_convert).class
+  def plot_ts(gp, vecs, index_range, options)
+
+    Gnuplot::Plot.new( gp ) do |plot|
+      plot.auto "x"
+      plot.auto "y"
+      plot.unset "xlabel"
+      plot.unset 'grid'
+      plot.unset 'ylabel'
+      plot.unset 'title'
+      plot.set 'bmargin'
+      plot.xtics 'scale default'
+      plot.tmargin 0
+#      plot.xlabel "Date from #{index2time(index_range.begin).to_s(:db)} to #{index2time(index_range.end).to_s(:db)} (#{len} points)"
+      plot.origin options[:origin] if options[:origin]
+      plot.size options[:size] if options[:size]
+
+      timevec = set_xvalues(plot, self.timevec[index_range])
+      withs = options[:with]
+
+      plot.data = []
+      vecs.each do |vec|
+        with = withs.shift()
+        plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a[index_range]] ) {  |ds|  ds.using = "1:2"; ds.notitle; ds.with = with }
+      end
+    end
+  end
+
+  def plot_params(gp, param, options)
+    Gnuplot::Plot.new( gp ) do |plot|
+      plot.style 'line 1 lt 1 lw 1'
+      plot.style 'line 2 lt 2 lw 1'
+      plot.style 'line 3 lt 3 lw 1'
+      plot.style 'line 4 lt 6 lw 1'
+      plot.style 'increment user'
+      plot.auto "x"
+      plot.auto "y"
+      plot.unset "xlabel"
+      plot.unset 'grid'
+      plot.unset 'ylabel'
+      plot.unset 'title'
+      plot.set 'bmargin'
+      plot.xtics 'scale default'
+      plot.tmargin 0
+#      plot.xlabel "Date from #{index2time(index_range.begin).to_s(:db)} to #{index2time(index_range.end).to_s(:db)} (#{len} points)"
+      plot.origin options[:origin] if options[:origin]
+      plot.size options[:size] if options[:size]
+
+      index_range, vecs = param.decode(:index_range, :vectors)
+
+      timevec = set_xvalues(plot, self.timevec[index_range])
+
+      plot.data = []
+      vecs.each do |vec|
+        plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.notitle; ds.with = 'lines' }
+      end
+    end
+  end
+
+  def set_xvalues(plot, timevec)
+
+    time_class = timevec.first.send(source_model.time_convert).class
+
     plot.xdata "time"
     if time_class == Date
       plot.timefmt '"%Y-%m-%d"'
       plot.format 'x "%m-%d\n%Y"'
-      time_vector
+      timevec.map { |t| t.to_date }
+#      timevec.map { |t| '"'+t.strftime('%Y-%m-%d')+'"' }
     elsif time_class == Time || time_class == DateTime
       plot.timefmt '"%Y-%m-%d@%H:%M"'
       plot.format 'x "%m-%d\n%H:%M"'
-      time_strings = time_vector.map { |time| time.to_s().gsub(/[ ]/, '@') }
+      timevec.map { |t| '"'+time.strftime('%Y-%m-%d@%H:%M')+'"' }
     end
   end
 
-  def plot_ts(symbol, attrs, start, period)
+  def aggregate(symbol, index_range, options)
 
-    start = time_class.parse(start) if start.class == String
-    start = start.send(time_convert)
-
-    vhash = general_vectors(symbol, attrs, start, period)
-    timevec = simple_vector(symbol, time_col, start, period)
-    len = timevec.length
-
-    Gnuplot.open do |gp|
-      Gnuplot::Plot.new( gp ) do |plot|
-
-        plot.auto "x"
-        plot.auto "y"
-        plot.title  "#{symbol}: #{titleize(vhash.keys)}"
-        plot.xlabel "Date from #{start.to_s(:db)} to #{start+period} (#{len} points)"
-        plot.ylabel "#{titleize(vhash.keys)}"
-        plot.pointsize 3
-        plot.grid
-
-        timevec = set_xvalues(plot, timevec)
-        vhash[:close] = vhash[:close].to_gv
-
-        plot.data = []
-        vhash.keys.each do |attr|
-          if attr == :volume
-            plot.data << Gnuplot::DataSet.new( [timevec, scale(vhash[attr])] ) {  |ds|  ds.using = "1:2"; ds.with = "boxes" }
-          else
-            plot.data << Gnuplot::DataSet.new( [timevec, vhash[attr]] ) {  |ds|  ds.using = "1:2"; ds.with = "lines" }
-          end
-        end
-      end
-    end
-    nil
-  end
-
-  def composite(symbol, start, period, with, options)
-
-    start = time_class.parse(start) if start.class == String
-    start = start.send(time_convert)
-
-    attrs = [ time_col.to_sym, :low, :high, :open, :close, :volume ]
-
-    vhash = general_vectors(symbol, attrs, start, period)
-    len = vhash[:close].length
+    len = index_range.end - index_range.begin + 1
 
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
@@ -128,35 +120,88 @@ module Plot
         plot.auto "x"
         plot.auto "y"
         plot.title  "Candlestics for #{symbol}"
-        plot.xlabel "Date from #{start.to_s(:db)} to #{start+period} (#{len} points)"
+        plot.xlabel "Date from #{index2time(index_range.begin).to_s(:db)} to #{index2time(index_range.end).to_s(:db)} (#{len} points)"
         plot.ylabel 'OCHL'
         plot.pointsize 3
         plot.grid
-        plot.bars "lw .5"
-        plot.line "lw .5"
+ #       plot.bars "lw .5"
+ #       plot.line "lw .5"
         plot.boxwidth ".5"
+        plot.size "1,1"
+        plot.origin "0,0"
 
-        date = set_xvalues(plot, vhash[time_col.to_sym])
-        open = vhash[:open]
-        close = vhash[:close]
-        high = vhash[:high]
-        low = vhash[:low]
+        date = set_xvalues(plot, self.timevec[index_range])
+        open = open_before_cast[index_range]
+        close = close_before_cast[index_range]
+        high = high_before_cast[index_range]
+        low = low_before_cast[index_range]
+#        volume = scale(volume_before_cast[index_range]) if options[:show_volume]
 
         plot.data = []
-        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds|  ds.using="1:2:3:4:5" }
-        volume = scale(vhash[:volume])
-        plot.data << Gnuplot::DataSet.new( [date, volume] ) {  |ds|  ds.using = "1:2"; ds.with = "boxes" } if options[:show_volume]
+        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.with = options[:with] }
+#        plot.data << Gnuplot::DataSet.new( [date, volume] ) {  |ds|  ds.using = "1:2"; ds.with = "boxes" } if options[:show_volume]
       end
     end
     nil
   end
 
-  def candlestick(symbol, start, period, options={})
-    composite(symbol, start, period, 'candlestick', options)
+  def aggregate_base(plot, index_range, options)
+
+    len = index_range.end - index_range.begin + 1
+
+    plot.auto "x"
+    plot.auto "y"
+    plot.title  "Candlestics for #{symbol}"
+    plot.ylabel 'OCHL'
+    plot.pointsize 3
+    plot.grid
+    plot.bars 1.0
+    plot.unset 'xtics'
+    #       plot.bars "lw .5"
+    #       plot.line "lw .5"
+    plot.boxwidth ".5"
+    plot.multiplot if options[:multiplot]
+    plot.origin options[:origin] if options[:origin]
+    plot.size options[:size] if options[:size]
+
+    date = set_xvalues(plot, self.timevec[index_range])
+    open = open_before_cast[index_range]
+    close = close_before_cast[index_range]
+    high = high_before_cast[index_range]
+    low = low_before_cast[index_range]
+
+    plot.data = []
+    plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.notitle; ds.with = options[:with] }
   end
 
-  def bar(symbol, start, period, options={})
-    composite(symbol, start, period, 'financebar', options)
+  def with_volume(index_range)
+    multiplot(index_range, :multiplot => true, :origin => '0, .3', :size => '1, 0.7', :with => 'financebars') do |gp|
+      plot_ts(gp, [volume], index_range, :origin => '0, 0', :size => '1, 0.3', :with => ['boxes'])
+    end
+  end
+
+  def with_function(function)
+    raise TimeseriesException.new("Cannot find memoized function: #{function}") if (pb = find_memo(function)).nil?
+    multiplot(pb.index_range, :script => true, :prefix => function.to_s, :multiplot => true, :origin => '0, .3', :size => '1, 0.7', :with => pb.graph_type.nil? ? 'financebars' : pb.graph_type) do |gp|
+      plot_params(gp, pb, :origin => '0, 0', :size => '1, 0.3', :with => ["lines"]*3)
+    end
+  end
+
+  def multiplot(index_range, options, &block)
+    Gnuplot.open(true, options.merge(:multiplot => true)) do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+        aggregate_base(plot, index_range, options)
+      end
+      yield gp unless block.nil?
+    end
+  end
+
+  def candlestick(symbol, index_range, options={})
+    aggregate(symbol, index_range, options.merge(:with => 'candlesticks'))
+  end
+
+  def bar(symbol, index_range, options={})
+    aggregate(symbol, index_range, options.merge(:with => 'financebar'))
   end
 
   def scale(vec)

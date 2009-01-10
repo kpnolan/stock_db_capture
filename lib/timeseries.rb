@@ -1,5 +1,8 @@
 class Timeseries
 
+  include Plot
+  include TechnicalAnalysis
+
   DEFAULT_OPTIONS = { DailyClose => { :attrs => [:date, :volume, :high, :low, :open, :close, :r, :logr],
                                       :sample_period => 60*60*24,
                                       :start_time => Time.parse('2000-1-1'),
@@ -11,13 +14,14 @@ class Timeseries
   }
   attr_accessor :symbol, :source_model, :value_hash, :time_interval
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
-  attr_accessor :attrs, :derived_values, :output_offset
+  attr_accessor :attrs, :derived_values, :output_offset, :plot_results
   attr_accessor :timevec, :time_map, :index_map, :local_focus
 
   def initialize(symbol, source_model, options={})
     raise ArgumentError, "source_model must be one of #{DEFAULT_OPTIONS.keys.join(' or ')}" unless [ DailyClose, LiveQuote ].include? source_model
     self.symbol = symbol
     self.source_model = source_model
+    self.plot_results = true
     initialize_state
     options.reverse_merge!(DEFAULT_OPTIONS[source_model])
     apply_options(options)
@@ -56,7 +60,7 @@ class Timeseries
   end
 
   def compute_timestamps
-    self.timevec = value_hash[source_model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time }
+    self.timevec = value_hash[source_model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time.midnight }
     self.timevec.each_with_index { |time, idx| self.time_map[time] = idx }
     self.index_map = time_map.invert
     nil
@@ -70,14 +74,14 @@ class Timeseries
     begin_time = time_range.begin
     end_time = time_range.end
     begin_index, fall_back = time2index(begin_time, -1)
-    end_index, fall_fwd = time2index(end_index, 1)
+    end_index, fall_fwd = time2index(end_time, 1)
     raise TimeseriesException.new if fall_back || fall_fwd
-    self.output_offset = begin_index >= (ms = minimal_samples(loopback_fcn, *args)) ? 0 : ms - begin_index
-    return begin_index, end_index
+    self.output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
+    return begin_index..end_index
   end
 
   def time2index(time, direction)
-    time = time.to_time.utc+utc_offset
+    time = time.to_time.utc.midnight
     if direction == -1
       until time_map.include?(time) || time < timevec.first
         last_back_time = time
@@ -93,15 +97,29 @@ class Timeseries
     return time_map[time].nil? ? [nil, last_fwd_time] : time_map[time]
   end
 
-  def memoize_result(fcn, time_range, options, results, graph_type=nil)
+  def index2time(index)
+    time = index_map[index]
+    time && time.send(source_model.time_convert)
+  end
+
+  def memoize_result(fcn, time_range, idx_range, options, results, graph_type=nil)
     status = results.shift
     outidx = results.shift
-    self.derived_values << ParamBlock.new(fcn, time_range, options, outidx, graph_type, results)
+    pb = ParamBlock.new(fcn, time_range, idx_range, options, outidx, graph_type, results)
+    self.derived_values << pb
+    with_function fcn
+    pb
+  end
+
+  def find_memo(fcn_symbol)
+    fcn = fcn_symbol.to_sym
+    derived_values.find { |pb| pb.function == fcn }
   end
 
   def add_methods_for_attributes(attrs)
     attrs.each do |attr|
       instance_eval("def #{attr}(); self.value_hash['#{attr}'.to_sym].to_gv; end")
+      instance_eval("def #{attr}_before_cast(); self.value_hash['#{attr}'.to_sym]; end")
     end
   end
 
@@ -123,18 +141,26 @@ end
 class ParamBlock
   attr_accessor :function
   attr_accessor :time_range
+  attr_accessor :index_range
   attr_accessor :options
   attr_accessor :outidx
   attr_accessor :vectors
   attr_accessor :graph_type
 
-  def initialize(fcn, time_range, options, outidx, graph_type, results)
+  def initialize(fcn, time_range, index_range, options, outidx, graph_type, results)
     self.function = fcn
     self.time_range = time_range
+    self.index_range = index_range
     self.options = options
     self.outidx = outidx
     self.vectors = results
     self.graph_type = graph_type
+  end
+
+  def decode(*syms)
+    syms.collect do |sym|
+      self.send(sym)
+    end
   end
 end
 

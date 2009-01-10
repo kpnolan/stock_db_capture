@@ -1,0 +1,7 @@
+set multiplot
+set origin 0,.33
+set size 1,0.66
+plot sin(x)
+set size 1,.33
+set origin 0,0
+plot sin(x)/x

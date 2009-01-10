@@ -2585,8 +2585,6 @@ _wrap_ta_acos(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -2595,8 +2593,9 @@ _wrap_ta_acos(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -2607,7 +2606,7 @@ _wrap_ta_acos(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ACOS");
@@ -2620,11 +2619,6 @@ _wrap_ta_acos(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_ACOS", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -2637,7 +2631,7 @@ _wrap_ta_acos(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -2687,8 +2681,6 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -2697,8 +2689,9 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -2709,7 +2702,7 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_AD");
@@ -2723,7 +2716,7 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_AD");
@@ -2737,7 +2730,7 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_AD");
@@ -2751,7 +2744,7 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_AD");
@@ -2764,11 +2757,6 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_AD", 9, argv[6] )); 
-  }
-  arg9 = (double *)(argp9);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -2781,7 +2769,7 @@ _wrap_ta_ad(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -2829,8 +2817,6 @@ _wrap_ta_add(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -2839,8 +2825,9 @@ _wrap_ta_add(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg7 ignored on input */
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -2851,7 +2838,7 @@ _wrap_ta_add(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ADD");
@@ -2865,7 +2852,7 @@ _wrap_ta_add(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_ADD");
@@ -2878,11 +2865,6 @@ _wrap_ta_add(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg4 = vptr;
   }
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_ADD", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -2895,7 +2877,7 @@ _wrap_ta_add(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -2951,8 +2933,6 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
   int val8 ;
   int ecode8 = 0 ;
   int temp9 = 0 ;
-  void *argp11 = 0 ;
-  int res11 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -2963,7 +2943,8 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
   arg8 = 2;
   arg9 = &outIndex;
   arg10 = &outNbElement;
-  if ((argc < 6) || (argc > 9)) {
+  /* arg11 ignored on input */
+  if ((argc < 6) || (argc > 8)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -2975,7 +2956,7 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ADOSC");
@@ -2989,7 +2970,7 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_ADOSC");
@@ -3003,7 +2984,7 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_ADOSC");
@@ -3017,7 +2998,7 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_ADOSC");
@@ -3044,13 +3025,6 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
     } 
     arg8 = (int)(val8);
   }
-  if (argc > 8) {
-    res11 = SWIG_ConvertPtr(argv[8], &argp11,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res11)) {
-      SWIG_exception_fail(SWIG_ArgError(res11), Ruby_Format_TypeError( "", "double *","TA_ADOSC", 11, argv[8] )); 
-    }
-    arg11 = (double *)(argp11);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -3063,7 +3037,7 @@ _wrap_ta_adosc(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3131,8 +3105,6 @@ _wrap_ta_adx(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -3142,7 +3114,8 @@ _wrap_ta_adx(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -3154,7 +3127,7 @@ _wrap_ta_adx(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ADX");
@@ -3168,7 +3141,7 @@ _wrap_ta_adx(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_ADX");
@@ -3182,7 +3155,7 @@ _wrap_ta_adx(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_ADX");
@@ -3202,13 +3175,6 @@ _wrap_ta_adx(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_ADX", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -3221,7 +3187,7 @@ _wrap_ta_adx(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3281,8 +3247,6 @@ _wrap_ta_adxr(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -3292,7 +3256,8 @@ _wrap_ta_adxr(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -3304,7 +3269,7 @@ _wrap_ta_adxr(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ADXR");
@@ -3318,7 +3283,7 @@ _wrap_ta_adxr(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_ADXR");
@@ -3332,7 +3297,7 @@ _wrap_ta_adxr(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_ADXR");
@@ -3352,13 +3317,6 @@ _wrap_ta_adxr(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_ADXR", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -3371,7 +3329,7 @@ _wrap_ta_adxr(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3435,8 +3393,6 @@ _wrap_ta_apo(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -3448,7 +3404,8 @@ _wrap_ta_apo(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 3) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 3) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -3460,7 +3417,7 @@ _wrap_ta_apo(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_APO");
@@ -3494,13 +3451,6 @@ _wrap_ta_apo(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (TA_MAType)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_APO", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -3513,7 +3463,7 @@ _wrap_ta_apo(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3589,10 +3539,6 @@ _wrap_ta_aroon(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -3603,7 +3549,9 @@ _wrap_ta_aroon(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 4) || (argc > 7)) {
+  /* arg8 ignored on input */
+  /* arg9 ignored on input */
+  if ((argc < 4) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -3615,7 +3563,7 @@ _wrap_ta_aroon(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_AROON");
@@ -3629,7 +3577,7 @@ _wrap_ta_aroon(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_AROON");
@@ -3649,20 +3597,6 @@ _wrap_ta_aroon(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (int)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_AROON", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_AROON", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -3680,7 +3614,7 @@ _wrap_ta_aroon(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3696,7 +3630,7 @@ _wrap_ta_aroon(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3755,8 +3689,6 @@ _wrap_ta_aroonosc(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -3766,7 +3698,8 @@ _wrap_ta_aroonosc(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 4) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 4) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -3778,7 +3711,7 @@ _wrap_ta_aroonosc(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_AROONOSC");
@@ -3792,7 +3725,7 @@ _wrap_ta_aroonosc(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_AROONOSC");
@@ -3812,13 +3745,6 @@ _wrap_ta_aroonosc(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (int)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_AROONOSC", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -3831,7 +3757,7 @@ _wrap_ta_aroonosc(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3886,8 +3812,6 @@ _wrap_ta_asin(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -3896,8 +3820,9 @@ _wrap_ta_asin(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -3908,7 +3833,7 @@ _wrap_ta_asin(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ASIN");
@@ -3921,11 +3846,6 @@ _wrap_ta_asin(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_ASIN", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -3938,7 +3858,7 @@ _wrap_ta_asin(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -3985,8 +3905,6 @@ _wrap_ta_atan(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -3995,8 +3913,9 @@ _wrap_ta_atan(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -4007,7 +3926,7 @@ _wrap_ta_atan(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ATAN");
@@ -4020,11 +3939,6 @@ _wrap_ta_atan(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_ATAN", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -4037,7 +3951,7 @@ _wrap_ta_atan(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4089,8 +4003,6 @@ _wrap_ta_atr(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -4100,7 +4012,8 @@ _wrap_ta_atr(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -4112,7 +4025,7 @@ _wrap_ta_atr(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ATR");
@@ -4126,7 +4039,7 @@ _wrap_ta_atr(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_ATR");
@@ -4140,7 +4053,7 @@ _wrap_ta_atr(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_ATR");
@@ -4160,13 +4073,6 @@ _wrap_ta_atr(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_ATR", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -4179,7 +4085,7 @@ _wrap_ta_atr(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4237,8 +4143,6 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -4247,8 +4151,9 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -4259,7 +4164,7 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_AVGPRICE");
@@ -4273,7 +4178,7 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_AVGPRICE");
@@ -4287,7 +4192,7 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_AVGPRICE");
@@ -4301,7 +4206,7 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_AVGPRICE");
@@ -4314,11 +4219,6 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_AVGPRICE", 9, argv[6] )); 
-  }
-  arg9 = (double *)(argp9);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -4331,7 +4231,7 @@ _wrap_ta_avgprice(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4388,12 +4288,6 @@ _wrap_ta_bbands(int argc, VALUE *argv, VALUE self) {
   int val7 ;
   int ecode7 = 0 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
-  void *argp11 = 0 ;
-  int res11 = 0 ;
-  void *argp12 = 0 ;
-  int res12 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -4408,7 +4302,10 @@ _wrap_ta_bbands(int argc, VALUE *argv, VALUE self) {
   arg7 = 2;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 3) || (argc > 10)) {
+  /* arg10 ignored on input */
+  /* arg11 ignored on input */
+  /* arg12 ignored on input */
+  if ((argc < 3) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -4420,7 +4317,7 @@ _wrap_ta_bbands(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_BBANDS");
@@ -4453,27 +4350,6 @@ _wrap_ta_bbands(int argc, VALUE *argv, VALUE self) {
     } 
     arg7 = (TA_MAType)(val7);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "double *","TA_BBANDS", 10, argv[7] )); 
-    }
-    arg10 = (double *)(argp10);
-  }
-  if (argc > 8) {
-    res11 = SWIG_ConvertPtr(argv[8], &argp11,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res11)) {
-      SWIG_exception_fail(SWIG_ArgError(res11), Ruby_Format_TypeError( "", "double *","TA_BBANDS", 11, argv[8] )); 
-    }
-    arg11 = (double *)(argp11);
-  }
-  if (argc > 9) {
-    res12 = SWIG_ConvertPtr(argv[9], &argp12,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res12)) {
-      SWIG_exception_fail(SWIG_ArgError(res12), Ruby_Format_TypeError( "", "double *","TA_BBANDS", 12, argv[9] )); 
-    }
-    arg12 = (double *)(argp12);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -4496,7 +4372,7 @@ _wrap_ta_bbands(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4512,7 +4388,7 @@ _wrap_ta_bbands(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4528,7 +4404,7 @@ _wrap_ta_bbands(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY3));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4611,8 +4487,6 @@ _wrap_ta_beta(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -4622,7 +4496,8 @@ _wrap_ta_beta(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 4) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 4) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -4634,7 +4509,7 @@ _wrap_ta_beta(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_BETA");
@@ -4648,7 +4523,7 @@ _wrap_ta_beta(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_BETA");
@@ -4668,13 +4543,6 @@ _wrap_ta_beta(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (int)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_BETA", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -4687,7 +4555,7 @@ _wrap_ta_beta(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4745,8 +4613,6 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -4755,8 +4621,9 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -4767,7 +4634,7 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_BOP");
@@ -4781,7 +4648,7 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_BOP");
@@ -4795,7 +4662,7 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_BOP");
@@ -4809,7 +4676,7 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_BOP");
@@ -4822,11 +4689,6 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_BOP", 9, argv[6] )); 
-  }
-  arg9 = (double *)(argp9);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -4839,7 +4701,7 @@ _wrap_ta_bop(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -4891,8 +4753,6 @@ _wrap_ta_cci(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -4902,7 +4762,8 @@ _wrap_ta_cci(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -4914,7 +4775,7 @@ _wrap_ta_cci(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CCI");
@@ -4928,7 +4789,7 @@ _wrap_ta_cci(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CCI");
@@ -4942,7 +4803,7 @@ _wrap_ta_cci(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CCI");
@@ -4962,13 +4823,6 @@ _wrap_ta_cci(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_CCI", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -4981,7 +4835,7 @@ _wrap_ta_cci(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -5039,8 +4893,6 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -5049,8 +4901,9 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -5061,7 +4914,7 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDL2CROWS");
@@ -5075,7 +4928,7 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDL2CROWS");
@@ -5089,7 +4942,7 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDL2CROWS");
@@ -5103,7 +4956,7 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDL2CROWS");
@@ -5116,13 +4969,8 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDL2CROWS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -5133,7 +4981,7 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -5183,8 +5031,6 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -5193,8 +5039,9 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -5205,7 +5052,7 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDL3BLACKCROWS");
@@ -5219,7 +5066,7 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDL3BLACKCROWS");
@@ -5233,7 +5080,7 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDL3BLACKCROWS");
@@ -5247,7 +5094,7 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDL3BLACKCROWS");
@@ -5260,13 +5107,8 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDL3BLACKCROWS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -5277,7 +5119,7 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -5327,8 +5169,6 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -5337,8 +5177,9 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -5349,7 +5190,7 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDL3INSIDE");
@@ -5363,7 +5204,7 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDL3INSIDE");
@@ -5377,7 +5218,7 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDL3INSIDE");
@@ -5391,7 +5232,7 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDL3INSIDE");
@@ -5404,13 +5245,8 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDL3INSIDE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -5421,7 +5257,7 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -5471,8 +5307,6 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -5481,8 +5315,9 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -5493,7 +5328,7 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDL3LINESTRIKE");
@@ -5507,7 +5342,7 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDL3LINESTRIKE");
@@ -5521,7 +5356,7 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDL3LINESTRIKE");
@@ -5535,7 +5370,7 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDL3LINESTRIKE");
@@ -5548,13 +5383,8 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDL3LINESTRIKE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -5565,7 +5395,7 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -5615,8 +5445,6 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -5625,8 +5453,9 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -5637,7 +5466,7 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDL3OUTSIDE");
@@ -5651,7 +5480,7 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDL3OUTSIDE");
@@ -5665,7 +5494,7 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDL3OUTSIDE");
@@ -5679,7 +5508,7 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDL3OUTSIDE");
@@ -5692,13 +5521,8 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDL3OUTSIDE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -5709,7 +5533,7 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -5759,8 +5583,6 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -5769,8 +5591,9 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -5781,7 +5604,7 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDL3STARSINSOUTH");
@@ -5795,7 +5618,7 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDL3STARSINSOUTH");
@@ -5809,7 +5632,7 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDL3STARSINSOUTH");
@@ -5823,7 +5646,7 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDL3STARSINSOUTH");
@@ -5836,13 +5659,8 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDL3STARSINSOUTH", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -5853,7 +5671,7 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -5903,8 +5721,6 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -5913,8 +5729,9 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -5925,7 +5742,7 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDL3WHITESOLDIERS");
@@ -5939,7 +5756,7 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDL3WHITESOLDIERS");
@@ -5953,7 +5770,7 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDL3WHITESOLDIERS");
@@ -5967,7 +5784,7 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDL3WHITESOLDIERS");
@@ -5980,13 +5797,8 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDL3WHITESOLDIERS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -5997,7 +5809,7 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -6048,8 +5860,6 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -6059,7 +5869,8 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
   arg7 = TA_REAL_DEFAULT;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -6071,7 +5882,7 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLABANDONEDBABY");
@@ -6085,7 +5896,7 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLABANDONEDBABY");
@@ -6099,7 +5910,7 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLABANDONEDBABY");
@@ -6113,7 +5924,7 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLABANDONEDBABY");
@@ -6129,15 +5940,8 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
   if (argc > 6) {
     arg7 = NUM2DBL(argv[6]);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "int *","TA_CDLABANDONEDBABY", 10, argv[7] )); 
-    }
-    arg10 = (int *)(argp10);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg10 = OUT_ARRAY->data;
   }
@@ -6148,7 +5952,7 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -6206,8 +6010,6 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -6216,8 +6018,9 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -6228,7 +6031,7 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLADVANCEBLOCK");
@@ -6242,7 +6045,7 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLADVANCEBLOCK");
@@ -6256,7 +6059,7 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLADVANCEBLOCK");
@@ -6270,7 +6073,7 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLADVANCEBLOCK");
@@ -6283,13 +6086,8 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLADVANCEBLOCK", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -6300,7 +6098,7 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -6350,8 +6148,6 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -6360,8 +6156,9 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -6372,7 +6169,7 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLBELTHOLD");
@@ -6386,7 +6183,7 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLBELTHOLD");
@@ -6400,7 +6197,7 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLBELTHOLD");
@@ -6414,7 +6211,7 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLBELTHOLD");
@@ -6427,13 +6224,8 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLBELTHOLD", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -6444,7 +6236,7 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -6494,8 +6286,6 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -6504,8 +6294,9 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -6516,7 +6307,7 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLBREAKAWAY");
@@ -6530,7 +6321,7 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLBREAKAWAY");
@@ -6544,7 +6335,7 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLBREAKAWAY");
@@ -6558,7 +6349,7 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLBREAKAWAY");
@@ -6571,13 +6362,8 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLBREAKAWAY", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -6588,7 +6374,7 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -6638,8 +6424,6 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -6648,8 +6432,9 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -6660,7 +6445,7 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLCLOSINGMARUBOZU");
@@ -6674,7 +6459,7 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLCLOSINGMARUBOZU");
@@ -6688,7 +6473,7 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLCLOSINGMARUBOZU");
@@ -6702,7 +6487,7 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLCLOSINGMARUBOZU");
@@ -6715,13 +6500,8 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLCLOSINGMARUBOZU", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -6732,7 +6512,7 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -6782,8 +6562,6 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -6792,8 +6570,9 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -6804,7 +6583,7 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLCONCEALBABYSWALL");
@@ -6818,7 +6597,7 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLCONCEALBABYSWALL");
@@ -6832,7 +6611,7 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLCONCEALBABYSWALL");
@@ -6846,7 +6625,7 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLCONCEALBABYSWALL");
@@ -6859,13 +6638,8 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLCONCEALBABYSWALL", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -6876,7 +6650,7 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -6926,8 +6700,6 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -6936,8 +6708,9 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -6948,7 +6721,7 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLCOUNTERATTACK");
@@ -6962,7 +6735,7 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLCOUNTERATTACK");
@@ -6976,7 +6749,7 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLCOUNTERATTACK");
@@ -6990,7 +6763,7 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLCOUNTERATTACK");
@@ -7003,13 +6776,8 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLCOUNTERATTACK", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -7020,7 +6788,7 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -7071,8 +6839,6 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -7082,7 +6848,8 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
   arg7 = TA_REAL_DEFAULT;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -7094,7 +6861,7 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLDARKCLOUDCOVER");
@@ -7108,7 +6875,7 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLDARKCLOUDCOVER");
@@ -7122,7 +6889,7 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLDARKCLOUDCOVER");
@@ -7136,7 +6903,7 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLDARKCLOUDCOVER");
@@ -7152,15 +6919,8 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
   if (argc > 6) {
     arg7 = NUM2DBL(argv[6]);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "int *","TA_CDLDARKCLOUDCOVER", 10, argv[7] )); 
-    }
-    arg10 = (int *)(argp10);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg10 = OUT_ARRAY->data;
   }
@@ -7171,7 +6931,7 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -7229,8 +6989,6 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -7239,8 +6997,9 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -7251,7 +7010,7 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLDOJI");
@@ -7265,7 +7024,7 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLDOJI");
@@ -7279,7 +7038,7 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLDOJI");
@@ -7293,7 +7052,7 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLDOJI");
@@ -7306,13 +7065,8 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLDOJI", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -7323,7 +7077,7 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -7373,8 +7127,6 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -7383,8 +7135,9 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -7395,7 +7148,7 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLDOJISTAR");
@@ -7409,7 +7162,7 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLDOJISTAR");
@@ -7423,7 +7176,7 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLDOJISTAR");
@@ -7437,7 +7190,7 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLDOJISTAR");
@@ -7450,13 +7203,8 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLDOJISTAR", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -7467,7 +7215,7 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -7517,8 +7265,6 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -7527,8 +7273,9 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -7539,7 +7286,7 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLDRAGONFLYDOJI");
@@ -7553,7 +7300,7 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLDRAGONFLYDOJI");
@@ -7567,7 +7314,7 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLDRAGONFLYDOJI");
@@ -7581,7 +7328,7 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLDRAGONFLYDOJI");
@@ -7594,13 +7341,8 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLDRAGONFLYDOJI", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -7611,7 +7353,7 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -7661,8 +7403,6 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -7671,8 +7411,9 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -7683,7 +7424,7 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLENGULFING");
@@ -7697,7 +7438,7 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLENGULFING");
@@ -7711,7 +7452,7 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLENGULFING");
@@ -7725,7 +7466,7 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLENGULFING");
@@ -7738,13 +7479,8 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLENGULFING", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -7755,7 +7491,7 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -7806,8 +7542,6 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -7817,7 +7551,8 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
   arg7 = TA_REAL_DEFAULT;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -7829,7 +7564,7 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLEVENINGDOJISTAR");
@@ -7843,7 +7578,7 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLEVENINGDOJISTAR");
@@ -7857,7 +7592,7 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLEVENINGDOJISTAR");
@@ -7871,7 +7606,7 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLEVENINGDOJISTAR");
@@ -7887,15 +7622,8 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
   if (argc > 6) {
     arg7 = NUM2DBL(argv[6]);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "int *","TA_CDLEVENINGDOJISTAR", 10, argv[7] )); 
-    }
-    arg10 = (int *)(argp10);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg10 = OUT_ARRAY->data;
   }
@@ -7906,7 +7634,7 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -7965,8 +7693,6 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -7976,7 +7702,8 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
   arg7 = TA_REAL_DEFAULT;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -7988,7 +7715,7 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLEVENINGSTAR");
@@ -8002,7 +7729,7 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLEVENINGSTAR");
@@ -8016,7 +7743,7 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLEVENINGSTAR");
@@ -8030,7 +7757,7 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLEVENINGSTAR");
@@ -8046,15 +7773,8 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
   if (argc > 6) {
     arg7 = NUM2DBL(argv[6]);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "int *","TA_CDLEVENINGSTAR", 10, argv[7] )); 
-    }
-    arg10 = (int *)(argp10);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg10 = OUT_ARRAY->data;
   }
@@ -8065,7 +7785,7 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -8123,8 +7843,6 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -8133,8 +7851,9 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -8145,7 +7864,7 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLGAPSIDESIDEWHITE");
@@ -8159,7 +7878,7 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLGAPSIDESIDEWHITE");
@@ -8173,7 +7892,7 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLGAPSIDESIDEWHITE");
@@ -8187,7 +7906,7 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLGAPSIDESIDEWHITE");
@@ -8200,13 +7919,8 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLGAPSIDESIDEWHITE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -8217,7 +7931,7 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -8267,8 +7981,6 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -8277,8 +7989,9 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -8289,7 +8002,7 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLGRAVESTONEDOJI");
@@ -8303,7 +8016,7 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLGRAVESTONEDOJI");
@@ -8317,7 +8030,7 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLGRAVESTONEDOJI");
@@ -8331,7 +8044,7 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLGRAVESTONEDOJI");
@@ -8344,13 +8057,8 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLGRAVESTONEDOJI", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -8361,7 +8069,7 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -8411,8 +8119,6 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -8421,8 +8127,9 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -8433,7 +8140,7 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHAMMER");
@@ -8447,7 +8154,7 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHAMMER");
@@ -8461,7 +8168,7 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHAMMER");
@@ -8475,7 +8182,7 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHAMMER");
@@ -8488,13 +8195,8 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHAMMER", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -8505,7 +8207,7 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -8555,8 +8257,6 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -8565,8 +8265,9 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -8577,7 +8278,7 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHANGINGMAN");
@@ -8591,7 +8292,7 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHANGINGMAN");
@@ -8605,7 +8306,7 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHANGINGMAN");
@@ -8619,7 +8320,7 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHANGINGMAN");
@@ -8632,13 +8333,8 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHANGINGMAN", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -8649,7 +8345,7 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -8699,8 +8395,6 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -8709,8 +8403,9 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -8721,7 +8416,7 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHARAMI");
@@ -8735,7 +8430,7 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHARAMI");
@@ -8749,7 +8444,7 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHARAMI");
@@ -8763,7 +8458,7 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHARAMI");
@@ -8776,13 +8471,8 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHARAMI", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -8793,7 +8483,7 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -8843,8 +8533,6 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -8853,8 +8541,9 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -8865,7 +8554,7 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHARAMICROSS");
@@ -8879,7 +8568,7 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHARAMICROSS");
@@ -8893,7 +8582,7 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHARAMICROSS");
@@ -8907,7 +8596,7 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHARAMICROSS");
@@ -8920,13 +8609,8 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHARAMICROSS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -8937,7 +8621,7 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -8987,8 +8671,6 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -8997,8 +8679,9 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -9009,7 +8692,7 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHIGHWAVE");
@@ -9023,7 +8706,7 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHIGHWAVE");
@@ -9037,7 +8720,7 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHIGHWAVE");
@@ -9051,7 +8734,7 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHIGHWAVE");
@@ -9064,13 +8747,8 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHIGHWAVE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -9081,7 +8759,7 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -9131,8 +8809,6 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -9141,8 +8817,9 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -9153,7 +8830,7 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHIKKAKE");
@@ -9167,7 +8844,7 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHIKKAKE");
@@ -9181,7 +8858,7 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHIKKAKE");
@@ -9195,7 +8872,7 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHIKKAKE");
@@ -9208,13 +8885,8 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHIKKAKE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -9225,7 +8897,7 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -9275,8 +8947,6 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -9285,8 +8955,9 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -9297,7 +8968,7 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHIKKAKEMOD");
@@ -9311,7 +8982,7 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHIKKAKEMOD");
@@ -9325,7 +8996,7 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHIKKAKEMOD");
@@ -9339,7 +9010,7 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHIKKAKEMOD");
@@ -9352,13 +9023,8 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHIKKAKEMOD", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -9369,7 +9035,7 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -9419,8 +9085,6 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -9429,8 +9093,9 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -9441,7 +9106,7 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLHOMINGPIGEON");
@@ -9455,7 +9120,7 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLHOMINGPIGEON");
@@ -9469,7 +9134,7 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLHOMINGPIGEON");
@@ -9483,7 +9148,7 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLHOMINGPIGEON");
@@ -9496,13 +9161,8 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLHOMINGPIGEON", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -9513,7 +9173,7 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -9563,8 +9223,6 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -9573,8 +9231,9 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -9585,7 +9244,7 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLIDENTICAL3CROWS");
@@ -9599,7 +9258,7 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLIDENTICAL3CROWS");
@@ -9613,7 +9272,7 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLIDENTICAL3CROWS");
@@ -9627,7 +9286,7 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLIDENTICAL3CROWS");
@@ -9640,13 +9299,8 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLIDENTICAL3CROWS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -9657,7 +9311,7 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -9707,8 +9361,6 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -9717,8 +9369,9 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -9729,7 +9382,7 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLINNECK");
@@ -9743,7 +9396,7 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLINNECK");
@@ -9757,7 +9410,7 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLINNECK");
@@ -9771,7 +9424,7 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLINNECK");
@@ -9784,13 +9437,8 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLINNECK", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -9801,7 +9449,7 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -9851,8 +9499,6 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -9861,8 +9507,9 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -9873,7 +9520,7 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLINVERTEDHAMMER");
@@ -9887,7 +9534,7 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLINVERTEDHAMMER");
@@ -9901,7 +9548,7 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLINVERTEDHAMMER");
@@ -9915,7 +9562,7 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLINVERTEDHAMMER");
@@ -9928,13 +9575,8 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLINVERTEDHAMMER", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -9945,7 +9587,7 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -9995,8 +9637,6 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -10005,8 +9645,9 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -10017,7 +9658,7 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLKICKING");
@@ -10031,7 +9672,7 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLKICKING");
@@ -10045,7 +9686,7 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLKICKING");
@@ -10059,7 +9700,7 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLKICKING");
@@ -10072,13 +9713,8 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLKICKING", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -10089,7 +9725,7 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -10139,8 +9775,6 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -10149,8 +9783,9 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -10161,7 +9796,7 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLKICKINGBYLENGTH");
@@ -10175,7 +9810,7 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLKICKINGBYLENGTH");
@@ -10189,7 +9824,7 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLKICKINGBYLENGTH");
@@ -10203,7 +9838,7 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLKICKINGBYLENGTH");
@@ -10216,13 +9851,8 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLKICKINGBYLENGTH", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -10233,7 +9863,7 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -10283,8 +9913,6 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -10293,8 +9921,9 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -10305,7 +9934,7 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLLADDERBOTTOM");
@@ -10319,7 +9948,7 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLLADDERBOTTOM");
@@ -10333,7 +9962,7 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLLADDERBOTTOM");
@@ -10347,7 +9976,7 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLLADDERBOTTOM");
@@ -10360,13 +9989,8 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLLADDERBOTTOM", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -10377,7 +10001,7 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -10427,8 +10051,6 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -10437,8 +10059,9 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -10449,7 +10072,7 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLLONGLEGGEDDOJI");
@@ -10463,7 +10086,7 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLLONGLEGGEDDOJI");
@@ -10477,7 +10100,7 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLLONGLEGGEDDOJI");
@@ -10491,7 +10114,7 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLLONGLEGGEDDOJI");
@@ -10504,13 +10127,8 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLLONGLEGGEDDOJI", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -10521,7 +10139,7 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -10571,8 +10189,6 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -10581,8 +10197,9 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -10593,7 +10210,7 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLLONGLINE");
@@ -10607,7 +10224,7 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLLONGLINE");
@@ -10621,7 +10238,7 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLLONGLINE");
@@ -10635,7 +10252,7 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLLONGLINE");
@@ -10648,13 +10265,8 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLLONGLINE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -10665,7 +10277,7 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -10715,8 +10327,6 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -10725,8 +10335,9 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -10737,7 +10348,7 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLMARUBOZU");
@@ -10751,7 +10362,7 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLMARUBOZU");
@@ -10765,7 +10376,7 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLMARUBOZU");
@@ -10779,7 +10390,7 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLMARUBOZU");
@@ -10792,13 +10403,8 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLMARUBOZU", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -10809,7 +10415,7 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -10859,8 +10465,6 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -10869,8 +10473,9 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -10881,7 +10486,7 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLMATCHINGLOW");
@@ -10895,7 +10500,7 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLMATCHINGLOW");
@@ -10909,7 +10514,7 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLMATCHINGLOW");
@@ -10923,7 +10528,7 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLMATCHINGLOW");
@@ -10936,13 +10541,8 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLMATCHINGLOW", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -10953,7 +10553,7 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -11004,8 +10604,6 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -11015,7 +10613,8 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
   arg7 = TA_REAL_DEFAULT;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -11027,7 +10626,7 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLMATHOLD");
@@ -11041,7 +10640,7 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLMATHOLD");
@@ -11055,7 +10654,7 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLMATHOLD");
@@ -11069,7 +10668,7 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLMATHOLD");
@@ -11085,15 +10684,8 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
   if (argc > 6) {
     arg7 = NUM2DBL(argv[6]);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "int *","TA_CDLMATHOLD", 10, argv[7] )); 
-    }
-    arg10 = (int *)(argp10);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg10 = OUT_ARRAY->data;
   }
@@ -11104,7 +10696,7 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -11163,8 +10755,6 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -11174,7 +10764,8 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
   arg7 = TA_REAL_DEFAULT;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -11186,7 +10777,7 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLMORNINGDOJISTAR");
@@ -11200,7 +10791,7 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLMORNINGDOJISTAR");
@@ -11214,7 +10805,7 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLMORNINGDOJISTAR");
@@ -11228,7 +10819,7 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLMORNINGDOJISTAR");
@@ -11244,15 +10835,8 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
   if (argc > 6) {
     arg7 = NUM2DBL(argv[6]);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "int *","TA_CDLMORNINGDOJISTAR", 10, argv[7] )); 
-    }
-    arg10 = (int *)(argp10);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg10 = OUT_ARRAY->data;
   }
@@ -11263,7 +10847,7 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -11322,8 +10906,6 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -11333,7 +10915,8 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
   arg7 = TA_REAL_DEFAULT;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -11345,7 +10928,7 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLMORNINGSTAR");
@@ -11359,7 +10942,7 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLMORNINGSTAR");
@@ -11373,7 +10956,7 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLMORNINGSTAR");
@@ -11387,7 +10970,7 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLMORNINGSTAR");
@@ -11403,15 +10986,8 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
   if (argc > 6) {
     arg7 = NUM2DBL(argv[6]);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "int *","TA_CDLMORNINGSTAR", 10, argv[7] )); 
-    }
-    arg10 = (int *)(argp10);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg10 = OUT_ARRAY->data;
   }
@@ -11422,7 +10998,7 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -11480,8 +11056,6 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -11490,8 +11064,9 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -11502,7 +11077,7 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLONNECK");
@@ -11516,7 +11091,7 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLONNECK");
@@ -11530,7 +11105,7 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLONNECK");
@@ -11544,7 +11119,7 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLONNECK");
@@ -11557,13 +11132,8 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLONNECK", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -11574,7 +11144,7 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -11624,8 +11194,6 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -11634,8 +11202,9 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -11646,7 +11215,7 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLPIERCING");
@@ -11660,7 +11229,7 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLPIERCING");
@@ -11674,7 +11243,7 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLPIERCING");
@@ -11688,7 +11257,7 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLPIERCING");
@@ -11701,13 +11270,8 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLPIERCING", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -11718,7 +11282,7 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -11768,8 +11332,6 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -11778,8 +11340,9 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -11790,7 +11353,7 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLRICKSHAWMAN");
@@ -11804,7 +11367,7 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLRICKSHAWMAN");
@@ -11818,7 +11381,7 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLRICKSHAWMAN");
@@ -11832,7 +11395,7 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLRICKSHAWMAN");
@@ -11845,13 +11408,8 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLRICKSHAWMAN", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -11862,7 +11420,7 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -11912,8 +11470,6 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -11922,8 +11478,9 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -11934,7 +11491,7 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLRISEFALL3METHODS");
@@ -11948,7 +11505,7 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLRISEFALL3METHODS");
@@ -11962,7 +11519,7 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLRISEFALL3METHODS");
@@ -11976,7 +11533,7 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLRISEFALL3METHODS");
@@ -11989,13 +11546,8 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLRISEFALL3METHODS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -12006,7 +11558,7 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -12056,8 +11608,6 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -12066,8 +11616,9 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -12078,7 +11629,7 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLSEPARATINGLINES");
@@ -12092,7 +11643,7 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLSEPARATINGLINES");
@@ -12106,7 +11657,7 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLSEPARATINGLINES");
@@ -12120,7 +11671,7 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLSEPARATINGLINES");
@@ -12133,13 +11684,8 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLSEPARATINGLINES", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -12150,7 +11696,7 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -12200,8 +11746,6 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -12210,8 +11754,9 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -12222,7 +11767,7 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLSHOOTINGSTAR");
@@ -12236,7 +11781,7 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLSHOOTINGSTAR");
@@ -12250,7 +11795,7 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLSHOOTINGSTAR");
@@ -12264,7 +11809,7 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLSHOOTINGSTAR");
@@ -12277,13 +11822,8 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLSHOOTINGSTAR", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -12294,7 +11834,7 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -12344,8 +11884,6 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -12354,8 +11892,9 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -12366,7 +11905,7 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLSHORTLINE");
@@ -12380,7 +11919,7 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLSHORTLINE");
@@ -12394,7 +11933,7 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLSHORTLINE");
@@ -12408,7 +11947,7 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLSHORTLINE");
@@ -12421,13 +11960,8 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLSHORTLINE", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -12438,7 +11972,7 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -12488,8 +12022,6 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -12498,8 +12030,9 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -12510,7 +12043,7 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLSPINNINGTOP");
@@ -12524,7 +12057,7 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLSPINNINGTOP");
@@ -12538,7 +12071,7 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLSPINNINGTOP");
@@ -12552,7 +12085,7 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLSPINNINGTOP");
@@ -12565,13 +12098,8 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLSPINNINGTOP", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -12582,7 +12110,7 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -12632,8 +12160,6 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -12642,8 +12168,9 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -12654,7 +12181,7 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLSTALLEDPATTERN");
@@ -12668,7 +12195,7 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLSTALLEDPATTERN");
@@ -12682,7 +12209,7 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLSTALLEDPATTERN");
@@ -12696,7 +12223,7 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLSTALLEDPATTERN");
@@ -12709,13 +12236,8 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLSTALLEDPATTERN", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -12726,7 +12248,7 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -12776,8 +12298,6 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -12786,8 +12306,9 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -12798,7 +12319,7 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLSTICKSANDWICH");
@@ -12812,7 +12333,7 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLSTICKSANDWICH");
@@ -12826,7 +12347,7 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLSTICKSANDWICH");
@@ -12840,7 +12361,7 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLSTICKSANDWICH");
@@ -12853,13 +12374,8 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLSTICKSANDWICH", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -12870,7 +12386,7 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -12920,8 +12436,6 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -12930,8 +12444,9 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -12942,7 +12457,7 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLTAKURI");
@@ -12956,7 +12471,7 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLTAKURI");
@@ -12970,7 +12485,7 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLTAKURI");
@@ -12984,7 +12499,7 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLTAKURI");
@@ -12997,13 +12512,8 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLTAKURI", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -13014,7 +12524,7 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -13064,8 +12574,6 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -13074,8 +12582,9 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -13086,7 +12595,7 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLTASUKIGAP");
@@ -13100,7 +12609,7 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLTASUKIGAP");
@@ -13114,7 +12623,7 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLTASUKIGAP");
@@ -13128,7 +12637,7 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLTASUKIGAP");
@@ -13141,13 +12650,8 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLTASUKIGAP", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -13158,7 +12662,7 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -13208,8 +12712,6 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -13218,8 +12720,9 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -13230,7 +12733,7 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLTHRUSTING");
@@ -13244,7 +12747,7 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLTHRUSTING");
@@ -13258,7 +12761,7 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLTHRUSTING");
@@ -13272,7 +12775,7 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLTHRUSTING");
@@ -13285,13 +12788,8 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLTHRUSTING", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -13302,7 +12800,7 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -13352,8 +12850,6 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -13362,8 +12858,9 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -13374,7 +12871,7 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLTRISTAR");
@@ -13388,7 +12885,7 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLTRISTAR");
@@ -13402,7 +12899,7 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLTRISTAR");
@@ -13416,7 +12913,7 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLTRISTAR");
@@ -13429,13 +12926,8 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLTRISTAR", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -13446,7 +12938,7 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -13496,8 +12988,6 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -13506,8 +12996,9 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -13518,7 +13009,7 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLUNIQUE3RIVER");
@@ -13532,7 +13023,7 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLUNIQUE3RIVER");
@@ -13546,7 +13037,7 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLUNIQUE3RIVER");
@@ -13560,7 +13051,7 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLUNIQUE3RIVER");
@@ -13573,13 +13064,8 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLUNIQUE3RIVER", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -13590,7 +13076,7 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -13640,8 +13126,6 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -13650,8 +13134,9 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -13662,7 +13147,7 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLUPSIDEGAP2CROWS");
@@ -13676,7 +13161,7 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLUPSIDEGAP2CROWS");
@@ -13690,7 +13175,7 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLUPSIDEGAP2CROWS");
@@ -13704,7 +13189,7 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLUPSIDEGAP2CROWS");
@@ -13717,13 +13202,8 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLUPSIDEGAP2CROWS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -13734,7 +13214,7 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -13784,8 +13264,6 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -13794,8 +13272,9 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 7) || (argc > 7)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 7)",argc); SWIG_fail;
+  /* arg9 ignored on input */
+  if ((argc < 6) || (argc > 6)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -13806,7 +13285,7 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CDLXSIDEGAP3METHODS");
@@ -13820,7 +13299,7 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CDLXSIDEGAP3METHODS");
@@ -13834,7 +13313,7 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_CDLXSIDEGAP3METHODS");
@@ -13848,7 +13327,7 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_CDLXSIDEGAP3METHODS");
@@ -13861,13 +13340,8 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg6 = vptr;
   }
-  res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res9)) {
-    SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "int *","TA_CDLXSIDEGAP3METHODS", 9, argv[6] )); 
-  }
-  arg9 = (int *)(argp9);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg9 = OUT_ARRAY->data;
   }
@@ -13878,7 +13352,7 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -13925,8 +13399,6 @@ _wrap_ta_ceil(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -13935,8 +13407,9 @@ _wrap_ta_ceil(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -13947,7 +13420,7 @@ _wrap_ta_ceil(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CEIL");
@@ -13960,11 +13433,6 @@ _wrap_ta_ceil(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_CEIL", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -13977,7 +13445,7 @@ _wrap_ta_ceil(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14027,8 +13495,6 @@ _wrap_ta_cmo(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14038,7 +13504,8 @@ _wrap_ta_cmo(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -14050,7 +13517,7 @@ _wrap_ta_cmo(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CMO");
@@ -14070,13 +13537,6 @@ _wrap_ta_cmo(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_CMO", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14089,7 +13549,7 @@ _wrap_ta_cmo(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14148,8 +13608,6 @@ _wrap_ta_correl(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14159,7 +13617,8 @@ _wrap_ta_correl(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 4) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 4) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -14171,7 +13630,7 @@ _wrap_ta_correl(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_CORREL");
@@ -14185,7 +13644,7 @@ _wrap_ta_correl(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_CORREL");
@@ -14205,13 +13664,6 @@ _wrap_ta_correl(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (int)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_CORREL", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14224,7 +13676,7 @@ _wrap_ta_correl(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14279,8 +13731,6 @@ _wrap_ta_cos(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14289,8 +13739,9 @@ _wrap_ta_cos(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -14301,7 +13752,7 @@ _wrap_ta_cos(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_COS");
@@ -14314,11 +13765,6 @@ _wrap_ta_cos(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_COS", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14331,7 +13777,7 @@ _wrap_ta_cos(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14378,8 +13824,6 @@ _wrap_ta_cosh(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14388,8 +13832,9 @@ _wrap_ta_cosh(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -14400,7 +13845,7 @@ _wrap_ta_cosh(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_COSH");
@@ -14413,11 +13858,6 @@ _wrap_ta_cosh(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_COSH", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14430,7 +13870,7 @@ _wrap_ta_cosh(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14480,8 +13920,6 @@ _wrap_ta_dema(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14491,7 +13929,8 @@ _wrap_ta_dema(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -14503,7 +13942,7 @@ _wrap_ta_dema(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_DEMA");
@@ -14523,13 +13962,6 @@ _wrap_ta_dema(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_DEMA", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14542,7 +13974,7 @@ _wrap_ta_dema(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14598,8 +14030,6 @@ _wrap_ta_div(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14608,8 +14038,9 @@ _wrap_ta_div(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg7 ignored on input */
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -14620,7 +14051,7 @@ _wrap_ta_div(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_DIV");
@@ -14634,7 +14065,7 @@ _wrap_ta_div(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_DIV");
@@ -14647,11 +14078,6 @@ _wrap_ta_div(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg4 = vptr;
   }
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_DIV", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14664,7 +14090,7 @@ _wrap_ta_div(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14716,8 +14142,6 @@ _wrap_ta_dx(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14727,7 +14151,8 @@ _wrap_ta_dx(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -14739,7 +14164,7 @@ _wrap_ta_dx(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_DX");
@@ -14753,7 +14178,7 @@ _wrap_ta_dx(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_DX");
@@ -14767,7 +14192,7 @@ _wrap_ta_dx(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_DX");
@@ -14787,13 +14212,6 @@ _wrap_ta_dx(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_DX", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14806,7 +14224,7 @@ _wrap_ta_dx(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14864,8 +14282,6 @@ _wrap_ta_ema(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14875,7 +14291,8 @@ _wrap_ta_ema(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -14887,7 +14304,7 @@ _wrap_ta_ema(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_EMA");
@@ -14907,13 +14324,6 @@ _wrap_ta_ema(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_EMA", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -14926,7 +14336,7 @@ _wrap_ta_ema(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -14981,8 +14391,6 @@ _wrap_ta_exp(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -14991,8 +14399,9 @@ _wrap_ta_exp(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15003,7 +14412,7 @@ _wrap_ta_exp(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_EXP");
@@ -15016,11 +14425,6 @@ _wrap_ta_exp(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_EXP", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -15033,7 +14437,7 @@ _wrap_ta_exp(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15080,8 +14484,6 @@ _wrap_ta_floor(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15090,8 +14492,9 @@ _wrap_ta_floor(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15102,7 +14505,7 @@ _wrap_ta_floor(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_FLOOR");
@@ -15115,11 +14518,6 @@ _wrap_ta_floor(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_FLOOR", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -15132,7 +14530,7 @@ _wrap_ta_floor(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15179,8 +14577,6 @@ _wrap_ta_ht_dcperiod(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15189,8 +14585,9 @@ _wrap_ta_ht_dcperiod(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15201,7 +14598,7 @@ _wrap_ta_ht_dcperiod(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_HT_DCPERIOD");
@@ -15214,11 +14611,6 @@ _wrap_ta_ht_dcperiod(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_HT_DCPERIOD", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -15231,7 +14623,7 @@ _wrap_ta_ht_dcperiod(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15278,8 +14670,6 @@ _wrap_ta_ht_dcphase(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15288,8 +14678,9 @@ _wrap_ta_ht_dcphase(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15300,7 +14691,7 @@ _wrap_ta_ht_dcphase(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_HT_DCPHASE");
@@ -15313,11 +14704,6 @@ _wrap_ta_ht_dcphase(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_HT_DCPHASE", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -15330,7 +14716,7 @@ _wrap_ta_ht_dcphase(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15378,10 +14764,6 @@ _wrap_ta_ht_phasor(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15391,8 +14773,10 @@ _wrap_ta_ht_phasor(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY2 = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15403,7 +14787,7 @@ _wrap_ta_ht_phasor(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_HT_PHASOR");
@@ -15416,16 +14800,6 @@ _wrap_ta_ht_phasor(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_HT_PHASOR", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_HT_PHASOR", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -15443,7 +14817,7 @@ _wrap_ta_ht_phasor(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15459,7 +14833,7 @@ _wrap_ta_ht_phasor(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15507,10 +14881,6 @@ _wrap_ta_ht_sine(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15520,8 +14890,10 @@ _wrap_ta_ht_sine(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY2 = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15532,7 +14904,7 @@ _wrap_ta_ht_sine(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_HT_SINE");
@@ -15545,16 +14917,6 @@ _wrap_ta_ht_sine(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_HT_SINE", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_HT_SINE", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -15572,7 +14934,7 @@ _wrap_ta_ht_sine(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15588,7 +14950,7 @@ _wrap_ta_ht_sine(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15635,8 +14997,6 @@ _wrap_ta_ht_trendline(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15645,8 +15005,9 @@ _wrap_ta_ht_trendline(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15657,7 +15018,7 @@ _wrap_ta_ht_trendline(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_HT_TRENDLINE");
@@ -15670,11 +15031,6 @@ _wrap_ta_ht_trendline(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_HT_TRENDLINE", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -15687,7 +15043,7 @@ _wrap_ta_ht_trendline(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15734,8 +15090,6 @@ _wrap_ta_ht_trendmode(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15744,8 +15098,9 @@ _wrap_ta_ht_trendmode(int argc, VALUE *argv, VALUE self) {
   gsl_vector_int* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -15756,7 +15111,7 @@ _wrap_ta_ht_trendmode(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_HT_TRENDMODE");
@@ -15769,13 +15124,8 @@ _wrap_ta_ht_trendmode(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_int, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "int *","TA_HT_TRENDMODE", 6, argv[3] )); 
-  }
-  arg6 = (int *)(argp6);
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg6 = OUT_ARRAY->data;
   }
@@ -15786,7 +15136,7 @@ _wrap_ta_ht_trendmode(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -15836,8 +15186,6 @@ _wrap_ta_kama(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15847,7 +15195,8 @@ _wrap_ta_kama(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -15859,7 +15208,7 @@ _wrap_ta_kama(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_KAMA");
@@ -15879,13 +15228,6 @@ _wrap_ta_kama(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_KAMA", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -15898,7 +15240,7 @@ _wrap_ta_kama(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -15956,8 +15298,6 @@ _wrap_ta_linearreg(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -15967,7 +15307,8 @@ _wrap_ta_linearreg(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -15979,7 +15320,7 @@ _wrap_ta_linearreg(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_LINEARREG");
@@ -15999,13 +15340,6 @@ _wrap_ta_linearreg(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_LINEARREG", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -16018,7 +15352,7 @@ _wrap_ta_linearreg(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16076,8 +15410,6 @@ _wrap_ta_linearreg_angle(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -16087,7 +15419,8 @@ _wrap_ta_linearreg_angle(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -16099,7 +15432,7 @@ _wrap_ta_linearreg_angle(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_LINEARREG_ANGLE");
@@ -16119,13 +15452,6 @@ _wrap_ta_linearreg_angle(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_LINEARREG_ANGLE", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -16138,7 +15464,7 @@ _wrap_ta_linearreg_angle(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16196,8 +15522,6 @@ _wrap_ta_linearreg_intercept(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -16207,7 +15531,8 @@ _wrap_ta_linearreg_intercept(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -16219,7 +15544,7 @@ _wrap_ta_linearreg_intercept(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_LINEARREG_INTERCEPT");
@@ -16239,13 +15564,6 @@ _wrap_ta_linearreg_intercept(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_LINEARREG_INTERCEPT", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -16258,7 +15576,7 @@ _wrap_ta_linearreg_intercept(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16316,8 +15634,6 @@ _wrap_ta_linearreg_slope(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -16327,7 +15643,8 @@ _wrap_ta_linearreg_slope(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -16339,7 +15656,7 @@ _wrap_ta_linearreg_slope(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_LINEARREG_SLOPE");
@@ -16359,13 +15676,6 @@ _wrap_ta_linearreg_slope(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_LINEARREG_SLOPE", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -16378,7 +15688,7 @@ _wrap_ta_linearreg_slope(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16433,8 +15743,6 @@ _wrap_ta_ln(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -16443,8 +15751,9 @@ _wrap_ta_ln(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -16455,7 +15764,7 @@ _wrap_ta_ln(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_LN");
@@ -16468,11 +15777,6 @@ _wrap_ta_ln(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_LN", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -16485,7 +15789,7 @@ _wrap_ta_ln(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16532,8 +15836,6 @@ _wrap_ta_log_10(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -16542,8 +15844,9 @@ _wrap_ta_log_10(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -16554,7 +15857,7 @@ _wrap_ta_log_10(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_LOG10");
@@ -16567,11 +15870,6 @@ _wrap_ta_log_10(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_LOG10", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -16584,7 +15882,7 @@ _wrap_ta_log_10(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16637,8 +15935,6 @@ _wrap_ta_ma(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -16649,7 +15945,8 @@ _wrap_ta_ma(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 3) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 3) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -16661,7 +15958,7 @@ _wrap_ta_ma(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MA");
@@ -16688,13 +15985,6 @@ _wrap_ta_ma(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (TA_MAType)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_MA", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -16707,7 +15997,7 @@ _wrap_ta_ma(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16781,12 +16071,6 @@ _wrap_ta_macd(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
-  void *argp11 = 0 ;
-  int res11 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -16800,7 +16084,10 @@ _wrap_ta_macd(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 3) || (argc > 9)) {
+  /* arg9 ignored on input */
+  /* arg10 ignored on input */
+  /* arg11 ignored on input */
+  if ((argc < 3) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -16812,7 +16099,7 @@ _wrap_ta_macd(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MACD");
@@ -16846,27 +16133,6 @@ _wrap_ta_macd(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_MACD", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "double *","TA_MACD", 10, argv[7] )); 
-    }
-    arg10 = (double *)(argp10);
-  }
-  if (argc > 8) {
-    res11 = SWIG_ConvertPtr(argv[8], &argp11,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res11)) {
-      SWIG_exception_fail(SWIG_ArgError(res11), Ruby_Format_TypeError( "", "double *","TA_MACD", 11, argv[8] )); 
-    }
-    arg11 = (double *)(argp11);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -16889,7 +16155,7 @@ _wrap_ta_macd(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16905,7 +16171,7 @@ _wrap_ta_macd(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -16921,7 +16187,7 @@ _wrap_ta_macd(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY3));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17012,12 +16278,6 @@ _wrap_ta_macdext(int argc, VALUE *argv, VALUE self) {
   int val9 ;
   int ecode9 = 0 ;
   int temp10 = 0 ;
-  void *argp12 = 0 ;
-  int res12 = 0 ;
-  void *argp13 = 0 ;
-  int res13 = 0 ;
-  void *argp14 = 0 ;
-  int res14 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -17034,7 +16294,10 @@ _wrap_ta_macdext(int argc, VALUE *argv, VALUE self) {
   arg9 = 2;
   arg10 = &outIndex;
   arg11 = &outNbElement;
-  if ((argc < 3) || (argc > 12)) {
+  /* arg12 ignored on input */
+  /* arg13 ignored on input */
+  /* arg14 ignored on input */
+  if ((argc < 3) || (argc > 9)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -17046,7 +16309,7 @@ _wrap_ta_macdext(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MACDEXT");
@@ -17101,27 +16364,6 @@ _wrap_ta_macdext(int argc, VALUE *argv, VALUE self) {
     } 
     arg9 = (TA_MAType)(val9);
   }
-  if (argc > 9) {
-    res12 = SWIG_ConvertPtr(argv[9], &argp12,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res12)) {
-      SWIG_exception_fail(SWIG_ArgError(res12), Ruby_Format_TypeError( "", "double *","TA_MACDEXT", 12, argv[9] )); 
-    }
-    arg12 = (double *)(argp12);
-  }
-  if (argc > 10) {
-    res13 = SWIG_ConvertPtr(argv[10], &argp13,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res13)) {
-      SWIG_exception_fail(SWIG_ArgError(res13), Ruby_Format_TypeError( "", "double *","TA_MACDEXT", 13, argv[10] )); 
-    }
-    arg13 = (double *)(argp13);
-  }
-  if (argc > 11) {
-    res14 = SWIG_ConvertPtr(argv[11], &argp14,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res14)) {
-      SWIG_exception_fail(SWIG_ArgError(res14), Ruby_Format_TypeError( "", "double *","TA_MACDEXT", 14, argv[11] )); 
-    }
-    arg14 = (double *)(argp14);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -17144,7 +16386,7 @@ _wrap_ta_macdext(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17160,7 +16402,7 @@ _wrap_ta_macdext(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17176,7 +16418,7 @@ _wrap_ta_macdext(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY3));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17276,12 +16518,6 @@ _wrap_ta_macdfix(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -17293,7 +16529,10 @@ _wrap_ta_macdfix(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 7)) {
+  /* arg7 ignored on input */
+  /* arg8 ignored on input */
+  /* arg9 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -17305,7 +16544,7 @@ _wrap_ta_macdfix(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MACDFIX");
@@ -17324,27 +16563,6 @@ _wrap_ta_macdfix(int argc, VALUE *argv, VALUE self) {
       SWIG_exception_fail(SWIG_ArgError(ecode4), Ruby_Format_TypeError( "", "int","TA_MACDFIX", 4, argv[3] ));
     } 
     arg4 = (int)(val4);
-  }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MACDFIX", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_MACDFIX", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_MACDFIX", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
   }
   {
     size_t array_size = arg2 - arg1 + 1;
@@ -17368,7 +16586,7 @@ _wrap_ta_macdfix(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17384,7 +16602,7 @@ _wrap_ta_macdfix(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17400,7 +16618,7 @@ _wrap_ta_macdfix(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY3));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17458,10 +16676,6 @@ _wrap_ta_mama(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -17473,7 +16687,9 @@ _wrap_ta_mama(int argc, VALUE *argv, VALUE self) {
   arg5 = TA_REAL_DEFAULT;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 3) || (argc > 7)) {
+  /* arg8 ignored on input */
+  /* arg9 ignored on input */
+  if ((argc < 3) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -17485,7 +16701,7 @@ _wrap_ta_mama(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MAMA");
@@ -17504,20 +16720,6 @@ _wrap_ta_mama(int argc, VALUE *argv, VALUE self) {
   if (argc > 4) {
     arg5 = NUM2DBL(argv[4]);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_MAMA", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_MAMA", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -17535,7 +16737,7 @@ _wrap_ta_mama(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17551,7 +16753,7 @@ _wrap_ta_mama(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17624,8 +16826,6 @@ _wrap_ta_mavp(int argc, VALUE *argv, VALUE self) {
   int val7 ;
   int ecode7 = 0 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -17637,7 +16837,8 @@ _wrap_ta_mavp(int argc, VALUE *argv, VALUE self) {
   arg7 = 2;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 4) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 4) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -17649,7 +16850,7 @@ _wrap_ta_mavp(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MAVP");
@@ -17663,7 +16864,7 @@ _wrap_ta_mavp(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_MAVP");
@@ -17697,13 +16898,6 @@ _wrap_ta_mavp(int argc, VALUE *argv, VALUE self) {
     } 
     arg7 = (TA_MAType)(val7);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "double *","TA_MAVP", 10, argv[7] )); 
-    }
-    arg10 = (double *)(argp10);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -17716,7 +16910,7 @@ _wrap_ta_mavp(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17790,8 +16984,6 @@ _wrap_ta_max(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -17801,7 +16993,8 @@ _wrap_ta_max(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -17813,7 +17006,7 @@ _wrap_ta_max(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MAX");
@@ -17833,13 +17026,6 @@ _wrap_ta_max(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MAX", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -17852,7 +17038,7 @@ _wrap_ta_max(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -17910,8 +17096,6 @@ _wrap_ta_maxindex(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -17921,7 +17105,8 @@ _wrap_ta_maxindex(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -17933,7 +17118,7 @@ _wrap_ta_maxindex(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MAXINDEX");
@@ -17953,15 +17138,8 @@ _wrap_ta_maxindex(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "int *","TA_MAXINDEX", 7, argv[4] )); 
-    }
-    arg7 = (int *)(argp7);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg7 = OUT_ARRAY->data;
   }
@@ -17972,7 +17150,7 @@ _wrap_ta_maxindex(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -18028,8 +17206,6 @@ _wrap_ta_medprice(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -18038,8 +17214,9 @@ _wrap_ta_medprice(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg7 ignored on input */
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -18050,7 +17227,7 @@ _wrap_ta_medprice(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MEDPRICE");
@@ -18064,7 +17241,7 @@ _wrap_ta_medprice(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_MEDPRICE");
@@ -18077,11 +17254,6 @@ _wrap_ta_medprice(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg4 = vptr;
   }
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MEDPRICE", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -18094,7 +17266,7 @@ _wrap_ta_medprice(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -18147,8 +17319,6 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
   int val7 ;
   int ecode7 = 0 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -18158,7 +17328,8 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
   arg7 = 2;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 6) || (argc > 8)) {
+  /* arg10 ignored on input */
+  if ((argc < 6) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
   }
   {
@@ -18170,7 +17341,7 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MFI");
@@ -18184,7 +17355,7 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_MFI");
@@ -18198,7 +17369,7 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_MFI");
@@ -18212,7 +17383,7 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
     arg5 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[5]) )
     SWIG_croak("Expected an GSL::Vector 6 of TA_MFI");
@@ -18232,13 +17403,6 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
     } 
     arg7 = (int)(val7);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "double *","TA_MFI", 10, argv[7] )); 
-    }
-    arg10 = (double *)(argp10);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -18251,7 +17415,7 @@ _wrap_ta_mfi(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -18309,8 +17473,6 @@ _wrap_ta_midpoint(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -18320,7 +17482,8 @@ _wrap_ta_midpoint(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -18332,7 +17495,7 @@ _wrap_ta_midpoint(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MIDPOINT");
@@ -18352,13 +17515,6 @@ _wrap_ta_midpoint(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MIDPOINT", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -18371,7 +17527,7 @@ _wrap_ta_midpoint(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -18430,8 +17586,6 @@ _wrap_ta_midprice(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -18441,7 +17595,8 @@ _wrap_ta_midprice(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 4) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 4) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -18453,7 +17608,7 @@ _wrap_ta_midprice(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MIDPRICE");
@@ -18467,7 +17622,7 @@ _wrap_ta_midprice(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_MIDPRICE");
@@ -18487,13 +17642,6 @@ _wrap_ta_midprice(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (int)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_MIDPRICE", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -18506,7 +17654,7 @@ _wrap_ta_midprice(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -18564,8 +17712,6 @@ _wrap_ta_min(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -18575,7 +17721,8 @@ _wrap_ta_min(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -18587,7 +17734,7 @@ _wrap_ta_min(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MIN");
@@ -18607,13 +17754,6 @@ _wrap_ta_min(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MIN", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -18626,7 +17766,7 @@ _wrap_ta_min(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -18684,8 +17824,6 @@ _wrap_ta_minindex(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -18695,7 +17833,8 @@ _wrap_ta_minindex(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -18707,7 +17846,7 @@ _wrap_ta_minindex(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MININDEX");
@@ -18727,15 +17866,8 @@ _wrap_ta_minindex(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_int, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "int *","TA_MININDEX", 7, argv[4] )); 
-    }
-    arg7 = (int *)(argp7);
-  }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_int_calloc(array_size);
     arg7 = OUT_ARRAY->data;
   }
@@ -18746,7 +17878,7 @@ _wrap_ta_minindex(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, OUT_ARRAY));
       } else {
         gsl_vector_int* ogv = gsl_vector_int_alloc(outNbElement);
@@ -18805,10 +17937,6 @@ _wrap_ta_minmax(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -18819,7 +17947,9 @@ _wrap_ta_minmax(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 6)) {
+  /* arg7 ignored on input */
+  /* arg8 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -18831,7 +17961,7 @@ _wrap_ta_minmax(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MINMAX");
@@ -18851,20 +17981,6 @@ _wrap_ta_minmax(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MINMAX", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_MINMAX", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -18882,7 +17998,7 @@ _wrap_ta_minmax(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -18898,7 +18014,7 @@ _wrap_ta_minmax(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -18981,7 +18097,7 @@ _wrap_ta_minmaxindex(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MINMAXINDEX");
@@ -19066,8 +18182,6 @@ _wrap_ta_minus_di(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -19077,7 +18191,8 @@ _wrap_ta_minus_di(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -19089,7 +18204,7 @@ _wrap_ta_minus_di(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MINUS_DI");
@@ -19103,7 +18218,7 @@ _wrap_ta_minus_di(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_MINUS_DI");
@@ -19117,7 +18232,7 @@ _wrap_ta_minus_di(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_MINUS_DI");
@@ -19137,13 +18252,6 @@ _wrap_ta_minus_di(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_MINUS_DI", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -19156,7 +18264,7 @@ _wrap_ta_minus_di(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -19215,8 +18323,6 @@ _wrap_ta_minus_dm(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -19226,7 +18332,8 @@ _wrap_ta_minus_dm(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 4) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 4) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -19238,7 +18345,7 @@ _wrap_ta_minus_dm(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MINUS_DM");
@@ -19252,7 +18359,7 @@ _wrap_ta_minus_dm(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_MINUS_DM");
@@ -19272,13 +18379,6 @@ _wrap_ta_minus_dm(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (int)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_MINUS_DM", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -19291,7 +18391,7 @@ _wrap_ta_minus_dm(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -19349,8 +18449,6 @@ _wrap_ta_mom(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -19360,7 +18458,8 @@ _wrap_ta_mom(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -19372,7 +18471,7 @@ _wrap_ta_mom(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MOM");
@@ -19392,13 +18491,6 @@ _wrap_ta_mom(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MOM", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -19411,7 +18503,7 @@ _wrap_ta_mom(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -19467,8 +18559,6 @@ _wrap_ta_mult(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -19477,8 +18567,9 @@ _wrap_ta_mult(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg7 ignored on input */
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -19489,7 +18580,7 @@ _wrap_ta_mult(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_MULT");
@@ -19503,7 +18594,7 @@ _wrap_ta_mult(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_MULT");
@@ -19516,11 +18607,6 @@ _wrap_ta_mult(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg4 = vptr;
   }
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_MULT", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -19533,7 +18619,7 @@ _wrap_ta_mult(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -19585,8 +18671,6 @@ _wrap_ta_natr(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -19596,7 +18680,8 @@ _wrap_ta_natr(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -19608,7 +18693,7 @@ _wrap_ta_natr(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_NATR");
@@ -19622,7 +18707,7 @@ _wrap_ta_natr(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_NATR");
@@ -19636,7 +18721,7 @@ _wrap_ta_natr(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_NATR");
@@ -19656,13 +18741,6 @@ _wrap_ta_natr(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_NATR", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -19675,7 +18753,7 @@ _wrap_ta_natr(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -19731,8 +18809,6 @@ _wrap_ta_obv(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -19741,8 +18817,9 @@ _wrap_ta_obv(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg7 ignored on input */
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -19753,7 +18830,7 @@ _wrap_ta_obv(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_OBV");
@@ -19767,7 +18844,7 @@ _wrap_ta_obv(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_OBV");
@@ -19780,11 +18857,6 @@ _wrap_ta_obv(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg4 = vptr;
   }
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_OBV", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -19797,7 +18869,7 @@ _wrap_ta_obv(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -19849,8 +18921,6 @@ _wrap_ta_plus_di(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -19860,7 +18930,8 @@ _wrap_ta_plus_di(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -19872,7 +18943,7 @@ _wrap_ta_plus_di(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_PLUS_DI");
@@ -19886,7 +18957,7 @@ _wrap_ta_plus_di(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_PLUS_DI");
@@ -19900,7 +18971,7 @@ _wrap_ta_plus_di(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_PLUS_DI");
@@ -19920,13 +18991,6 @@ _wrap_ta_plus_di(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_PLUS_DI", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -19939,7 +19003,7 @@ _wrap_ta_plus_di(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -19998,8 +19062,6 @@ _wrap_ta_plus_dm(int argc, VALUE *argv, VALUE self) {
   int val5 ;
   int ecode5 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20009,7 +19071,8 @@ _wrap_ta_plus_dm(int argc, VALUE *argv, VALUE self) {
   arg5 = 2;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 4) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 4) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -20021,7 +19084,7 @@ _wrap_ta_plus_dm(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_PLUS_DM");
@@ -20035,7 +19098,7 @@ _wrap_ta_plus_dm(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_PLUS_DM");
@@ -20055,13 +19118,6 @@ _wrap_ta_plus_dm(int argc, VALUE *argv, VALUE self) {
     } 
     arg5 = (int)(val5);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_PLUS_DM", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20074,7 +19130,7 @@ _wrap_ta_plus_dm(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -20138,8 +19194,6 @@ _wrap_ta_ppo(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20151,7 +19205,8 @@ _wrap_ta_ppo(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 3) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 3) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -20163,7 +19218,7 @@ _wrap_ta_ppo(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_PPO");
@@ -20197,13 +19252,6 @@ _wrap_ta_ppo(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (TA_MAType)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_PPO", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20216,7 +19264,7 @@ _wrap_ta_ppo(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -20290,8 +19338,6 @@ _wrap_ta_roc(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20301,7 +19347,8 @@ _wrap_ta_roc(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -20313,7 +19360,7 @@ _wrap_ta_roc(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ROC");
@@ -20333,13 +19380,6 @@ _wrap_ta_roc(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_ROC", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20352,7 +19392,7 @@ _wrap_ta_roc(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -20410,8 +19450,6 @@ _wrap_ta_rocp(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20421,7 +19459,8 @@ _wrap_ta_rocp(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -20433,7 +19472,7 @@ _wrap_ta_rocp(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ROCP");
@@ -20453,13 +19492,6 @@ _wrap_ta_rocp(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_ROCP", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20472,7 +19504,7 @@ _wrap_ta_rocp(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -20530,8 +19562,6 @@ _wrap_ta_rocr(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20541,7 +19571,8 @@ _wrap_ta_rocr(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -20553,7 +19584,7 @@ _wrap_ta_rocr(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ROCR");
@@ -20573,13 +19604,6 @@ _wrap_ta_rocr(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_ROCR", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20592,7 +19616,7 @@ _wrap_ta_rocr(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -20650,8 +19674,6 @@ _wrap_ta_rocr_100(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20661,7 +19683,8 @@ _wrap_ta_rocr_100(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -20673,7 +19696,7 @@ _wrap_ta_rocr_100(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ROCR100");
@@ -20693,13 +19716,6 @@ _wrap_ta_rocr_100(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_ROCR100", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20712,7 +19728,7 @@ _wrap_ta_rocr_100(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -20770,8 +19786,6 @@ _wrap_ta_rsi(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20781,7 +19795,8 @@ _wrap_ta_rsi(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -20793,7 +19808,7 @@ _wrap_ta_rsi(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_RSI");
@@ -20813,13 +19828,6 @@ _wrap_ta_rsi(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_RSI", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20832,7 +19840,7 @@ _wrap_ta_rsi(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -20890,8 +19898,6 @@ _wrap_ta_sar(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -20902,7 +19908,8 @@ _wrap_ta_sar(int argc, VALUE *argv, VALUE self) {
   arg6 = TA_REAL_DEFAULT;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 4) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 4) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -20914,7 +19921,7 @@ _wrap_ta_sar(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SAR");
@@ -20928,7 +19935,7 @@ _wrap_ta_sar(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_SAR");
@@ -20947,13 +19954,6 @@ _wrap_ta_sar(int argc, VALUE *argv, VALUE self) {
   if (argc > 5) {
     arg6 = NUM2DBL(argv[5]);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_SAR", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -20966,7 +19966,7 @@ _wrap_ta_sar(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21038,8 +20038,6 @@ _wrap_ta_sarext(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp13 = 0 ;
-  void *argp15 = 0 ;
-  int res15 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -21056,7 +20054,8 @@ _wrap_ta_sarext(int argc, VALUE *argv, VALUE self) {
   arg12 = TA_REAL_DEFAULT;
   arg13 = &outIndex;
   arg14 = &outNbElement;
-  if ((argc < 4) || (argc > 13)) {
+  /* arg15 ignored on input */
+  if ((argc < 4) || (argc > 12)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
@@ -21068,7 +20067,7 @@ _wrap_ta_sarext(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SAREXT");
@@ -21082,7 +20081,7 @@ _wrap_ta_sarext(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_SAREXT");
@@ -21119,13 +20118,6 @@ _wrap_ta_sarext(int argc, VALUE *argv, VALUE self) {
   if (argc > 11) {
     arg12 = NUM2DBL(argv[11]);
   }
-  if (argc > 12) {
-    res15 = SWIG_ConvertPtr(argv[12], &argp15,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res15)) {
-      SWIG_exception_fail(SWIG_ArgError(res15), Ruby_Format_TypeError( "", "double *","TA_SAREXT", 15, argv[12] )); 
-    }
-    arg15 = (double *)(argp15);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -21138,7 +20130,7 @@ _wrap_ta_sarext(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21249,8 +20241,6 @@ _wrap_ta_sin(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -21259,8 +20249,9 @@ _wrap_ta_sin(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -21271,7 +20262,7 @@ _wrap_ta_sin(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SIN");
@@ -21284,11 +20275,6 @@ _wrap_ta_sin(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_SIN", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -21301,7 +20287,7 @@ _wrap_ta_sin(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21348,8 +20334,6 @@ _wrap_ta_sinh(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -21358,8 +20342,9 @@ _wrap_ta_sinh(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -21370,7 +20355,7 @@ _wrap_ta_sinh(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SINH");
@@ -21383,11 +20368,6 @@ _wrap_ta_sinh(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_SINH", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -21400,7 +20380,7 @@ _wrap_ta_sinh(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21450,8 +20430,6 @@ _wrap_ta_sma(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -21461,7 +20439,8 @@ _wrap_ta_sma(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -21473,7 +20452,7 @@ _wrap_ta_sma(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SMA");
@@ -21493,13 +20472,6 @@ _wrap_ta_sma(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_SMA", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -21512,7 +20484,7 @@ _wrap_ta_sma(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21567,8 +20539,6 @@ _wrap_ta_sqrt(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -21577,8 +20547,9 @@ _wrap_ta_sqrt(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -21589,7 +20560,7 @@ _wrap_ta_sqrt(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SQRT");
@@ -21602,11 +20573,6 @@ _wrap_ta_sqrt(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_SQRT", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -21619,7 +20585,7 @@ _wrap_ta_sqrt(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21670,8 +20636,6 @@ _wrap_ta_stddev(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -21682,7 +20646,8 @@ _wrap_ta_stddev(int argc, VALUE *argv, VALUE self) {
   arg5 = TA_REAL_DEFAULT;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 3) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 3) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -21694,7 +20659,7 @@ _wrap_ta_stddev(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_STDDEV");
@@ -21717,13 +20682,6 @@ _wrap_ta_stddev(int argc, VALUE *argv, VALUE self) {
   if (argc > 4) {
     arg5 = NUM2DBL(argv[4]);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_STDDEV", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -21736,7 +20694,7 @@ _wrap_ta_stddev(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21817,10 +20775,6 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
   int val10 ;
   int ecode10 = 0 ;
   int temp11 = 0 ;
-  void *argp13 = 0 ;
-  int res13 = 0 ;
-  void *argp14 = 0 ;
-  int res14 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -21835,7 +20789,9 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
   arg10 = 2;
   arg11 = &outIndex;
   arg12 = &outNbElement;
-  if ((argc < 5) || (argc > 12)) {
+  /* arg13 ignored on input */
+  /* arg14 ignored on input */
+  if ((argc < 5) || (argc > 10)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -21847,7 +20803,7 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_STOCH");
@@ -21861,7 +20817,7 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_STOCH");
@@ -21875,7 +20831,7 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_STOCH");
@@ -21923,20 +20879,6 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
     } 
     arg10 = (TA_MAType)(val10);
   }
-  if (argc > 10) {
-    res13 = SWIG_ConvertPtr(argv[10], &argp13,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res13)) {
-      SWIG_exception_fail(SWIG_ArgError(res13), Ruby_Format_TypeError( "", "double *","TA_STOCH", 13, argv[10] )); 
-    }
-    arg13 = (double *)(argp13);
-  }
-  if (argc > 11) {
-    res14 = SWIG_ConvertPtr(argv[11], &argp14,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res14)) {
-      SWIG_exception_fail(SWIG_ArgError(res14), Ruby_Format_TypeError( "", "double *","TA_STOCH", 14, argv[11] )); 
-    }
-    arg14 = (double *)(argp14);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -21954,7 +20896,7 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -21970,7 +20912,7 @@ _wrap_ta_stoch(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22069,10 +21011,6 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
   int val8 ;
   int ecode8 = 0 ;
   int temp9 = 0 ;
-  void *argp11 = 0 ;
-  int res11 = 0 ;
-  void *argp12 = 0 ;
-  int res12 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -22085,7 +21023,9 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
   arg8 = 2;
   arg9 = &outIndex;
   arg10 = &outNbElement;
-  if ((argc < 5) || (argc > 10)) {
+  /* arg11 ignored on input */
+  /* arg12 ignored on input */
+  if ((argc < 5) || (argc > 8)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -22097,7 +21037,7 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_STOCHF");
@@ -22111,7 +21051,7 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_STOCHF");
@@ -22125,7 +21065,7 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_STOCHF");
@@ -22159,20 +21099,6 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
     } 
     arg8 = (TA_MAType)(val8);
   }
-  if (argc > 8) {
-    res11 = SWIG_ConvertPtr(argv[8], &argp11,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res11)) {
-      SWIG_exception_fail(SWIG_ArgError(res11), Ruby_Format_TypeError( "", "double *","TA_STOCHF", 11, argv[8] )); 
-    }
-    arg11 = (double *)(argp11);
-  }
-  if (argc > 9) {
-    res12 = SWIG_ConvertPtr(argv[9], &argp12,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res12)) {
-      SWIG_exception_fail(SWIG_ArgError(res12), Ruby_Format_TypeError( "", "double *","TA_STOCHF", 12, argv[9] )); 
-    }
-    arg12 = (double *)(argp12);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -22190,7 +21116,7 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22206,7 +21132,7 @@ _wrap_ta_stochf(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22290,10 +21216,6 @@ _wrap_ta_stochrsi(int argc, VALUE *argv, VALUE self) {
   int val7 ;
   int ecode7 = 0 ;
   int temp8 = 0 ;
-  void *argp10 = 0 ;
-  int res10 = 0 ;
-  void *argp11 = 0 ;
-  int res11 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -22307,7 +21229,9 @@ _wrap_ta_stochrsi(int argc, VALUE *argv, VALUE self) {
   arg7 = 2;
   arg8 = &outIndex;
   arg9 = &outNbElement;
-  if ((argc < 3) || (argc > 9)) {
+  /* arg10 ignored on input */
+  /* arg11 ignored on input */
+  if ((argc < 3) || (argc > 7)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -22319,7 +21243,7 @@ _wrap_ta_stochrsi(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_STOCHRSI");
@@ -22360,20 +21284,6 @@ _wrap_ta_stochrsi(int argc, VALUE *argv, VALUE self) {
     } 
     arg7 = (TA_MAType)(val7);
   }
-  if (argc > 7) {
-    res10 = SWIG_ConvertPtr(argv[7], &argp10,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res10)) {
-      SWIG_exception_fail(SWIG_ArgError(res10), Ruby_Format_TypeError( "", "double *","TA_STOCHRSI", 10, argv[7] )); 
-    }
-    arg10 = (double *)(argp10);
-  }
-  if (argc > 8) {
-    res11 = SWIG_ConvertPtr(argv[8], &argp11,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res11)) {
-      SWIG_exception_fail(SWIG_ArgError(res11), Ruby_Format_TypeError( "", "double *","TA_STOCHRSI", 11, argv[8] )); 
-    }
-    arg11 = (double *)(argp11);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY1 = gsl_vector_calloc(array_size);
@@ -22391,7 +21301,7 @@ _wrap_ta_stochrsi(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY1));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22407,7 +21317,7 @@ _wrap_ta_stochrsi(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY2));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22487,8 +21397,6 @@ _wrap_ta_sub(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -22497,8 +21405,9 @@ _wrap_ta_sub(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 5) || (argc > 5)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
+  /* arg7 ignored on input */
+  if ((argc < 4) || (argc > 4)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -22509,7 +21418,7 @@ _wrap_ta_sub(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SUB");
@@ -22523,7 +21432,7 @@ _wrap_ta_sub(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_SUB");
@@ -22536,11 +21445,6 @@ _wrap_ta_sub(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg4 = vptr;
   }
-  res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res7)) {
-    SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_SUB", 7, argv[4] )); 
-  }
-  arg7 = (double *)(argp7);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -22553,7 +21457,7 @@ _wrap_ta_sub(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22603,8 +21507,6 @@ _wrap_ta_sum(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -22614,7 +21516,8 @@ _wrap_ta_sum(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -22626,7 +21529,7 @@ _wrap_ta_sum(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_SUM");
@@ -22646,13 +21549,6 @@ _wrap_ta_sum(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_SUM", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -22665,7 +21561,7 @@ _wrap_ta_sum(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22724,8 +21620,6 @@ _wrap_ta_t3(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -22736,7 +21630,8 @@ _wrap_ta_t3(int argc, VALUE *argv, VALUE self) {
   arg5 = TA_REAL_DEFAULT;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 3) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 3) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -22748,7 +21643,7 @@ _wrap_ta_t3(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_T3");
@@ -22771,13 +21666,6 @@ _wrap_ta_t3(int argc, VALUE *argv, VALUE self) {
   if (argc > 4) {
     arg5 = NUM2DBL(argv[4]);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_T3", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -22790,7 +21678,7 @@ _wrap_ta_t3(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22853,8 +21741,6 @@ _wrap_ta_tan(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -22863,8 +21749,9 @@ _wrap_ta_tan(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -22875,7 +21762,7 @@ _wrap_ta_tan(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TAN");
@@ -22888,11 +21775,6 @@ _wrap_ta_tan(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_TAN", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -22905,7 +21787,7 @@ _wrap_ta_tan(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -22952,8 +21834,6 @@ _wrap_ta_tanh(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp4 = 0 ;
-  void *argp6 = 0 ;
-  int res6 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -22962,8 +21842,9 @@ _wrap_ta_tanh(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg4 = &outIndex;
   arg5 = &outNbElement;
-  if ((argc < 4) || (argc > 4)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 4)",argc); SWIG_fail;
+  /* arg6 ignored on input */
+  if ((argc < 3) || (argc > 3)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -22974,7 +21855,7 @@ _wrap_ta_tanh(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TANH");
@@ -22987,11 +21868,6 @@ _wrap_ta_tanh(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg3 = vptr;
   }
-  res6 = SWIG_ConvertPtr(argv[3], &argp6,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res6)) {
-    SWIG_exception_fail(SWIG_ArgError(res6), Ruby_Format_TypeError( "", "double *","TA_TANH", 6, argv[3] )); 
-  }
-  arg6 = (double *)(argp6);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23004,7 +21880,7 @@ _wrap_ta_tanh(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23054,8 +21930,6 @@ _wrap_ta_tema(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23065,7 +21939,8 @@ _wrap_ta_tema(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -23077,7 +21952,7 @@ _wrap_ta_tema(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TEMA");
@@ -23097,13 +21972,6 @@ _wrap_ta_tema(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_TEMA", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23116,7 +21984,7 @@ _wrap_ta_tema(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23173,8 +22041,6 @@ _wrap_ta_trange(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23183,8 +22049,9 @@ _wrap_ta_trange(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 6) || (argc > 6)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
+  /* arg8 ignored on input */
+  if ((argc < 5) || (argc > 5)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -23195,7 +22062,7 @@ _wrap_ta_trange(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TRANGE");
@@ -23209,7 +22076,7 @@ _wrap_ta_trange(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_TRANGE");
@@ -23223,7 +22090,7 @@ _wrap_ta_trange(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_TRANGE");
@@ -23236,11 +22103,6 @@ _wrap_ta_trange(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg5 = vptr;
   }
-  res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res8)) {
-    SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_TRANGE", 8, argv[5] )); 
-  }
-  arg8 = (double *)(argp8);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23253,7 +22115,7 @@ _wrap_ta_trange(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23303,8 +22165,6 @@ _wrap_ta_trima(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23314,7 +22174,8 @@ _wrap_ta_trima(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -23326,7 +22187,7 @@ _wrap_ta_trima(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TRIMA");
@@ -23346,13 +22207,6 @@ _wrap_ta_trima(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_TRIMA", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23365,7 +22219,7 @@ _wrap_ta_trima(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23423,8 +22277,6 @@ _wrap_ta_trix(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23434,7 +22286,8 @@ _wrap_ta_trix(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -23446,7 +22299,7 @@ _wrap_ta_trix(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TRIX");
@@ -23466,13 +22319,6 @@ _wrap_ta_trix(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_TRIX", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23485,7 +22331,7 @@ _wrap_ta_trix(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23543,8 +22389,6 @@ _wrap_ta_tsf(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23554,7 +22398,8 @@ _wrap_ta_tsf(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -23566,7 +22411,7 @@ _wrap_ta_tsf(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TSF");
@@ -23586,13 +22431,6 @@ _wrap_ta_tsf(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_TSF", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23605,7 +22443,7 @@ _wrap_ta_tsf(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23662,8 +22500,6 @@ _wrap_ta_typprice(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23672,8 +22508,9 @@ _wrap_ta_typprice(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 6) || (argc > 6)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
+  /* arg8 ignored on input */
+  if ((argc < 5) || (argc > 5)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -23684,7 +22521,7 @@ _wrap_ta_typprice(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_TYPPRICE");
@@ -23698,7 +22535,7 @@ _wrap_ta_typprice(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_TYPPRICE");
@@ -23712,7 +22549,7 @@ _wrap_ta_typprice(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_TYPPRICE");
@@ -23725,11 +22562,6 @@ _wrap_ta_typprice(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg5 = vptr;
   }
-  res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res8)) {
-    SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_TYPPRICE", 8, argv[5] )); 
-  }
-  arg8 = (double *)(argp8);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23742,7 +22574,7 @@ _wrap_ta_typprice(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23800,8 +22632,6 @@ _wrap_ta_ultosc(int argc, VALUE *argv, VALUE self) {
   int val8 ;
   int ecode8 = 0 ;
   int temp9 = 0 ;
-  void *argp11 = 0 ;
-  int res11 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23813,7 +22643,8 @@ _wrap_ta_ultosc(int argc, VALUE *argv, VALUE self) {
   arg8 = 2;
   arg9 = &outIndex;
   arg10 = &outNbElement;
-  if ((argc < 5) || (argc > 9)) {
+  /* arg11 ignored on input */
+  if ((argc < 5) || (argc > 8)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -23825,7 +22656,7 @@ _wrap_ta_ultosc(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_ULTOSC");
@@ -23839,7 +22670,7 @@ _wrap_ta_ultosc(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_ULTOSC");
@@ -23853,7 +22684,7 @@ _wrap_ta_ultosc(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_ULTOSC");
@@ -23887,13 +22718,6 @@ _wrap_ta_ultosc(int argc, VALUE *argv, VALUE self) {
     } 
     arg8 = (int)(val8);
   }
-  if (argc > 8) {
-    res11 = SWIG_ConvertPtr(argv[8], &argp11,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res11)) {
-      SWIG_exception_fail(SWIG_ArgError(res11), Ruby_Format_TypeError( "", "double *","TA_ULTOSC", 11, argv[8] )); 
-    }
-    arg11 = (double *)(argp11);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -23906,7 +22730,7 @@ _wrap_ta_ultosc(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -23981,8 +22805,6 @@ _wrap_ta_var(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -23993,7 +22815,8 @@ _wrap_ta_var(int argc, VALUE *argv, VALUE self) {
   arg5 = TA_REAL_DEFAULT;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 3) || (argc > 6)) {
+  /* arg8 ignored on input */
+  if ((argc < 3) || (argc > 5)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -24005,7 +22828,7 @@ _wrap_ta_var(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_VAR");
@@ -24028,13 +22851,6 @@ _wrap_ta_var(int argc, VALUE *argv, VALUE self) {
   if (argc > 4) {
     arg5 = NUM2DBL(argv[4]);
   }
-  if (argc > 5) {
-    res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res8)) {
-      SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_VAR", 8, argv[5] )); 
-    }
-    arg8 = (double *)(argp8);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -24047,7 +22863,7 @@ _wrap_ta_var(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -24112,8 +22928,6 @@ _wrap_ta_wclprice(int argc, VALUE *argv, VALUE self) {
   int startIdx1 ;
   int endIdx2 ;
   int temp6 = 0 ;
-  void *argp8 = 0 ;
-  int res8 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -24122,8 +22936,9 @@ _wrap_ta_wclprice(int argc, VALUE *argv, VALUE self) {
   gsl_vector* OUT_ARRAY = 0;
   arg6 = &outIndex;
   arg7 = &outNbElement;
-  if ((argc < 6) || (argc > 6)) {
-    rb_raise(rb_eArgError, "wrong # of arguments(%d for 6)",argc); SWIG_fail;
+  /* arg8 ignored on input */
+  if ((argc < 5) || (argc > 5)) {
+    rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
     arg1 = (int) FIX2INT(argv[0]);
@@ -24134,7 +22949,7 @@ _wrap_ta_wclprice(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_WCLPRICE");
@@ -24148,7 +22963,7 @@ _wrap_ta_wclprice(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_WCLPRICE");
@@ -24162,7 +22977,7 @@ _wrap_ta_wclprice(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_WCLPRICE");
@@ -24175,11 +22990,6 @@ _wrap_ta_wclprice(int argc, VALUE *argv, VALUE self) {
     SWIG_croak("Range of input indexes exceeds size of Vector");
     arg5 = vptr;
   }
-  res8 = SWIG_ConvertPtr(argv[5], &argp8,SWIGTYPE_p_double, 0 |  0 );
-  if (!SWIG_IsOK(res8)) {
-    SWIG_exception_fail(SWIG_ArgError(res8), Ruby_Format_TypeError( "", "double *","TA_WCLPRICE", 8, argv[5] )); 
-  }
-  arg8 = (double *)(argp8);
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -24192,7 +23002,7 @@ _wrap_ta_wclprice(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -24244,8 +23054,6 @@ _wrap_ta_willr(int argc, VALUE *argv, VALUE self) {
   int val6 ;
   int ecode6 = 0 ;
   int temp7 = 0 ;
-  void *argp9 = 0 ;
-  int res9 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -24255,7 +23063,8 @@ _wrap_ta_willr(int argc, VALUE *argv, VALUE self) {
   arg6 = 2;
   arg7 = &outIndex;
   arg8 = &outNbElement;
-  if ((argc < 5) || (argc > 7)) {
+  /* arg9 ignored on input */
+  if ((argc < 5) || (argc > 6)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 5)",argc); SWIG_fail;
   }
   {
@@ -24267,7 +23076,7 @@ _wrap_ta_willr(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_WILLR");
@@ -24281,7 +23090,7 @@ _wrap_ta_willr(int argc, VALUE *argv, VALUE self) {
     arg3 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[3]) )
     SWIG_croak("Expected an GSL::Vector 4 of TA_WILLR");
@@ -24295,7 +23104,7 @@ _wrap_ta_willr(int argc, VALUE *argv, VALUE self) {
     arg4 = vptr;
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[4]) )
     SWIG_croak("Expected an GSL::Vector 5 of TA_WILLR");
@@ -24315,13 +23124,6 @@ _wrap_ta_willr(int argc, VALUE *argv, VALUE self) {
     } 
     arg6 = (int)(val6);
   }
-  if (argc > 6) {
-    res9 = SWIG_ConvertPtr(argv[6], &argp9,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res9)) {
-      SWIG_exception_fail(SWIG_ArgError(res9), Ruby_Format_TypeError( "", "double *","TA_WILLR", 9, argv[6] )); 
-    }
-    arg9 = (double *)(argp9);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -24334,7 +23136,7 @@ _wrap_ta_willr(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -24392,8 +23194,6 @@ _wrap_ta_wma(int argc, VALUE *argv, VALUE self) {
   int val4 ;
   int ecode4 = 0 ;
   int temp5 = 0 ;
-  void *argp7 = 0 ;
-  int res7 = 0 ;
   TA_RetCode result;
   VALUE vresult = Qnil;
   
@@ -24403,7 +23203,8 @@ _wrap_ta_wma(int argc, VALUE *argv, VALUE self) {
   arg4 = 2;
   arg5 = &outIndex;
   arg6 = &outNbElement;
-  if ((argc < 3) || (argc > 5)) {
+  /* arg7 ignored on input */
+  if ((argc < 3) || (argc > 4)) {
     rb_raise(rb_eArgError, "wrong # of arguments(%d for 3)",argc); SWIG_fail;
   }
   {
@@ -24415,7 +23216,7 @@ _wrap_ta_wma(int argc, VALUE *argv, VALUE self) {
     if (arg2 < arg1) arg2 = arg1;  /* ensure valid array range */
   }
   {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 +1;
     
     if (! VECTOR_P(argv[2]) )
     SWIG_croak("Expected an GSL::Vector 3 of TA_WMA");
@@ -24435,13 +23236,6 @@ _wrap_ta_wma(int argc, VALUE *argv, VALUE self) {
     } 
     arg4 = (int)(val4);
   }
-  if (argc > 4) {
-    res7 = SWIG_ConvertPtr(argv[4], &argp7,SWIGTYPE_p_double, 0 |  0 );
-    if (!SWIG_IsOK(res7)) {
-      SWIG_exception_fail(SWIG_ArgError(res7), Ruby_Format_TypeError( "", "double *","TA_WMA", 7, argv[4] )); 
-    }
-    arg7 = (double *)(argp7);
-  }
   {
     size_t array_size = arg2 - arg1 + 1;
     OUT_ARRAY = gsl_vector_calloc(array_size);
@@ -24454,7 +23248,7 @@ _wrap_ta_wma(int argc, VALUE *argv, VALUE self) {
   }
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
-      if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+      if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);

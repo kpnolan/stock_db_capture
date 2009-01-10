@@ -1,5 +1,5 @@
 class TimeseriesException < Exception
-  def initialize
+  def initialize(message)
     super
   end
 end

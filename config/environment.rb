@@ -67,13 +67,23 @@ Rails::Initializer.run do |config|
 end
 
 require 'smart_form_builder'
-require "#{RAILS_ROOT}/lib/populate_db.rb"
+require 'populate_db.rb'
 require 'memcached'
 require 'will_paginate'
-require 'gsl'
 require 'talib'
+require 'yaml'
+require 'convert_talib_meta_info'
+require 'timeseries'
+
 Talib.ta_initialize();
 
+TALIB_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/ta_func_api.yml")
+TALIB_META_INFO_HASH.underscore_keys!
+TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
+
+if RAILS_ENV == 'development'
+  ts(:a, DailyClose, :populate => true)
+end
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 #$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)

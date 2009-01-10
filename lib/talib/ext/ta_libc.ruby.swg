@@ -417,7 +417,7 @@ X * They create two local (auto) variables, startIdx1 and endIdx2
  */
 %typemap(in) const double *IN_ARRAY, const float *IN_ARRAY
 {
-  size_t array_size = arg2 - arg1;
+  size_t array_size = arg2 - arg1 +1;
 
   if (! VECTOR_P($input) )
     SWIG_croak("Expected an GSL::Vector $argnum of $symname");
@@ -485,10 +485,8 @@ X * They create two local (auto) variables, startIdx1 and endIdx2
  * Therefore the 'in' typemap does not generate any code,
  * but the array allocation is done in the 'check' typemap.
  */
-/*
 %typemap(in,numinputs=0) double *OUT_ARRAY, float *OUT_ARRAY, int *OUT_ARRAY
-    $1 ignored on input;
-*/
+    "/* $1 ignored on input */";
 
 %typemap(check) double *OUT_ARRAY
 {
@@ -498,13 +496,13 @@ X * They create two local (auto) variables, startIdx1 and endIdx2
 }
 %typemap(check) float *OUT_ARRAY
 {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     $1_name = gsl_vector_float_calloc(array_size);
     $1 = $1_name->data;
 }
 %typemap(check) int *OUT_ARRAY
 {
-    size_t array_size = arg2 - arg1;
+    size_t array_size = arg2 - arg1 + 1;
     $1_name = gsl_vector_int_calloc(array_size);
     $1 = $1_name->data;
 }
@@ -519,7 +517,7 @@ X * They create two local (auto) variables, startIdx1 and endIdx2
 %typemap(argout, fragment="output_helper") double *OUT_ARRAY
 {
   if ( result == TA_SUCCESS && outNbElement > 0) {
-    if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+    if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
       $result = output_helper( $result, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, $1_name));
     } else {
       gsl_vector* ogv = gsl_vector_alloc(outNbElement);
@@ -539,10 +537,10 @@ X * They create two local (auto) variables, startIdx1 and endIdx2
   SWIG_croak("Float return types not implement yet ($symname)");
 }
 
-%typemap(argout) int *OUT_ARRAY
+%typemap(argout, fragment="output_helper") int *OUT_ARRAY
 {
   if ( result == TA_SUCCESS && outNbElement > 0) {
-    if ( (arg2-arg1) == outNbElement && outIndex == 0 ) {
+    if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
         $result = output_helper( $result, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, $1_name));
       } else {
 

@@ -2,6 +2,7 @@ class Timeseries
 
   include Plot
   include TechnicalAnalysis
+  include UserAnalysis
 
   DEFAULT_OPTIONS = { DailyClose => { :attrs => [:date, :volume, :high, :low, :open, :close, :r, :logr],
                                       :sample_period => 60*60*24,
@@ -67,7 +68,7 @@ class Timeseries
   end
 
   def minimal_samples(lookback_fun, *args)
-    Talib.send(lookback_fun, *args)
+    lookback_fun ? Talib.send(lookback_fun, *args) : 0
   end
 
   def calc_indexes(loopback_fun, time_range, *args)
@@ -109,7 +110,8 @@ class Timeseries
     outidx = results.shift
     pb = ParamBlock.new(fcn, time_range, idx_range, options, outidx, graph_type, results)
     self.derived_values << pb
-    if graph_type == 'overlap'
+
+    if graph_type == :overlap
       aggregate(symbol, pb, options)
     else
       with_function fcn
@@ -117,9 +119,13 @@ class Timeseries
     pb
   end
 
-  def find_memo(fcn_symbol)
+  def find_memo(fcn_symbol, time_range=nil, options={})
     fcn = fcn_symbol.to_sym
-    derived_values.find { |pb| pb.function == fcn }
+    derived_values.find do |pb|
+      pb.function == fcn_symbol &&
+        (time_range.nil? || pb.time_range == time_range) &&
+        (options.empty? || pb.options == options)
+    end
   end
 
   def add_methods_for_attributes(attrs)

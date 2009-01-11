@@ -19,7 +19,7 @@ namespace :active_trader do
   end
 
   desc "Compute returns on daily closes be scanning each row and computing closing price delta"
-  task :compute_returns do
+  task :compute_returns => :setup do
     update_returns()
   end
 end

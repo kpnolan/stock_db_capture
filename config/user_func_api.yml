@@ -1,0 +1,72 @@
+--- #YAML:1.0
+FinancialFunctions:
+  FinancialFunction:
+    - Abbreviation: linear_regression
+      CamelCaseName: LinearRegression
+      Flags:
+        Flag: Overlap
+      GroupId: Statistic Functions
+      OutputArguments:
+        OutputArgument:
+          Flags:
+            Flag: Line
+          Name: outRegression
+          Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          Name: Close
+          Type: Close
+      ShortDescription: Linear Regression
+    - Abbreviation: detrend
+      CamelCaseName: Detrend
+      Flags:
+        Flag: Overlap
+      GroupId: Statistic Functions
+      OutputArguments:
+        OutputArgument:
+          Flags:
+            Flag: Line
+          Name: outDetrended
+          Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          Name: Close
+          Type: Close
+      ShortDescription: Detrended close
+    - Abbreviation: detrended_stddev
+      CamelCaseName: DetrendedStddev
+      GroupId: Statistic Functions
+      OptionalInputArguments:
+        OptionalInputArgument:
+          - DefaultValue: 5
+            Name: Time Period
+            Range:
+              Maximum: 100000
+              Minimum: 2
+              SuggestedEnd: 100000
+              SuggestedIncrement: 100000
+              SuggestedStart: 100000
+            ShortDescription: Number of period
+            Type: Integer
+          - DefaultValue: 1.0
+            Name: Deviations
+            Range:
+              Maximum: 3.000000e+37
+              Minimum: -3.000000e+37
+              Precision: 2
+              SuggestedEnd: 2.000000e+0
+              SuggestedIncrement: 2.000000e-1
+              SuggestedStart: -2.000000e+0
+            ShortDescription: Nb of deviations
+            Type: Double
+      OutputArguments:
+        OutputArgument:
+          Flags:
+            Flag: Line
+          Name: outStddev
+          Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          Name: Close
+          Type: Close
+      ShortDescription: Standard Deviation

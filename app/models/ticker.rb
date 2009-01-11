@@ -22,6 +22,10 @@ class Ticker < ActiveRecord::Base
     current_listing
   end
 
+  def self.listing_name(symbol)
+    (ticker = find_by_symbol(symbol.to_s.upcase)) && ticker.current_listing.name
+  end
+
   def self.symbols
     self.connection.select_values('SELECT symbol FROM tickers ORDER BY symbol')
   end

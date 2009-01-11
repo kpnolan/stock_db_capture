@@ -70,17 +70,22 @@ require 'smart_form_builder'
 require 'populate_db.rb'
 require 'memcached'
 require 'will_paginate'
+require 'gsl'
 require 'talib'
 require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
-require 'gsl'
 
+
+puts "argv: #{ARGV.join(', ')}\n "
 Talib.ta_initialize();
 
 TALIB_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/ta_func_api.yml")
+USER_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/user_func_api.yml")
 TALIB_META_INFO_HASH.underscore_keys!
+USER_META_INFO_HASH.underscore_keys!
 TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
+TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
 #if RAILS_ENV == 'development'
   ts(:a, DailyClose, :populate => true)

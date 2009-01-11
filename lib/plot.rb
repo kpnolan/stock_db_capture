@@ -112,7 +112,7 @@ module Plot
     end
   end
 
-  def aggregate(symbol, index_range, options)
+  def aggregate(symbol, param, options)
 
     len = index_range.end - index_range.begin + 1
 
@@ -121,27 +121,29 @@ module Plot
 
         plot.auto "x"
         plot.auto "y"
-        plot.title  "Candlestics for #{symbol}"
+        plot.title  "#{param.function.to_s.upcase} for #{symbol}"
         plot.xlabel "Date from #{index2time(index_range.begin).to_s(:db)} to #{index2time(index_range.end).to_s(:db)} (#{len} points)"
         plot.ylabel 'OCHL'
         plot.pointsize 3
         plot.grid
- #       plot.bars "lw .5"
- #       plot.line "lw .5"
         plot.boxwidth ".5"
         plot.size "1,1"
         plot.origin "0,0"
+
+        index_range, vecs, names = param.decode(:index_range, :vectors, :names)
+        names = names.dup
 
         date = set_xvalues(plot, self.timevec[index_range])
         open = open_before_cast[index_range]
         close = close_before_cast[index_range]
         high = high_before_cast[index_range]
         low = low_before_cast[index_range]
-#        volume = scale(volume_before_cast[index_range]) if options[:show_volume]
 
         plot.data = []
-        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.with = options[:with] }
-#        plot.data << Gnuplot::DataSet.new( [date, volume] ) {  |ds|  ds.using = "1:2"; ds.with = "boxes" } if options[:show_volume]
+        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.with = 'financebars' }
+        vecs.each do |vec|
+          plot.data << Gnuplot::DataSet.new( [date, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.title = names.shift; ds.with = "lines" }
+        end
       end
     end
     nil

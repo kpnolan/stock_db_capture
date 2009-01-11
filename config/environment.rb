@@ -74,6 +74,7 @@ require 'talib'
 require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
+require 'gsl'
 
 Talib.ta_initialize();
 
@@ -81,9 +82,9 @@ TALIB_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/ta_func_api.yml")
 TALIB_META_INFO_HASH.underscore_keys!
 TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
 
-if RAILS_ENV == 'development'
+#if RAILS_ENV == 'development'
   ts(:a, DailyClose, :populate => true)
-end
+#end
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 #$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)

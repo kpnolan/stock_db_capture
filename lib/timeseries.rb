@@ -109,7 +109,11 @@ class Timeseries
     outidx = results.shift
     pb = ParamBlock.new(fcn, time_range, idx_range, options, outidx, graph_type, results)
     self.derived_values << pb
-    with_function fcn
+    if graph_type == 'overlap'
+      aggregate(symbol, pb, options)
+    else
+      with_function fcn
+    end
     pb
   end
 

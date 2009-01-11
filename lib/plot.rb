@@ -8,6 +8,7 @@ module Plot
   PLOT_TYPES = [ :line, :bar, :candlestick ]
 
   include GSL
+  include PlotAuxInfo
 
   def plot_lines(index_range, timevec, *vecs_or_params)
     Gnuplot.open do |gp|
@@ -68,11 +69,11 @@ module Plot
       plot.style 'line 2 lt 2 lw 1'
       plot.style 'line 3 lt 3 lw 1'
       plot.style 'line 4 lt 6 lw 1'
+      plot.pointsize
       plot.style 'increment user'
       plot.auto "x"
       plot.auto "y"
       plot.unset "xlabel"
-      plot.unset 'grid'
       plot.unset 'ylabel'
       plot.unset 'title'
       plot.set 'bmargin'
@@ -81,14 +82,15 @@ module Plot
 #      plot.xlabel "Date from #{index2time(index_range.begin).to_s(:db)} to #{index2time(index_range.end).to_s(:db)} (#{len} points)"
       plot.origin options[:origin] if options[:origin]
       plot.size options[:size] if options[:size]
-
-      index_range, vecs = param.decode(:index_range, :vectors)
+      plot.script plot_commands_for param.function
+      index_range, vecs, names = param.decode(:index_range, :vectors, :names)
+      names = names.dup
 
       timevec = set_xvalues(plot, self.timevec[index_range])
 
       plot.data = []
       vecs.each do |vec|
-        plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.notitle; ds.with = 'lines' }
+        plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.title = names.shift; ds.with = 'lines' }
       end
     end
   end
@@ -151,7 +153,7 @@ module Plot
 
     plot.auto "x"
     plot.auto "y"
-    plot.title  "Candlestics for #{symbol}"
+    plot.title  "#{options[:title].to_s.capitalize} for #{symbol}"
     plot.ylabel 'OCHL'
     plot.pointsize 3
     plot.grid
@@ -182,8 +184,8 @@ module Plot
 
   def with_function(function)
     raise TimeseriesException.new("Cannot find memoized function: #{function}") if (pb = find_memo(function)).nil?
-    multiplot(pb.index_range, :script => true, :prefix => function.to_s, :multiplot => true, :origin => '0, .3', :size => '1, 0.7', :with => pb.graph_type.nil? ? 'financebars' : pb.graph_type) do |gp|
-      plot_params(gp, pb, :origin => '0, 0', :size => '1, 0.3', :with => ["lines"]*3)
+    multiplot(pb.index_range, :script => true, :prefix => function.to_s, :title => function, :exec => true, :origin => '0, .3', :size => '1, 0.7', :with => pb.graph_type.nil? ? 'financebars' : pb.graph_type) do |gp|
+      plot_params(gp, pb, :origin => '0, 0', :size => '1, 0.3')
     end
   end
 

@@ -89,6 +89,11 @@ module ConvertTalibMetaInfo
       self.opt_args = decode_opt_args(h['optional_input_arguments']['optional_input_argument']) if h['optional_input_arguments']
       self.flags = decode_function_flags(h['flags']['flag']) if h['flags']
     end
+
+    def stripped_output_names
+      output_args.map { |arg| arg.name.gsub(/^[a-z0-9_]+_([a-z0-9]+)/,'\1') }
+    end
+
     def decode_input_args(h_or_array)
       h_or_array = [ h_or_array ] if h_or_array.class != Array
       h_or_array.map { |h| FinancialFunctionInputArg.new(h) }

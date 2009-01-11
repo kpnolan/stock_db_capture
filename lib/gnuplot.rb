@@ -62,9 +62,9 @@ module Gnuplot
       File.open( filename, "w") do |io|
         io << "set multiplot\n" if options[:multiplot]
         yield io
-        io << "unset multiplot\n" if options[:multiplot]
+        io << "\nunset multiplot\n" if options[:multiplot]
       end
-      `#{gnuplot} filename` if options[:exec]
+      system("#{cmd} #{filename} &") if options[:exec]
       return filename
     else
       IO::popen( cmd, "w") do |io|
@@ -90,6 +90,7 @@ module Gnuplot
       @sets = []
       @data = []
       @unsets = []
+      @script = ''
       yield self if block_given?
 
       io << to_gplot if io
@@ -129,6 +130,10 @@ module Gnuplot
       v[1] || nil
     end
 
+    def script(str)
+      @script << str
+      @script << "\n"
+    end
 
     def add_data ( ds )
       @data << ds
@@ -138,6 +143,7 @@ module Gnuplot
     def to_gplot (io = "")
       @sets.each { |var, val| io << "set #{var} #{val}\n" }
       @unsets.each { |var| io << "unset #{var}\n" }
+      io << @script
 
       if @data.size > 0 then
         io << @cmd << " " << @data.collect { |e| e.plot_args }.join(", ")

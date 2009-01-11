@@ -80,15 +80,17 @@ class Timeseries
     return begin_index..end_index
   end
 
-  def time2index(time, direction)
+  def time2index(time, direction, raise_on_range_error=true)
     time = time.to_time.utc.midnight
     if direction == -1
+      return 0 if time < timevec.first
       until time_map.include?(time) || time < timevec.first
         last_back_time = time
         time -= sample_period
       end
       return time_map[time].nil? ? [nil, last_back_time] : time_map[time]
     else # this is split into two loop to simplify the boundry test
+      return timevec.length() -1 if time > timevec.last
       until time_map.include?(time) || time > timevec.last
         last_fwd_time = time
         time += sample_period
@@ -146,6 +148,7 @@ class ParamBlock
   attr_accessor :outidx
   attr_accessor :vectors
   attr_accessor :graph_type
+  attr_accessor :names
 
   def initialize(fcn, time_range, index_range, options, outidx, graph_type, results)
     self.function = fcn
@@ -155,6 +158,7 @@ class ParamBlock
     self.outidx = outidx
     self.vectors = results
     self.graph_type = graph_type
+    self.names = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names
   end
 
   def decode(*syms)

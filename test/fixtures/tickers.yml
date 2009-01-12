@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20081230211500
+# Schema version: 20090111231534
 #
 # Table name: tickers
 #
@@ -7,6 +7,7 @@
 #  symbol      :string(8)
 #  exchange_id :string(255)
 #  active      :boolean(1)
+#  dormant     :boolean(1)
 #
 
 one:

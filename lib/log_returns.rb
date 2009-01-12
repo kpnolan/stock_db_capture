@@ -2,6 +2,8 @@ require 'retired_symbol_exception'
 
 module LogReturns
 
+  attr_accessor :logger
+
   def ticker_ids
     DailyClose.connection.select_values('SELECT DISTINCT ticker_id FROM daily_closes WHERE r IS NULL ORDER BY ticker_id')
   end
@@ -10,7 +12,8 @@ module LogReturns
     Ticker.ids
   end
 
-  def update_returns()
+  def update_returns(logger)
+    logger = logger
     ticker_ids.each do |tid|
       symbol = Ticker.find(tid).symbol
       next if (tuples = get_tuples(symbol, tid)).empty?
@@ -59,7 +62,7 @@ module LogReturns
   def get_tuples(symbol, ticker_id)
     sql = "SELECT id, close from daily_closes where ticker_id = #{ticker_id} AND r is null order by date"
     tuples = DailyClose.connection.select_rows(sql)
-    puts "computing #{tuples.length} returns for #{symbol}"
+    logger.info("computing #{tuples.length} returns for #{symbol}")
     tuples
   end
 end

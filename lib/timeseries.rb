@@ -5,23 +5,25 @@ class Timeseries
   include UserAnalysis
 
   DEFAULT_OPTIONS = { DailyClose => { :attrs => [:date, :volume, :high, :low, :open, :close, :r, :logr],
-                                      :sample_period => 60*60*24,
+                                      :sample_period => [ 1.day ],
                                       :start_time => Time.parse('2000-1-1'),
                                       :end_time => Time.now },
                      LiveQuote => { :attrs => [:last_trade, :volume, :change_points, :r, :logr],
-                                    :sample_period => 60,
+                                    :sample_period => [ 1.minute ],
                                     :start_time => Time.parse('2000-1-1'),
-                                    :end_time => Time.now }
-  }
+                                    :end_time => Time.now },
+                    Aggregate => {  :attrs => [ :date, :start, :volume, :high, :low, :open, :close, :r, :logr ],
+                                    :sample_period => [ 5.minutes, 15.minutes, 30.minutes, 1.hour ] } }
+
   attr_accessor :symbol, :source_model, :value_hash, :time_interval
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
   attr_accessor :timevec, :time_map, :index_map, :local_focus
 
-  def initialize(symbol, source_model, options={})
-    raise ArgumentError, "source_model must be one of #{DEFAULT_OPTIONS.keys.join(' or ')}" unless [ DailyClose, LiveQuote ].include? source_model
+  def initialize(symbol, time_resolution, options={})
     self.symbol = symbol
-    self.source_model = source_model
+    self.source_model = select_by_resolution(time_resolution)
+    puts source_model.to_s
     self.plot_results = true
     initialize_state
     options.reverse_merge!(DEFAULT_OPTIONS[source_model])
@@ -32,6 +34,13 @@ class Timeseries
 
   def inspect
     super
+  end
+
+  def select_by_resolution(period)
+    DEFAULT_OPTIONS.each_pair do |key, value|
+      return key if value[:sample_period].include? period
+    end
+    raise ArgumentError, "A sampling period/resolution of #{period} is not available"
   end
 
   def init_timevec
@@ -112,7 +121,7 @@ class Timeseries
     self.derived_values << pb
 
     if graph_type == :overlap
-      aggregate(symbol, pb, options)
+      aggregate(symbol, pb, options.merge(:with => 'financebars'))
     else
       with_function fcn
     end
@@ -144,7 +153,7 @@ class Timeseries
     self.local_focus = nil
     self.derived_values,  self.attrs = [], []
     self.timevec = []
-    self.time_interval, self.num_points, self.sample_period = 0, 0, 0
+    self.time_interval, self.num_points, self.sample_period = 0, 0, []
     self.start_time, self.end_time = nil, nil
     self.utc_offset = Time.now.utc_offset
   end
@@ -178,7 +187,7 @@ class ParamBlock
   end
 end
 
-def ts(symbol, model, options={ })
-  $ts = Timeseries.new(symbol, DailyClose, options)
+def ts(symbol, seconds, options={ })
+  $ts = Timeseries.new(symbol, seconds, options)
   nil
 end

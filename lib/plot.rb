@@ -120,6 +120,7 @@ module Plot
     Gnuplot.open do |gp|
       Gnuplot::Plot.new( gp ) do |plot|
 
+        plot.mouse 'mouseformat 3'
         plot.auto "x"
         plot.auto "y"
         plot.title  "#{param.function.to_s.upcase} for #{symbol}: #{Ticker.listing_name(symbol)}"
@@ -127,9 +128,9 @@ module Plot
         plot.ylabel 'OCHL'
         plot.pointsize 3
         plot.grid
-        plot.boxwidth ".5"
         plot.size "1,1"
         plot.origin "0,0"
+        plot.boxwidth 0.2 if options[:with] == 'candlesticks'
 
         names = names.dup
 
@@ -140,7 +141,7 @@ module Plot
         low = low_before_cast[index_range]
 
         plot.data = []
-        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.title = 'OHLC'; ds.with = 'financebars' }
+        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.title = 'OHLC'; ds.with = options[:with] }
         vecs.each do |vec|
           plot.data << Gnuplot::DataSet.new( [date, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.title = names.shift; ds.with = "lines" }
         end
@@ -153,6 +154,7 @@ module Plot
 
     len = index_range.end - index_range.begin + 1
 
+    plot.mouse 'mouseformat 3'
     plot.auto "x"
     plot.auto "y"
     plot.title  "#{options[:title].to_s.capitalize} for #{symbol}: #{Ticker.listing_name(symbol)}"
@@ -163,7 +165,7 @@ module Plot
     plot.unset 'xtics'
     #       plot.bars "lw .5"
     #       plot.line "lw .5"
-    plot.boxwidth ".5"
+    plot.boxwidth 0.2 if options[:with] == 'candlesticks'
     plot.multiplot if options[:multiplot]
     plot.origin options[:origin] if options[:origin]
     plot.size options[:size] if options[:size]

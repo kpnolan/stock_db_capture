@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20081230211500
+# Schema version: 20090111231534
 #
 # Table name: listing_categories
 #

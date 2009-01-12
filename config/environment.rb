@@ -76,20 +76,22 @@ require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
 
+# ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
+# ARGV[0] contains the name of the rake task otherwise. Since, at this point, we don't have any rake
+# tasks the use Talib functions, we will skip this whole initialization block for rake tasks.
 
-puts "argv: #{ARGV.join(', ')}\n "
-Talib.ta_initialize();
+if ARGV.empty?
+  Talib.ta_initialize();
 
-TALIB_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/ta_func_api.yml")
-USER_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/user_func_api.yml")
-TALIB_META_INFO_HASH.underscore_keys!
-USER_META_INFO_HASH.underscore_keys!
-TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
-TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
+  TALIB_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/ta_func_api.yml")
+  USER_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/user_func_api.yml")
+  TALIB_META_INFO_HASH.underscore_keys!
+  USER_META_INFO_HASH.underscore_keys!
+  TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
+  TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
-#if RAILS_ENV == 'development'
-  ts(:a, DailyClose, :populate => true)
-#end
+  ts(:a, 1.day, :populate => true)
+end
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 #$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)

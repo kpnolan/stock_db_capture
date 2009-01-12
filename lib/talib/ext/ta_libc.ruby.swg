@@ -548,7 +548,7 @@ X * They create two local (auto) variables, startIdx1 and endIdx2
         gsl_vector_int_view iview = gsl_vector_int_subvector($1_name, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free($1_name);
-        $result = output_helper( $result, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        $result = output_helper( $result, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free($1_name);

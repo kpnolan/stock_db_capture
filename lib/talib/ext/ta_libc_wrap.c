@@ -4988,7 +4988,7 @@ _wrap_ta_cdl_2crows(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -5126,7 +5126,7 @@ _wrap_ta_cdl_3blackcrows(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -5264,7 +5264,7 @@ _wrap_ta_cdl_3inside(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -5402,7 +5402,7 @@ _wrap_ta_cdl_3linestrike(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -5540,7 +5540,7 @@ _wrap_ta_cdl_3outside(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -5678,7 +5678,7 @@ _wrap_ta_cdl_3starsinsouth(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -5816,7 +5816,7 @@ _wrap_ta_cdl_3whitesoldiers(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -5959,7 +5959,7 @@ _wrap_ta_cdlabandonedbaby(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -6105,7 +6105,7 @@ _wrap_ta_cdladvanceblock(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -6243,7 +6243,7 @@ _wrap_ta_cdlbelthold(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -6381,7 +6381,7 @@ _wrap_ta_cdlbreakaway(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -6519,7 +6519,7 @@ _wrap_ta_cdlclosingmarubozu(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -6657,7 +6657,7 @@ _wrap_ta_cdlconcealbabyswall(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -6795,7 +6795,7 @@ _wrap_ta_cdlcounterattack(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -6938,7 +6938,7 @@ _wrap_ta_cdldarkcloudcover(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -7084,7 +7084,7 @@ _wrap_ta_cdldoji(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -7222,7 +7222,7 @@ _wrap_ta_cdldojistar(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -7360,7 +7360,7 @@ _wrap_ta_cdldragonflydoji(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -7498,7 +7498,7 @@ _wrap_ta_cdlengulfing(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -7641,7 +7641,7 @@ _wrap_ta_cdleveningdojistar(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -7792,7 +7792,7 @@ _wrap_ta_cdleveningstar(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -7938,7 +7938,7 @@ _wrap_ta_cdlgapsidesidewhite(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -8076,7 +8076,7 @@ _wrap_ta_cdlgravestonedoji(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -8214,7 +8214,7 @@ _wrap_ta_cdlhammer(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -8352,7 +8352,7 @@ _wrap_ta_cdlhangingman(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -8490,7 +8490,7 @@ _wrap_ta_cdlharami(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -8628,7 +8628,7 @@ _wrap_ta_cdlharamicross(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -8766,7 +8766,7 @@ _wrap_ta_cdlhighwave(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -8904,7 +8904,7 @@ _wrap_ta_cdlhikkake(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -9042,7 +9042,7 @@ _wrap_ta_cdlhikkakemod(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -9180,7 +9180,7 @@ _wrap_ta_cdlhomingpigeon(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -9318,7 +9318,7 @@ _wrap_ta_cdlidentical_3crows(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -9456,7 +9456,7 @@ _wrap_ta_cdlinneck(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -9594,7 +9594,7 @@ _wrap_ta_cdlinvertedhammer(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -9732,7 +9732,7 @@ _wrap_ta_cdlkicking(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -9870,7 +9870,7 @@ _wrap_ta_cdlkickingbylength(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -10008,7 +10008,7 @@ _wrap_ta_cdlladderbottom(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -10146,7 +10146,7 @@ _wrap_ta_cdllongleggeddoji(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -10284,7 +10284,7 @@ _wrap_ta_cdllongline(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -10422,7 +10422,7 @@ _wrap_ta_cdlmarubozu(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -10560,7 +10560,7 @@ _wrap_ta_cdlmatchinglow(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -10703,7 +10703,7 @@ _wrap_ta_cdlmathold(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -10854,7 +10854,7 @@ _wrap_ta_cdlmorningdojistar(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11005,7 +11005,7 @@ _wrap_ta_cdlmorningstar(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11151,7 +11151,7 @@ _wrap_ta_cdlonneck(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11289,7 +11289,7 @@ _wrap_ta_cdlpiercing(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11427,7 +11427,7 @@ _wrap_ta_cdlrickshawman(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11565,7 +11565,7 @@ _wrap_ta_cdlrisefall_3methods(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11703,7 +11703,7 @@ _wrap_ta_cdlseparatinglines(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11841,7 +11841,7 @@ _wrap_ta_cdlshootingstar(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -11979,7 +11979,7 @@ _wrap_ta_cdlshortline(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -12117,7 +12117,7 @@ _wrap_ta_cdlspinningtop(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -12255,7 +12255,7 @@ _wrap_ta_cdlstalledpattern(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -12393,7 +12393,7 @@ _wrap_ta_cdlsticksandwich(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -12531,7 +12531,7 @@ _wrap_ta_cdltakuri(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -12669,7 +12669,7 @@ _wrap_ta_cdltasukigap(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -12807,7 +12807,7 @@ _wrap_ta_cdlthrusting(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -12945,7 +12945,7 @@ _wrap_ta_cdltristar(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -13083,7 +13083,7 @@ _wrap_ta_cdlunique_3river(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -13221,7 +13221,7 @@ _wrap_ta_cdlupsidegap_2crows(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -13359,7 +13359,7 @@ _wrap_ta_cdlxsidegap_3methods(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -15143,7 +15143,7 @@ _wrap_ta_ht_trendmode(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -17157,7 +17157,7 @@ _wrap_ta_maxindex(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);
@@ -17885,7 +17885,7 @@ _wrap_ta_minindex(int argc, VALUE *argv, VALUE self) {
         gsl_vector_int_view iview = gsl_vector_int_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_int_memcpy(ogv, &iview.vector);
         gsl_vector_int_free(OUT_ARRAY);
-        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_int_free, ogv));
+        vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector_int, 0, gsl_vector_int_free, ogv));
       }
     } else {
       gsl_vector_int_free(OUT_ARRAY);

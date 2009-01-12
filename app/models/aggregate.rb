@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20081230211500
+# Schema version: 20090111231534
 #
 # Table name: aggregates
 #
@@ -13,15 +13,24 @@
 #  low       :float
 #  volume    :integer(4)
 #  period    :integer(4)
+#  r         :float
+#  logr      :float
 #
 
 class Aggregate < ActiveRecord::Base
   belongs_to :ticker
 
   extend TableExtract
+  extend Plot
 
   def self.order
     'start'
   end
+
+  def self.order ; 'start'; end
+  def self.time_col ; :start ;  end
+  def self.time_convert ; :to_time ;  end
+  def self.time_class ; Time ;  end
+  def self.time_res; 5.minutes; end
 
 end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20081230211500
+# Schema version: 20090111231534
 #
 # Table name: aggregates
 #
@@ -13,6 +13,8 @@
 #  low       :float
 #  volume    :integer(4)
 #  period    :integer(4)
+#  r         :float
+#  logr      :float
 #
 
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090103173409) do
+ActiveRecord::Schema.define(:version => 20090112002225) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -21,9 +21,11 @@ ActiveRecord::Schema.define(:version => 20090103173409) do
     t.float    "low"
     t.integer  "volume"
     t.integer  "period"
+    t.float    "r"
+    t.float    "logr"
   end
 
-  add_index "aggregates", ["ticker_id"], :name => "ticker_id"
+  add_index "aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period"
 
   create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false

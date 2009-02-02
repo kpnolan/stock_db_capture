@@ -176,7 +176,7 @@ module ActiveRecord
         :string      => { :name => "varchar", :limit => 255 },
         :text        => { :name => "text" },
         :integer     => { :name => "int", :limit => 4 },
-        :float       => { :name => "double" },
+        :float       => { :name => "float" },
         :decimal     => { :name => "decimal" },
         :datetime    => { :name => "datetime" },
         :timestamp   => { :name => "datetime" },

@@ -4,7 +4,7 @@ SHELL = /bin/sh
 #### Start of system configuration section. ####
 
 srcdir = .
-topdir = /usr/local/lib/ruby/1.8/i686-linux
+topdir = /usr/local/lib/ruby/1.8/x86_64-linux
 hdrdir = $(topdir)
 VPATH = $(srcdir):$(topdir):$(hdrdir)
 exec_prefix = $(prefix)
@@ -44,10 +44,10 @@ LIBRUBYARG_SHARED = -Wl,-R -Wl,$(libdir) -L$(libdir)
 LIBRUBYARG_STATIC = -l$(RUBY_SO_NAME)-static
 
 RUBY_EXTCONF_H = 
-CFLAGS   =  -fPIC -O3 -march=native -mtune=native -pipe $(cflags) 
-INCFLAGS = -I. -I. -I/usr/local/lib/ruby/1.8/i686-linux -I. -I../include
-DEFS     = -D_FILE_OFFSET_BITS=64
-CPPFLAGS =  -I/usr/local/include/ta-lib  -D_FILE_OFFSET_BITS=64 
+CFLAGS   =  -fPIC -mtune=native -march=native -O3 -pipe $(cflags) 
+INCFLAGS = -I. -I. -I/usr/local/lib/ruby/1.8/x86_64-linux -I. -I../include
+DEFS     = 
+CPPFLAGS =  -I/usr/local/include/ta-lib   
 CXXFLAGS = $(CFLAGS) 
 ldflags  = -L.  -rdynamic -Wl,-export-dynamic
 dldflags = 
@@ -59,8 +59,8 @@ EXEEXT =
 
 RUBY_INSTALL_NAME = ruby
 RUBY_SO_NAME = ruby
-arch = i686-linux
-sitearch = i686-linux
+arch = x86_64-linux
+sitearch = x86_64-linux
 ruby_version = 1.8
 ruby = /usr/local/bin/ruby
 RUBY = $(ruby)

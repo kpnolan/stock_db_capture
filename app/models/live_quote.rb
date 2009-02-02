@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090111231534
+# Schema version: 20090112175621
 #
 # Table name: live_quotes
 #
@@ -18,7 +18,6 @@ class LiveQuote < ActiveRecord::Base
 
   extend TableExtract
   extend Aggregator
-  extend Plot
 
   def symbol=(value) ;  end
   def last_trade_date=(value) ;  end

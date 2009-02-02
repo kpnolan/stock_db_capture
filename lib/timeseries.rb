@@ -13,7 +13,11 @@ class Timeseries
                                     :start_time => Time.parse('2000-1-1'),
                                     :end_time => Time.now },
                     Aggregate => {  :attrs => [ :date, :start, :volume, :high, :low, :open, :close, :r, :logr ],
-                                    :sample_period => [ 5.minutes, 15.minutes, 30.minutes, 1.hour ] } }
+                                    :sample_period => [ 5.minutes, 15.minutes, 30.minutes, 1.hour ],
+                                    :start_time => Time.parse('2008-12-1'),
+                                    :end_time => Time.now }
+
+                                 }
 
   attr_accessor :symbol, :source_model, :value_hash, :time_interval
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
@@ -23,7 +27,6 @@ class Timeseries
   def initialize(symbol, time_resolution, options={})
     self.symbol = symbol
     self.source_model = select_by_resolution(time_resolution)
-    puts source_model.to_s
     self.plot_results = true
     initialize_state
     options.reverse_merge!(DEFAULT_OPTIONS[source_model])
@@ -81,8 +84,13 @@ class Timeseries
   end
 
   def calc_indexes(loopback_fun, time_range, *args)
-    begin_time = time_range.begin
-    end_time = time_range.end
+    if time_range.is_a? Date
+      begin_time = time_range.to_time
+      end_time = begin_time + 23.hours + 59.minutes
+    else
+      begin_time = time_range.begin
+      end_time = time_range.end
+    end
     begin_index, fall_back = time2index(begin_time, -1)
     end_index, fall_fwd = time2index(end_time, 1)
     raise TimeseriesException.new if fall_back || fall_fwd
@@ -96,14 +104,14 @@ class Timeseries
       return 0 if time < timevec.first
       until time_map.include?(time) || time < timevec.first
         last_back_time = time
-        time -= sample_period
+        time -= sample_period.first
       end
       return time_map[time].nil? ? [nil, last_back_time] : time_map[time]
     else # this is split into two loop to simplify the boundry test
       return timevec.length() -1 if time > timevec.last
       until time_map.include?(time) || time > timevec.last
         last_fwd_time = time
-        time += sample_period
+        time += sample_period.first
       end
     end
     return time_map[time].nil? ? [nil, last_fwd_time] : time_map[time]
@@ -126,6 +134,10 @@ class Timeseries
       with_function fcn
     end
     pb
+  end
+
+  def avg_price
+    (open+close+high+low).scale(0.25)
   end
 
   def find_memo(fcn_symbol, time_range=nil, options={})

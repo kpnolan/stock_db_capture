@@ -1,13 +1,13 @@
 find_header: checking for rb_gsl_array.h in ../include... -------------------- yes
 
-"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-linux -I.  -D_FILE_OFFSET_BITS=64  -O3 -march=native -mtune=native -pipe    conftest.c -o conftest.i"
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/x86_64-linux -I.    -mtune=native -march=native -O3 -pipe    conftest.c -o conftest.i"
 conftest.c:1:26: error: rb_gsl_array.h: No such file or directory
 checked program was:
 /* begin */
 1: #include <rb_gsl_array.h>
 /* end */
 
-"gcc -E -I. -I/usr/local/lib/ruby/1.8/i686-linux -I.  -D_FILE_OFFSET_BITS=64  -O3 -march=native -mtune=native -pipe   -I../include conftest.c -o conftest.i"
+"gcc -E -I. -I/usr/local/lib/ruby/1.8/x86_64-linux -I.    -mtune=native -march=native -O3 -pipe   -I../include conftest.c -o conftest.i"
 checked program was:
 /* begin */
 1: #include <rb_gsl_array.h>
@@ -17,7 +17,7 @@ checked program was:
 
 have_library: checking for TA_Initialize() in -lta_lib... -------------------- yes
 
-"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-linux -I. -I../include -I/usr/local/include/ta-lib  -D_FILE_OFFSET_BITS=64  -O3 -march=native -mtune=native -pipe   conftest.c  -L. -L/usr/local/lib -Wl,-R/usr/local/lib -L/usr/local/lib -Wl,-R/usr/local/lib -L.  -rdynamic -Wl,-export-dynamic     -lruby-static -lta_lib  -ldl -lcrypt -lm   -lc"
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/x86_64-linux -I. -I../include -I/usr/local/include/ta-lib    -mtune=native -march=native -O3 -pipe   conftest.c  -L. -L/usr/local/lib -Wl,-R/usr/local/lib -L/usr/local/lib -Wl,-R/usr/local/lib -L.  -rdynamic -Wl,-export-dynamic     -lruby-static -lta_lib  -ldl -lcrypt -lm   -lc"
 conftest.c: In function ‘t’:
 conftest.c:3: error: ‘TA_Initialize’ undeclared (first use in this function)
 conftest.c:3: error: (Each undeclared identifier is reported only once
@@ -29,7 +29,7 @@ checked program was:
 3: int t() { void ((*volatile p)()); p = (void ((*)()))TA_Initialize; return 0; }
 /* end */
 
-"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/i686-linux -I. -I../include -I/usr/local/include/ta-lib  -D_FILE_OFFSET_BITS=64  -O3 -march=native -mtune=native -pipe   conftest.c  -L. -L/usr/local/lib -Wl,-R/usr/local/lib -L/usr/local/lib -Wl,-R/usr/local/lib -L.  -rdynamic -Wl,-export-dynamic     -lruby-static -lta_lib  -ldl -lcrypt -lm   -lc"
+"gcc -o conftest -I. -I/usr/local/lib/ruby/1.8/x86_64-linux -I. -I../include -I/usr/local/include/ta-lib    -mtune=native -march=native -O3 -pipe   conftest.c  -L. -L/usr/local/lib -Wl,-R/usr/local/lib -L/usr/local/lib -Wl,-R/usr/local/lib -L.  -rdynamic -Wl,-export-dynamic     -lruby-static -lta_lib  -ldl -lcrypt -lm   -lc"
 checked program was:
 /* begin */
 1: /*top*/

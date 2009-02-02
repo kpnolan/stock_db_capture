@@ -36,6 +36,32 @@ module Plot
     end
   end
 
+  def plot_histogram(hist)
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+        plot.auto "x"
+        plot.auto "y"
+        plot.unset 'title'
+        plot.unset 'xlabel'
+        plot.unset 'ylabel'
+        plot.style "histogram"
+        plot.grid
+        plot.boxwidth "0.9 relative"
+        plot.style "data histograms"
+        plot.style "fill solid 1.0 border -1"
+
+        vec = Array.new(hist.bins/20)
+        0.upto(vec.length-1) do |i|
+          vec[i] = hist[i]
+        end
+        plot.data = []
+        plot.data <<  Gnuplot::DataSet.new( vec ) {   }
+      end
+      nil
+    end
+  end
+
   def plot_ts(gp, vecs, index_range, options)
 
     Gnuplot::Plot.new( gp ) do |plot|

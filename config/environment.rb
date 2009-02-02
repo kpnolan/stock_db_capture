@@ -89,8 +89,8 @@ if ARGV.empty?
   USER_META_INFO_HASH.underscore_keys!
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
-
-  ts(:a, 1.day, :populate => true)
+  debugger
+  ts(:skf, 1.day, :populate => true)
 end
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)

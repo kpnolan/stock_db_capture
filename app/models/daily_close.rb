@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090111231534
+# Schema version: 20090112175621
 #
 # Table name: daily_closes
 #
@@ -38,6 +38,13 @@ class DailyClose < ActiveRecord::Base
     sql = "select ticker_id, symbol, max(date) as max from daily_closes " +
           "left join tickers on tickers.id = ticker_id group by ticker_id having max != #{date.to_s(:db)}";
     self.connection.select_rows(sql)
+  end
+
+  def self.avg_volume(from, to)
+    @volumes ||= DailyClose.connection.select_values("SELECT avg(volume) from daily_closes "+
+                                                     "WHERE date >= '#{from.to_s(:db)}' AND date <= '#{to.to_s(:db)}'"+
+                                                     'GROUP BY ticker_id ORDER BY avg(volume)')
+    @volumes.map { |vstr| vstr.to_f.round }
   end
 end
 

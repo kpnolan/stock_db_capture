@@ -157,7 +157,7 @@ module TechnicalAnalysis
     memoize_result(:cdl3inside, time_range, idx_range, options, result, :candlestick)
   end
 
-  #Three-Line Strike 
+  #Three-Line Strike
   def cdl3linestrike(time_range, options={})
     idx_range = calc_indexes(:ta_cdl_3linestrike_lookback, time_range)
     result = Talib.ta_cdl_3linestrike(idx_range.begin, idx_range.end, open, high, low, close)

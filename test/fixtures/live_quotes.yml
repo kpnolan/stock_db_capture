@@ -1,16 +1,17 @@
 # == Schema Information
-# Schema version: 20090112175621
+# Schema version: 20090207205520
 #
 # Table name: live_quotes
 #
 #  id              :integer(4)      not null, primary key
-#  volume          :integer(4)
-#  r               :float
-#  change_points   :float
-#  last_trade      :float
-#  last_trade_time :datetime
 #  ticker_id       :integer(4)
+#  last_trade_time :datetime
+#  last_trade      :float
+#  change_points   :float
+#  r               :float
 #  logr            :float
+#  volume          :integer(4)
+#  date            :date
 #
 
 one:

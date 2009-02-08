@@ -122,10 +122,10 @@ class Timeseries
     time && time.send(source_model.time_convert)
   end
 
-  def memoize_result(fcn, time_range, idx_range, options, results, graph_type=nil)
+  def memoize_result(ts, fcn, time_range, idx_range, options, results, graph_type=nil)
     status = results.shift
     outidx = results.shift
-    pb = ParamBlock.new(fcn, time_range, idx_range, options, outidx, graph_type, results)
+    pb = ParamBlock.new(ts, fcn, time_range, idx_range, options, outidx, graph_type, results)
     self.derived_values << pb
 
     if graph_type == :overlap
@@ -172,6 +172,7 @@ class Timeseries
 end
 
 class ParamBlock
+  attr_accessor :timeseries
   attr_accessor :function
   attr_accessor :time_range
   attr_accessor :index_range
@@ -181,7 +182,7 @@ class ParamBlock
   attr_accessor :graph_type
   attr_accessor :names
 
-  def initialize(fcn, time_range, index_range, options, outidx, graph_type, results)
+  def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)
     self.function = fcn
     self.time_range = time_range
     self.index_range = index_range
@@ -190,6 +191,11 @@ class ParamBlock
     self.vectors = results
     self.graph_type = graph_type
     self.names = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names
+    self.timeseries = ts
+  end
+
+  def to_ts
+    timeseries
   end
 
   def decode(*syms)

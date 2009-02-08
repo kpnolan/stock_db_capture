@@ -79,9 +79,9 @@ class BuildShadow
 
   def emit_post_processing
     if graph_hint
-      buffer "    memoize_result(:#{name}, time_range, idx_range, options, result, :#{graph_hint})\n"
+      buffer "    memoize_result(self, :#{name}, time_range, idx_range, options, result, :#{graph_hint})\n"
     else
-      buffer "    memoize_result(:#{name}, time_range, idx_range, options, result)\n"
+      buffer "    memoize_result(self, :#{name}, time_range, idx_range, options, result)\n"
     end
   end
 

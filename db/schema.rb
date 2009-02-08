@@ -9,7 +9,22 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090112175621) do
+ActiveRecord::Schema.define(:version => 20090207205520) do
+
+  create_table "agg1", :force => true do |t|
+    t.integer  "ticker_id"
+    t.date     "date"
+    t.datetime "start"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.integer  "period"
+    t.float    "r"
+    t.float    "logr"
+    t.integer  "sample_count"
+  end
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -24,10 +39,10 @@ ActiveRecord::Schema.define(:version => 20090112175621) do
     t.float    "r"
     t.float    "logr"
     t.integer  "sample_count"
-    t.integer  "avg_volume"
   end
 
-  add_index "aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period"
+  add_index "aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period", :unique => true
+  add_index "aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
 
   create_table "aggregations", :force => true do |t|
     t.integer  "ticker_id",    :null => false
@@ -148,6 +163,20 @@ ActiveRecord::Schema.define(:version => 20090112175621) do
   end
 
   create_table "live_quotes", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "last_trade_time"
+    t.float    "last_trade"
+    t.float    "change_points"
+    t.float    "r"
+    t.float    "logr"
+    t.integer  "volume"
+    t.date     "date"
+  end
+
+  add_index "live_quotes", ["ticker_id", "last_trade_time"], :name => "index_live_quotes1_on_ticker_id_and_last_trade_time", :unique => true
+  add_index "live_quotes", ["ticker_id", "date"], :name => "index_live_quotes_on_ticker_id_and_date"
+
+  create_table "live_quotes_old", :force => true do |t|
     t.integer  "volume"
     t.float    "r"
     t.float    "change_points"
@@ -157,7 +186,7 @@ ActiveRecord::Schema.define(:version => 20090112175621) do
     t.float    "logr"
   end
 
-  add_index "live_quotes", ["ticker_id", "last_trade_time"], :name => "index_live_quotes_on_ticker_id_and_last_trade_time", :unique => true
+  add_index "live_quotes_old", ["ticker_id", "last_trade_time"], :name => "index_live_quotes_on_ticker_id_and_last_trade_time", :unique => true
 
   create_table "memberships", :force => true do |t|
     t.integer "ticker_id"
@@ -232,8 +261,6 @@ ActiveRecord::Schema.define(:version => 20090112175621) do
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
-
-  add_foreign_key "aggregates", ["ticker_id"], "tickers", ["id"], :name => "aggregates_ibfk_1"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 

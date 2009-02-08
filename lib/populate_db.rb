@@ -84,7 +84,7 @@ class TradingDBLoader
     self.row_count = 0
     self.symbol_count = 0
     self.rejected_count = 0
-    self.retired_symbols = 0
+    self.retired_symbols = []
     self.iteration = 0
 
     if query_type == 'w' || query_type == 'z'
@@ -123,21 +123,25 @@ class TradingDBLoader
     cleanup_iteration(tickers)
   end
 
-  def load_listings(symbols)
+  def update_listings(symbols)
+    self.start_time = Time.now
+    logger.info("Starting with #{symbols.count} symbols")
     ActiveRecord::Base.silence do
-      symbols.in_groups_of(50, false) do |group|
+      symbols.in_groups_of(25, false) do |group|
         YahooFinance::get_quotes(query_protocol, group) do |qt|
           if qt.valid?
             self.symbol_count += 1
-            create_listing(qt)
+            update_listing(qt)
           else
             logger.error("Invalid Listing reqturned, retiring: #{qt.symbol}") if logger
             ticker = Ticker.find_by_symbol(qt.symbol)
             ticker.update_attribute(:dormant, true)
+            self.retired_symbols << qt.symbol
           end
         end
       end
     end
+    self.retired_symbols
   end
 
   def cleanup_iteration(tickers)
@@ -152,17 +156,17 @@ class TradingDBLoader
     self.retired_symbols
   end
 
-  def create_listing(qt)
+  def update_listing(qt)
+    syms = CurrentListing.content_columns.collect { |col| col.name.to_sym }
+    attrs = syms.inject({}) { |hash, sym| hash[sym] = qt.send(sym); hash }
     ticker = Ticker.find_by_symbol(qt.symbol)
     if (cl = ticker.current_listing).nil?
       cl = CurrentListing.new(:ticker_id => ticker.id)
     end
-    syms = CurrentListing.content_columns.collect { |col| col.name.to_sym }
-    attrs = syms.inject({}) { |hash, sym| hash[sym] = qt.send(sym); hash }
     begin
-      CurrentListing.create!(attrs)
+      cl.update_attributes!(attrs)
     rescue => e
-      logger.error("Error creating #{qt.symbol}, msg: #{e.message}") if logger
+      logger.error("Error creating #{qt.symbol} with attrs #{attrs} msg: #{e.message}") if logger
     end
   end
 
@@ -175,7 +179,7 @@ class TradingDBLoader
 
     if qt[:last_trade_time].to_s(:db) =~ /^.+[ ](\d\d):(\d\d):(\d\d)/
       hour, minute, second = $1, $2, $3
-      date = qt[:last_trade_date]
+      date = Date.parse(qt[:last_trade_date])
       dtstr  = "#{date.to_s(:db)} #{hour}:#{minute}:#{second}"
       dt = DateTime.parse(dtstr)
       qt[:last_trade_time] = dt
@@ -200,7 +204,7 @@ class TradingDBLoader
     end
     self.last_close[qt.symbol] = qt.last_trade if qt.last_trade
     begin
-     model.create!(:ticker_id => ticker.id, :last_trade => qt.last_trade, :last_trade_time => qt.last_trade_time,
+     model.create!(:ticker_id => ticker.id, :date => date, :last_trade => qt.last_trade, :last_trade_time => qt.last_trade_time,
                    :change_points => change_points, :r => r, :logr => logr, :volume => qt.volume)
       # if this is a duplicate record because the exchange has
       # shut down (normal hours) then we pass it up to stop

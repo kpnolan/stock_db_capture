@@ -8,6 +8,9 @@ class TickersController < ApplicationController
     publish :xml, :attributes => [ :symbol, { :listing => [:name] } ]
     actions :all
 
+    before :save do
+      current_object.symbol.upcase!
+    end
   end
 
   def find

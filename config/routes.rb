@@ -5,10 +5,10 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :listing_categories
   map.resources :daily_returns
   map.resources :aggregations
-  map.resources :tickers, :collection => { :find => :get }
+  map.resources :tickers, :has_one => :current_listing, :collection => { :find => :get }
   map.resources :historical_attributes
   map.resources :stat_values
-  map.resources :current_listings
+  map.resources :current_listing, :contoller => 'current_listing'
   map.resources :exchanges
   map.resources :daily_closes, :member => { :plot => :get },:collection => { :reload => :get, :begin_load => :post, :progress => :get }
   map.resources :exchanges

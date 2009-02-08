@@ -5,6 +5,8 @@
     = lkup ticker.exchange, 'symbol'
   %td.listing
     = lkup ticker.current_listing, 'name'
+  %td.listing
+    = link_to 'Listing', :controller => 'current_listing', :action => 'show', :ticker_id => ticker.id
   %td.show
     = link_to 'Show', object_path(ticker)
   %td.edit

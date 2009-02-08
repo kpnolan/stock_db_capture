@@ -28,11 +28,4 @@ namespace :active_trader do
       e = CurrentListing.create!(:ticker_id => t.id, :name => pair.last)
     end
   end
-
-  desc "Update Listings with current info"
-  task :update_listings => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_listings.log'))
-    ldr = TradingDBLoader.new('x', :logger => logger)
-    ldr.load_listings(Ticker.symbols)
-  end
 end

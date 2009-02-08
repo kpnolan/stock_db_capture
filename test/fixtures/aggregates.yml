@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090112175621
+# Schema version: 20090207205520
 #
 # Table name: aggregates
 #
@@ -16,7 +16,6 @@
 #  r            :float
 #  logr         :float
 #  sample_count :integer(4)
-#  avg_volume   :integer(4)
 #
 
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html

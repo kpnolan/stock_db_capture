@@ -5,7 +5,7 @@
 # ENV['RAILS_ENV'] ||= 'production'
 
 # Specifies gem version of Rails to use when vendor/rails is not present
-RAILS_GEM_VERSION = '2.1.0' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.2.2' unless defined? RAILS_GEM_VERSION
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
@@ -67,7 +67,7 @@ Rails::Initializer.run do |config|
 end
 
 require 'smart_form_builder'
-require 'populate_db.rb'
+require 'populate_db'
 require 'memcached'
 require 'will_paginate'
 require 'gsl'
@@ -89,7 +89,6 @@ if ARGV.empty?
   USER_META_INFO_HASH.underscore_keys!
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
-  debugger
   ts(:skf, 1.day, :populate => true)
 end
 

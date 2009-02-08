@@ -17,7 +17,7 @@ module Resourceful
     # and are called by the default make_resourceful actions[link:classes/Resourceful/Default/Actions.html].
     # This means that overriding one method
     # can affect everything else.
-    # 
+    #
     # This can be dangerous, but it can also be very powerful.
     # make_resourceful is designed to take advantage of overriding,
     # so as long as the new methods accomplish the same purpose as the old ones,
@@ -60,7 +60,7 @@ module Resourceful
       #
       # This is called automatically by the default make_resourceful actions.
       # You shouldn't need to use it directly unless you're creating a new action.
-      # 
+      #
       # For example, in UsersController,
       # calling +load_objects+ sets <tt>@users = current_objects</tt>.
       def load_objects
@@ -99,7 +99,7 @@ module Resourceful
       #
       # This is called automatically by the default make_resourceful actions.
       # You shouldn't need to use it directly unless you're creating a new action.
-      # 
+      #
       # For example, in UsersController,
       # calling +load_object+ sets <tt>@user = current_object</tt>.
       def load_object
@@ -120,7 +120,7 @@ module Resourceful
       #
       #   build_object
       #   current_object.person.id #=> 4
-      # 
+      #
       def build_object
         @current_object = if current_model.respond_to? :build
           current_model.build(object_parameters)
@@ -141,7 +141,7 @@ module Resourceful
       # For example, in Admin::Content::PagesController:
       #
       #   namespaces #=> [:admin, :content]
-      # 
+      #
       def namespaces
         @namespaces ||= self.class.name.split('::').slice(0...-1).map(&:underscore).map(&:to_sym)
       end
@@ -233,7 +233,7 @@ module Resourceful
       # _or_ that the method hasn't been run yet,
       # it uses <tt>defined?(@parent_name)</tt> to do the caching
       # rather than <tt>@parent_name ||=</tt>. See the source code.
-      # 
+      #
       # Finally, note that parents must be declared via Builder#belongs_to.
       def parent_name
         return @parent_name if defined?(@parent_name)
@@ -280,7 +280,7 @@ module Resourceful
       # For example:
       #
       #   before_filter :ensure_parent_exists, :only => [:create, :update]
-      # 
+      #
       def ensure_parent_exists
         return true if parent?
         render :text => 'No parent id given', :status => 422
@@ -295,7 +295,7 @@ module Resourceful
 
       # Declares that the current databse update was completed successfully.
       # Causes subsequent calls to <tt>save_succeeded?</tt> to return +true+.
-      # 
+      #
       # This is mostly meant to be used by the default actions,
       # but it can be used by user-defined actions as well.
       def save_succeeded!
@@ -304,7 +304,7 @@ module Resourceful
 
       # Declares that the current databse update was not completed successfully.
       # Causes subsequent calls to <tt>save_succeeded?</tt> to return +false+.
-      # 
+      #
       # This is mostly meant to be used by the default actions,
       # but it can be used by user-defined actions as well.
       def save_failed!

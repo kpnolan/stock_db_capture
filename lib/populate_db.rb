@@ -68,11 +68,10 @@ end
 
 class TradingDBLoader
 
-  attr_accessor :ticker_array, :query_type, :query_protocol, :row_count, :symbol_count, :rejected_count
-  attr_accessor :target_model, :start_date, :end_date, :logger, :last_close, :retired_symbols, :iteration, :start_time
+  attr_accessor :query_type, :query_protocol, :row_count, :symbol_count, :rejected_count
+  attr_accessor :target_model, :start_date, :end_date, :logger, :retired_symbols, :iteration, :start_time
 
   def initialize(query_type, opts = {})
-
     self.query_type = query_type
     self.query_protocol, self.target_model = get_query_params(query_type)
 
@@ -80,7 +79,6 @@ class TradingDBLoader
       send("#{k}=", v)
     end
 
-    self.last_close = Hash.new
     self.row_count = 0
     self.symbol_count = 0
     self.rejected_count = 0
@@ -179,40 +177,23 @@ class TradingDBLoader
 
     if qt[:last_trade_time].to_s(:db) =~ /^.+[ ](\d\d):(\d\d):(\d\d)/
       hour, minute, second = $1, $2, $3
-      date = Date.parse(qt[:last_trade_date])
+      date = qt[:last_trade_date]
       dtstr  = "#{date.to_s(:db)} #{hour}:#{minute}:#{second}"
       dt = DateTime.parse(dtstr)
       qt[:last_trade_time] = dt
     end
-    if self.last_close[qt.symbol].nil?
-      self.last_close[qt.symbol] = qt.last_trade - qt.change_points if qt.last_trade && qt.change_points
-    end
-    begin
-      change_points = qt.last_trade - self.last_close[qt.symbol]
-    rescue => e
-      logger.error(e.to_s)
-      logger.error("#{qt.last_trade} - #{self.last_close[qt.symbol]} (#{qt.symbol})") if logger
-      return
-    end
 
-    # if either the numerator or denominator are zero we have problems, so scrub them first
-    if qt.last_trade == 0.0 || self.last_close[qt.symbol] == 0.0
-      r, logr = -1.0, -1.0
-    else
-      r = qt.last_trade/self.last_close[qt.symbol]
-      logr = Math.log(r)
-    end
-    self.last_close[qt.symbol] = qt.last_trade if qt.last_trade
-    begin
-     model.create!(:ticker_id => ticker.id, :date => date, :last_trade => qt.last_trade, :last_trade_time => qt.last_trade_time,
-                   :change_points => change_points, :r => r, :logr => logr, :volume => qt.volume)
+    if dt > ticker.last_trade_time
+      ticker.update_attribute(:last_trade_time, dt)
+      model.create!(:ticker_id => ticker.id, :last_trade => qt.last_trade, :last_trade_time => qt.last_trade_time,
+                    :change_points => qt.change_points, :volume => qt.volume)
       # if this is a duplicate record because the exchange has
       # shut down (normal hours) then we pass it up to stop
       # the capture process, otherwise we sampled this symbol
       # withing the last minute of the prior sample. So, we'll just
       # through out the sample and press on
       self.row_count += 1
-    rescue ActiveRecord::RecordInvalid => e
+    else
       self.rejected_count += 1
       time = dt.to_time
       t = Time.now

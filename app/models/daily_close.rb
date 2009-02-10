@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090207205520
+# Schema version: 20090210181721
 #
 # Table name: daily_closes
 #

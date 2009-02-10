@@ -8,6 +8,12 @@ extend LogReturns
 
 namespace :active_trader do
 
+  desc "Initialize returns, log returns and anualized returns"
+  task :init_returns => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_history.log'))
+    initialize_returns(@logger)
+  end
+
   desc "Update Daily Close table with new history"
   task :update_history => :environment do
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_history.log'))

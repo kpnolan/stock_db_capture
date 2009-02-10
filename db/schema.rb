@@ -9,22 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090207205520) do
-
-  create_table "agg1", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.integer  "period"
-    t.float    "r"
-    t.float    "logr"
-    t.integer  "sample_count"
-  end
+ActiveRecord::Schema.define(:version => 20090210181721) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -44,20 +29,19 @@ ActiveRecord::Schema.define(:version => 20090207205520) do
   add_index "aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period", :unique => true
   add_index "aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
 
-  create_table "aggregations", :force => true do |t|
-    t.integer  "ticker_id",    :null => false
+  create_table "aggregates_save", :force => true do |t|
+    t.integer  "ticker_id"
     t.date     "date"
+    t.datetime "start"
     t.float    "open"
     t.float    "close"
     t.float    "high"
     t.float    "low"
-    t.float    "adj_close"
     t.integer  "volume"
-    t.integer  "week"
-    t.integer  "month"
+    t.integer  "period"
+    t.float    "r"
+    t.float    "logr"
     t.integer  "sample_count"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "current_listings", :force => true do |t|
@@ -114,38 +98,6 @@ ActiveRecord::Schema.define(:version => 20090207205520) do
 
   add_index "daily_closes", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
-  create_table "daily_closes_back", :force => true do |t|
-    t.integer "ticker_id",  :null => false
-    t.date    "date"
-    t.float   "open"
-    t.float   "close"
-    t.float   "high"
-    t.float   "low"
-    t.float   "adj_close"
-    t.integer "volume"
-    t.integer "week"
-    t.integer "month"
-    t.float   "return"
-    t.float   "log_return"
-    t.float   "alr"
-  end
-
-  create_table "daily_closes_backup", :force => true do |t|
-    t.integer "ticker_id",  :null => false
-    t.date    "date"
-    t.float   "open"
-    t.float   "close"
-    t.float   "high"
-    t.float   "low"
-    t.float   "adj_close"
-    t.integer "volume"
-    t.integer "week"
-    t.integer "month"
-    t.float   "return"
-    t.float   "log_return"
-    t.float   "alr"
-  end
-
   create_table "exchanges", :force => true do |t|
     t.string "symbol"
     t.string "name"
@@ -162,35 +114,22 @@ ActiveRecord::Schema.define(:version => 20090207205520) do
     t.string "name"
   end
 
-  create_table "live_quotes", :force => true do |t|
+  create_table "live_quotes", :id => false, :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "last_trade_time"
     t.float    "last_trade"
     t.float    "change_points"
-    t.float    "r"
-    t.float    "logr"
     t.integer  "volume"
-    t.date     "date"
   end
-
-  add_index "live_quotes", ["ticker_id", "last_trade_time"], :name => "index_live_quotes1_on_ticker_id_and_last_trade_time", :unique => true
-  add_index "live_quotes", ["ticker_id", "date"], :name => "index_live_quotes_on_ticker_id_and_date"
-
-  create_table "live_quotes_old", :force => true do |t|
-    t.integer  "volume"
-    t.float    "r"
-    t.float    "change_points"
-    t.float    "last_trade"
-    t.datetime "last_trade_time"
-    t.integer  "ticker_id"
-    t.float    "logr"
-  end
-
-  add_index "live_quotes_old", ["ticker_id", "last_trade_time"], :name => "index_live_quotes_on_ticker_id_and_last_trade_time", :unique => true
 
   create_table "memberships", :force => true do |t|
     t.integer "ticker_id"
     t.integer "listing_category_id"
+  end
+
+  create_table "pimary_key_ids", :force => true do |t|
+    t.string  "table_name"
+    t.integer "auto_increment"
   end
 
   create_table "plot_attributes", :force => true do |t|
@@ -212,16 +151,6 @@ ActiveRecord::Schema.define(:version => 20090207205520) do
     t.string  "resolution"
     t.string  "inputs"
     t.integer "num_outputs"
-  end
-
-  create_table "real_time_quotes", :force => true do |t|
-    t.float    "last_trade"
-    t.float    "ask"
-    t.float    "bid"
-    t.datetime "last_trade_time"
-    t.float    "change"
-    t.float    "change_points"
-    t.integer  "ticker_id"
   end
 
   create_table "shorts", :force => true do |t|
@@ -254,13 +183,15 @@ ActiveRecord::Schema.define(:version => 20090207205520) do
   end
 
   create_table "tickers", :force => true do |t|
-    t.string  "symbol",      :limit => 8
-    t.string  "exchange_id"
-    t.boolean "active"
-    t.boolean "dormant",                  :default => false
+    t.string   "symbol",          :limit => 8
+    t.string   "exchange_id"
+    t.boolean  "active"
+    t.boolean  "dormant",                      :default => false
+    t.datetime "last_trade_time"
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
+  add_index "tickers", ["id", "last_trade_time"], :name => "index_tickers_on_id_and_last_trade_time"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 

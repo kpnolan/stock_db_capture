@@ -5,7 +5,7 @@ require 'retired_symbol_exception'
 namespace :active_trader do
 
   desc "Setup the environment for live quote capture"
-  task :setup => :environment do
+  task :setup_quotes => :environment do
     @symbols = Ticker.active_symbols
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'capture_live_quotes.log'))
     @ldr = TradingDBLoader.new('s', :logger => @logger)
@@ -13,7 +13,7 @@ namespace :active_trader do
   end
 
   desc "Start the process which retrieves live quotes from yahoo"
-  task :capture_live_quotes => :setup do
+  task :capture_live_quotes => :setup_quotes do
     @logger.info("Beginning capture of live quotes at #{Time.now}")
     catch (:done) do
       symbols = @symbols

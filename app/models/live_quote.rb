@@ -1,17 +1,13 @@
 # == Schema Information
-# Schema version: 20090207205520
+# Schema version: 20090210181721
 #
 # Table name: live_quotes
 #
-#  id              :integer(4)      not null, primary key
 #  ticker_id       :integer(4)
 #  last_trade_time :datetime
 #  last_trade      :float
 #  change_points   :float
-#  r               :float
-#  logr            :float
 #  volume          :integer(4)
-#  date            :date
 #
 
 class LiveQuote < ActiveRecord::Base

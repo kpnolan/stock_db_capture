@@ -43,6 +43,12 @@ module TableExtract
     result
   end
 
+  def find_last_close(ticker_id, date)
+    rows = connection.select_rows("select date, close from #{table_name} where ticker_id = #{ticker_id} and date < '#{date.to_s(:db)}' order by date desc limit 1")
+    rows.first
+  end
+
+
   def normalize_ticker(ticker, bdate=nil, edate=nil)
     case
     when ticker.class == Fixnum : ticker_id = ticker

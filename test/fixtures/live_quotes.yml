@@ -1,12 +1,11 @@
 # == Schema Information
-# Schema version: 20090210181721
+# Schema version: 20090210230614
 #
 # Table name: live_quotes
 #
 #  ticker_id       :integer(4)
 #  last_trade_time :datetime
 #  last_trade      :float
-#  change_points   :float
 #  volume          :integer(4)
 #
 

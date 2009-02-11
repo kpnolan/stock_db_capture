@@ -1,7 +1,7 @@
 # == Schema Information
 # Schema version: 20090210230614
 #
-# Table name: aggregates
+# Table name: var_aggregates
 #
 #  id           :integer(4)      not null, primary key
 #  ticker_id    :integer(4)
@@ -18,16 +18,10 @@
 #  sample_count :integer(4)
 #
 
-class Aggregate < ActiveRecord::Base
-  belongs_to :ticker
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
-  extend TableExtract
-  extend Plot
-
-  def self.order ; 'start'; end
-  def self.time_col ; :start ;  end
-  def self.time_convert ; :to_time ;  end
-  def self.time_class ; Time ;  end
-  def self.time_res; [ 15.minutes.seconds ]; end
-
-end
+# one:
+#   column: value
+#
+# two:
+#   column: value

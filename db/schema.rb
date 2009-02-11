@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090210181721) do
+ActiveRecord::Schema.define(:version => 20090210230614) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -118,7 +118,6 @@ ActiveRecord::Schema.define(:version => 20090210181721) do
     t.integer  "ticker_id"
     t.datetime "last_trade_time"
     t.float    "last_trade"
-    t.float    "change_points"
     t.integer  "volume"
   end
 
@@ -192,6 +191,24 @@ ActiveRecord::Schema.define(:version => 20090210181721) do
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
   add_index "tickers", ["id", "last_trade_time"], :name => "index_tickers_on_id_and_last_trade_time"
+
+  create_table "var_aggregates", :force => true do |t|
+    t.integer  "ticker_id"
+    t.date     "date"
+    t.datetime "start"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.integer  "period"
+    t.float    "r"
+    t.float    "logr"
+    t.integer  "sample_count"
+  end
+
+  add_index "var_aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period", :unique => true
+  add_index "var_aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 

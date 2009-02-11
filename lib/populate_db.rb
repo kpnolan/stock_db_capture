@@ -185,8 +185,7 @@ class TradingDBLoader
 
     if dt > ticker.last_trade_time
       ticker.update_attribute(:last_trade_time, dt)
-      model.create!(:ticker_id => ticker.id, :last_trade => qt.last_trade, :last_trade_time => qt.last_trade_time,
-                    :change_points => qt.change_points, :volume => qt.volume)
+      model.create!(:ticker_id => ticker.id, :last_trade => qt.last_trade, :last_trade_time => qt.last_trade_time, :volume => qt.volume)
       # if this is a duplicate record because the exchange has
       # shut down (normal hours) then we pass it up to stop
       # the capture process, otherwise we sampled this symbol

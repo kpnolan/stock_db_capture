@@ -18,6 +18,10 @@ namespace :active_trader do
   task :update_history => :environment do
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_history.log'))
     update_history(@logger)
+  end
+
+  desc "Update Daily Close table with new history"
+  task :update_returns => :update_history do
     update_returns(@logger)
   end
 end

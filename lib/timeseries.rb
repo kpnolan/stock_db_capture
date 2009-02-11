@@ -8,7 +8,7 @@ class Timeseries
                                       :sample_period => [ 1.day ],
                                       :start_time => Time.parse('2000-1-1'),
                                       :end_time => Time.now },
-                     LiveQuote => { :attrs => [:last_trade, :volume, :change_points, :r, :logr],
+                     LiveQuote => { :attrs => [:last_trade, :volume ],
                                     :sample_period => [ 1.minute ],
                                     :start_time => Time.parse('2000-1-1'),
                                     :end_time => Time.now },

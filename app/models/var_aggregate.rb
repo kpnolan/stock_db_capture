@@ -1,7 +1,7 @@
 # == Schema Information
 # Schema version: 20090210230614
 #
-# Table name: aggregates
+# Table name: var_aggregates
 #
 #  id           :integer(4)      not null, primary key
 #  ticker_id    :integer(4)
@@ -18,7 +18,7 @@
 #  sample_count :integer(4)
 #
 
-class Aggregate < ActiveRecord::Base
+class VarAggregate < ActiveRecord::Base
   belongs_to :ticker
 
   extend TableExtract
@@ -28,6 +28,6 @@ class Aggregate < ActiveRecord::Base
   def self.time_col ; :start ;  end
   def self.time_convert ; :to_time ;  end
   def self.time_class ; Time ;  end
-  def self.time_res; [ 15.minutes.seconds ]; end
+  def self.time_res; [ 5.minutes ]; end
 
 end

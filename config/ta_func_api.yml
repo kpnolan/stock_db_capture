@@ -1990,7 +1990,7 @@ FinancialFunctions:
             Type: Double Array
           - Name: inReal1
             Type: Double Array
-      ShortDescription: Pearson's Correlation Coefficient (r)
+      ShortDescription: Pearsons Correlation Coefficient (r)
     - Abbreviation: COS
       CamelCaseName: Cos
       GroupId: Math Transform
@@ -4199,7 +4199,7 @@ FinancialFunctions:
             Type: Low
           - Name: Close
             Type: Close
-      ShortDescription: Williams' %R
+      ShortDescription: Williams %R
     - Abbreviation: WMA
       CamelCaseName: Wma
       Flags:

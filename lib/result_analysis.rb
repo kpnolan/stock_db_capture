@@ -1,18 +1,20 @@
 require 'rubygems'
-require 'narray'
+require 'gsl'
 
 module ResultAnalysis
+
+  include GSL
 
   VALID_OPS = [:gt, :lt, :ge, :le, :eq]
 
   def get_vector(sym)
     xa = Array.new(100)
     xa.fill { |i| i* (6*Math::PI/100) }
-    x = NArray.to_na(xa)
+    x = xa.to_gv
     if sym == :sin
-      NMath.sin(x)
+      GSL::Sf::sin(x)
     elsif sym == :cos
-      NMath.cos(x)
+       GSL::Sf::cos(x)
     else
       raise ArgumentError
     end
@@ -21,41 +23,35 @@ module ResultAnalysis
   def threshold_crossing(threshold, sym, op)
     raise ArgumentError, "#{op} not one of #{VALID_OPS.join(', ')}" unless VALID_OPS.include? op
     vec = get_vector(sym)
-    len = vec.shape.first
-    tvec = NArray.float(len).fill!(threshold)
+    tvec = GSL::Vector.alloc(vec.len).set_all(threshold)
     bitmap = vec.send(op, tvec)
-    index = 0
-    indexes = []
-    bitmap.each do |bflag|
-      bflag == 1 && indexes.push(index)
-      index += 1
-    end
-    indexes
+    bitmap.where { |bflag| bflag == 1 }
   end
 
-  def down_crossing(sym1,sym2)
-    na_vec = get_vector(sym1)
-    nb_vec = get_vector(sym2)
-    crossing(:gt, na_vec, nb_vec)
+  def down_crossing(sym1 ,sym2)
+    a_vec = get_vector(sym1)
+    b_vec = get_vector(sym2)
+    crossing(:gt, a_vec, b_vec)
   end
 
   def up_crossing(sym1, sym2)
-    na_vec = get_vector(sym1)
-    nb_vec = get_vector(sym2)
-    crossing(:lt, na_vec, nb_vec)
+    a_vec = get_vector(sym1)
+    b_vec = get_vector(sym2)
+    crossing(:lt, a_vec, b_vec)
   end
 
   def crossing(method, a, b)
-    index = 0
-    indexes = []
     bitmap = a.send(method, b)
     last_value = bitmap[0]
-    bitmap.each do |bflag|
-      last_value == 1 && bflag == 0 && indexes.push(index)
-      index += 1
+    bitmap.where do |bflag|
+      result = last_value == 1 && bflag == 0
       last_value = bflag
+      result
     end
-    indexes
+  end
+
+  def find_ones(sym)
+    get_vector(sym).where { |e| e == 1 }
   end
 end
 

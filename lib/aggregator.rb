@@ -3,6 +3,8 @@ module Aggregator
   BEGIN_TIME = 9.hours + 30.minutes
   END_TIME = 16.hours
   UTC_OFFSET = -3.hours # to Eastern Time
+  HOLIDAYS = [ '1/1/2009', '1/19/2009', '2/16/2009', '5/25/2009', '7/3/2009', '9/7/2009',
+               '10/12/2009', '11/11/2009', '11/26/2009', '12/25/2009' ].map { |str| Date.parse(str) }
 
   attr_accessor :agg_model, :recs
 
@@ -14,6 +16,10 @@ module Aggregator
                                      "date(last_trade_time) >= '#{date_range.begin}' and " +
                                      "date(last_trade_time) <= '#{date_range.end}'")
     FastLiveQuote.connection.select_values("select distinct ticker_id from fast_live_quotes order by ticker_id")
+  end
+
+  def trading_days(date_range)
+    dary = (date_range.to_a - HOLIDAYS).select { |date| (1..5).include?(date.to_time.wday) }
   end
 
   def compute_aggregates(period_in_seconds)

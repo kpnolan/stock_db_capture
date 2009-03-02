@@ -1,0 +1,8 @@
+%h1 Listing contract_types
+%table
+  %tr.heading
+    %th Name
+
+  = render :partial => 'contract_type', :collection => current_objects
+
+= link_to 'New contract_type', new_object_path 

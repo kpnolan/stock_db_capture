@@ -1,0 +1,2446 @@
+
+config/boot.rb,795
+module RailsRails6,175
+    def boot!boot!8,204
+    def booted?booted?15,302
+    def pick_bootpick_boot19,361
+    def vendor_rails?vendor_rails?23,437
+    def preinitializepreinitialize27,516
+    def preinitializer_pathpreinitializer_path31,615
+  class BootBoot36,705
+    def runrun37,718
+  class VendorBoot < BootVendorBoot43,813
+    def load_initializerload_initializer44,839
+  class GemBoot < BootGemBoot50,1001
+    def load_initializerload_initializer51,1024
+    def load_rails_gemload_rails_gem57,1138
+      def rubygems_versionrubygems_version69,1629
+      def gem_versiongem_version73,1707
+      def load_rubygemsload_rubygems83,1963
+      def parse_gem_version(text)parse_gem_version96,2452
+        def read_environment_rbread_environment_rb101,2593
+
+config/environment.rb,0
+
+config/environments/test.rb,0
+
+config/environments/production.rb,0
+
+config/environments/development.rb,0
+
+config/initializers/mime_types.rb,0
+
+config/initializers/new_rails_defaults.rb,0
+
+config/initializers/inflections.rb,0
+
+config/deploy.rb,0
+
+config/routes.rb,0
+
+vendor/plugins/livevalidation/uninstall.rb,0
+
+vendor/plugins/livevalidation/test/live_validations_test.rb,937
+class LiveValidationTest < Test::Unit::TestCaseLiveValidationTest7,177
+  def setupsetup9,228
+  def test_live_validations_accessortest_live_validations_accessor15,336
+  def test_without_validationstest_without_validations19,434
+  def test_without_ok_messagetest_without_ok_message23,522
+  def test_with_ok_messagetest_with_ok_message30,739
+  def test_presencetest_presence37,998
+  def test_presence_more_than_one_attributetest_presence_more_than_one_attribute44,1223
+  def test_numericalitytest_numericality52,1580
+  def test_numericality_only_integertest_numericality_only_integer60,1913
+  def test_formattest_format68,2287
+  def test_length_maxtest_length_max76,2625
+  def test_length_mintest_length_min84,2974
+  def test_length_rangetest_length_range92,3327
+  def test_length_exacttest_length_exact102,3828
+  def test_acceptancetest_acceptance110,4153
+  def test_confirmationtest_confirmation117,4420
+
+vendor/plugins/livevalidation/test/form_helpers_test.rb,1371
+class ResourcesController < ActionController::BaseResourcesController11,324
+  def without_instance_varwithout_instance_var12,375
+  def without_livewithout_live16,439
+  def with_livewith_live21,628
+  def with_stringwith_string26,811
+  def with_text_areawith_text_area31,987
+  def namename36,1162
+  def amountamount41,1241
+  def passwordpassword46,1324
+  def rescue_action(e)rescue_action51,1548
+  def render_form(type, method)render_form57,1605
+class FormHelpersTest < Test::Unit::TestCaseFormHelpersTest67,1895
+  def setupsetup69,1943
+  def test_without_instance_vartest_without_instance_var79,2264
+  def test_without_livetest_without_live84,2386
+  def test_without_live_with_false_defaulttest_without_live_with_false_default92,2561
+  def test_with_live_with_false_defaulttest_with_live_with_false_default101,2790
+  def test_with_stringtest_with_string112,3191
+  def test_with_text_areatest_with_text_area122,3536
+  def test_presencetest_presence134,3945
+  def test_presence_with_messagetest_presence_with_message144,4278
+  def test_numericalitytest_numericality156,4760
+  def test_numericality_only_integertest_numericality_only_integer166,5117
+  def test_confirmationtest_confirmation178,5607
+  def check_form_item(options = {}, &blk)check_form_item192,6112
+  def assert_matches(string, regexp)assert_matches206,6494
+
+vendor/plugins/livevalidation/test/resource.rb,188
+  def self.columns() @columns ||= []; endcolumns3,63
+  def self.column(name, sql_type = nil, default = nil, null = true)column5,108
+class Resource < ActiveRecord::BaseResource10,283
+
+vendor/plugins/livevalidation/lib/live_validations.rb,446
+module ActiveRecordActiveRecord1,0
+  module ValidationsValidations2,20
+    module ClassMethodsClassMethods20,523
+      def live_validationslive_validations30,913
+      def define_validations(validation_type, attr_names)define_validations36,999
+      def add_live_validation(attr_name, type, configuration = {})add_live_validation44,1341
+      def map_configuration(configuration, type = nil, attr_name = '')map_configuration50,1555
+
+vendor/plugins/livevalidation/lib/form_helpers.rb,561
+module ActionViewActionView1,0
+  module HelpersHelpers6,93
+    module FormHelperFormHelper7,110
+      def live_validations_for(object_name, method, options)live_validations_for19,701
+      def remove_brackets(name)remove_brackets26,917
+      def live_validation(object_name, method, options)live_validation36,1118
+      def initialize_validator(field_name, validMessage)initialize_validator50,1713
+      def live_validation_code(field_name, type, configuration)live_validation_code56,1958
+      def script_tags(js_code = '')script_tags60,2177
+
+vendor/plugins/livevalidation/init.rb,0
+
+vendor/plugins/livevalidation/install.rb,0
+
+vendor/plugins/squirrel/test/squirrel_test.rb,1960
+class Post < ActiveRecord::BasePost5,119
+class User < ActiveRecord::BaseUser10,207
+class Company < ActiveRecord::BaseCompany15,284
+class Address < ActiveRecord::BaseAddress20,364
+class Tag < ActiveRecord::BaseTag24,426
+class SquirrelTest < Test::Unit::TestCaseSquirrelTest28,494
+  def test_simple_operatorstest_simple_operators31,557
+	def test_simple_conditions_generate_the_proper_query_fragmentstest_simple_conditions_generate_the_proper_query_fragments49,1006
+	def test_conjunction_blocks_join_with_correct_wordstest_conjunction_blocks_join_with_correct_words75,1663
+	def test_negation_by_nottest_negation_by_not101,2244
+	def test_negation_by_minustest_negation_by_minus110,2517
+	def test_orderingtest_ordering119,2787
+	def test_extra_parameterstest_extra_parameters137,3507
+	def test_does_not_include_paginator_on_non_paged_queriestest_does_not_include_paginator_on_non_paged_queries152,3921
+	def test_does_include_paginator_on_paged_queriestest_does_include_paginator_on_paged_queries158,4141
+	def test_paginator_low_edge_casestest_paginator_low_edge_cases164,4355
+	def test_paginator_high_edge_casestest_paginator_high_edge_cases172,4627
+	def test_pages_are_sanetest_pages_are_sane180,4918
+  def test_will_paginator_works_like_squirrel_paginatortest_will_paginator_works_like_squirrel_paginator202,5834
+  def test_passing_extra_conditionstest_passing_extra_conditions219,6355
+  def test_pagination_through_hash_parametertest_pagination_through_hash_parameter224,6521
+	def test_relationshipstest_relationships233,6820
+  def test_has_many_proxy_associationstest_has_many_proxy_associations255,7526
+  def test_joins_inside_proxy_associationstest_joins_inside_proxy_associations264,7850
+  def test_scopes_work_like_find_doestest_scopes_work_like_find_does276,8243
+  def test_scopes_can_be_nestedtest_scopes_can_be_nested281,8428
+  def test_conditions_can_be_rvaluestest_conditions_can_be_rvalues286,8569
+
+vendor/plugins/squirrel/test/test_helper.rb,160
+class Test::Unit::TestCase #:nodoc:Test15,584
+  def create_fixtures(*table_names)create_fixtures16,621
+	def self.load_all_fixturesload_all_fixtures24,879
+
+vendor/plugins/squirrel/test/schema.rb,0
+
+vendor/plugins/squirrel/lib/squirrel.rb,2816
+module SquirrelSquirrel7,314
+  module HookHook9,418
+    def find_with_squirrel *args, &blkfind_with_squirrel10,432
+    def scoped_with_squirrel *args, &blkscoped_with_squirrel20,700
+    def self.included baseincluded29,907
+  module CalculationsHookCalculationsHook47,1505
+    def calculate_with_squirrel *args, &blkcalculate_with_squirrel49,1532
+    def self.included baseincluded58,1738
+  module NamedScopeHookNamedScopeHook69,2083
+    def scoped *args, &blkscoped70,2107
+  class QueryQuery78,2367
+    def initialize model, &blkinitialize83,2593
+    def join_dependencyjoin_dependency95,3137
+    def execute *argsexecute105,3638
+    def execute_calculate *argsexecute_calculate126,4457
+    def to_find_parametersto_find_parameters133,4669
+    def to_find_conditionsto_find_conditions145,5337
+    def to_find_includeto_find_include150,5478
+    def to_find_orderto_find_order155,5611
+    def to_find_groupto_find_group160,5740
+    def to_find_limitto_find_limit165,5869
+    def to_find_offsetto_find_offset170,5999
+    def paginate_result_set set, conditionspaginate_result_set177,6267
+    class ConditionGroupConditionGroup197,7083
+      def initialize model, logical_join, binding, path = nil, reflection = nil, &blkinitialize221,8755
+      def column namecolumn259,10243
+      def association name, &blkassociation266,10461
+      def any &blkany274,10794
+      def all &blkall280,11010
+      def order_by *columnsorder_by289,11533
+      def group_by *columnsgroup_by293,11608
+      def paginate opts = {}paginate299,11800
+      def limit lim, off = nillimit309,12190
+      def paginate?paginate?315,12417
+      def -@-@320,12601
+      def not &blknot335,12960
+      def assign_joins join_dependency, ancestries = nilassign_joins346,13293
+      def to_find_includeto_find_include364,14056
+      def to_find_orderto_find_order379,14663
+      def to_find_groupto_find_group389,14918
+      def to_find_conditionsto_find_conditions401,15319
+      def to_find_limitto_find_limit412,15735
+      def to_find_offsetto_find_offset417,15826
+      def conditionsconditions423,16015
+      def negative?negative?428,16164
+      def instance instance_varinstance438,16598
+      def execute_block #:nodoc:execute_block447,16763
+      def method_missing meth, *args #:nodoc:method_missing451,16847
+    class ConditionCondition484,18426
+      def initialize nameinitialize488,18543
+      def contains? val #:nodoc:contains?502,18831
+      def nil? #:nodoc:nil?508,18941
+      def -@ #:nodoc:-@514,19036
+      def negative?negative?523,19273
+      def assign_join association = nilassign_join529,19439
+      def full_namefull_name534,19650
+      def to_find_conditions(join_association = {})to_find_conditions539,19803
+
+vendor/plugins/squirrel/lib/paginator.rb,545
+module SquirrelSquirrel1,0
+  module WillPaginationWillPagination7,380
+    def self.extended baseextended8,404
+    def next_pagenext_page17,715
+    def offsetoffset22,887
+    def out_of_bounds?out_of_bounds?28,1117
+    def page_countpage_count33,1226
+    def previous_pageprevious_page40,1385
+    def total_entries= totaltotal_entries=45,1510
+  class PagePage52,1721
+    def initialize(offset, limit, page, per_page)initialize54,1784
+  class Paginator < ArrayPaginator61,2088
+    def initialize opts={}initialize63,2215
+
+vendor/plugins/squirrel/lib/extensions.rb,464
+class HashHash1,0
+  def merge_tree othermerge_tree2,11
+  def merge_tree! othermerge_tree!6,74
+module ActiveRecord #:nodoc: allActiveRecord18,304
+  module AssociationsAssociations19,337
+    module ClassMethodsClassMethods20,359
+      class JoinDependencyJoinDependency21,383
+        class JoinAssociationJoinAssociation22,410
+          def ancestry #:docancestry23,440
+        class JoinBaseJoinBase27,560
+          def ancestryancestry28,583
+
+vendor/plugins/squirrel/init.rb,127
+  class ActiveRecord::NamedScope::ScopeActiveRecord8,174
+module ActiveRecord::Calculations::ClassMethodsActiveRecord13,262
+
+vendor/plugins/foreign_key_migrations/generators/foreign_key_migration/foreign_key_migration_generator.rb,197
+class ForeignKeyMigrationGenerator < Rails::Generator::NamedBaseForeignKeyMigrationGenerator1,0
+  def initialize(runtime_args, runtime_options = {})initialize2,65
+  def manifestmanifest7,200
+
+vendor/plugins/foreign_key_migrations/generators/foreign_key_migration/templates/migration.rb,49
+  def self.upup2,54
+  def self.downdown8,159
+
+vendor/plugins/foreign_key_migrations/lib/foreign_key_migrations.rb,0
+
+vendor/plugins/foreign_key_migrations/lib/red_hill_consulting/foreign_key_migrations/active_record/migration.rb,285
+module RedHillConsulting::ForeignKeyMigrations::ActiveRecordRedHillConsulting1,0
+  module MigrationMigration2,61
+    def self.included(base)included3,80
+    module ClassMethodsClassMethods7,149
+      def add_column(table_name, column_name, type, options = {})add_column8,173
+
+vendor/plugins/foreign_key_migrations/lib/red_hill_consulting/foreign_key_migrations/active_record/base.rb,269
+module RedHillConsulting::ForeignKeyMigrations::ActiveRecordRedHillConsulting1,0
+  module BaseBase2,61
+    def self.included(base)included3,75
+    module ClassMethodsClassMethods7,144
+      def references(table_name, column_name, options = {})references8,168
+
+vendor/plugins/foreign_key_migrations/lib/red_hill_consulting/foreign_key_migrations/active_record/connection_adapters/table_definition.rb,476
+module RedHillConsulting::ForeignKeyMigrations::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module TableDefinitionTableDefinition2,81
+    def self.included(base)included3,106
+    def primary_key_with_foreign_key_migrations(name, options = {})primary_key_with_foreign_key_migrations10,303
+    def column_with_foreign_key_migrations(name, type, options = {})column_with_foreign_key_migrations14,422
+    def belongs_to(table, options = {})belongs_to22,833
+
+vendor/plugins/foreign_key_migrations/init.rb,0
+
+vendor/plugins/foreign_key_migrations/install.rb,0
+
+vendor/plugins/dependent_protect/test/dependent_protect_test.rb,851
+class DependentProtectTest < Test::Unit::TestCaseDependentProtectTest7,158
+  class CompanyCompany10,263
+    def initialize(with_or_without)initialize11,279
+    def self.class_nameclass_name15,387
+    def self.has_many(association_id, options = {}, &extension)has_many19,440
+    def self.create_reflection(macro, name, options, active_record)create_reflection22,517
+    def self.before_destroy(s)before_destroy30,785
+    def destroydestroy34,843
+    def companiescompanies38,895
+      def cs.find(arg)find41,981
+  def test_destroy_protected_with_companiestest_destroy_protected_with_companies52,1162
+  def test_destroy_protected_without_companiestest_destroy_protected_without_companies57,1361
+  def test_old_dependent_optionstest_old_dependent_options62,1559
+  def test_bad_dependent_optiontest_bad_dependent_option72,2194
+
+vendor/plugins/dependent_protect/lib/dependent_protect.rb,252
+module DependentProtectDependentProtect3,20
+  def self.append_features(base)append_features4,44
+  module ClassMethodsClassMethods19,442
+    def has_many_with_protect(association_id, options = {}, &extension) #:nodoc:has_many_with_protect23,662
+
+vendor/plugins/dependent_protect/init.rb,0
+
+vendor/plugins/visualize_models/lib/visualize_models.rb,311
+module VisualizeModelsVisualizeModels11,325
+  def self.get_schema_info(table_name)get_schema_info19,573
+  def self.create_img(app, args, dot_file, img_file_base)create_img33,982
+  def self.write_dot_file(header, target_dir, tableInfos)write_dot_file43,1351
+  def self.do_visualizedo_visualize102,3785
+
+vendor/plugins/schema_validations/lib/schema_validations.rb,0
+
+vendor/plugins/schema_validations/lib/red_hill_consulting/schema_validations/active_record/base.rb,768
+module RedHillConsulting::SchemaValidations::ActiveRecordRedHillConsulting1,0
+  module BaseBase2,58
+    def self.included(base)included3,72
+    module ClassMethodsClassMethods7,141
+      def self.extended(base)extended8,165
+      def inherited(child)inherited15,355
+      def schema_validations(options = {})schema_validations20,473
+      def allocate_with_schema_validationsallocate_with_schema_validations33,885
+      def new_with_schema_validations(*args)new_with_schema_validations38,1015
+      def load_schema_validationsload_schema_validations45,1219
+      def load_column_validationsload_column_validations55,1624
+      def load_association_validationsload_association_validations86,2964
+      def validates?(column)validates?102,3628
+
+vendor/plugins/schema_validations/init.rb,0
+
+vendor/plugins/schema_validations/install.rb,0
+
+vendor/plugins/annotate_models/lib/annotate_models.rb,376
+module AnnotateModelsAnnotateModels8,241
+  def self.quote(value)quote13,348
+  def self.get_schema_info(klass, header)get_schema_info30,979
+  def self.annotate_one_file(file_name, info_block)annotate_one_file58,1900
+  def self.annotate(klass, header)annotate75,2435
+  def self.get_model_namesget_model_names99,3337
+  def self.do_annotationsdo_annotations116,3712
+
+vendor/plugins/acl_system2/test/test_helper.rb,0
+
+vendor/plugins/acl_system2/test/access_control_test.rb,1017
+class UserUser7,103
+  def namename11,142
+  def rolesroles16,193
+class ControllerProxyControllerProxy22,299
+    def before_filter(&block)before_filter30,406
+  def before_actionbefore_action36,500
+  def permission_grantedpermission_granted50,906
+  def permission_deniedpermission_denied54,949
+  def current_usercurrent_user58,992
+class FabOnlyHandler < Caboose::AccessHandler FabOnlyHandler64,1038
+  def check(key, context)check66,1090
+class ControllerProxyWithFabHandler < ControllerProxyControllerProxyWithFabHandler72,1253
+  def retrieve_access_handlerretrieve_access_handler74,1310
+class AccessControlTest  < Test::Unit::TestCaseAccessControlTest82,1395
+  def test_firsttest_first85,1447
+  def test_custom_access_handlertest_custom_access_handler101,2341
+  def test_permittest_permit113,2808
+  def test_restrict_totest_restrict_to129,3720
+  def test_before_filtertest_before_filter138,3892
+  def test_set_default_context_with_blocktest_set_default_context_with_block152,4265
+
+vendor/plugins/acl_system2/lib/caboose/access_control.rb,741
+module CabooseCaboose2,1
+  module AccessControlAccessControl4,17
+    def self.included(subject)included6,45
+    module ClassMethods  ClassMethods14,262
+      def access_control(actions={})access_control18,500
+    def access_handleraccess_handler43,1459
+    def access_context(context = {})     access_context53,1772
+    def default_access_contextdefault_access_context57,1867
+    def default_access_context=(defaults)default_access_context=63,2064
+    def permit?(logicstring, context = {})permit?67,2162
+    def restrict_to(logicstring, context = {})restrict_to74,2359
+    class AccessSentryAccessSentry83,2590
+      def initialize(subject, actions={})initialize85,2619
+      def allowed?(action)allowed?93,2870
+
+vendor/plugins/acl_system2/lib/caboose/role_handler.rb,209
+module CabooseCaboose1,0
+  class AccessHandler   AccessHandler3,18
+    def check(key, context)check6,68
+  class RoleHandler < AccessHandler RoleHandler12,129
+    def check(key, context)  check14,171
+
+vendor/plugins/acl_system2/lib/caboose/logic_parser.rb,117
+module CabooseCaboose1,0
+  module LogicParserLogicParser3,18
+    def process(logicstring, context)process9,325
+
+vendor/plugins/acl_system2/init.rb,0
+
+vendor/plugins/haml/init.rb,0
+
+vendor/plugins/will_paginate/test/boot.rb,0
+
+vendor/plugins/will_paginate/test/finder_test.rb,3904
+class FinderTest < ActiveRecordTestCaseFinderTest8,145
+  def test_new_methods_presencetest_new_methods_presence11,256
+  def test_simple_paginatetest_simple_paginate15,368
+  def test_parameter_apitest_parameter_api30,749
+  def test_paginate_with_per_pagetest_paginate_with_per_page42,1190
+  def test_paginate_with_ordertest_paginate_with_order58,1708
+  def test_paginate_with_conditionstest_paginate_with_conditions65,1994
+  def test_paginate_with_include_and_conditionstest_paginate_with_include_and_conditions72,2253
+  def test_paginate_with_include_and_ordertest_paginate_with_include_and_order88,2695
+  def test_paginate_associations_with_includetest_paginate_associations_with_include107,3218
+  def test_paginate_associationstest_paginate_associations127,3869
+  def test_paginate_association_extensiontest_paginate_association_extension155,5045
+  def test_paginate_with_joinstest_paginate_with_joins164,5274
+  def test_paginate_with_grouptest_paginate_with_group187,6177
+  def test_paginate_with_dynamic_findertest_paginate_with_dynamic_finder198,6582
+  def test_scoped_paginatetest_scoped_paginate217,7360
+  def test_paginate_in_named_scopetest_paginate_in_named_scope226,7566
+  def test_paginate_in_named_scope_on_habtm_associationtest_paginate_in_named_scope_on_habtm_association233,7751
+  def test_paginate_in_named_scope_on_hmt_associationtest_paginate_in_named_scope_on_hmt_association243,8113
+  def test_paginate_in_named_scope_on_has_many_associationtest_paginate_in_named_scope_on_has_many_association254,8474
+  def test_named_scope_with_includetest_named_scope_with_include265,8852
+  def test_count_and_total_entries_options_are_mutually_exclusivetest_count_and_total_entries_options_are_mutually_exclusive273,9081
+  def test_readonlytest_readonly280,9310
+  def xtest_pagination_defines_methodxtest_pagination_defines_method285,9462
+    def test_paginate_array_of_idstest_paginate_array_of_ids296,9979
+    def test_implicit_all_with_dynamic_finderstest_implicit_all_with_dynamic_finders308,10380
+    def test_guessing_the_total_counttest_guessing_the_total_count314,10568
+    def test_guessing_that_there_are_no_recordstest_guessing_that_there_are_no_records322,10811
+    def test_extra_parameters_stay_untouchedtest_extra_parameters_stay_untouched330,11054
+    def test_count_skips_selecttest_count_skips_select337,11338
+    def test_count_select_when_distincttest_count_select_when_distinct343,11529
+    def test_count_with_scoped_select_when_distincttest_count_with_scoped_select_when_distinct349,11763
+    def test_should_use_scoped_finders_if_presenttest_should_use_scoped_finders_if_present355,11990
+    def test_paginate_by_sqltest_paginate_by_sql363,12238
+    def test_paginate_by_sql_respects_total_entries_settingtest_paginate_by_sql_respects_total_entries_setting371,12610
+    def test_paginate_by_sql_strips_order_by_when_countingtest_paginate_by_sql_strips_order_by_when_counting379,12910
+    def test_ability_to_use_with_custom_finderstest_ability_to_use_with_custom_finders387,13255
+    def test_array_argument_doesnt_eliminate_counttest_array_argument_doesnt_eliminate_count395,13612
+    def test_paginating_finder_doesnt_mangle_optionstest_paginating_finder_doesnt_mangle_options403,13879
+    def test_paginate_by_sql_doesnt_change_original_querytest_paginate_by_sql_doesnt_change_original_query412,14169
+    def test_paginated_eachtest_paginated_each421,14443
+    def test_paginated_each_with_named_scopetest_paginated_each_with_named_scope436,15181
+      def test_removes_irrelevant_includes_in_counttest_removes_irrelevant_includes_in_count444,15470
+      def test_doesnt_remove_referenced_includes_in_counttest_doesnt_remove_referenced_includes_in_count451,15711
+    def test_paginate_fromtest_paginate_from460,16071
+    def test_hmt_with_includetest_hmt_with_include465,16225
+
+vendor/plugins/will_paginate/test/view_test.rb,3332
+class AdditionalLinkAttributesRenderer < WillPaginate::LinkRendererAdditionalLinkAttributesRenderer4,50
+  def initialize(link_attributes = nil)initialize5,118
+  def page_link(page, text, attributes = {})page_link10,253
+class ViewTest < WillPaginate::ViewTestCaseViewTest15,398
+  def test_will_paginatetest_will_paginate19,471
+  def test_no_pagination_when_page_count_is_onetest_no_pagination_when_page_count_is_one32,936
+  def test_will_paginate_with_optionstest_will_paginate_with_options37,1054
+  def test_will_paginate_using_renderer_classtest_will_paginate_using_renderer_class57,1781
+  def test_will_paginate_using_renderer_instancetest_will_paginate_using_renderer_instance63,1950
+  def test_prev_next_links_have_classnamestest_prev_next_links_have_classnames77,2436
+  def test_prev_label_deprecatedtest_prev_label_deprecated84,2634
+  def test_full_outputtest_full_output92,2856
+  def test_escaping_of_urlstest_escaping_of_urls106,3316
+  def test_will_paginate_without_containertest_will_paginate_without_container118,3698
+  def test_will_paginate_without_page_linkstest_will_paginate_without_page_links124,3894
+  def test_will_paginate_windowstest_will_paginate_windows132,4110
+  def test_will_paginate_eliminates_small_gapstest_will_paginate_eliminates_small_gaps144,4629
+  def test_container_idtest_container_id152,4887
+  def test_paginated_sectiontest_paginated_section170,5255
+  def test_page_entries_infotest_page_entries_info182,5559
+    def test_page_entries_info_with_longer_class_nametest_page_entries_info_with_longer_class_name196,6039
+  def test_page_entries_info_with_single_page_collectiontest_page_entries_info_with_single_page_collection206,6437
+  def test_page_entries_info_with_custom_entry_nametest_page_entries_info_with_custom_entry_name219,6928
+  def test_will_paginate_preserves_parameters_on_gettest_will_paginate_preserves_parameters_on_get239,7671
+  def test_will_paginate_doesnt_preserve_parameters_on_posttest_will_paginate_doesnt_preserve_parameters_on_post245,7834
+  def test_adding_additional_parameterstest_adding_additional_parameters252,8004
+  def test_adding_anchor_parametertest_adding_anchor_parameter257,8133
+  def test_removing_arbitrary_parameterstest_removing_arbitrary_parameters262,8264
+  def test_adding_additional_route_parameterstest_adding_additional_route_parameters268,8431
+  def test_will_paginate_with_custom_page_paramtest_will_paginate_with_custom_page_param273,8599
+  def test_complex_custom_page_paramtest_complex_custom_page_param281,8858
+  def test_custom_routing_page_paramtest_custom_routing_page_param292,9217
+  def test_custom_routing_page_param_with_dot_separatortest_custom_routing_page_param_with_dot_separator301,9511
+  def test_custom_routing_with_first_page_hiddentest_custom_routing_with_first_page_hidden310,9828
+  class LegacyCollection < WillPaginate::CollectionLegacyCollection321,10196
+  def test_deprecation_notices_with_page_counttest_deprecation_notices_with_page_count326,10313
+    def test_collection_name_can_be_guessedtest_collection_name_can_be_guessed335,10531
+  def test_inferred_collection_name_raises_error_when_niltest_inferred_collection_name_raises_error_when_nil347,10845
+    def test_rescue_response_hook_presencetest_rescue_response_hook_presence359,11200
+
+vendor/plugins/will_paginate/test/lib/activerecord_test_case.rb,295
+class ActiveRecordTestCase < Test::Unit::TestCaseActiveRecordTestCase3,43
+  def self.fixtures(*args)fixtures10,291
+  def run(*args)run14,374
+  def test_truthtest_truth19,500
+    def assert_queries(num = 1)assert_queries24,537
+    def assert_no_queries(&block)assert_no_queries31,721
+
+vendor/plugins/will_paginate/test/lib/load_fixtures.rb,0
+
+vendor/plugins/will_paginate/test/lib/activerecord_test_connector.rb,368
+class ActiveRecordTestConnectorActiveRecordTestConnector5,90
+  def self.setupsetup15,333
+  def self.add_load_path(path)add_load_path29,682
+  def self.setup_connectionsetup_connection34,847
+  def self.load_schemaload_schema55,1660
+  def self.prepare(conn)prepare62,1827
+      def execute_with_counting(sql, name = nil, &block)execute_with_counting66,1999
+
+vendor/plugins/will_paginate/test/lib/view_test_process.rb,1064
+class WillPaginate::ViewTestCase < Test::Unit::TestCaseWillPaginate19,621
+  def setupsetup20,677
+  def test_no_complain; endtest_no_complain33,1046
+    def paginate(collection = {}, options = {}, &block)paginate37,1090
+    def response_from_page_or_rjsresponse_from_page_or_rjs68,2163
+    def validate_page_numbers expected, links, param_name = :pagevalidate_page_numbers72,2232
+    def assert_links_match pattern, links = nil, numbers = nilassert_links_match81,2494
+    def assert_no_links_match patternassert_no_links_match99,2955
+class DummyRequestDummyRequest108,3163
+  def initializeinitialize111,3229
+  def get?get?117,3365
+  def postpost121,3392
+  def relative_url_rootrelative_url_root125,3427
+  def params(more = nil)params129,3465
+class DummyControllerDummyController135,3546
+  def initializeinitialize139,3627
+  def paramsparams144,3755
+  def url_for(params)url_for148,3797
+module HTMLHTML153,3855
+    def inner_textinner_text155,3888
+    def inner_textinner_text161,3987
+    def inner_textinner_text167,4057
+
+vendor/plugins/will_paginate/test/collection_test.rb,991
+class ArrayPaginationTest < Test::Unit::TestCaseArrayPaginationTest4,48
+  def setup ; endsetup6,100
+  def test_simpletest_simple8,121
+  def test_defaultstest_defaults22,583
+  def test_deprecated_apitest_deprecated_api28,718
+  def test_total_entries_has_precedencetest_total_entries_has_precedence33,857
+  def test_argument_error_with_params_and_another_argumenttest_argument_error_with_params_and_another_argument38,997
+  def test_paginated_collectiontest_paginated_collection44,1130
+  def test_previous_next_pagestest_previous_next_pages59,1647
+  def test_out_of_boundstest_out_of_bounds73,2042
+  def test_guessing_total_counttest_guessing_total_count81,2212
+  def test_invalid_pagetest_invalid_page114,3146
+  def test_invalid_per_page_settingtest_invalid_per_page_setting122,3323
+  def test_page_count_was_removedtest_page_count_was_removed126,3416
+    def create(page = 2, limit = 5, total = nil, &block)create132,3551
+    def array(size = 3)array140,3785
+
+vendor/plugins/will_paginate/test/helper.rb,210
+class Test::Unit::TestCaseTest9,182
+  def assert_respond_to_all object, methodsassert_respond_to_all11,221
+  def collect_deprecationscollect_deprecations17,387
+def uses_mocha(test_name)uses_mocha31,775
+
+vendor/plugins/will_paginate/test/fixtures/topic.rb,43
+class Topic < ActiveRecord::BaseTopic1,0
+
+vendor/plugins/will_paginate/test/fixtures/admin.rb,29
+class Admin < UserAdmin1,0
+
+vendor/plugins/will_paginate/test/fixtures/reply.rb,43
+class Reply < ActiveRecord::BaseReply1,0
+
+vendor/plugins/will_paginate/test/fixtures/user.rb,41
+class User < ActiveRecord::BaseUser1,0
+
+vendor/plugins/will_paginate/test/fixtures/project.rb,98
+class Project < ActiveRecord::BaseProject1,0
+    def find_recent(params = {})find_recent9,323
+
+vendor/plugins/will_paginate/test/fixtures/developer.rb,137
+class Developer < UserDeveloper1,0
+  def self.with_poor_ones(&block)with_poor_ones4,108
+  def self.per_page() 10 endper_page13,395
+
+vendor/plugins/will_paginate/test/fixtures/schema.rb,0
+
+vendor/plugins/will_paginate/lib/will_paginate/finder.rb,665
+module WillPaginateWillPaginate3,34
+  module FinderFinder9,242
+    def self.included(base)included10,258
+    module ClassMethodsClassMethods52,2314
+      def paginate(*args, &block)paginate64,2981
+      def paginated_each(options = {}, &block)paginated_each99,4623
+      def paginate_by_sql(sql, options)paginate_by_sql131,5913
+      def respond_to?(method, include_priv = false) #:nodoc:respond_to?153,6777
+      def method_missing_with_paginate(method, *args, &block) #:nodoc:method_missing_with_paginate164,7046
+      def wp_count(options, args, finder)wp_count185,7945
+      def wp_parse_options(options) #:nodoc:wp_parse_options237,10392
+
+vendor/plugins/will_paginate/lib/will_paginate/version.rb,67
+module WillPaginateWillPaginate1,0
+  module VERSIONVERSION2,20
+
+vendor/plugins/will_paginate/lib/will_paginate/array.rb,43
+  def paginate(options = {})paginate5,95
+
+vendor/plugins/will_paginate/lib/will_paginate/collection.rb,584
+module WillPaginateWillPaginate1,0
+  class InvalidPage < ArgumentErrorInvalidPage19,892
+    def initialize(page, page_num)initialize20,928
+  class Collection < ArrayCollection42,1855
+    def initialize(page, per_page, total = nil)initialize49,2252
+    def self.create(page, per_page, total = nil, &block)create85,3755
+    def out_of_bounds?out_of_bounds?94,4070
+    def offsetoffset102,4449
+    def previous_pageprevious_page107,4568
+    def next_pagenext_page112,4704
+    def total_entries=(number)total_entries=117,4878
+    def replace(array)replace134,5694
+
+vendor/plugins/will_paginate/lib/will_paginate/core_ext.rb,143
+    def except(*keys)except7,162
+    def except!(*keys)except!13,391
+    def slice(*keys)slice22,580
+    def slice!(*keys)slice!28,803
+
+vendor/plugins/will_paginate/lib/will_paginate/view_helpers.rb,1296
+module WillPaginateWillPaginate3,34
+  module ViewHelpersViewHelpers22,971
+    def will_paginate(collection = nil, options = {})will_paginate89,4387
+    def paginated_section(*args, &block)paginated_section142,6415
+    def page_entries_info(collection, options = {})page_entries_info167,7339
+    def self.total_pages_for_collection(collection) #:nodoc:total_pages_for_collection186,8050
+          def total_pages; page_count; endtotal_pages195,8605
+  class LinkRendererLinkRenderer204,8859
+    def initializeinitialize211,9011
+    def prepare(collection, options, template)prepare219,9345
+    def to_htmlto_html231,9783
+    def html_attributeshtml_attributes243,10417
+    def windowed_linkswindowed_links256,10935
+    def visible_page_numbersvisible_page_numbers270,11315
+    def page_link_or_span(page, span_class, text = nil)page_link_or_span295,12213
+    def page_link(page, text, attributes = {})page_link306,12587
+    def page_span(page, text, attributes = {})page_span310,12699
+    def url_for(page)url_for316,12935
+    def rel_value(page)rel_value356,14219
+    def current_pagecurrent_page364,14416
+    def total_pagestotal_pages368,14477
+    def param_nameparam_name372,14595
+    def stringified_merge(target, other)stringified_merge377,14758
+
+vendor/plugins/will_paginate/lib/will_paginate/named_scope_patch.rb,216
+  def with_scope(*args, &block)with_scope3,71
+    def method_missing_without_paginate(method, *args, &block)method_missing_without_paginate13,407
+  def method_missing(method, *args, &block)method_missing26,788
+
+vendor/plugins/will_paginate/lib/will_paginate/named_scope.rb,737
+module WillPaginateWillPaginate1,0
+  module NamedScopeNamedScope4,212
+    def self.included(base)included11,752
+    module ClassMethodsClassMethods18,906
+      def scopesscopes19,930
+      def named_scope(name, options = {}, &block)named_scope86,4418
+    class ScopeScope104,4915
+      def initialize(proxy_scope, options, &block)initialize115,5279
+      def reloadreload121,5560
+      def first(*args)first125,5613
+      def last(*args)last133,5819
+      def empty?empty?141,6022
+      def respond_to?(method, include_private = false)respond_to?145,6095
+      def proxy_foundproxy_found150,6244
+      def method_missing(method, *args, &block)method_missing155,6320
+      def load_foundload_found165,6595
+
+vendor/plugins/will_paginate/lib/will_paginate.rb,395
+module WillPaginateWillPaginate10,244
+    def enableenable13,368
+    def enable_actionpackenable_actionpack19,506
+    def enable_activerecordenable_activerecord31,1016
+    def enable_named_scope(patch = true)enable_named_scope57,2170
+  module Deprecation # :nodoc:Deprecation66,2441
+    def self.warn(message, callstack = caller)warn69,2511
+    def self.silenced?silenced74,2699
+
+vendor/plugins/will_paginate/init.rb,0
+
+vendor/plugins/auto_complete/test/auto_complete_test.rb,348
+class AutoCompleteTest < Test::Unit::TestCaseAutoCompleteTest3,94
+  def setupsetup13,415
+      def url_for(options)url_for15,458
+  def test_auto_complete_fieldtest_auto_complete_field25,667
+  def test_auto_complete_resulttest_auto_complete_result47,3973
+  def test_text_field_with_auto_completetest_text_field_with_auto_complete59,4575
+
+vendor/plugins/auto_complete/lib/auto_complete.rb,200
+module AutoCompleteAutoComplete1,0
+  def self.included(base)included3,21
+  module ClassMethodsClassMethods32,893
+    def auto_complete_for(object, method, options = {})auto_complete_for33,915
+
+vendor/plugins/auto_complete/lib/auto_complete_macros_helper.rb,432
+module AutoCompleteMacrosHelper      AutoCompleteMacrosHelper1,0
+  def auto_complete_field(field_id, options = {})auto_complete_field58,3940
+  def auto_complete_result(entries, field, phrase = nil)auto_complete_result96,5686
+  def text_field_with_auto_complete(object, method, tag_options = {}, completion_options = {})text_field_with_auto_complete107,6120
+    def auto_complete_stylesheetauto_complete_stylesheet115,6592
+
+vendor/plugins/auto_complete/init.rb,0
+
+vendor/plugins/redhillonrails_core/lib/redhillonrails_core.rb,0
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/base.rb,656
+module RedHillConsulting::Core::ActiveRecordRedHillConsulting1,0
+  module BaseBase2,45
+    def self.included(base)included3,59
+    module ClassMethodsClassMethods7,128
+      def self.extended(base)extended8,152
+      def base_class?base_class?15,355
+      def abstract_class_with_redhillonrails_core?abstract_class_with_redhillonrails_core?19,415
+      def columns_with_redhillonrails_corecolumns_with_redhillonrails_core23,560
+      def pluralized_table_name(table_name)pluralized_table_name37,1093
+      def indexesindexes41,1238
+      def foreign_keysforeign_keys45,1338
+      def reverse_foreign_keysreverse_foreign_keys49,1458
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/schema.rb,323
+module RedHillConsulting::Core::ActiveRecordRedHillConsulting1,0
+  module SchemaSchema2,45
+    def self.included(base)included3,61
+    module ClassMethodsClassMethods7,130
+      def self.extended(base)extended8,154
+      def define_with_redhillonrails_core(info={}, &block)define_with_redhillonrails_core17,360
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/schema_dumper.rb,425
+module RedHillConsulting::Core::ActiveRecordRedHillConsulting1,0
+  module SchemaDumperSchemaDumper2,45
+    def self.included(base)included3,67
+    def tables_with_redhillonrails_core(stream)tables_with_redhillonrails_core13,283
+    def indexes_with_redhillonrails_core(table, stream)indexes_with_redhillonrails_core25,580
+    def foreign_keys(table, stream)foreign_keys38,1082
+    def views(stream)views48,1367
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/foreign_key_definition.rb,336
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  class ForeignKeyDefinition < Struct.new(:name, :table_name, :column_names, :references_table_name, :references_column_names, :on_update, :on_delete, :deferrable)ForeignKeyDefinition2,65
+    def to_dumpto_dump5,385
+    def to_sqlto_sql16,919
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/index_definition.rb,240
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module IndexDefinitionIndexDefinition2,65
+    def case_sensitive?case_sensitive?3,90
+    def case_sensitive=(case_sensitive)case_sensitive=7,175
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/mysql_adapter.rb,655
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module MysqlAdapterMysqlAdapter2,65
+    def self.included(base)included3,87
+    def set_table_comment(table_name, comment)set_table_comment9,223
+    def clear_table_comment(table_name)clear_table_comment13,360
+    def remove_foreign_key(table_name, foreign_key_name)remove_foreign_key17,462
+    def remove_column_with_redhillonrails_core(table_name, column_name)remove_column_with_redhillonrails_core21,607
+    def foreign_keys(table_name, name = nil)foreign_keys28,958
+    def reverse_foreign_keys(table_name, name = nil)reverse_foreign_keys56,2053
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/mysql_column.rb,204
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module MysqlColumnMysqlColumn2,65
+    def initialize(name, default, sql_type = nil, null = true)initialize3,86
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/column.rb,184
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module ColumnColumn2,65
+    def unique?unique?7,189
+    def required_onrequired_on11,239
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/postgresql_adapter.rb,826
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module PostgresqlAdapterPostgresqlAdapter2,65
+    def self.included(base)included3,92
+    def set_table_comment(table_name, comment)set_table_comment9,222
+    def clear_table_comment(table_name)clear_table_comment13,355
+    def add_index(table_name, column_name, options = {})add_index17,459
+    def indexes_with_redhillonrails_core(table_name, name = nil)indexes_with_redhillonrails_core33,1159
+    def foreign_keys(table_name, name = nil)foreign_keys62,2285
+    def reverse_foreign_keys(table_name, name = nil)reverse_foreign_keys72,2603
+    def views(name = nil)views83,2979
+    def view_definition(view_name, name = nil)view_definition92,3242
+    def load_foreign_keys(sql, name = nil)load_foreign_keys105,3541
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/table_definition.rb,463
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module TableDefinitionTableDefinition2,65
+    def self.included(base)included3,90
+    def initialize_with_redhillonrails_core(*args)initialize_with_redhillonrails_core11,308
+    def foreign_key(column_names, references_table_name, references_column_names, options = {})foreign_key16,445
+    def to_sql_with_redhillonrails_coreto_sql_with_redhillonrails_core21,798
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/abstract_adapter.rb,864
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module AbstractAdapterAbstractAdapter2,65
+    def self.included(base)included3,90
+    def create_view(view_name, definition)create_view9,228
+    def drop_view(view_name)drop_view13,342
+    def views(name = nil)views17,423
+    def view_definition(view_name, name = nil)view_definition21,471
+    def foreign_keys(table_name, name = nil)foreign_keys24,527
+    def reverse_foreign_keys(table_name, name = nil)reverse_foreign_keys28,590
+    def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})add_foreign_key32,661
+    def remove_foreign_key(table_name, foreign_key_name)remove_foreign_key37,1084
+    def drop_table_with_redhillonrails_core(name, options = {})drop_table_with_redhillonrails_core41,1228
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/schema_statements.rb,287
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module SchemaStatementsSchemaStatements2,65
+    def self.included(base)included3,91
+    def create_table_with_redhillonrails_core(name, options = {})create_table_with_redhillonrails_core9,227
+
+vendor/plugins/redhillonrails_core/lib/red_hill_consulting/core/active_record/connection_adapters/sqlite3_adapter.rb,346
+module RedHillConsulting::Core::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module Sqlite3AdapterSqlite3Adapter2,65
+    def add_foreign_key(table_name, column_names, references_table_name, references_column_names, options = {})add_foreign_key3,89
+    def remove_foreign_key(table_name, foreign_key_name)remove_foreign_key6,210
+
+vendor/plugins/redhillonrails_core/init.rb,0
+
+vendor/plugins/transactional_migrations/lib/transactional_migrations.rb,0
+
+vendor/plugins/transactional_migrations/lib/red_hill_consulting/transactional_migrations/active_record/migration.rb,354
+module RedHillConsulting::TransactionalMigrations::ActiveRecordRedHillConsulting1,0
+  module MigrationMigration2,64
+    def self.included(base)included3,83
+    module ClassMethodsClassMethods7,152
+      def self.extended(base)extended8,176
+      def migrate_with_transactional_migrations(direction)migrate_with_transactional_migrations14,316
+
+vendor/plugins/transactional_migrations/lib/red_hill_consulting/transactional_migrations/active_record/connection_adapters/schema_statements.rb,317
+module RedHillConsulting::TransactionalMigrations::ActiveRecord::ConnectionAdaptersRedHillConsulting1,0
+  module SchemaStatementsSchemaStatements2,84
+    def self.included(base)included3,110
+    def create_table_with_transactional_migrations(name, options = {})create_table_with_transactional_migrations7,218
+
+vendor/plugins/transactional_migrations/init.rb,0
+
+vendor/plugins/background/uninstall.rb,0
+
+vendor/plugins/background/test/background_test.rb,1245
+class SomeBackgroundClassSomeBackgroundClass6,108
+  def add_three(a, b, c)add_three7,134
+  def puts_somethingputs_something11,182
+class BackgroundTest < Test::Unit::TestCaseBackgroundTest16,235
+  def setupsetup17,279
+  def teardownteardown22,412
+  def test_should_run_code_block_in_backgroundtest_should_run_code_block_in_background27,521
+  def test_should_store_localstest_should_store_locals35,717
+  def test_should_work_with_unduppable_localstest_should_work_with_unduppable_locals45,1017
+  def test_should_use_correct_self_objecttest_should_use_correct_self_object57,1370
+  def test_should_decorate_method_if_called_in_class_without_blocktest_should_decorate_method_if_called_in_class_without_block62,1509
+  def test_should_decorate_method_without_parameterstest_should_decorate_method_without_parameters71,1931
+  def test_should_execute_block_with_in_process_handlertest_should_execute_block_with_in_process_handler78,2201
+  def test_should_use_specified_handler_and_fallbacktest_should_use_specified_handler_and_fallback86,2408
+  def test_should_use_fallback_on_failuretest_should_use_fallback_on_failure97,2798
+  def test_should_use_options_hash_for_handlertest_should_use_options_hash_for_handler106,3090
+
+vendor/plugins/background/lib/core_ext/proc_source.rb,715
+module ProcSource #:nodoc:ProcSource9,288
+  def get_lines(filename, start_line = 0)get_lines10,315
+  def handle(proc)handle34,1032
+class Proc #:nodoc:Proc136,4928
+  def source_descriptorsource_descriptor137,4948
+  def self.source_cachesource_cache144,5126
+  def source=(code)source=148,5182
+  def sourcesource152,5277
+  def inspectinspect159,5443
+  def ==(other)==167,5538
+  def _dump(depth = 0)_dump175,5717
+  def to_yaml(*args)to_yaml183,5864
+  def self.allocate; from_string ""; endallocate188,5971
+  def self.from_string(string)from_string190,6013
+  def self._load(code)_load196,6134
+  def self.marshal_load; endmarshal_load200,6191
+  def marshal_load; endmarshal_load201,6220
+
+vendor/plugins/background/lib/core_ext/error_reporters/stdout_error_reporter.rb,135
+module Background #:nodoc:Background1,0
+  class StdoutErrorReporterStdoutErrorReporter3,57
+    def self.report(error)report5,140
+
+vendor/plugins/background/lib/core_ext/error_reporters/test_error_reporter.rb,131
+module Background #:nodoc:Background1,0
+  class TestErrorReporterTestErrorReporter3,94
+    def self.report(error)report7,250
+
+vendor/plugins/background/lib/core_ext/error_reporters/silent_error_reporter.rb,159
+module Background #:nodoc:Background1,0
+  class SilentNotificationErrorReporterSilentNotificationErrorReporter3,62
+    def self.report(error)report5,164
+
+vendor/plugins/background/lib/core_ext/error_reporters/exception_notification_error_reporter.rb,555
+class MockController #:nodoc:MockController1,0
+  def controller_namecontroller_name2,30
+  def action_nameaction_name5,75
+class MockRequest #:nodoc:MockRequest10,113
+  def initialize(message, options = {})initialize13,167
+  def envenv20,318
+  def protocolprotocol23,341
+  def request_urirequest_uri26,373
+  def parametersparameters29,408
+  def sessionsession32,489
+module Background #:nodoc:Background37,525
+  class ExceptionNotificationErrorReporterExceptionNotificationErrorReporter39,601
+    def self.report(error)report43,845
+
+vendor/plugins/background/lib/core_ext/background.rb,77
+module KernelKernel1,0
+  def background(*args, &block)background131,5902
+
+vendor/plugins/background/lib/core_ext/handlers/runner_handler.rb,286
+module Background #:nodoc:Background3,18
+  class RunnerHandlerRunnerHandler5,118
+    def self.handle(locals, options = {}, &block)handle7,248
+    def self.encode(locals, &block)encode13,432
+    def self.decode(string)decode17,534
+    def self.execute(message)execute32,1092
+
+vendor/plugins/background/lib/core_ext/handlers/test_handler.rb,253
+module Background #:nodoc:Background1,0
+  class TestHandlerTestHandler3,141
+    def self.handle(locals, options = {}, &block)handle16,715
+    def self.self_objectself_object27,1081
+    def self.codecode32,1183
+    def self.resetreset37,1273
+
+vendor/plugins/background/lib/core_ext/handlers/fork_handler.rb,143
+module Background #:nodoc:Background1,0
+  class ForkHandlerForkHandler3,108
+    def self.handle(locals, options = {}, &block)handle5,180
+
+vendor/plugins/background/lib/core_ext/handlers/disk_handler.rb,188
+module Background #:nodoc:Background1,0
+  class DiskHandlerDiskHandler3,128
+    def self.handle(locals, options = {}, &block)handle9,358
+    def self.recover(handler)recover18,719
+
+vendor/plugins/background/lib/core_ext/handlers/forget_handler.rb,147
+module Background #:nodoc:Background1,0
+  class ForgetHandlerForgetHandler3,120
+    def self.handle(locals, options = {}, &block)handle5,161
+
+vendor/plugins/background/lib/core_ext/handlers/in_process_handler.rb,153
+module Background #:nodoc:Background1,0
+  class InProcessHandlerInProcessHandler3,121
+    def self.handle(locals, options = {}, &block)handle5,203
+
+vendor/plugins/background/lib/core_ext/handlers/active_messaging_handler.rb,258
+module Background #:nodoc:Background1,0
+  class ActiveMessagingHandlerActiveMessagingHandler18,765
+    def self.handle(locals, options = {}, &block)handle28,1164
+    def self.decode(message)decode34,1523
+    def self.execute(message)execute48,2042
+
+vendor/plugins/background/lib/background.rb,200
+module Background #:nodoc:Background3,14
+  class ConfigConfig5,113
+    def self.configconfig14,463
+    def self.default_configdefault_config18,601
+    def self.load(configuration)load22,694
+
+vendor/plugins/background/init.rb,0
+
+vendor/plugins/background/install.rb,0
+
+vendor/plugins/backgroundrb/backgroundrb.rb,804
+class BackgrounDRbDuplicateKeyError < Exception BackgrounDRbDuplicateKeyError12,422
+module BackgrounDRbBackgrounDRb15,476
+  class MiddleManMiddleMan17,497
+    def initialize#(sleep=60)initialize28,993
+    def new_worker(opts={})new_worker48,1834
+    def delete_worker(key)delete_worker72,2809
+    def kill_worker(key)kill_worker90,3332
+    def gc!(age)gc!106,3926
+    def start_timerstart_timer115,4129
+    def [](key)[]136,4908
+    def []=(key, val)[]=142,5040
+    def jobsjobs151,5211
+    def timestampstimestamps155,5251
+    def set_sleep(num)set_sleep159,5301
+    def cache(named_key, ttl, object)cache166,5553
+    def get_worker_by_class(klass)get_worker_by_class177,5841
+    def instantiate_worker(klass)instantiate_worker188,6113
+    def gen_keygen_key192,6259
+
+vendor/plugins/backgroundrb/examples/workers/tail.rb,108
+class Tail < BackgrounDRb::RailsTail2,1
+  def do_work(args)do_work6,62
+  def tail(lines=10)tail12,145
+
+vendor/plugins/backgroundrb/examples/workers/worker.rb,110
+class Worker < BackgrounDRb::RailsWorker2,1
+  def do_work(args)do_work6,62
+  def progressprogress20,392
+
+vendor/plugins/backgroundrb/test/test_workers/cron_worker.rb,118
+class CronWorker <BackgrounDRb::Rails  CronWorker1,0
+  def do_work(args)do_work4,80
+  def progressprogress9,148
+
+vendor/plugins/backgroundrb/test/test_workers/test_worker.rb,120
+class TestWorker < BackgrounDRb::Rails  TestWorker1,0
+  def do_work(args)do_work5,86
+  def progressprogress14,232
+
+vendor/plugins/backgroundrb/test/test_helper.rb,0
+
+vendor/plugins/backgroundrb/test/test_backgroundrb.rb,744
+class BackgrounDRbTest < Test::Unit::TestCaseBackgrounDRbTest5,51
+  def setupsetup7,100
+      def cache_as(named_key, ttl=10*60, content=nil)cache_as15,376
+      def cache_get(named_key, ttl=10*60)cache_get26,661
+  def test_new_workertest_new_worker40,977
+  def test_bracket_syntaxtest_bracket_syntax57,1778
+  def test_multiple_workerstest_multiple_workers74,2449
+  def test_cachingtest_caching102,3847
+  def test_duplicate_key_errortest_duplicate_key_error125,4944
+  def test_time_to_live_expirytest_time_to_live_expiry150,6126
+  def test_singleton_workertest_singleton_worker167,6987
+  def test_cron_workertest_cron_worker178,7477
+  def test_kill_worker_from_within_workertest_kill_worker_from_within_worker197,8197
+
+vendor/plugins/backgroundrb/generators/worker/worker_generator.rb,101
+class WorkerGenerator < Rails::Generator::NamedBaseWorkerGenerator1,0
+  def manifestmanifest2,52
+
+vendor/plugins/backgroundrb/generators/worker/templates/unit_test.rb,34
+  def test_truthtest_truth9,325
+
+vendor/plugins/backgroundrb/generators/worker/templates/worker.rb,34
+  def do_work(args)do_work7,313
+
+vendor/plugins/backgroundrb/lib/backgroundrb.rb,121
+  def cache_as(named_key, ttl=10*60, content=nil)cache_as15,558
+  def cache_get(named_key, ttl=10*60)cache_get26,803
+
+vendor/plugins/backgroundrb/init.rb,0
+
+vendor/plugins/backgroundrb/backgroundrb_rails.rb,687
+module BackgrounDRbBackgrounDRb1,0
+  class RailsRails3,21
+    def initialize(key, args={})initialize22,853
+    def start_processstart_process30,1048
+    def kill(key=@_job_key)kill44,1538
+    def spawn_worker(opts={})spawn_worker48,1635
+    def check_terminatecheck_terminate52,1732
+    def terminate?terminate?57,1876
+    def terminateterminate61,1939
+    def self.repeat_every(interval)repeat_every71,2161
+        def schedule_repeatschedule_repeat73,2219
+    def self.first_run(time)first_run80,2329
+        def schedule_first_runschedule_first_run82,2380
+    def schedule_first_runschedule_first_run88,2476
+    def schedule_repeatschedule_repeat92,2528
+
+vendor/plugins/make_resourceful/generators/resourceful_scaffold/templates/functional_test.rb,468
+  def setupsetup10,378
+  def test_should_get_indextest_should_get_index16,563
+  def test_should_get_newtest_should_get_new22,681
+  def test_should_create_<%= file_name %>test_should_create_27,756
+  def test_should_show_<%= file_name %>test_should_show_35,1020
+  def test_should_get_edittest_should_get_edit40,1120
+  def test_should_update_<%= file_name %>test_should_update_45,1207
+  def test_should_destroy_<%= file_name %>test_should_destroy_50,1383
+
+vendor/plugins/make_resourceful/generators/resourceful_scaffold/templates/migration.rb,50
+  def self.upup2,54
+  def self.downdown11,260
+
+vendor/plugins/make_resourceful/generators/resourceful_scaffold/templates/controller.rb,0
+
+vendor/plugins/make_resourceful/generators/resourceful_scaffold/templates/unit_test.rb,34
+  def test_truthtest_truth4,137
+
+vendor/plugins/make_resourceful/generators/resourceful_scaffold/templates/model.rb,0
+
+vendor/plugins/make_resourceful/generators/resourceful_scaffold/templates/helper.rb,0
+
+vendor/plugins/make_resourceful/generators/resourceful_scaffold/resourceful_scaffold_generator.rb,310
+class ResourcefulScaffoldGenerator < Rails::Generator::NamedBaseResourcefulScaffoldGenerator1,0
+  def initialize(runtime_args, runtime_options = {})initialize12,494
+  def manifestmanifest25,1080
+  def bannerbanner76,3349
+  def scaffold_viewsscaffold_views80,3443
+  def model_name model_name84,3507
+
+vendor/plugins/make_resourceful/lib/resourceful/builder.rb,531
+module ResourcefulResourceful5,102
+  class BuilderBuilder12,417
+    def initialize(kontroller)initialize21,755
+    def applyapply37,1378
+    def actions(*available_actions)actions83,2982
+    def before(*events, &block)before116,4181
+    def after(*events, &block)after146,5139
+    def response_for(*actions, &block)response_for194,6667
+    def publish(*formats)publish283,9742
+    def belongs_to(*parents)belongs_to318,10932
+    def inherited?inherited?326,11195
+    def apply_publishapply_publish332,11257
+
+vendor/plugins/make_resourceful/lib/resourceful/default/urls.rb,1796
+module ResourcefulResourceful1,0
+  module DefaultDefault2,19
+    module URLsURLs7,390
+      def object_path(object = current_object); object_route(object, 'path'); endobject_path15,716
+      def object_url (object = current_object); object_route(object, 'url');  endobject_url17,863
+      def nested_object_path(object = current_object); nested_object_route(object, 'path'); endnested_object_path27,1367
+      def nested_object_url (object = current_object); nested_object_route(object, 'url');  endnested_object_url29,1535
+      def edit_object_path(object = current_object); edit_object_route(object, 'path'); endedit_object_path38,2014
+      def edit_object_url (object = current_object); edit_object_route(object, 'url');  endedit_object_url40,2176
+      def objects_path; objects_route('path'); endobjects_path49,2622
+      def objects_url ; objects_route('url');  endobjects_url51,2739
+      def new_object_path; new_object_route('path'); endnew_object_path60,3159
+      def new_object_url ; new_object_route('url');  endnew_object_url62,3285
+      def parent_path(object = parent_object)parent_path66,3405
+      def parent_url(object = parent_object)parent_url70,3578
+      def url_helper_prefixurl_helper_prefix87,4312
+      def collection_url_prefixcollection_url_prefix99,4800
+      def object_route(object, type)object_route105,4899
+      def nested_object_route(object, type)nested_object_route109,5015
+      def edit_object_route(object, type)edit_object_route114,5242
+      def objects_route(type)objects_route118,5371
+      def new_object_route(type)new_object_route122,5484
+      def instance_route(name, object, type, action = nil)instance_route126,5597
+      def collection_route(name, type, action = nil)collection_route134,5913
+
+vendor/plugins/make_resourceful/lib/resourceful/default/responses.rb,294
+module ResourcefulResourceful1,0
+  module DefaultDefault2,19
+    module ResponsesResponses3,36
+      def set_default_flash(type, message)set_default_flash21,730
+      def set_default_redirect(to, options = {})set_default_redirect50,1897
+      def self.included(base)included57,2244
+
+vendor/plugins/make_resourceful/lib/resourceful/default/accessors.rb,1268
+module ResourcefulResourceful1,0
+  module DefaultDefault10,496
+    module AccessorsAccessors42,1808
+      def current_objectscurrent_objects53,2392
+      def load_objectsload_objects66,2892
+      def current_objectcurrent_object87,3947
+      def load_objectload_object105,4548
+      def build_objectbuild_object124,5321
+      def current_model_namecurrent_model_name136,5772
+      def namespacesnamespaces145,6044
+      def instance_variable_nameinstance_variable_name150,6268
+      def current_modelcurrent_model166,6891
+      def object_parametersobject_parameters178,7271
+      def parent_namesparent_names189,7721
+      def parent?parent?204,8304
+      def parent_nameparent_name238,9811
+      def parent_modelparent_model250,10259
+      def parent_objectparent_object264,10798
+      def load_parent_objectload_parent_object273,11191
+      def ensure_parent_existsensure_parent_exists284,11594
+      def save_succeeded?save_succeeded?292,11877
+      def save_succeeded!save_succeeded!301,12225
+      def save_failed!save_failed!310,12585
+      def plural_action?plural_action?316,12782
+      def singular_action?singular_action?322,13017
+      def singular?singular?331,13414
+      def plural?plural?341,13907
+
+vendor/plugins/make_resourceful/lib/resourceful/default/callbacks.rb,328
+module ResourcefulResourceful3,31
+  module DefaultDefault4,50
+    module CallbacksCallbacks9,329
+      def before(event)before11,444
+      def after(event)after16,620
+      def response_for(event)response_for23,911
+      def scope(block)scope38,1471
+      def resourceful_fire(type, name)resourceful_fire46,1597
+
+vendor/plugins/make_resourceful/lib/resourceful/default/actions.rb,306
+module ResourcefulResourceful1,0
+  module DefaultDefault2,19
+    module ActionsActions15,630
+      def indexindex17,667
+      def showshow24,786
+      def createcreate33,945
+      def updateupdate49,1285
+      def newnew64,1636
+      def editedit72,1774
+      def destroydestroy79,1892
+
+vendor/plugins/make_resourceful/lib/resourceful/response.rb,174
+module ResourcefulResourceful1,0
+  class Response # :nodoc:Response17,571
+    def initializeinitialize24,809
+    def method_missing(name, &block)method_missing29,911
+
+vendor/plugins/make_resourceful/lib/resourceful/base.rb,144
+module ResourcefulResourceful10,315
+module Resourceful::BaseResourceful33,1034
+  def self.made_resourceful(&block)made_resourceful40,1336
+
+vendor/plugins/make_resourceful/lib/resourceful/serialize.rb,695
+module ResourcefulResourceful3,31
+  module SerializeSerialize76,2817
+    def self.normalize_attributes(attributes) # :nodoc:normalize_attributes89,3294
+    module ModelModel106,3859
+      def serialize(format, options)serialize111,4032
+      def to_serializable(attributes)to_serializable123,4468
+      def attr_hash_value(attr, sub_attributes)attr_hash_value137,4950
+    module ArrayArray148,5277
+      def serialize(format, options)serialize153,5456
+      def to_serializable(attributes)to_serializable168,6043
+class ActiveRecord::Base; include Resourceful::Serialize::Model; endActiveRecord180,6315
+class Array; include Resourceful::Serialize::Array; endArray181,6384
+
+vendor/plugins/make_resourceful/lib/resourceful/maker.rb,271
+module ResourcefulResourceful4,58
+  module MakerMaker8,263
+    def self.extended(base)extended11,382
+    def make_resourceful(options = {}, &block)make_resourceful49,1687
+    def made_resourceful?made_resourceful?68,2266
+    def add_helpersadd_helpers74,2366
+
+vendor/plugins/make_resourceful/spec/response_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/urls_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/serialize_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/actions_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/spec_helper.rb,1967
+def should_be_called(&block)should_be_called11,356
+def stub_model(name)stub_model17,500
+    def self.to_sto_s21,587
+    def initialize(attrs = {})initialize25,626
+    def inspectinspect31,736
+def stub_const(name)stub_const39,894
+def stub_list(size, name = nil, &block)stub_list49,1156
+module Spec::MatchersSpec55,1305
+  def have_any(&proc)have_any56,1327
+module ControllerMocksControllerMocks61,1394
+  def mock_kontroller(*to_extend)mock_kontroller62,1417
+  def mock_controller(*to_extend)mock_controller76,1920
+  def mock_builder(inherited = false)mock_builder82,2064
+  def create_buildercreate_builder92,2410
+  def responsesresponses99,2578
+  def callbackscallbacks103,2668
+  def parentsparents107,2758
+  def made_resourceful(mod)made_resourceful114,2978
+module RailsMocksRailsMocks119,3044
+  def included(mod)included122,3123
+  def mock_resourceful(options = {}, &block)mock_resourceful127,3188
+  def assigns(name)assigns141,3475
+  def redirect_to(opts)redirect_to145,3551
+  def render_template(path)render_template149,3616
+  def init_kontroller(options)init_kontroller155,3709
+  def init_routes(options)init_routes173,4534
+  def init_controller(options)init_controller179,4754
+  def action_params(action, params = {})action_params192,5097
+  def action_method(action)action_method201,5381
+  module ControllerMethodsControllerMethods210,5598
+    def render(options=nil, deprecated_status=nil, &block)render211,5625
+module Spec::Example::ExampleGroupMethodsSpec226,5992
+  def should_render_html(action)should_render_html227,6034
+  def should_render_js(action)should_render_js235,6295
+  def shouldnt_render_xml(action)shouldnt_render_xml243,6564
+  def action_string(action)action_string251,6822
+module Spec::ExampleSpec264,7141
+  class IntegrationExampleGroup < Test::Unit::TestCaseIntegrationExampleGroup265,7162
+    def initialize(defined_description, &implementation)initialize271,7305
+
+vendor/plugins/make_resourceful/spec/responses_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/callbacks_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/base_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/builder_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/accessors_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/integration_spec.rb,0
+
+vendor/plugins/make_resourceful/spec/rspec_on_rails/render_template.rb,256
+class RenderTemplateRenderTemplate2,1
+  def initialize(expected, controller)initialize4,25
+  def matches?(response)matches?9,127
+  def failure_messagefailure_message14,243
+  def descriptiondescription18,334
+  def full_path(path)full_path23,414
+
+vendor/plugins/make_resourceful/spec/rspec_on_rails/redirect_to.rb,591
+class RedirectToRedirectTo3,42
+  def initialize(request, expected)initialize4,59
+  def matches?(response)matches?9,150
+  def actual_hashactual_hash22,544
+  def expected_hashexpected_hash26,595
+  def actual_redirect_to_valid_routeactual_redirect_to_valid_route30,653
+  def hash_from_url(url)hash_from_url34,713
+  def path_hash(url)path_hash38,811
+  def query_hash(url)query_hash44,1031
+  def expected_urlexpected_url53,1261
+  def failure_messagefailure_message66,1616
+  def negative_failure_messagenegative_failure_message74,1854
+  def descriptiondescription78,1987
+
+vendor/plugins/make_resourceful/spec/maker_spec.rb,0
+
+vendor/plugins/make_resourceful/init.rb,0
+
+db/schema.rb,0
+
+db/migrate/20081230031957_rework_live_quotes.rb,119
+class ReworkLiveQuotes < ActiveRecord::MigrationReworkLiveQuotes1,0
+  def self.upup2,49
+  def self.downdown7,165
+
+db/migrate/20081228175347_create_index_on_daily_closes.rb,135
+class CreateIndexOnDailyCloses < ActiveRecord::MigrationCreateIndexOnDailyCloses1,0
+  def self.upup2,57
+  def self.downdown6,145
+
+db/migrate/20090207205520_add_index2_to_live_quotes.rb,129
+class AddIndex2ToLiveQuotes < ActiveRecord::MigrationAddIndex2ToLiveQuotes1,0
+  def self.upup2,54
+  def self.downdown6,125
+
+db/migrate/20090210181721_migrate_data_to_tickers.rb,128
+class MigrateDataToTickers < ActiveRecord::MigrationMigrateDataToTickers1,0
+  def self.upup2,53
+  def self.downdown11,370
+
+db/migrate/20090207202449_add_index2_to_aggregates.rb,129
+class AddIndex2ToAggregates < ActiveRecord::MigrationAddIndex2ToAggregates1,0
+  def self.upup2,54
+  def self.downdown6,122
+
+db/migrate/20090103173409_add_dormant_flag_to_ticker.rb,131
+class AddDormantFlagToTicker < ActiveRecord::MigrationAddDormantFlagToTicker1,0
+  def self.upup2,55
+  def self.downdown6,139
+
+db/migrate/20090112175621_add_avg_volume_to_aggregate.rb,133
+class AddAvgVolumeToAggregate < ActiveRecord::MigrationAddAvgVolumeToAggregate1,0
+  def self.upup2,56
+  def self.downdown6,120
+
+db/migrate/20081231001734_create_plot_types.rb,118
+class CreatePlotTypes < ActiveRecord::MigrationCreatePlotTypes1,0
+  def self.upup2,48
+  def self.downdown14,308
+
+db/migrate/20081217012719_add_returns_to_daily_close.rb,131
+class AddReturnsToDailyClose < ActiveRecord::MigrationAddReturnsToDailyClose1,0
+  def self.upup2,55
+  def self.downdown8,215
+
+db/migrate/20081225165149_remove_created_at_from_real_time_quote.rb,151
+class RemoveCreatedAtFromRealTimeQuote < ActiveRecord::MigrationRemoveCreatedAtFromRealTimeQuote1,0
+  def self.upup2,65
+  def self.downdown6,135
+
+db/migrate/20081221004325_add_coeff_var_to_stat_values.rb,133
+class AddCoeffVarToStatValues < ActiveRecord::MigrationAddCoeffVarToStatValues1,0
+  def self.upup2,56
+  def self.downdown6,118
+
+db/migrate/20081226051847_remove_field_from_daily_return.rb,140
+class RemoveFieldFromDailyReturn < ActiveRecord::MigrationRemoveFieldFromDailyReturn1,0
+  def self.upup2,59
+  def self.downdown18,670
+
+db/migrate/20090111231534_add_columns_to_aggregate.rb,129
+class AddColumnsToAggregate < ActiveRecord::MigrationAddColumnsToAggregate1,0
+  def self.upup2,54
+  def self.downdown7,156
+
+db/migrate/20090112002225_add_index_to_aggregate.rb,125
+class AddIndexToAggregate < ActiveRecord::MigrationAddIndexToAggregate1,0
+  def self.upup2,52
+  def self.downdown6,131
+
+db/migrate/20081226223848_rename_table.rb,109
+class RenameTable < ActiveRecord::MigrationRenameTable1,0
+  def self.upup2,44
+  def self.downdown6,111
+
+db/migrate/20090206024616_migrate_data_to_new_live_quotes.rb,140
+class MigrateDataToNewLiveQuotes < ActiveRecord::MigrationMigrateDataToNewLiveQuotes1,0
+  def self.upup2,59
+  def self.downdown13,496
+
+db/migrate/20081221002851_add_index_to_daily_closes.rb,129
+class AddIndexToDailyCloses < ActiveRecord::MigrationAddIndexToDailyCloses1,0
+  def self.upup2,54
+  def self.downdown6,142
+
+db/migrate/20081227180640_create_aggregates.rb,120
+class CreateAggregates < ActiveRecord::MigrationCreateAggregates1,0
+  def self.upup2,49
+  def self.downdown16,311
+
+db/migrate/20081219012557_remove_updated_at_from_real_time_quotes.rb,153
+class RemoveUpdatedAtFromRealTimeQuotes < ActiveRecord::MigrationRemoveUpdatedAtFromRealTimeQuotes1,0
+  def self.upup2,66
+  def self.downdown6,136
+
+db/migrate/20081231002802_rename_cols_in_daily_close.rb,131
+class RenameColsInDailyClose < ActiveRecord::MigrationRenameColsInDailyClose1,0
+  def self.upup2,55
+  def self.downdown7,173
+
+db/migrate/20090206015526_create_isam_live_quotes.rb,128
+class CreateIsamLiveQuotes < ActiveRecord::MigrationCreateIsamLiveQuotes1,0
+  def self.upup2,53
+  def self.downdown17,570
+
+db/migrate/20081227191313_add_index_to_live_quotes.rb,127
+class AddIndexToLiveQuotes < ActiveRecord::MigrationAddIndexToLiveQuotes1,0
+  def self.upup2,53
+  def self.downdown6,152
+
+db/migrate/20090207204640_add_date_to_live_quote.rb,123
+class AddDateToLiveQuote < ActiveRecord::MigrationAddDateToLiveQuote1,0
+  def self.upup2,51
+  def self.downdown6,114
+
+db/migrate/20090211013128_create_fast_live_quotes.rb,126
+class CreateFastLiveQuotes < ActiveRecord::MigrationCreateFastLiveQuotes1,0
+  def self.upup2,53
+  def self.downdown5,74
+
+db/migrate/20081226164628_remove_more_cols_from_daily_return.rb,145
+class RemoveMoreColsFromDailyReturn < ActiveRecord::MigrationRemoveMoreColsFromDailyReturn1,0
+  def self.upup2,62
+  def self.downdown9,267
+
+db/migrate/20090210174733_add_last_trade_to_ticker.rb,128
+class AddLastTradeToTicker < ActiveRecord::MigrationAddLastTradeToTicker1,0
+  def self.upup2,53
+  def self.downdown12,421
+
+db/migrate/20081226231635_add_active_to_ticker.rb,121
+class AddActiveToTicker < ActiveRecord::MigrationAddActiveToTicker1,0
+  def self.upup2,50
+  def self.downdown6,114
+
+db/migrate/20090210230614_create_var_aggregates.rb,125
+class CreateVarAggregates < ActiveRecord::MigrationCreateVarAggregates1,0
+  def self.upup2,52
+  def self.downdown6,153
+
+db/migrate/20081230211500_rename_listing_table.rb,123
+class RenameListingTable < ActiveRecord::MigrationRenameListingTable1,0
+  def self.upup2,51
+  def self.downdown6,118
+
+db/migrate/20090206183913_add_unique_key_to_aggregates.rb,135
+class AddUniqueKeyToAggregates < ActiveRecord::MigrationAddUniqueKeyToAggregates1,0
+  def self.upup2,57
+  def self.downdown6,153
+
+db/migrate/20090210002335_create_pimary_key_ids.rb,123
+class CreatePimaryKeyIds < ActiveRecord::MigrationCreatePimaryKeyIds1,0
+  def self.upup2,51
+  def self.downdown9,179
+
+db/migrate/20090112175259_add_sample_count_to_aggregate.rb,137
+class AddSampleCountToAggregate < ActiveRecord::MigrationAddSampleCountToAggregate1,0
+  def self.upup2,58
+  def self.downdown6,131
+
+db/migrate/20081230225836_create_plot_attributes.rb,128
+class CreatePlotAttributes < ActiveRecord::MigrationCreatePlotAttributes1,0
+  def self.upup2,53
+  def self.downdown13,289
+
+public/dispatch.rb,0
+
+test/functional/plot_types_controller_test.rb,648
+class PlotTypesController; def rescue_action(e) raise e end; endPlotTypesController5,128
+class PlotTypesControllerTest < Test::Unit::TestCasePlotTypesControllerTest7,194
+  def setupsetup10,271
+  def test_should_get_indextest_should_get_index16,437
+  def test_should_get_newtest_should_get_new22,548
+  def test_should_create_plot_typetest_should_create_plot_type27,623
+  def test_should_show_plot_typetest_should_show_plot_type35,841
+  def test_should_get_edittest_should_get_edit40,934
+  def test_should_update_plot_typetest_should_update_plot_type45,1021
+  def test_should_destroy_plot_typetest_should_destroy_plot_type50,1169
+
+test/functional/live_quotes_controller_test.rb,660
+class LiveQuotesController; def rescue_action(e) raise e end; endLiveQuotesController5,129
+class LiveQuotesControllerTest < Test::Unit::TestCaseLiveQuotesControllerTest7,196
+  def setupsetup10,275
+  def test_should_get_indextest_should_get_index16,442
+  def test_should_get_newtest_should_get_new22,554
+  def test_should_create_live_quotetest_should_create_live_quote27,629
+  def test_should_show_live_quotetest_should_show_live_quote35,853
+  def test_should_get_edittest_should_get_edit40,947
+  def test_should_update_live_quotetest_should_update_live_quote45,1034
+  def test_should_destroy_live_quotetest_should_destroy_live_quote50,1186
+
+test/functional/listing_categories_controller_test.rb,737
+class ListingCategoriesController; def rescue_action(e) raise e end; endListingCategoriesController5,136
+class ListingCategoriesControllerTest < Test::Unit::TestCaseListingCategoriesControllerTest7,210
+  def setupsetup10,303
+  def test_should_get_indextest_should_get_index16,477
+  def test_should_get_newtest_should_get_new22,596
+  def test_should_create_listing_categorytest_should_create_listing_category27,671
+  def test_should_show_listing_categorytest_should_show_listing_category35,931
+  def test_should_get_edittest_should_get_edit40,1031
+  def test_should_update_listing_categorytest_should_update_listing_category45,1118
+  def test_should_destroy_listing_categorytest_should_destroy_listing_category50,1294
+
+test/functional/daily_closes_controller_test.rb,672
+class DailyClosesController; def rescue_action(e) raise e end; endDailyClosesController5,130
+class DailyClosesControllerTest < Test::Unit::TestCaseDailyClosesControllerTest7,198
+  def setupsetup10,279
+  def test_should_get_indextest_should_get_index16,447
+  def test_should_get_newtest_should_get_new22,560
+  def test_should_create_daily_closetest_should_create_daily_close27,635
+  def test_should_show_daily_closetest_should_show_daily_close35,865
+  def test_should_get_edittest_should_get_edit40,960
+  def test_should_update_daily_closetest_should_update_daily_close45,1047
+  def test_should_destroy_daily_closetest_should_destroy_daily_close50,1203
+
+test/functional/background_tasks_controller_test.rb,100
+class BackgroundTasksControllerTest < ActionController::TestCaseBackgroundTasksControllerTest3,23
+
+test/functional/listings_controller_test.rb,628
+class ListingsController; def rescue_action(e) raise e end; endListingsController5,126
+class ListingsControllerTest < Test::Unit::TestCaseListingsControllerTest7,191
+  def setupsetup10,265
+  def test_should_get_indextest_should_get_index16,430
+  def test_should_get_newtest_should_get_new22,539
+  def test_should_create_listingtest_should_create_listing27,614
+  def test_should_show_listingtest_should_show_listing35,822
+  def test_should_get_edittest_should_get_edit40,913
+  def test_should_update_listingtest_should_update_listing45,1000
+  def test_should_destroy_listingtest_should_destroy_listing50,1140
+
+test/functional/aggregations_controller_test.rb,676
+class AggregationsController; def rescue_action(e) raise e end; endAggregationsController5,130
+class AggregationsControllerTest < Test::Unit::TestCaseAggregationsControllerTest7,199
+  def setupsetup10,281
+  def test_should_get_indextest_should_get_index16,450
+  def test_should_get_newtest_should_get_new22,563
+  def test_should_create_aggregationtest_should_create_aggregation27,638
+  def test_should_show_aggregationtest_should_show_aggregation35,870
+  def test_should_get_edittest_should_get_edit40,965
+  def test_should_update_aggregationtest_should_update_aggregation45,1052
+  def test_should_destroy_aggregationtest_should_destroy_aggregation50,1208
+
+test/functional/stat_values_controller_test.rb,660
+class StatValuesController; def rescue_action(e) raise e end; endStatValuesController5,129
+class StatValuesControllerTest < Test::Unit::TestCaseStatValuesControllerTest7,196
+  def setupsetup10,275
+  def test_should_get_indextest_should_get_index16,442
+  def test_should_get_newtest_should_get_new22,554
+  def test_should_create_stat_valuetest_should_create_stat_value27,629
+  def test_should_show_stat_valuetest_should_show_stat_value35,853
+  def test_should_get_edittest_should_get_edit40,947
+  def test_should_update_stat_valuetest_should_update_stat_value45,1034
+  def test_should_destroy_stat_valuetest_should_destroy_stat_value50,1186
+
+test/functional/daily_returns_controller_test.rb,684
+class DailyReturnsController; def rescue_action(e) raise e end; endDailyReturnsController5,131
+class DailyReturnsControllerTest < Test::Unit::TestCaseDailyReturnsControllerTest7,200
+  def setupsetup10,283
+  def test_should_get_indextest_should_get_index16,452
+  def test_should_get_newtest_should_get_new22,566
+  def test_should_create_daily_returntest_should_create_daily_return27,641
+  def test_should_show_daily_returntest_should_show_daily_return35,877
+  def test_should_get_edittest_should_get_edit40,973
+  def test_should_update_daily_returntest_should_update_daily_return45,1060
+  def test_should_destroy_daily_returntest_should_destroy_daily_return50,1220
+
+test/functional/tickers_controller_test.rb,615
+class TickersController; def rescue_action(e) raise e end; endTickersController5,125
+class TickersControllerTest < Test::Unit::TestCaseTickersControllerTest7,189
+  def setupsetup10,261
+  def test_should_get_indextest_should_get_index16,425
+  def test_should_get_newtest_should_get_new22,533
+  def test_should_create_tickertest_should_create_ticker27,608
+  def test_should_show_tickertest_should_show_ticker35,810
+  def test_should_get_edittest_should_get_edit40,900
+  def test_should_update_tickertest_should_update_ticker45,987
+  def test_should_destroy_tickertest_should_destroy_ticker50,1123
+
+test/functional/exchanges_controller_test.rb,640
+class ExchangesController; def rescue_action(e) raise e end; endExchangesController5,127
+class ExchangesControllerTest < Test::Unit::TestCaseExchangesControllerTest7,193
+  def setupsetup10,269
+  def test_should_get_indextest_should_get_index16,435
+  def test_should_get_newtest_should_get_new22,545
+  def test_should_create_exchangetest_should_create_exchange27,620
+  def test_should_show_exchangetest_should_show_exchange35,834
+  def test_should_get_edittest_should_get_edit40,926
+  def test_should_update_exchangetest_should_update_exchange45,1013
+  def test_should_destroy_exchangetest_should_destroy_exchange50,1157
+
+test/functional/historical_attributes_controller_test.rb,781
+class HistoricalAttributesController; def rescue_action(e) raise e end; endHistoricalAttributesController5,139
+class HistoricalAttributesControllerTest < Test::Unit::TestCaseHistoricalAttributesControllerTest7,216
+  def setupsetup10,315
+  def test_should_get_indextest_should_get_index16,492
+  def test_should_get_newtest_should_get_new22,614
+  def test_should_create_historical_attributetest_should_create_historical_attribute27,689
+  def test_should_show_historical_attributetest_should_show_historical_attribute35,973
+  def test_should_get_edittest_should_get_edit40,1077
+  def test_should_update_historical_attributetest_should_update_historical_attribute45,1164
+  def test_should_destroy_historical_attributetest_should_destroy_historical_attribute50,1356
+
+test/functional/plot_attributes_controller_test.rb,717
+class PlotAttributesController; def rescue_action(e) raise e end; endPlotAttributesController5,133
+class PlotAttributesControllerTest < Test::Unit::TestCasePlotAttributesControllerTest7,204
+  def setupsetup10,291
+  def test_should_get_indextest_should_get_index16,462
+  def test_should_get_newtest_should_get_new22,578
+  def test_should_create_plot_attributestest_should_create_plot_attributes27,653
+  def test_should_show_plot_attributestest_should_show_plot_attributes35,907
+  def test_should_get_edittest_should_get_edit40,1006
+  def test_should_update_plot_attributestest_should_update_plot_attributes45,1093
+  def test_should_destroy_plot_attributestest_should_destroy_plot_attributes50,1265
+
+test/test_helper.rb,38
+class Test::Unit::TestCaseTest5,123
+
+test/unit/daily_close_test.rb,97
+class DailyCloseTest < Test::Unit::TestCaseDailyCloseTest3,52
+  def test_truthtest_truth4,96
+
+test/unit/load_historical_quotes_worker_test.rb,131
+class LoadHistoricalQuotesWorkerTest < Test::Unit::TestCaseLoadHistoricalQuotesWorkerTest6,200
+  def test_truthtest_truth9,300
+
+test/unit/aggregation_test.rb,99
+class AggregationTest < Test::Unit::TestCaseAggregationTest3,52
+  def test_truthtest_truth4,97
+
+test/unit/live_quote_test.rb,95
+class LiveQuoteTest < Test::Unit::TestCaseLiveQuoteTest3,52
+  def test_truthtest_truth4,95
+
+test/unit/daily_return_test.rb,99
+class DailyReturnTest < Test::Unit::TestCaseDailyReturnTest3,52
+  def test_truthtest_truth4,97
+
+test/unit/stat_value_test.rb,95
+class StatValueTest < Test::Unit::TestCaseStatValueTest3,52
+  def test_truthtest_truth4,95
+
+test/unit/daily_query_worker_worker_test.rb,123
+class DailyQueryWorkerWorkerTest < Test::Unit::TestCaseDailyQueryWorkerWorkerTest6,196
+  def test_truthtest_truth9,292
+
+test/unit/rail_time_quote_worker_test.rb,117
+class RailTimeQuoteWorkerTest < Test::Unit::TestCaseRailTimeQuoteWorkerTest6,193
+  def test_truthtest_truth9,286
+
+test/unit/var_aggregate_test.rb,71
+class VarAggregateTest < ActiveSupport::TestCaseVarAggregateTest3,23
+
+test/unit/ticker_test.rb,89
+class TickerTest < Test::Unit::TestCaseTickerTest3,52
+  def test_truthtest_truth4,92
+
+test/unit/plot_type_test.rb,93
+class PlotTypeTest < Test::Unit::TestCasePlotTypeTest3,52
+  def test_truthtest_truth4,94
+
+test/unit/listing_category_test.rb,108
+class ListingCategoryTest < Test::Unit::TestCaseListingCategoryTest3,52
+  def test_truthtest_truth4,101
+
+test/unit/listing_test.rb,91
+class ListingTest < Test::Unit::TestCaseListingTest3,52
+  def test_truthtest_truth4,93
+
+test/unit/exchange_test.rb,93
+class ExchangeTest < Test::Unit::TestCaseExchangeTest3,52
+  def test_truthtest_truth4,94
+
+test/unit/plot_attributes_test.rb,106
+class PlotAttributesTest < Test::Unit::TestCasePlotAttributesTest3,52
+  def test_truthtest_truth4,100
+
+test/unit/aggregate_test.rb,65
+class AggregateTest < ActiveSupport::TestCaseAggregateTest3,23
+
+test/unit/fast_live_quotes_test.rb,73
+class FastLiveQuoteTest < ActiveSupport::TestCaseFastLiveQuoteTest3,23
+
+test/unit/historical_attribute_test.rb,116
+class HistoricalAttributeTest < Test::Unit::TestCaseHistoricalAttributeTest3,52
+  def test_truthtest_truth4,105
+
+lib/load_daily_close.rb,400
+module LoadDailyCloseLoadDailyClose1,0
+  def tickers_with_no_historytickers_with_no_history5,48
+  def tickers_with_partial_historytickers_with_partial_history9,238
+  def update_history(logger)update_history13,426
+  def load_empty_history()load_empty_history19,534
+  def load_partial_history()load_partial_history33,1104
+  def create_history_row(ticker_id, row)create_history_row47,1667
+
+lib/smart_form_builder.rb,1194
+class SmartFormBuilder < ActionView::Helpers::FormBuilderSmartFormBuilder1,0
+  def label(field, html_options = {})label3,59
+  def text_field(field, html_options = {})text_field7,263
+  def file_field(field, html_options = {})file_field12,525
+  def date_select(field, options = {})date_select17,751
+  def text_area(field, options = {})text_area22,958
+  def check_box(field, html_options = {})check_box27,1163
+  def password_field(field, html_options = {})password_field32,1388
+  def hidden_field(field, html_options = {})hidden_field37,1613
+  def select(field, choices, options = {}, html_options = {})select41,1748
+  def table_select(field_name, html_options = {}, &block)table_select49,2163
+  def submit(label, html_options = {})submit66,2968
+  def brk(html_options)brk74,3174
+def smart_form_for(object, options = { }, &proc)smart_form_for79,3294
+def smart_mini_form_for(object, options = { }, &proc)smart_mini_form_for83,3489
+def smart_remote_form_for(object, options = { }, &proc)smart_remote_form_for87,3699
+def smart_fields_for(object, options = {}, &proc)smart_fields_for91,3908
+def table_lookup(klass, id, attr = :name, msg = 'Nil')table_lookup95,4106
+
+lib/stock_statistics.rb,771
+module StockStatisticsStockStatistics4,34
+  class StatSetStatSet7,120
+    def initialize(samples, &block)initialize18,506
+    def compute_mincompute_min27,772
+    def compute_maxcompute_max31,830
+    def compute_meancompute_mean35,888
+    def compute_stddevcompute_stddev39,949
+    def compute_absdevcompute_absdev43,1018
+    def compute_cvcompute_cv47,1091
+    def compute_skewcompute_skew51,1159
+    def compute_kurtosiscompute_kurtosis55,1220
+    def compute_regressioncompute_regression59,1293
+    def computecompute63,1448
+    def to_hashto_hash71,1582
+  def self.generate(tickers,  attrs=ATTRS, extra_conditions={ })generate77,1730
+  def self.most_volatile()most_volatile97,2490
+  def self.crunch_and_storecrunch_and_store104,2781
+
+lib/populate_db.rb,1265
+class StringString12,183
+  def to_timeto_time14,197
+  def to_dateto_date18,265
+  def to_i_with_check_for_nato_i_with_check_for_na22,329
+  def to_f_with_check_for_nato_f_with_check_for_na26,418
+module YahooFinanceYahooFinance39,838
+  class BaseQuoteBaseQuote40,858
+    def valid?valid?45,941
+    def opt_pair ( value )opt_pair50,1091
+    def convert ( value )convert54,1176
+    def get_pair( value, index )get_pair62,1439
+class TradingDBLoaderTradingDBLoader69,1571
+  def initialize(query_type, opts = {})initialize74,1790
+  def get_query_params(query_type)get_query_params93,2293
+  def load_quotes(tickers)load_quotes104,2744
+  def update_listings(symbols)update_listings124,3372
+  def cleanup_iteration(tickers)cleanup_iteration145,4059
+  def update_listing(qt)update_listing157,4564
+  def create_quote_row(model, qt)create_quote_row171,5065
+  def self.load_membershipsload_memberships208,6526
+  def self.load_listing_categoriesload_listing_categories223,7014
+  def self.get_attributes(type)get_attributes230,7210
+  def self.create_table_from_fields(table, tname, type)create_table_from_fields246,7703
+  def self.get_columns(name)get_columns261,8136
+  def self.map_column_type(name, method)map_column_type270,8377
+
+lib/retired_symbol_exception.rb,106
+class RetiredSymbolException < ExceptionRetiredSymbolException1,0
+  def initialize(sym)initialize5,67
+
+lib/workers/load_historical_quotes_worker.rb,217
+class LoadHistoricalQuotesWorker < BackgrounDRb::RailsLoadHistoricalQuotesWorker1,0
+  def do_work(args)do_work3,56
+  def progressprogress22,597
+  def create_history_row(ticker_id, row)create_history_row28,659
+
+lib/workers/historical_catchup_worker.rb,211
+class HistoricalCatchupWorker < BackgrounDRb::RailsHistoricalCatchupWorker1,0
+  def do_work(args)do_work3,53
+  def progressprogress23,613
+  def create_history_row(ticker_id, row)create_history_row29,675
+
+lib/timeseries.rb,1282
+class TimeseriesTimeseries1,0
+  def initialize(symbol, time_resolution, options={})initialize27,1342
+  def priceprice38,1728
+  def inspectinspect42,1757
+  def select_by_resolution(period)select_by_resolution46,1788
+  def init_timevecinit_timevec53,2028
+  def repopulate(options)repopulate58,2157
+  def apply_options(options)apply_options73,2729
+  def compute_timestampscompute_timestamps79,2864
+  def minimal_samples(lookback_fun, *args)minimal_samples86,3125
+  def calc_indexes(loopback_fun, time_range, *args)calc_indexes90,3230
+  def time2index(time, direction, raise_on_range_error=true)time2index105,3799
+  def index2time(index)index2time124,4513
+  def memoize_result(ts, fcn, time_range, idx_range, options, results, graph_type=nil)memoize_result129,4621
+  def avg_priceavg_price145,5198
+  def find_memo(fcn_symbol, time_range=nil, options={})find_memo149,5259
+  def add_methods_for_attributes(attrs)add_methods_for_attributes158,5535
+  def initialize_stateinitialize_state169,5890
+class ParamBlockParamBlock180,6242
+  def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)initialize191,6496
+  def to_tsto_ts203,6892
+  def decode(*syms)decode207,6926
+def ts(symbol, seconds, options={ })ts214,7012
+
+lib/current_method.rb,115
+module CurrentMethodCurrentMethod1,0
+  def this_methodthis_method2,21
+  def calling_methodcalling_method5,75
+
+lib/gnuplot.rb,1134
+module GnuplotGnuplot8,261
+  def Gnuplot.which ( bin )which19,722
+  def Gnuplot.gnuplot( persist = true )gnuplot43,1528
+  def Gnuplot.open( persist=true, options={} )open57,2045
+  class PlotPlot83,3017
+    def initialize (io = nil, cmd = "plot")initialize88,3124
+    def method_missing( methId, *args )method_missing103,3530
+    def set ( var, value = "" )set115,3914
+    def unset ( var )unset120,4060
+    def [] ( var )[]128,4286
+    def script(str)script133,4361
+    def add_data ( ds )add_data138,4433
+    def to_gplot (io = "")to_gplot143,4485
+  class SPlot < PlotSPlot162,4888
+    def initialize (io = nil, cmd = "splot")initialize164,4910
+    def to_gplot (io = "")to_gplot168,4976
+  class DataSetDataSet204,5976
+    def initialize (data = nil)initialize207,6061
+    def notitlenotitle212,6154
+    def plot_args (io = "")plot_args216,6204
+    def to_gplotto_gplot236,6696
+    def to_gsplotto_gsplot244,6826
+class ArrayArray255,6969
+  def to_gplotto_gplot256,6981
+  def to_gsplotto_gsplot269,7316
+class MatrixMatrix293,7783
+  def to_gplot (x = nil, y = nil)to_gplot294,7796
+
+lib/plot.rb,869
+module PlotPlot6,76
+  def plot_lines(index_range, timevec, *vecs_or_params)plot_lines13,172
+  def plot_histogram(hist)plot_histogram39,953
+  def plot_ts(gp, vecs, index_range, options)plot_ts65,1570
+  def plot_params(gp, param, options)plot_params92,2439
+  def set_xvalues(plot, timevec)set_xvalues124,3571
+  def aggregate(symbol, param, options)aggregate141,4094
+  def aggregate_base(plot, index_range, options)aggregate_base179,5473
+  def with_volume(index_range)with_volume209,6495
+  def with_function(function)with_function215,6758
+  def multiplot(index_range, options, &block)multiplot222,7198
+  def candlestick(symbol, index_range, options={})candlestick231,7459
+  def bar(symbol, index_range, options={})bar235,7592
+  def scale(vec)scale239,7715
+  def histogram(symbol, attr)histogram247,7850
+  def titleize(syms)titleize267,8398
+
+lib/talib/ext/extconf.rb,0
+
+lib/yahoofinance.rb,2699
+class StringString34,887
+  def to_timeto_time36,901
+  def to_dateto_date40,931
+  def to_f_with_check_for_nato_f_with_check_for_na44,961
+  def to_i_with_check_for_nato_i_with_check_for_na48,1050
+module YahooFinanceYahooFinance80,2122
+  def YahooFinance.get( symbols, format, timeout=DEFAULT_READ_TIMEOUT )get181,6081
+  def YahooFinance.get_quotes( quote_class, symbols, &block )get_quotes206,6969
+  def YahooFinance.get_realtime_quotes( symbols )get_realtime_quotes219,7496
+  def YahooFinance.get_extended_quotes( symbols )get_extended_quotes231,7809
+  def YahooFinance.get_standard_quotes( symbols )get_standard_quotes244,8123
+  class BaseQuoteBaseQuote261,8505
+    def initialize( hash, valarray=nil )initialize265,8568
+    def load_quote( symbol )load_quote292,9692
+    def valid?()valid?297,9835
+    def [](key)[]302,9981
+    def []=(key, value)[]=306,10022
+    def get_info()get_info310,10096
+    def to_s()to_s314,10152
+    def parse( results )parse326,10390
+    def get_pair( value, index )get_pair340,10734
+    def convert( value )convert344,10819
+    def opt_pair ( value )opt_pair354,11000
+    def strip_html( value )strip_html358,11048
+  class RealTimeQuote < YahooFinance::BaseQuoteRealTimeQuote368,11177
+    def initialize( valarray=nil )initialize369,11225
+  class ExtendedQuote < YahooFinance::BaseQuoteExtendedQuote374,11327
+    def initialize( valarray=nil )initialize375,11375
+  class StandardQuote < YahooFinance::BaseQuoteStandardQuote380,11477
+    def initialize( valarray=nil )initialize381,11525
+    def get_info()get_info385,11616
+  class HistoricalQuoteHistoricalQuote394,11763
+    def initialize( sym, valarray=nil, &block )initialize398,11894
+    def HistoricalQuote.parse_date( date )parse_date423,12644
+    def HistoricalQuote.parse_date_to_Date( date )parse_date_to_Date441,13181
+    def to_sto_s445,13287
+    def to_ato_a449,13396
+    def date_to_Datedate_to_Date454,13514
+  def YahooFinance.retrieve_raw_historical_quotes( symbol, startDate, endDate, qtype = 'd' )retrieve_raw_historical_quotes460,13584
+  def YahooFinance.get_historical_quotes( symbol, startDate, endDate, qtype = 'd' )get_historical_quotes505,15278
+  def YahooFinance.get_historical_quotes_days( symbol, days, qtype, &block )get_historical_quotes_days549,16647
+  def YahooFinance.get_HistoricalQuotes( symbol, startDate, endDate, qtype )get_HistoricalQuotes555,16878
+  def YahooFinance.get_HistoricalQuotes_days( symbol, days, qtype, &block )get_HistoricalQuotes_days571,17278
+  class CLIOptsCLIOpts585,17615
+    def self.help( options, opts )help586,17631
+    def self.parse( args, options )parse593,17809
+
+lib/log_returns.rb,474
+module LogReturnsLogReturns6,73
+  def ticker_idsticker_ids13,184
+  def all_ticker_idsall_ticker_ids17,377
+  def initialize_returns(logger)initialize_returns23,576
+  def update_returns(logger)update_returns36,1057
+  def compute_returns(tuples)compute_returns52,1486
+  def get_last_close(ticker_id)get_last_close73,1970
+  def get_tuples(symbol, ticker_id)get_tuples83,2304
+  def compute_vectors_and_update(symbol, ticker_id)compute_vectors_and_update91,2615
+
+lib/user_analysis.rb,276
+module UserAnalysisUserAnalysis3,13
+  def linear_regression(time_range, yVec = close, options={})linear_regression4,33
+  def detrend(time_range, yVec = close, options={})detrend15,564
+  def detrended_stddev(time_range, yVec = close, options={})detrended_stddev27,1032
+
+lib/plot_aux_info.rb,92
+module PlotAuxInfoPlotAuxInfo1,0
+  def plot_commands_for(function)plot_commands_for2,19
+
+lib/result_analysis.rb,339
+module ResultAnalysisResultAnalysis4,34
+  def get_vector(sym)get_vector10,113
+  def threshold_crossing(threshold, sym, op)threshold_crossing23,352
+  def down_crossing(sym1 ,sym2)down_crossing31,656
+  def up_crossing(sym1, sym2)up_crossing37,785
+  def crossing(method, a, b)crossing43,912
+  def find_ones(sym)find_ones53,1125
+
+lib/build_shadow.rb,1051
+class BuildShadowBuildShadow1,0
+  def initialize(file)initialize7,160
+  def emit_headeremit_header15,313
+  def emit_preambleemit_preamble19,378
+  def emit_traileremit_trailer32,1190
+  def meta_info(top_hash)meta_info36,1238
+  def emit_method(name, desc, iargs, oargs, opt_args)emit_method40,1383
+  def emit_decl(name, desc)emit_decl57,1825
+  def emit_decl_closeemit_decl_close62,1926
+  def emit_prelude(opt_args)emit_prelude67,1997
+  def format_name(name)format_name72,2174
+  def emit_invoke_primativeemit_invoke_primative76,2243
+  def emit_post_processingemit_post_processing80,2367
+  def emit_primative_closeemit_primative_close88,2636
+  def emit_input_args(iargs=nil)emit_input_args92,2687
+  def clearclear112,3222
+  def emit_internal_argsemit_internal_args118,3317
+  def cond_commacond_comma122,3401
+  def emit_default_options(opt_args)emit_default_options126,3480
+  def emit_opt_args(opt_args)emit_opt_args144,4048
+  def expand_opt_args(opt_args)expand_opt_args148,4122
+  def buffer(str)buffer160,4389
+
+lib/technical_analysis.rb,9971
+module TechnicalAnalysisTechnicalAnalysis9,757
+  def acos(time_range, inReal, options={})acos11,811
+  def ad(time_range, options={})ad18,1080
+  def add(time_range, inReal0, inReal1, options={})add25,1356
+  def adosc(time_range, options={})adosc32,1647
+  def adx(time_range, options={})adx40,2106
+  def adxr(time_range, options={})adxr48,2509
+  def apo(time_range, inReal, options={})apo56,2900
+  def aroon(time_range, options={})aroon64,3366
+  def aroonosc(time_range, options={})aroonosc72,3727
+  def asin(time_range, inReal, options={})asin80,4109
+  def atan(time_range, inReal, options={})atan87,4387
+  def atr(time_range, options={})atr94,4658
+  def avgprice(time_range, options={})avgprice102,5033
+  def bbands(time_range, inReal, options={})bbands109,5335
+  def beta(time_range, inReal0, inReal1, options={})beta117,5907
+  def bop(time_range, options={})bop125,6288
+  def cci(time_range, options={})cci132,6568
+  def cdl2crows(time_range, options={})cdl2crows140,6921
+  def cdl3blackcrows(time_range, options={})cdl3blackcrows147,7235
+  def cdl3inside(time_range, options={})cdl3inside154,7572
+  def cdl3linestrike(time_range, options={})cdl3linestrike161,7890
+  def cdl3outside(time_range, options={})cdl3outside168,8228
+  def cdl3starsinsouth(time_range, options={})cdl3starsinsouth175,8557
+  def cdl3whitesoldiers(time_range, options={})cdl3whitesoldiers182,8912
+  def cdlabandonedbaby(time_range, options={})cdlabandonedbaby189,9255
+  def cdladvanceblock(time_range, options={})cdladvanceblock197,9685
+  def cdlbelthold(time_range, options={})cdlbelthold204,10013
+  def cdlbreakaway(time_range, options={})cdlbreakaway211,10325
+  def cdlclosingmarubozu(time_range, options={})cdlclosingmarubozu218,10648
+  def cdlconcealbabyswall(time_range, options={})cdlconcealbabyswall225,11002
+  def cdlcounterattack(time_range, options={})cdlcounterattack232,11350
+  def cdldarkcloudcover(time_range, options={})cdldarkcloudcover239,11689
+  def cdldoji(time_range, options={})cdldoji247,12114
+  def cdldojistar(time_range, options={})cdldojistar254,12410
+  def cdldragonflydoji(time_range, options={})cdldragonflydoji261,12727
+  def cdlengulfing(time_range, options={})cdlengulfing268,13067
+  def cdleveningdojistar(time_range, options={})cdleveningdojistar275,13391
+  def cdleveningstar(time_range, options={})cdleveningstar283,13828
+  def cdlgapsidesidewhite(time_range, options={})cdlgapsidesidewhite291,14273
+  def cdlgravestonedoji(time_range, options={})cdlgravestonedoji298,14623
+  def cdlhammer(time_range, options={})cdlhammer305,14956
+  def cdlhangingman(time_range, options={})cdlhangingman312,15262
+  def cdlharami(time_range, options={})cdlharami319,15587
+  def cdlharamicross(time_range, options={})cdlharamicross326,15902
+  def cdlhighwave(time_range, options={})cdlhighwave333,16233
+  def cdlhikkake(time_range, options={})cdlhikkake340,16551
+  def cdlhikkakemod(time_range, options={})cdlhikkakemod347,16874
+  def cdlhomingpigeon(time_range, options={})cdlhomingpigeon354,17198
+  def cdlidentical3crows(time_range, options={})cdlidentical3crows361,17538
+  def cdlinneck(time_range, options={})cdlinneck368,17884
+  def cdlinvertedhammer(time_range, options={})cdlinvertedhammer375,18194
+  def cdlkicking(time_range, options={})cdlkicking382,18528
+  def cdlkickingbylength(time_range, options={})cdlkickingbylength389,18880
+  def cdlladderbottom(time_range, options={})cdlladderbottom396,19224
+  def cdllongleggeddoji(time_range, options={})cdllongleggeddoji403,19559
+  def cdllongline(time_range, options={})cdllongline410,19902
+  def cdlmarubozu(time_range, options={})cdlmarubozu417,20213
+  def cdlmatchinglow(time_range, options={})cdlmatchinglow424,20528
+  def cdlmathold(time_range, options={})cdlmathold431,20851
+  def cdlmorningdojistar(time_range, options={})cdlmorningdojistar439,21261
+  def cdlmorningstar(time_range, options={})cdlmorningstar447,21698
+  def cdlonneck(time_range, options={})cdlonneck455,22122
+  def cdlpiercing(time_range, options={})cdlpiercing462,22433
+  def cdlrickshawman(time_range, options={})cdlrickshawman469,22748
+  def cdlrisefall3methods(time_range, options={})cdlrisefall3methods476,23091
+  def cdlseparatinglines(time_range, options={})cdlseparatinglines483,23442
+  def cdlshootingstar(time_range, options={})cdlshootingstar490,23786
+  def cdlshortline(time_range, options={})cdlshortline497,24122
+  def cdlspinningtop(time_range, options={})cdlspinningtop504,24441
+  def cdlstalledpattern(time_range, options={})cdlstalledpattern511,24771
+  def cdlsticksandwich(time_range, options={})cdlsticksandwich518,25112
+  def cdltakuri(time_range, options={})cdltakuri525,25486
+  def cdltasukigap(time_range, options={})cdltasukigap532,25791
+  def cdlthrusting(time_range, options={})cdlthrusting539,26115
+  def cdltristar(time_range, options={})cdltristar546,26437
+  def cdlunique3river(time_range, options={})cdlunique3river553,26750
+  def cdlupsidegap2crows(time_range, options={})cdlupsidegap2crows560,27089
+  def cdlxsidegap3methods(time_range, options={})cdlxsidegap3methods567,27453
+  def ceil(time_range, inReal, options={})ceil574,27799
+  def cmo(time_range, inReal, options={})cmo581,28078
+  def correl(time_range, inReal0, inReal1, options={})correl589,28475
+  def cos(time_range, inReal, options={})cos597,28873
+  def cosh(time_range, inReal, options={})cosh604,29147
+  def dema(time_range, inReal, options={})dema611,29433
+  def div(time_range, inReal0, inReal1, options={})div619,29810
+  def dx(time_range, options={})dx626,30105
+  def ema(time_range, inReal, options={})ema634,30489
+  def exp(time_range, inReal, options={})exp642,30862
+  def floor(time_range, inReal, options={})floor649,31123
+  def ht_dcperiod(time_range, options={})ht_dcperiod656,31421
+  def ht_dcphase(time_range, options={})ht_dcphase663,31733
+  def ht_phasor(time_range, options={})ht_phasor670,32038
+  def ht_sine(time_range, options={})ht_sine677,32330
+  def ht_trendline(time_range, options={})ht_trendline684,32629
+  def ht_trendmode(time_range, options={})ht_trendmode691,32954
+  def kama(time_range, options={})kama698,33261
+  def linearreg(time_range, inReal, options={})linearreg706,33625
+  def linearreg_angle(time_range, inReal, options={})linearreg_angle714,34024
+  def linearreg_intercept(time_range, inReal, options={})linearreg_intercept722,34441
+  def linearreg_slope(time_range, inReal, options={})linearreg_slope730,34880
+  def ln(time_range, inReal, options={})ln738,35288
+  def log10(time_range, inReal, options={})log10745,35545
+  def ma(time_range, inReal, options={})ma752,35816
+  def macd(time_range, inReal, options={})macd760,36254
+  def macdext(time_range, inReal, options={})macdext768,36767
+  def macdfix(time_range, inReal, options={})macdfix776,37474
+  def mama(time_range, inReal, options={})mama784,37865
+  def mavp(time_range, inReal, inPeriods, options={})mavp792,38319
+  def max(time_range, inReal, options={})max800,38870
+  def maxindex(time_range, inReal, options={})maxindex808,39268
+  def medprice(time_range, options={})medprice816,39642
+  def mfi(time_range, options={})mfi823,39932
+  def midpoint(time_range, inReal, options={})midpoint831,40322
+  def midprice(time_range, options={})midprice839,40720
+  def min(time_range, inReal, options={})min847,41123
+  def minindex(time_range, inReal, options={})minindex855,41520
+  def minmax(time_range, inReal, options={})minmax863,41931
+  def minmaxindex(time_range, inReal, options={})minmaxindex871,42355
+  def minus_di(time_range, options={})minus_di879,42756
+  def minus_dm(time_range, options={})minus_dm887,43164
+  def mom(time_range, inReal, options={})mom895,43547
+  def mult(time_range, inReal0, inReal1, options={})mult903,43911
+  def natr(time_range, options={})natr910,44213
+  def obv(time_range, inReal, options={})obv918,44596
+  def plus_di(time_range, options={})plus_di925,44877
+  def plus_dm(time_range, options={})plus_dm933,45280
+  def ppo(time_range, inReal, options={})ppo941,45678
+  def roc(time_range, inReal, options={})roc949,46181
+  def rocp(time_range, inReal, options={})rocp957,46577
+  def rocr(time_range, inReal, options={})rocr965,46962
+  def rocr100(time_range, inReal, options={})rocr100973,47361
+  def rsi(time_range, inReal, options={})rsi981,47742
+  def sar(time_range, options={})sar989,48115
+  def sarext(time_range, options={})sarext997,48576
+  def sin(time_range, inReal, options={})sin1005,49442
+  def sinh(time_range, inReal, options={})sinh1012,49716
+  def sma(time_range, inReal, options={})sma1019,49990
+  def sqrt(time_range, inReal, options={})sqrt1027,50360
+  def stddev(time_range, inReal, options={})stddev1034,50631
+  def stoch(time_range, options={})stoch1042,51058
+  def stochf(time_range, options={})stochf1050,51690
+  def stochrsi(time_range, inReal, options={})stochrsi1058,52215
+  def sub(time_range, inReal0, inReal1, options={})sub1066,52826
+  def sum(time_range, inReal, options={})sum1073,53104
+  def t3(time_range, inReal, options={})t31081,53484
+  def tan(time_range, inReal, options={})tan1089,53928
+  def tanh(time_range, inReal, options={})tanh1096,54202
+  def tema(time_range, inReal, options={})tema1103,54488
+  def trange(time_range, options={})trange1111,54854
+  def trima(time_range, inReal, options={})trima1118,55142
+  def trix(time_range, inReal, options={})trix1126,55551
+  def tsf(time_range, inReal, options={})tsf1134,55917
+  def typprice(time_range, options={})typprice1142,56282
+  def ultosc(time_range, options={})ultosc1149,56582
+  def var(time_range, inReal, options={})var1157,57089
+  def wclprice(time_range, options={})wclprice1165,57514
+  def willr(time_range, options={})willr1172,57807
+  def wma(time_range, inReal, options={})wma1180,58182
+
+lib/convert_talib_meta_info.rb,1285
+module ConvertTalibMetaInfoConvertTalibMetaInfo1,0
+  def self.normalize_key(str)normalize_key4,30
+  def self.normalize_string(str)normalize_string8,107
+  class FinancialFunctionArgFinancialFunctionArg12,180
+    def initialize(h)initialize15,234
+  class FinancialFunctionInputArg < FinancialFunctionArgFinancialFunctionInputArg20,310
+    def initialize(h)initialize25,445
+  class FinancialFunctionOutputArg < FinancialFunctionArgFinancialFunctionOutputArg39,835
+    def initialize(h)initialize43,932
+  class FinancialFunctionOptArg < FinancialFunctionArgFinancialFunctionOptArg61,1449
+    def initialize(h)initialize65,1562
+  class FinancialFunctionFinancialFunction79,2024
+    def initialize(h)initialize83,2160
+    def stripped_output_namesstripped_output_names93,2714
+    def decode_input_args(h_or_array)decode_input_args97,2831
+    def decode_output_args(h_or_array)decode_output_args102,3003
+    def decode_opt_args(h_or_array)decode_opt_args107,3177
+    def decode_function_flags(string_or_array)decode_function_flags112,3345
+  def self.import_functions(fcn_h_array)import_functions118,3567
+class ArrayArray128,3751
+  def underscore_keys!underscore_keys!129,3763
+class HashHash136,3890
+  def underscore_keys!underscore_keys!137,3901
+
+lib/get_quote.rb,2661
+class StringString34,887
+  def to_timeto_time36,901
+  def to_dateto_date40,931
+  def to_f_with_check_for_nato_f_with_check_for_na44,961
+  def to_i_with_check_for_nato_i_with_check_for_na48,1050
+module YahooFinanceYahooFinance80,2122
+  def YahooFinance.get( symbols, format, timeout=DEFAULT_READ_TIMEOUT )get181,6079
+  def YahooFinance.get_quotes( quote_class, symbols, &block )get_quotes206,6967
+  def YahooFinance.get_realtime_quotes( symbols )get_realtime_quotes219,7494
+  def YahooFinance.get_extended_quotes( symbols )get_extended_quotes231,7807
+  def YahooFinance.get_standard_quotes( symbols )get_standard_quotes244,8121
+  class BaseQuoteBaseQuote261,8503
+    def initialize( hash, valarray=nil )initialize265,8566
+    def load_quote( symbol )load_quote292,9690
+    def valid?()valid?297,9833
+    def [](key)[]302,9979
+    def get_info()get_info306,10020
+    def to_s()to_s310,10076
+    def parse( results )parse322,10314
+    def get_pair( value, index )get_pair336,10658
+    def convert( value )convert340,10743
+    def opt_pair ( value )opt_pair350,10924
+    def strip_html( value )strip_html354,10972
+  class RealTimeQuote < YahooFinance::BaseQuoteRealTimeQuote364,11101
+    def initialize( valarray=nil )initialize365,11149
+  class ExtendedQuote < YahooFinance::BaseQuoteExtendedQuote370,11251
+    def initialize( valarray=nil )initialize371,11299
+  class StandardQuote < YahooFinance::BaseQuoteStandardQuote376,11401
+    def initialize( valarray=nil )initialize377,11449
+    def get_info()get_info381,11540
+  class HistoricalQuoteHistoricalQuote390,11687
+    def initialize( sym, valarray=nil, &block )initialize394,11818
+    def HistoricalQuote.parse_date( date )parse_date419,12568
+    def HistoricalQuote.parse_date_to_Date( date )parse_date_to_Date437,13105
+    def to_sto_s441,13211
+    def to_ato_a445,13320
+    def date_to_Datedate_to_Date450,13438
+  def YahooFinance.retrieve_raw_historical_quotes( symbol, startDate, endDate, qtype = 'd' )retrieve_raw_historical_quotes456,13508
+  def YahooFinance.get_historical_quotes( symbol, startDate, endDate, qtype = 'd' )get_historical_quotes502,15226
+  def YahooFinance.get_historical_quotes_days( symbol, days, qtype, &block )get_historical_quotes_days546,16595
+  def YahooFinance.get_HistoricalQuotes( symbol, startDate, endDate, qtype )get_HistoricalQuotes552,16826
+  def YahooFinance.get_HistoricalQuotes_days( symbol, days, qtype, &block )get_HistoricalQuotes_days568,17226
+  class CLIOptsCLIOpts582,17563
+    def self.help( options, opts )help583,17579
+    def self.parse( args, options )parse590,17757
+
+lib/aggregator.rb,597
+module AggregatorAggregator1,0
+  def init_tables(date_range)init_tables11,347
+  def trading_days(date_range)trading_days21,929
+  def compute_aggregates(period_in_seconds)compute_aggregates25,1060
+  def compute_aggregate_range(ticker, date_range, period_in_seconds)compute_aggregate_range40,1554
+  def compute_aggregate(ticker, date, period_in_seconds)compute_aggregate52,1883
+  def form_where_clause(tid, btime, etime)form_where_clause80,2970
+  def generate_aggregate(tid, date, start_time, period, last_close, recs)generate_aggregate84,3140
+  def out_of_dateout_of_date104,3961
+
+lib/timeseries_exception.rb,104
+class TimeseriesException < ExceptionTimeseriesException1,0
+  def initialize(message)initialize2,38
+
+lib/load_listings.rb,400
+module LoadDailyCloseLoadDailyClose1,0
+  def tickers_with_no_historytickers_with_no_history5,48
+  def tickers_with_partial_historytickers_with_partial_history9,238
+  def update_history(logger)update_history13,426
+  def load_empty_history()load_empty_history19,534
+  def load_partial_history()load_partial_history33,1104
+  def create_history_row(ticker_id, row)create_history_row47,1667
+
+lib/table_extract.rb,693
+module TableExtractTableExtract1,0
+  def simple_vector(ticker, attr, start, period)simple_vector5,56
+  def time_vector(ticker)time_vector13,459
+  def simple_vectors(ticker, attrs=[], start=nil, num_points=nil)simple_vectors18,658
+  def general_vectors_by_interval(ticker, attrs, bdate, period)general_vectors_by_interval24,910
+  def general_vectors(ticker, attrs, bdate, edate)general_vectors31,1172
+  def form_result_hash(recs, attrs=[])form_result_hash38,1431
+  def find_last_close(ticker_id, date)find_last_close46,1688
+  def normalize_ticker(ticker, bdate=nil, edate=nil)normalize_ticker52,1914
+  def form_conditions(ticker, bdate=nil, edate=nil)form_conditions62,2293
+
+app/models/fast_live_quote.rb,442
+class FastLiveQuote < ActiveRecord::BaseFastLiveQuote1,0
+  def symbol=(value) ;  endsymbol=7,106
+  def last_trade_date=(value) ;  endlast_trade_date=8,134
+  def self.order ; 'last_trade_time, id'; endorder9,171
+  def self.time_col ; :last_trade_time ;  endtime_col10,217
+  def self.time_convert ; :to_time ;  endtime_convert11,263
+  def self.time_class ; Time ;  endtime_class12,305
+  def self.time_res; 60; endtime_res13,341
+
+app/models/var_aggregate.rb,329
+class VarAggregate < ActiveRecord::BaseVarAggregate21,446
+  def self.order ; 'start'; endorder27,545
+  def self.time_col ; :start ;  endtime_col28,577
+  def self.time_convert ; :to_time ;  endtime_convert29,613
+  def self.time_class ; Time ;  endtime_class30,655
+  def self.time_res; [ 5.minutes ]; endtime_res31,691
+
+app/models/live_quote.rb,440
+class LiveQuote < ActiveRecord::BaseLiveQuote12,207
+  def symbol=(value) ;  endsymbol=18,309
+  def last_trade_date=(value) ;  endlast_trade_date=19,337
+  def self.order ; 'last_trade_time, id'; endorder20,374
+  def self.time_col ; :last_trade_time ;  endtime_col21,420
+  def self.time_convert ; :to_time ;  endtime_convert22,466
+  def self.time_class ; Time ;  endtime_class23,508
+  def self.time_res; 60; endtime_res24,544
+
+app/models/plot_attributes.rb,64
+class PlotAttributes < ActiveRecord::BasePlotAttributes15,311
+
+app/models/historical_attribute.rb,74
+class HistoricalAttribute < ActiveRecord::BaseHistoricalAttribute10,168
+
+app/models/daily_close.rb,530
+class DailyClose < ActiveRecord::BaseDailyClose22,436
+  def symbol=(value) ;  endsymbol=28,533
+  def last_trade_date=(value) ;  endlast_trade_date=29,561
+  def self.order ; 'date, id'; endorder30,598
+  def self.time_col ; :date ;  endtime_col31,633
+  def self.time_convert ; :to_date ;  endtime_convert32,668
+  def self.time_class ; Date ;  endtime_class33,710
+  def self.time_res; 1; endtime_res34,746
+  def self.catchup_to_date(date=nil)catchup_to_date36,775
+  def self.avg_volume(from, to)avg_volume43,1081
+
+app/models/exchange.rb,52
+class Exchange < ActiveRecord::BaseExchange14,264
+
+app/models/aggregate.rb,332
+class Aggregate < ActiveRecord::BaseAggregate21,442
+  def self.order ; 'start'; endorder27,538
+  def self.time_col ; :start ;  endtime_col28,570
+  def self.time_convert ; :to_time ;  endtime_convert29,606
+  def self.time_class ; Time ;  endtime_class30,648
+  def self.time_res; [ 15.minutes.seconds ]; endtime_res31,684
+
+app/models/ticker.rb,322
+class Ticker < ActiveRecord::BaseTicker14,297
+  def listinglisting23,489
+  def self.listing_name(symbol)listing_name27,530
+  def self.symbolssymbols31,650
+  def self.active_symbolsactive_symbols35,756
+  def self.idsids39,886
+  def self.id_groups(count)id_groups43,1001
+  def self.lname(symbol)lname48,1172
+
+app/models/current_listing.rb,101
+class CurrentListing < ActiveRecord::BaseCurrentListing42,1836
+  def symbol=(name)symbol=45,1900
+
+app/models/listing_category.rb,66
+class ListingCategory < ActiveRecord::BaseListingCategory10,177
+
+app/models/plot_type.rb,52
+class PlotType < ActiveRecord::BasePlotType16,346
+
+app/models/membership.rb,56
+class Membership < ActiveRecord::BaseMembership11,234
+
+app/models/stat_value.rb,141
+class StatValue < ActiveRecord::BaseStatValue30,889
+  def self.create_row(attr, ticker, start_date, end_date, attr_hash)create_row34,949
+
+app/helpers/plot_attributes_helper.rb,164
+module PlotAttributesHelperPlotAttributesHelper1,0
+  def plot_attributes_pathplot_attributes_path2,28
+  def plot_attributes_path(obj)plot_attributes_path6,79
+
+app/helpers/tickers_helper.rb,116
+module TickersHelperTickersHelper1,0
+  def tickers_pathtickers_path2,21
+  def ticker_path(obj)ticker_path6,64
+
+app/helpers/live_quotes_helper.rb,138
+module LiveQuotesHelperLiveQuotesHelper1,0
+  def live_quotes_pathlive_quotes_path2,24
+  def live_quote_path(obj)live_quote_path6,71
+
+app/helpers/daily_returns_helper.rb,150
+module DailyReturnsHelperDailyReturnsHelper1,0
+  def daily_returns_pathdaily_returns_path2,26
+  def daily_return_path(obj)daily_return_path6,75
+
+app/helpers/aggregations_helper.rb,146
+module AggregationsHelperAggregationsHelper1,0
+  def aggregations_pathaggregations_path2,26
+  def aggregation_path(obj)aggregation_path6,74
+
+app/helpers/listing_categories_helper.rb,178
+module ListingCategoriesHelperListingCategoriesHelper1,0
+  def listing_categories_pathlisting_categories_path2,31
+  def listing_category_path(obj)listing_category_path6,85
+
+app/helpers/background_tasks_helper.rb,55
+module BackgroundTasksHelperBackgroundTasksHelper1,0
+
+app/helpers/plot_types_helper.rb,132
+module PlotTypesHelperPlotTypesHelper1,0
+  def plot_types_pathplot_types_path2,23
+  def plot_type_path(obj)plot_type_path6,69
+
+app/helpers/daily_closes_helper.rb,144
+module DailyClosesHelperDailyClosesHelper1,0
+  def daily_closes_pathdaily_closes_path2,25
+  def daily_close_path(obj)daily_close_path6,73
+
+app/helpers/historical_attributes_helper.rb,198
+module HistoricalAttributesHelperHistoricalAttributesHelper1,0
+  def historical_attributes_pathhistorical_attributes_path2,34
+  def historical_attribute_path(obj)historical_attribute_path6,91
+
+app/helpers/current_listing_helper.rb,166
+module CurrentListingHelperCurrentListingHelper1,0
+  def current_listings_pathcurrent_listings_path2,28
+  def current_listing_path(obj)current_listing_path6,80
+
+app/helpers/stat_values_helper.rb,138
+module StatValuesHelperStatValuesHelper1,0
+  def stat_values_pathstat_values_path2,24
+  def stat_value_path(obj)stat_value_path6,71
+
+app/helpers/application_helper.rb,337
+module ApplicationHelperApplicationHelper2,86
+  def table_lookup(klass, id, attr = :name, msg = 'Nil')table_lookup3,111
+  def lkup(assoc, attr = :name, msg = '<center>-</center>')lkup10,305
+  def cond_prepend(str, char)cond_prepend14,424
+  def format_phone(number)format_phone18,494
+  def format_csz(contact)format_csz23,624
+
+app/helpers/exchanges_helper.rb,128
+module ExchangesHelperExchangesHelper1,0
+  def exchanges_pathexchanges_path2,23
+  def exchange_path(obj)exchange_path6,68
+
+app/controllers/live_quotes_controller.rb,122
+class LiveQuotesController < ApplicationControllerLiveQuotesController1,0
+  def current_objects()current_objects6,119
+
+app/controllers/stat_values_controller.rb,76
+class StatValuesController < ApplicationControllerStatValuesController1,0
+
+app/controllers/application.rb,154
+class ApplicationController < ActionController::BaseApplicationController4,154
+  def authorizeauthorize19,796
+  def render_js(&blk)render_js43,1559
+
+app/controllers/plot_types_controller.rb,74
+class PlotTypesController < ApplicationControllerPlotTypesController1,0
+
+app/controllers/listing_categories_controller.rb,90
+class ListingCategoriesController < ApplicationControllerListingCategoriesController1,0
+
+app/controllers/background_tasks_controller.rb,117
+class BackgroundTasksController < ApplicationControllerBackgroundTasksController1,0
+  def dashboarddashboard2,56
+
+app/controllers/tickers_controller.rb,251
+class TickersController < ApplicationControllerTickersController1,0
+  def findfind16,346
+  def current_objects()current_objects22,634
+  def plot_dailyplot_daily26,825
+  def plot_liveplot_live29,849
+  def plot_histogramplot_histogram32,872
+
+app/controllers/historical_attributes_controller.rb,96
+class HistoricalAttributesController < ApplicationControllerHistoricalAttributesController1,0
+
+app/controllers/exchanges_controller.rb,74
+class ExchangesController < ApplicationControllerExchangesController1,0
+
+app/controllers/current_listing_controller.rb,85
+class CurrentListingController <  ApplicationControllerCurrentListingController1,0
+
+app/controllers/aggregations_controller.rb,80
+class AggregationsController < ApplicationControllerAggregationsController1,0
+
+app/controllers/daily_closes_controller.rb,236
+class DailyClosesController < ApplicationControllerDailyClosesController1,0
+  def plotplot7,121
+  def reloadreload15,267
+  def begin_catchupbegin_catchup18,287
+  def begin_loadbegin_load34,1055
+  def progressprogress51,1887
+
+app/controllers/daily_returns_controller.rb,80
+class DailyReturnsController < ApplicationControllerDailyReturnsController1,0
+
+app/controllers/plot_attributes_controller.rb,84
+class PlotAttributesController < ApplicationControllerPlotAttributesController1,0

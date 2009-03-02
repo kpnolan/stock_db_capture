@@ -1,0 +1,11 @@
+%tr[portfolio]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.name
+    = h portfolio.name
+  %td.initial_value
+    = h portfolio.initial_value
+  %td.show
+    = link_to 'Show', object_path(portfolio)
+  %td.edit
+    = link_to 'Edit', edit_object_path(portfolio)
+  %td.destroy
+    = link_to 'Destroy', object_path(portfolio), :confirm => 'Really destroy portfolio?', :method => :delete

@@ -1,0 +1,47 @@
+# == Schema Information
+# Schema version: 20090218001147
+#
+# Table name: positions
+#
+#  id               :integer(4)      not null, primary key
+#  portfolio_id     :integer(4)
+#  ticker_id        :integer(4)
+#  open             :boolean(1)
+#  entry_date       :datetime
+#  exit_date        :datetime
+#  entry_price      :float
+#  exit_price       :float
+#  num_shares       :integer(4)
+#  contract_type_id :integer(4)
+#  side             :integer(4)
+#  stop_loss        :string(255)
+#  created_at       :datetime
+#  updated_at       :datetime
+#
+
+one:
+  id: 1
+  portfolio_id: 1
+  ticker_id: 1
+  open: false
+  entry_date: 2009-02-17 16:11:47
+  exit_date: 2009-02-17 16:11:47
+  entry_price: 1.5
+  exit_price: 1.5
+  num_shares: 
+  contract_type_id: 1
+  side: 1
+  stop_loss: MyString
+two:
+  id: 2
+  portfolio_id: 1
+  ticker_id: 1
+  open: false
+  entry_date: 2009-02-17 16:11:47
+  exit_date: 2009-02-17 16:11:47
+  entry_price: 1.5
+  exit_price: 1.5
+  num_shares: 
+  contract_type_id: 1
+  side: 1
+  stop_loss: MyString

@@ -1,0 +1,29 @@
+%tr[position]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.portfolio_id
+    = lkup position.portfolio
+  %td.ticker_id
+    = lkup position.ticker
+  %td.open
+    = h position.open
+  %td.entry_date
+    = h position.entry_date
+  %td.exit_date
+    = h position.exit_date
+  %td.entry_price
+    = h position.entry_price
+  %td.exit_price
+    = h position.exit_price
+  %td.num_shares
+    = h position.num_shares
+  %td.contract_type_id
+    = lkup position.contract_type
+  %td.side
+    = h position.side
+  %td.stop_loss
+    = h position.stop_loss
+  %td.show
+    = link_to 'Show', object_path(position)
+  %td.edit
+    = link_to 'Edit', edit_object_path(position)
+  %td.destroy
+    = link_to 'Destroy', object_path(position), :confirm => 'Really destroy position?', :method => :delete

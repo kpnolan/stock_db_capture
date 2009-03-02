@@ -1,0 +1,9 @@
+%h1 Listing portfolios
+%table
+  %tr.heading
+    %th Name
+    %th Initial Value
+
+  = render :partial => 'portfolio', :collection => current_objects
+
+= link_to 'New portfolio', new_object_path 

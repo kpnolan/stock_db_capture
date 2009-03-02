@@ -1,0 +1,18 @@
+%h1 Listing positions
+%table
+  %tr.heading
+    %th Portfolio
+    %th Ticker
+    %th Open
+    %th Entry Date
+    %th Exit Date
+    %th Entry Price
+    %th Exit Price
+    %th Num Shares
+    %th Contract Type
+    %th Side
+    %th Stop Loss
+
+  = render :partial => 'position', :collection => current_objects
+
+= link_to 'New position', new_object_path 

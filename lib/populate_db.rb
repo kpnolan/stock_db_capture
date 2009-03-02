@@ -101,7 +101,12 @@ class TradingDBLoader
     end
   end
 
+  def clear_missed_minutes
+    Ticker.connection.execute('UPDATE tickers SET missed_minutes = 0')
+  end
+
   def load_quotes(tickers)
+    clear_missed_minutes()
     self.retired_symbols = []
     self.start_time = Time.now
     logger.info("Starting with #{tickers.count} symbols")
@@ -190,18 +195,24 @@ class TradingDBLoader
       # shut down (normal hours) then we pass it up to stop
       # the capture process, otherwise we sampled this symbol
       # withing the last minute of the prior sample. So, we'll just
-      # through out the sample and press on
+      # throw out the sample and press on
       self.row_count += 1
     else
-      self.rejected_count += 1
+      # Here we keep track of the number of times we polled for a ticker and the last_trade_time hasn't increased
+      # once we hit a hundred we still haven't seen a trade we stop polling for that symbol
+      ticker.increment!(:missed_minutes)
+      if ticker.missed_minutes > 100
+        logger.info("rejecting #{qt.symbol} last_quote at: #{dt} last recorded enty #{ticker.last_trade_time}")
+        self.retired_symbols << qt.symbol if dt.to_date < Date.today
+        self.rejected_count += 1
+      end
       time = dt.to_time
       t = Time.now
-      if t.hour >= 13 && time.hour >= 16 && time.min >= 0
+      if t.hour >= 13 && time.hour >= 16 && time.min >= 5
         logger.info("Shutting Down Live Capture at #{Time.now}") if logger
         logger.close if logger
         throw :done
       end
-      self.retired_symbols << qt.symbol if dt.to_date < Date.today && time.hour >= 8 # wait 1.5 hours b/4 retiring
     end
   end
 

@@ -96,7 +96,7 @@ FinancialFunctions:
     - Abbreviation: ADX
       CamelCaseName: Adx
       Flags:
-        Flag: Unstable Period
+        Flag: Overlap
       GroupId: Momentum Indicators
       OptionalInputArguments:
         OptionalInputArgument:
@@ -2236,7 +2236,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outTrend
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:
@@ -3577,7 +3577,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outSma
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:

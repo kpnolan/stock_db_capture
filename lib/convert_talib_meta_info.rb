@@ -18,7 +18,7 @@ module ConvertTalibMetaInfo
   end
 
   class FinancialFunctionInputArg < FinancialFunctionArg
-    SPECIAL_ARGS = %w{ high low close open volume }
+    SPECIAL_ARGS = %w{ high low close open volume price }
 
     attr_accessor :type
 
@@ -91,7 +91,7 @@ module ConvertTalibMetaInfo
     end
 
     def stripped_output_names
-      output_args.map { |arg| arg.name.gsub(/^[a-z0-9_]+_([a-z0-9]+)/,'\1') }
+      output_args.map { |arg| arg.name.gsub(/^out_([a-z0-9]+)/,'\1') }
     end
 
     def decode_input_args(h_or_array)

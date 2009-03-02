@@ -14330,6 +14330,7 @@ _wrap_ta_ema(int argc, VALUE *argv, VALUE self) {
     arg7 = OUT_ARRAY->data;
   }
   result = (TA_RetCode)TA_EMA(arg1,arg2,(double const *)arg3,arg4,arg5,arg6,arg7);
+  fprintf(stderr, "called TA_EMA\n");
   vresult = SWIG_From_int((int)(result));
   {
     vresult = output_helper( vresult, INT2NUM(outIndex) );
@@ -14337,8 +14338,10 @@ _wrap_ta_ema(int argc, VALUE *argv, VALUE self) {
   {
     if ( result == TA_SUCCESS && outNbElement > 0) {
       if ( (arg2-arg1+1) == outNbElement && outIndex == 0 ) {
+        fprintf(stderr, "using simple result return");
         vresult = output_helper( vresult, Data_Wrap_Struct(cgsl_vector, 0, gsl_vector_free, OUT_ARRAY));
       } else {
+        fprintf(stderr, "complex return: outNbElement: %d\n", outNbElement);
         gsl_vector* ogv = gsl_vector_alloc(outNbElement);
         gsl_vector_view iview = gsl_vector_subvector(OUT_ARRAY, 0, outNbElement);
         gsl_vector_memcpy(ogv, &iview.vector);

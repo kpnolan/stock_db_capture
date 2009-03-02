@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090210230614) do
+ActiveRecord::Schema.define(:version => 20090301044945) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -20,13 +20,10 @@ ActiveRecord::Schema.define(:version => 20090210230614) do
     t.float    "high"
     t.float    "low"
     t.integer  "volume"
-    t.integer  "period"
     t.float    "r"
     t.float    "logr"
-    t.integer  "sample_count"
   end
 
-  add_index "aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period", :unique => true
   add_index "aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
 
   create_table "aggregates_save", :force => true do |t|
@@ -42,6 +39,72 @@ ActiveRecord::Schema.define(:version => 20090210230614) do
     t.float    "r"
     t.float    "logr"
     t.integer  "sample_count"
+  end
+
+  create_table "bar_10s", :force => true do |t|
+    t.integer  "ticker_id"
+    t.date     "date"
+    t.datetime "start"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.float    "r"
+    t.float    "logr"
+  end
+
+  add_index "bar_10s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
+
+  create_table "bar_30s", :force => true do |t|
+    t.integer  "ticker_id"
+    t.date     "date"
+    t.datetime "start"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.float    "r"
+    t.float    "logr"
+  end
+
+  add_index "bar_30s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
+
+  create_table "bar_5s", :force => true do |t|
+    t.integer  "ticker_id"
+    t.date     "date"
+    t.datetime "start"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.float    "r"
+    t.float    "logr"
+  end
+
+  add_index "bar_5s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
+
+  create_table "bar_60s", :force => true do |t|
+    t.integer  "ticker_id"
+    t.date     "date"
+    t.datetime "start"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.float    "r"
+    t.float    "logr"
+  end
+
+  add_index "bar_60s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
+
+  create_table "contract_types", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "current_listings", :force => true do |t|
@@ -106,6 +169,15 @@ ActiveRecord::Schema.define(:version => 20090210230614) do
     t.string "timezone"
   end
 
+  create_table "fast_live_quotes", :id => false, :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "last_trade_time"
+    t.float    "last_trade"
+    t.integer  "volume"
+  end
+
+  add_index "fast_live_quotes", ["ticker_id", "last_trade_time"], :name => "index_ticker_id_last_trade_time", :unique => true
+
   create_table "historical_attributes", :force => true do |t|
     t.string "name"
   end
@@ -152,6 +224,33 @@ ActiveRecord::Schema.define(:version => 20090210230614) do
     t.integer "num_outputs"
   end
 
+  create_table "portfolios", :force => true do |t|
+    t.string   "name"
+    t.float    "initial_value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "positions", :force => true do |t|
+    t.integer  "portfolio_id"
+    t.integer  "ticker_id"
+    t.boolean  "open"
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.integer  "num_shares"
+    t.integer  "contract_type_id"
+    t.integer  "side"
+    t.string   "stop_loss"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "positions", ["portfolio_id"], :name => "portfolio_id"
+  add_index "positions", ["ticker_id"], :name => "ticker_id"
+  add_index "positions", ["contract_type_id"], :name => "contract_type_id"
+
   create_table "shorts", :force => true do |t|
     t.string  "symbol", :limit => 8
     t.integer "count",  :limit => 8, :default => 0, :null => false
@@ -187,6 +286,7 @@ ActiveRecord::Schema.define(:version => 20090210230614) do
     t.boolean  "active"
     t.boolean  "dormant",                      :default => false
     t.datetime "last_trade_time"
+    t.integer  "missed_minutes",               :default => 0
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
@@ -211,5 +311,9 @@ ActiveRecord::Schema.define(:version => 20090210230614) do
   add_index "var_aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
+
+  add_foreign_key "positions", ["portfolio_id"], "portfolios", ["id"], :name => "positions_ibfk_1"
+  add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_2"
+  add_foreign_key "positions", ["contract_type_id"], "contract_types", ["id"], :name => "positions_ibfk_3"
 
 end

@@ -1,3 +1,14 @@
+# == Schema Information
+# Schema version: 20090218001147
+#
+# Table name: fast_live_quotes
+#
+#  ticker_id       :integer(4)
+#  last_trade_time :datetime
+#  last_trade      :float
+#  volume          :integer(4)
+#
+
 class FastLiveQuote < ActiveRecord::Base
   belongs_to :ticker
 

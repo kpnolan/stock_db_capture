@@ -3,40 +3,81 @@ class Timeseries
   include Plot
   include TechnicalAnalysis
   include UserAnalysis
+  include CsvDumper
+
+  TRADING_PERIOD = 6.hours + 30.minutes
+  PRECALC_BARS = 252
 
   DEFAULT_OPTIONS = { DailyClose => { :attrs => [:date, :volume, :high, :low, :open, :close, :r, :logr],
                                       :sample_period => [ 1.day ],
-                                      :start_time => Time.parse('2000-1-1'),
                                       :end_time => Time.now },
                      LiveQuote => { :attrs => [:last_trade, :volume ],
                                     :sample_period => [ 1.minute ],
-                                    :start_time => Time.parse('2000-1-1'),
                                     :end_time => Time.now },
                     Aggregate => {  :attrs => [ :date, :start, :volume, :high, :low, :open, :close, :r, :logr ],
-                                    :sample_period => [ 5.minutes, 15.minutes, 30.minutes, 1.hour ],
-                                    :start_time => Time.parse('2008-12-1'),
+                                    :sample_period => [ 5.minute, 10.minutes, 30.minutes ],
                                     :end_time => Time.now }
 
                                  }
 
-  attr_accessor :symbol, :source_model, :value_hash, :time_interval
+  attr_accessor :symbol, :source_model, :value_hash
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
-  attr_accessor :timevec, :time_map, :index_map, :local_focus
+  attr_accessor :timevec, :xval_vec, :time_map, :index_map, :local_range, :price
 
-  def initialize(symbol, time_resolution, options={})
+  def initialize(symbol, local_range, time_resolution, options={})
+    options.reverse_merge! :price => :default
+    initialize_state()
     self.symbol = symbol
     self.source_model = select_by_resolution(time_resolution)
+    bars_per_day = 1
+    if source_model == Aggregate
+      minutes = time_resolution / 60
+      Aggregate.set_table_name("bar_#{minutes}s")
+      bars_per_day = TRADING_PERIOD / time_resolution
+      day_offset = (PRECALC_BARS / bars_per_day) + 1
+      self.start_time = (local_range.begin - day_offset.days).to_time
+    elsif source_model == DailyClose
+      self.start_time = (local_range.begin - 365.days).to_time
+    else
+      raise ArgumentError.new("Bar resolution cannot be retrieved")
+    end
     self.plot_results = true
-    initialize_state
+    self.local_range = local_range
     options.reverse_merge!(DEFAULT_OPTIONS[source_model])
     apply_options(options)
     options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
+    reset_price(options[:price])
   end
 
   def inspect
     super
+  end
+
+  def all(*args)
+    multi_calc(args)
+  end
+
+  def multi_calc(fcn_vec, options={})
+    return nil if fcn_vec.empty?
+    fcn_vec.each { |function| self.send(function, options.merge(:noplot => true)) }
+    aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
+    clear_results
+  end
+
+  def clear_results
+    self.derived_values = []
+  end
+
+  def reset_price(expression = :default)
+    if expression == :default
+      self.price = (high+low).scale(0.5)
+    elsif expression.is_a? Symbol
+      self.price = send(expression)
+    elsif expression.is_a? String
+      self.price = instance_eval(expression)
+    end
   end
 
   def select_by_resolution(period)
@@ -56,8 +97,6 @@ class Timeseries
     attrs = (timevec.empty? ? self.attrs | [ source_model.time_col.to_sym ] : self.attrs)
     if num_points > 0
       self.value_hash = source_model.simple_vectors(symbol, attrs, start_time, num_points)
-    elsif time_interval > 0
-      self.value_hash = source_model.general_vectors_by_interval(symbol, attrs, start_time, time_interval)
     else
       self.value_hash = source_model.general_vectors(symbol, attrs, start_time, end_time)
     end
@@ -73,48 +112,51 @@ class Timeseries
   end
 
   def compute_timestamps
-    self.timevec = value_hash[source_model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time.midnight }
+    if source_model.time_class == Date
+      self.timevec = value_hash[source_model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time.midnight }
+    else
+      self.timevec = value_hash[source_model.time_col.to_sym].collect { |twz| twz.time }
+    end
     self.timevec.each_with_index { |time, idx| self.time_map[time] = idx }
     self.index_map = time_map.invert
-    nil
+    self.xval_vec = source_model == Aggregate ? (1..timevec.length).to_a : timevec
   end
 
   def minimal_samples(lookback_fun, *args)
     lookback_fun ? Talib.send(lookback_fun, *args) : 0
   end
 
-  def calc_indexes(loopback_fun, time_range, *args)
-    if time_range.is_a? Date
-      begin_time = time_range.to_time
+  def calc_indexes(loopback_fun, *args)
+    if self.local_range.is_a? Date
+      begin_time = self.local_range.to_time
       end_time = begin_time + 23.hours + 59.minutes
     else
-      begin_time = time_range.begin
-      end_time = time_range.end
+      begin_time = self.local_range.begin
+      end_time = self.local_range.end
     end
-    begin_index, fall_back = time2index(begin_time, -1)
-    end_index, fall_fwd = time2index(end_time, 1)
-    raise TimeseriesException.new if fall_back || fall_fwd
+    begin_index = time2index(begin_time, -1)
+    end_index = time2index(end_time, 1)
     self.output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
     return begin_index..end_index
   end
 
   def time2index(time, direction, raise_on_range_error=true)
-    time = time.to_time.utc.midnight
+    adj_time = time.to_time.utc.midnight
     if direction == -1
-      return 0 if time < timevec.first
-      until time_map.include?(time) || time < timevec.first
-        last_back_time = time
-        time -= sample_period.first
+      raise TimeseriesException.new("Requested time is before recorded history: starting #{timevec.first}") if adj_time < timevec.first
+      until time_map.include?(adj_time) || adj_time < timevec.first
+        adj_time -= sample_period.first
       end
-      return time_map[time].nil? ? [nil, last_back_time] : time_map[time]
+      raise TimeseriesException.new("#{time} is not contained within the DB") if time_map[adj_time].nil?
+      time_map[adj_time]
     else # this is split into two loop to simplify the boundry test
-      return timevec.length() -1 if time > timevec.last
-      until time_map.include?(time) || time > timevec.last
-        last_fwd_time = time
-        time += sample_period.first
+      raise TimeseriesException.new("Requested time is after recorded history: ending #{timevec.last}") if adj_time > timevec.last
+      until time_map.include?(adj_time) || adj_time > timevec.last
+        adj_time += sample_period.first
       end
     end
-    return time_map[time].nil? ? [nil, last_fwd_time] : time_map[time]
+    raise TimeseriesException.new("#{time} is not contained within the DB") if time_map[adj_time].nil?
+    return time_map[adj_time]
   end
 
   def index2time(index)
@@ -122,18 +164,20 @@ class Timeseries
     time && time.send(source_model.time_convert)
   end
 
-  def memoize_result(ts, fcn, time_range, idx_range, options, results, graph_type=nil)
+  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)
     status = results.shift
     outidx = results.shift
-    pb = ParamBlock.new(ts, fcn, time_range, idx_range, options, outidx, graph_type, results)
+    pb = ParamBlock.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
     self.derived_values << pb
 
+    #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
+    #FIXME whereas non-overlap should be plotted in separate graphs
     if graph_type == :overlap
-      aggregate(symbol, pb, options.merge(:with => 'financebars'))
+      aggregate(symbol, pb, options.merge(:with => 'financebars')) unless options[:noplot]
     else
       with_function fcn
     end
-    pb
+    nil
   end
 
   def avg_price
@@ -162,16 +206,17 @@ class Timeseries
 
   def initialize_state
     self.value_hash, self.time_map, self.index_map = {}, {}, {}
-    self.local_focus = nil
     self.derived_values,  self.attrs = [], []
     self.timevec = []
-    self.time_interval, self.num_points, self.sample_period = 0, 0, []
-    self.start_time, self.end_time = nil, nil
+    self.num_points, self.sample_period = 0, []
     self.utc_offset = Time.now.utc_offset
   end
 end
 
 class ParamBlock
+
+  include ResultAnalysis
+
   attr_accessor :timeseries
   attr_accessor :function
   attr_accessor :time_range
@@ -181,6 +226,7 @@ class ParamBlock
   attr_accessor :vectors
   attr_accessor :graph_type
   attr_accessor :names
+  attr_accessor :result_hash
 
   def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)
     self.function = fcn
@@ -192,6 +238,13 @@ class ParamBlock
     self.graph_type = graph_type
     self.names = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names
     self.timeseries = ts
+    self.result_hash = {}
+
+    names.each_with_index { |name, idx| self.result_hash[name.to_sym] = vectors[idx] }
+  end
+
+  def get_vector(sym)
+    result_hash[sym]
   end
 
   def to_ts
@@ -205,7 +258,8 @@ class ParamBlock
   end
 end
 
-def ts(symbol, seconds, options={ })
-  $ts = Timeseries.new(symbol, seconds, options)
+def ts(symbol, local_range, seconds, options={})
+  options.reverse_merge! :populate => true
+  $ts = Timeseries.new(symbol, local_range, seconds, options)
   nil
 end

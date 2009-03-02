@@ -5,7 +5,7 @@ require 'gsl/gnuplot'
 
 module Plot
 
-  PLOT_TYPES = [ :line, :bar, :candlestick ]
+  PLOT_TYPES = [ :line, :financebar, :candlestick ]
 
   include GSL
   include PlotAuxInfo
@@ -21,7 +21,7 @@ module Plot
         plot.unset 'ylabel'
         plot.pointsize 3
         plot.grid
-        timevec = set_xvalues(plot, timevec[index_range])
+        timevec = set_xvalues(plot, xval_vec[index_range])
 
         plot.data = []
         vecs_or_params.each do |vec|
@@ -78,7 +78,7 @@ module Plot
       plot.origin options[:origin] if options[:origin]
       plot.size options[:size] if options[:size]
 
-      timevec = set_xvalues(plot, self.timevec[index_range])
+      timevec = set_xvalues(plot, self.xval_vec[index_range])
       withs = options[:with]
 
       plot.data = []
@@ -112,7 +112,7 @@ module Plot
       index_range, vecs, names = param.decode(:index_range, :vectors, :names)
       names = names.dup
 
-      timevec = set_xvalues(plot, self.timevec[index_range])
+      timevec = set_xvalues(plot, self.xval_vec[index_range])
 
       plot.data = []
       vecs.each do |vec|
@@ -121,21 +121,32 @@ module Plot
     end
   end
 
+  def normalize(vec)
+    vec.each_with_index { |e, i| vec[i] = i }
+  end
+
   def set_xvalues(plot, timevec)
-
+    return normalize(timevec) if timevec.first.is_a? Fixnum
     time_class = timevec.first.send(source_model.time_convert).class
-
-    plot.xdata "time"
     if time_class == Date
+      plot.xdata "time"
       plot.timefmt '"%Y-%m-%d"'
       plot.format 'x "%m-%d\n%Y"'
       timevec.map { |t| t.to_date }
 #      timevec.map { |t| '"'+t.strftime('%Y-%m-%d')+'"' }
     elsif time_class == Time || time_class == DateTime
+      plot.xdata "time"
       plot.timefmt '"%Y-%m-%d@%H:%M"'
       plot.format 'x "%m-%d\n%H:%M"'
       timevec.map { |t| '"'+time.strftime('%Y-%m-%d@%H:%M')+'"' }
     end
+  end
+
+  def set_yrange(plot, low_vec, high_vec)
+    low_f = low_vec.map { |e| e.to_f }
+    high_f = high_vec.map { |e| e.to_f }
+
+    plot.yrange "[ #{low_f.min*0.995} : #{high_f.max*1.005} ]"
   end
 
   def aggregate(symbol, param, options)
@@ -160,11 +171,13 @@ module Plot
 
         names = names.dup
 
-        date = set_xvalues(plot, self.timevec[index_range])
+        date = set_xvalues(plot, self.xval_vec[index_range])
         open = open_before_cast[index_range]
         close = close_before_cast[index_range]
         high = high_before_cast[index_range]
         low = low_before_cast[index_range]
+
+        set_yrange(plot, low, high)
 
         plot.data = []
         plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.title = 'OHLC'; ds.with = options[:with] }
@@ -176,8 +189,63 @@ module Plot
     nil
   end
 
-  def aggregate_base(plot, index_range, options)
+  def aggregate_all(symbol, options)
 
+    vecs = []
+    names = []
+    index_range = nil
+    len = 0
+    derived_values.each do |param|
+      if param.graph_type == :overlap
+        pindex_range, pvecs, pnames = param.decode(:index_range, :vectors, :names)
+        vecs << pvecs
+        names << pnames
+        len = pindex_range.end - pindex_range.begin + 1
+        index_range = pindex_range
+      end
+    end
+    vecs.flatten!
+    names.flatten!
+
+    fcn_names = derived_values.collect { |pb| pb.function.to_s }.join(', ')
+
+    Gnuplot.open do |gp|
+      Gnuplot::Plot.new( gp ) do |plot|
+
+        plot.mouse 'mouseformat 3'
+        plot.auto "x"
+        plot.auto "y"
+        plot.title  "#{fcn_names} for #{symbol}: #{Ticker.listing_name(symbol)}"
+        plot.xlabel "Date from #{index2time(index_range.begin).to_s(:db)} to #{index2time(index_range.end).to_s(:db)} (#{len} points)"
+        plot.ylabel 'OCHL'
+        plot.pointsize 3
+        plot.grid
+        plot.size "1,1"
+        plot.origin "0,0"
+        plot.boxwidth 0.2 if options[:with] == 'candlesticks'
+
+        names = names.dup
+
+        date = set_xvalues(plot, self.xval_vec[index_range])
+        open = open_before_cast[index_range]
+        close = close_before_cast[index_range]
+        high = high_before_cast[index_range]
+        low = low_before_cast[index_range]
+
+        set_yrange(plot, low, high)
+
+        plot.data = []
+        plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.title = 'OHLC'; ds.with = options[:with] }
+        vecs.each do |vec|
+          plot.data << Gnuplot::DataSet.new( [date, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.title = names.shift; ds.with = "lines" }
+        end
+      end
+    end
+    nil
+  end
+
+
+  def aggregate_base(plot, index_range, options)
     len = index_range.end - index_range.begin + 1
 
     plot.mouse 'mouseformat 3'
@@ -196,12 +264,11 @@ module Plot
     plot.origin options[:origin] if options[:origin]
     plot.size options[:size] if options[:size]
 
-    date = set_xvalues(plot, self.timevec[index_range])
+    date = set_xvalues(plot, self.xval_vec[index_range])
     open = open_before_cast[index_range]
     close = close_before_cast[index_range]
     high = high_before_cast[index_range]
     low = low_before_cast[index_range]
-
     plot.data = []
     plot.data << Gnuplot::DataSet.new( [date, open, low, high, close] ) {  |ds| ds.using="1:2:3:4:5"; ds.title = 'OHLC'; ds.with = options[:with] }
   end

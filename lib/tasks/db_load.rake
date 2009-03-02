@@ -1,20 +1,13 @@
-require 'populate_db'
+require 'load_daily_close'
+
+include LoadDailyClose
 
 namespace :db do
   namespace :load do
-
-    desc "Load stock listings from yahoo"
-    task :listings => :environment do
-
-      # FIXME do a find or create on Listing instead
-      Listing.delete_all
-      Ticker.delete_all
-      Exchange.delete_all
-
-#      ActiveRecord::Base.transaction do
-        ldr = TradingDBLoader.new(:exchange => Exchange, :ticker => Ticker, :listing => Listing)
-        ldr.load('x')
-#      end
+    desc "Load daily closes from yahoo"
+    task :daily_closes => :environment do
+      $logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'deepend_daily_closes.log'))
+      load_more_history($logger)
     end
   end
 end

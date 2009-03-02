@@ -7,19 +7,6 @@ module ResultAnalysis
 
   VALID_OPS = [:gt, :lt, :ge, :le, :eq]
 
-  def get_vector(sym)
-    xa = Array.new(100)
-    xa.fill { |i| i* (6*Math::PI/100) }
-    x = xa.to_gv
-    if sym == :sin
-      GSL::Sf::sin(x)
-    elsif sym == :cos
-       GSL::Sf::cos(x)
-    else
-      raise ArgumentError
-    end
-  end
-
   def threshold_crossing(threshold, sym, op)
     raise ArgumentError, "#{op} not one of #{VALID_OPS.join(', ')}" unless VALID_OPS.include? op
     vec = get_vector(sym)
@@ -28,13 +15,13 @@ module ResultAnalysis
     bitmap.where { |bflag| bflag == 1 }
   end
 
-  def down_crossing(sym1 ,sym2)
+  def crosses_over(sym1 ,sym2)
     a_vec = get_vector(sym1)
     b_vec = get_vector(sym2)
     crossing(:gt, a_vec, b_vec)
   end
 
-  def up_crossing(sym1, sym2)
+  def crosses_under(sym1, sym2)
     a_vec = get_vector(sym1)
     b_vec = get_vector(sym2)
     crossing(:lt, a_vec, b_vec)

@@ -70,3 +70,54 @@ FinancialFunctions:
           Name: Close
           Type: Close
       ShortDescription: Standard Deviation
+    - Abbreviation: zema
+      CamelCaseName: Zema
+      Flags:
+        Flag:
+          - Overlap
+      GroupId: Moving Averages
+      OptionalInputArguments:
+        OptionalInputArgument:
+          - DefaultValue: .25
+            Name: alpha
+            Range:
+              Maximum: 1
+              Minimum: .01
+              SuggestedEnd: 1
+              SuggestedIncrement: .01
+              SuggestedStart: .25
+            ShortDescription: Alpha
+            Type: Double
+          - DefaultValue: 1.0
+            Name: Gain
+            Range:
+              Maximum: 2
+              Minimum: 0
+              Precision: 2
+              SuggestedEnd: 2.0
+              SuggestedIncrement: .01
+              SuggestedStart: 0
+            ShortDescription: Gain for Momentum
+            Type: Double
+          - DefaultValue: 3
+            Name: Lag
+            Range:
+              Maximum: 5
+              Minimum: 1
+              Precision: 2
+              SuggestedEnd: 5
+              SuggestedIncrement: 1
+              SuggestedStart: 1
+            ShortDescription: Velocity Estimate
+            Type: Integer
+      OutputArguments:
+        OutputArgument:
+          Flags:
+            Flag: Line
+          Name: outZema
+          Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          Name: Price
+          Type: Price
+      ShortDescription: Zero Lag Moving Average

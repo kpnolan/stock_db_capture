@@ -8,32 +8,36 @@ module Aggregator
 
   attr_accessor :agg_model, :recs
 
-  def init_tables(date_range)
+  def init_tables(dates)
     $logger.info("Building Indexed Tables")
     FastLiveQuote.connection.execute("truncate fast_live_quotes")
     FastLiveQuote.connection.execute("insert into fast_live_quotes select * from live_quotes " +
-                                     "where "+
-                                     "date(last_trade_time) >= '#{date_range.begin}' and " +
-                                     "date(last_trade_time) <= '#{date_range.end}'")
+                                     "where date(last_trade_time) IN ( #{format_date_where_clause(dates)} )")
     FastLiveQuote.connection.select_values("select distinct ticker_id from fast_live_quotes order by ticker_id")
   end
 
   def trading_days(date_range)
-    dary = (date_range.to_a - HOLIDAYS).select { |date| (1..5).include?(date.to_time.wday) }
+    (date_range.to_a - HOLIDAYS).select { |date| (1..5).include?(date.to_time.wday) }
+  end
+
+  def format_date_where_clause(dates)
+    "'#{dates.join("',' ")}'"
   end
 
   def compute_aggregates(period_in_seconds)
-    tickers = init_tables((Date.yesterday)..(Date.yesterday))
+    max_agg_date = Aggregate.maximum(:date)
+    dates = trading_days((max_agg_date+1.day)..(Date.today))
+    tickers = init_tables(dates)
     tickers = Ticker.find tickers
     self.agg_model = Aggregate
-    count = 1
-    $logger.info("beginning out_of_date query with #{tickers.length} tickers...")
-    date = Date.yesterday
-
-    for ticker in tickers
-      $logger.info("Aggregating #{ticker.symbol} #{count} out of #{tickers.length}")
-      compute_aggregate(ticker, date, period_in_seconds)
-      count += 1
+    for date in dates
+      count = 1
+      $logger.info("beginning out_of_date query with #{tickers.length} tickers...")
+      for ticker in tickers
+        $logger.info("Aggregating #{ticker.symbol} #{count} out of #{tickers.length}")
+        compute_aggregate(ticker, date, period_in_seconds)
+        count += 1
+      end
     end
   end
 
@@ -96,7 +100,7 @@ module Aggregator
                         :close => close, :high => high, :low => low, :volume => volume, :period => period,
                         :r => r, :logr => logr, :sample_count => recs.length)
     rescue => e
-      $logger.error("dup #{agg_model.to_s} tid: #{tid} start: #{start_time} #{period} seconds")
+      $logger.error("duplicate #{agg_model.to_s} tid: #{tid} start: #{start_time} #{period} seconds")
     end
     return close
   end

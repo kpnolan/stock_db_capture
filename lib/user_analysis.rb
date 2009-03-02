@@ -1,39 +1,30 @@
 include GSL
 
 module UserAnalysis
-  def linear_regression(time_range, yVec = close, options={})
-    idx_range = calc_indexes(nil, time_range)
-    sample_count = idx_range.end - idx_range.begin + 1
-    xvec = GSL::Vector.linspace(0, sample_count-1, sample_count)
-    yvec = yVec[idx_range]
-    yinter, slope = GSL::Fit::linear(xvec, yvec)
-    outVec = GSL::Vector.linspace(yinter, slope*sample_count+yinter, sample_count)
-    result = [0, idx_range.begin, outVec]
-    memoize_result(self, :linear_regression, time_range, idx_range, options, result, :overlap)
-  end
-
-  def detrend(time_range, yVec = close, options={})
-    if (pb = find_memo(:linear_regression, time_range))
-      idx_range, vecs = pb.decode(:index_range, :vectors)
-    else
-      pb = linear_regression(time_range, yVec)
-      idx_range, vecs = pb.decode(:index_range, :vectors)
+  def zema(options = {})
+    options.reverse_merge!(:mlag => 3, :alpha => 0.25, :gain => 1.0)
+    idx_range = calc_indexes(nil)
+    mlag = options[:mlag]
+    alpha = options[:alpha]
+    gain = options[:gain]
+    raise ArgumentError, "begin time must be equal or more than #{mlag} bars into the timeseries!" if idx_range.begin < mlag
+    zema = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
+    today = idx_range.begin - mlag
+    prevMA = price[today]
+    while today <= idx_range.begin
+      prevMA = ((price[today] + gain*(price[today] - price[today-mlag]) - prevMA) * alpha) + prevMA
+      today += 1
     end
-    dt_close = yVec[idx_range] - vecs.first
-    result = [0, idx_range.begin, dt_close]
-    memoize_result(self, :detrend, time_range, idx_range, options, result, :overlap)
-  end
-
-  def detrended_stddev(time_range, yVec = close, options={})
-    options.reverse_merge!(:time_period => 5, :deviations => 1.0)
-    if (pb = find_memo(:detrend, time_range))
-      idx_range, vecs = pb.decode(:index_range, :vectors)
-    else
-      pb = detrend(time_range, yVec)
-      idx_range, vecs = pb.decode(:index_range, :vectors)
+    zema[0] = prevMA
+    outidx = 1
+    while today <= idx_range.end
+      prevMA = ((price[today] + gain*(price[today] - price[today-mlag]) - prevMA) * alpha) + prevMA
+      zema[outidx] = prevMA
+      today += 1
+      outidx += 1
     end
-    sample_count = idx_range.end - idx_range.begin + 1
-    result  = Talib.ta_stddev(0, sample_count-1, vecs.first, options[:time_period], options[:deviations])
-    memoize_result(self, :detrended_stddev, time_range, idx_range, options, result)
+    result = [0, idx_range.begin, zema]
+    memoize_result(self, :zema, idx_range, options, result, :overlap)
+    nil
   end
 end

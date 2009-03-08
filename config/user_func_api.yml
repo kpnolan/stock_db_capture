@@ -121,3 +121,45 @@ FinancialFunctions:
           Name: Price
           Type: Price
       ShortDescription: Zero Lag Moving Average
+    - Abbreviation: rvi
+      CamelCaseName: Rvi
+      Flags:
+        Flag:
+          - Overlap
+      GroupId: Volatility Measure
+      OptionalInputArguments:
+        OptionalInputArgument:
+          - DefaultValue: .2
+            Name: alpha
+            Range:
+              Maximum: 1
+              Minimum: .01
+              SuggestedEnd: 1
+              SuggestedIncrement: .01
+              SuggestedStart: .25
+            ShortDescription: Alpha
+            Type: Double
+          - DefaultValue: 5
+            Name: Period
+            Range:
+              Maximum: 2
+              Minimum: 10000
+              Precision: 2
+              SuggestedEnd: 2.0
+              SuggestedIncrement: .5
+              SuggestedStart: 2
+            ShortDescription: Period for Smoothing
+            Type: Integer
+      OutputArguments:
+        OutputArgument:
+          Flags:
+            Flag: Line
+          Name: outRvi
+          Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          Name: Low
+          Type: Price
+          Name: High
+          Type: Price
+      ShortDescription: Relative Volatility Index

@@ -1,0 +1,9 @@
+%tr[derived_value_type]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.name
+    = h derived_value_type.name
+  %td.show
+    = link_to 'Show', object_path(derived_value_type)
+  %td.edit
+    = link_to 'Edit', edit_object_path(derived_value_type)
+  %td.destroy
+    = link_to 'Destroy', object_path(derived_value_type), :confirm => 'Really destroy derived_value_type?', :method => :delete

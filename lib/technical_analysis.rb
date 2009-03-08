@@ -578,11 +578,11 @@ module TechnicalAnalysis
   end
 
   #Chande Momentum Oscillator
-  def cmo(inReal, options={})
+  def cmo(options={})
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_cmo_lookback, options[:time_period])
-    result = Talib.ta_cmo(idx_range.begin, idx_range.end, inReal, options[:time_period])
-    memoize_result(self, :cmo, idx_range, options, result, :unstable_period)
+    result = Talib.ta_cmo(idx_range.begin, idx_range.end, close, options[:time_period])
+    memoize_result(self, :cmo, idx_range, options, result, :financebars)
   end
 
   #Pearson's Correlation Coefficient (r)
@@ -631,12 +631,10 @@ module TechnicalAnalysis
   end
 
   #Exponential Moving Average
-  def ema(inReal=price, options={})
+  def ema(options={})
     options.reverse_merge!(:time_period => 5)
     idx_range = calc_indexes(:ta_ema_lookback, options[:time_period])
-    puts "idx_range: #{idx_range}"
-    result = Talib.ta_ema(idx_range.begin, idx_range.end, inReal, options[:time_period])
-    puts "result len{ #{result.length}"
+    result = Talib.ta_ema(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :ema, idx_range, options, result, :overlap)
     nil
   end
@@ -752,10 +750,10 @@ module TechnicalAnalysis
   end
 
   #Moving average
-  def ma(inReal, options={})
+  def ma(options={})
     options.reverse_merge!(:time_period => 30, :ma_type => 0)
     idx_range = calc_indexes(:ta_ma_lookback, options[:time_period], options[:ma_type])
-    result = Talib.ta_ma(idx_range.begin, idx_range.end, inReal, options[:time_period], options[:ma_type])
+    result = Talib.ta_ma(idx_range.begin, idx_range.end, price, options[:time_period], options[:ma_type])
     memoize_result(self, :ma, idx_range, options, result, :overlap)
   end
 
@@ -895,10 +893,10 @@ module TechnicalAnalysis
   end
 
   #Momentum
-  def mom(inReal, options={})
+  def mom(options={})
     options.reverse_merge!(:time_period => 10)
     idx_range = calc_indexes(:ta_mom_lookback, options[:time_period])
-    result = Talib.ta_mom(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_mom(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :mom, idx_range, options, result)
   end
 
@@ -981,11 +979,11 @@ module TechnicalAnalysis
   end
 
   #Relative Strength Index
-  def rsi(inReal, options={})
+  def rsi(options={})
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
-    result = Talib.ta_rsi(idx_range.begin, idx_range.end, inReal, options[:time_period])
-    memoize_result(self, :rsi, idx_range, options, result, :unstable_period)
+    result = Talib.ta_rsi(idx_range.begin, idx_range.end, close, options[:time_period])
+    memoize_result(self, :rsi, idx_range, options, result, :financebars)
   end
 
   #Parabolic SAR
@@ -1043,26 +1041,26 @@ module TechnicalAnalysis
 
   #Stochastic
   def stoch(options={})
-    options.reverse_merge!(:fast-k_period => 5, :slow-k_period => 3, :slow-k_ma => 0, :slow-d_period => 3, :slow-d_ma => 0)
-    idx_range = calc_indexes(:ta_stoch_lookback, options[:fast-k_period], options[:slow-k_period], options[:slow-k_ma], options[:slow-d_period], options[:slow-d_ma])
-    result = Talib.ta_stoch(idx_range.begin, idx_range.end, high, low, close, options[:fast-k_period], options[:slow-k_period], options[:slow-k_ma], options[:slow-d_period], options[:slow-d_ma])
+    options.reverse_merge!(:fast_k_period => 5, :slow_k_period => 3, :slow_k_ma => 0, :slow_d_period => 3, :slow_d_ma => 0)
+    idx_range = calc_indexes(:ta_stoch_lookback, options[:fast_k_period], options[:slow_k_period], options[:slow_k_ma], options[:slow_d_period], options[:slow_d_ma])
+    result = Talib.ta_stoch(idx_range.begin, idx_range.end, high, low, close, options[:fast_k_period], options[:slow_k_period], options[:slow_k_ma], options[:slow_d_period], options[:slow_d_ma])
     memoize_result(self, :stoch, idx_range, options, result)
   end
 
   #Stochastic Fast
   def stochf(options={})
-    options.reverse_merge!(:fast-k_period => 5, :fast-d_period => 3, :fast-d_ma => 0)
-    idx_range = calc_indexes(:ta_stochf_lookback, options[:fast-k_period], options[:fast-d_period], options[:fast-d_ma])
-    result = Talib.ta_stochf(idx_range.begin, idx_range.end, high, low, close, options[:fast-k_period], options[:fast-d_period], options[:fast-d_ma])
+    options.reverse_merge!(:fast_k_period => 5, :fast_d_period => 3, :fast_d_ma => 0)
+    idx_range = calc_indexes(:ta_stochf_lookback, options[:fast_k_period], options[:fast_d_period], options[:fast_d_ma])
+    result = Talib.ta_stochf(idx_range.begin, idx_range.end, high, low, close, options[:fast_k_period], options[:fast_d_period], options[:fast_d_ma])
     memoize_result(self, :stochf, idx_range, options, result)
   end
 
   #Stochastic Relative Strength Index
-  def stochrsi(inReal, options={})
-    options.reverse_merge!(:time_period => 14, :fast-k_period => 5, :fast-d_period => 3, :fast-d_ma => 0)
-    idx_range = calc_indexes(:ta_stochrsi_lookback, options[:time_period], options[:fast-k_period], options[:fast-d_period], options[:fast-d_ma])
-    result = Talib.ta_stochrsi(idx_range.begin, idx_range.end, inReal, options[:time_period], options[:fast-k_period], options[:fast-d_period], options[:fast-d_ma])
-    memoize_result(self, :stochrsi, idx_range, options, result, :unstable_period)
+  def stochrsi(options={})
+    options.reverse_merge!(:time_period => 14, :fast_k_period => 5, :fast_d_period => 3, :fast_d_ma => 0)
+    idx_range = calc_indexes(:ta_stochrsi_lookback, options[:time_period], options[:fast_k_period], options[:fast_d_period], options[:fast_d_ma])
+    result = Talib.ta_stochrsi(idx_range.begin, idx_range.end, price, options[:time_period], options[:fast_k_period], options[:fast_d_period], options[:fast_d_ma])
+    memoize_result(self, :stochrsi, idx_range, options, result, :financebars)
   end
 
   #Vector Arithmetic Substraction
@@ -1134,10 +1132,10 @@ module TechnicalAnalysis
   end
 
   #Time Series Forecast
-  def tsf(inReal, options={})
+  def tsf(options={})
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_tsf_lookback, options[:time_period])
-    result = Talib.ta_tsf(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_tsf(idx_range.begin, idx_range.end, close, options[:time_period])
     memoize_result(self, :tsf, idx_range, options, result, :overlap)
   end
 

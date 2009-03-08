@@ -10,23 +10,19 @@ module LoadDailyClose
     DailyClose.connection.select_values("select ticker_id from daily_closes group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}'")
   end
 
-  def oldest_date
-    DailyClose.minimum(:date)
-  end
-
   def update_history(logger)
     logger = logger
     load_empty_history()
-    load_partial_history()
+#    load_partial_history()
   end
 
   def load_empty_history()
+    min_date = Date.parse('01/01/2000')
     tids = tickers_with_no_history()
-    min_date = DailyClose.connection.select_value("select min(date) from daily_closes").to_date
     tids.each do |ticker_id|
       symbol = Ticker.find_by_id(ticker_id).symbol
-      rows = YahooFinance::get_historical_quotes(symbol, min_date, Date.today, 'd')
-      Ticker.find_by_id(ticker_id).update_attribute(:active => false) if rows == 0
+      rows = YahooFinance::get_historical_quotes(symbol, min_date, Date.today-1.day, 'd')
+      Ticker.find(ticker_id).update_attribute(:active, false) if rows == 0
       logger.info("#{symbol} returned #{rows.length} rows") if logger
       rows.each do |row|
         create_history_row(ticker_id, row)
@@ -34,15 +30,20 @@ module LoadDailyClose
     end
   end
 
-  def load_more_history(logger, min_date=Date.parse('01/01/2000'))
-    tids = Ticker.ids
-    max_date = oldest_date() - 1.day
+  def backfill_history(logger, min_date=Date.parse('01/01/2000'))
+    tids = DailyClose.connection.select_values('select ticker_id from partial_dailys')
+    max_date = Date.parse('2003-12-29')
     for tid in tids
-      symbol = Ticker.find_by_id(ticker_id).symbol
-      rows = YahooFinance::get_historical_quotes(symbol, min_date, max_date, 'd')
-      logger.info("#{symbol} returned #{rows.length} rows") if logger
-      rows.each do |row|
-        create_history_row(ticker_id, row)
+      begin
+        ticker = Ticker.find(tid)
+        symbol = ticker.symbol
+        rows = YahooFinance::get_historical_quotes(symbol, min_date, max_date, 'd')
+        logger.info("#{symbol} returned #{rows.length} rows") if logger
+        rows.each do |row|
+          create_history_row(ticker.id, row)
+        end
+      rescue
+        logger.info( "cannot find ticker id #{ticker_id}") if logger
       end
     end
   end

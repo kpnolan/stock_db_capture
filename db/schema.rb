@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090301044945) do
+ActiveRecord::Schema.define(:version => 20090308043254) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -161,6 +161,25 @@ ActiveRecord::Schema.define(:version => 20090301044945) do
 
   add_index "daily_closes", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
+  create_table "derived_value_types", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  create_table "derived_values", :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "derived_value_type_id"
+    t.date     "date"
+    t.datetime "time"
+    t.float    "value"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "derived_values", ["ticker_id"], :name => "ticker_id"
+  add_index "derived_values", ["derived_value_type_id"], :name => "derived_value_type_id"
+
   create_table "exchanges", :force => true do |t|
     t.string "symbol"
     t.string "name"
@@ -287,10 +306,12 @@ ActiveRecord::Schema.define(:version => 20090301044945) do
     t.boolean  "dormant",                      :default => false
     t.datetime "last_trade_time"
     t.integer  "missed_minutes",               :default => 0
+    t.string   "alias"
   end
 
-  add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol"
+  add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol", :unique => true
   add_index "tickers", ["id", "last_trade_time"], :name => "index_tickers_on_id_and_last_trade_time"
+  add_index "tickers", ["alias"], :name => "index_tickers_on_alias"
 
   create_table "var_aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -309,6 +330,9 @@ ActiveRecord::Schema.define(:version => 20090301044945) do
 
   add_index "var_aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period", :unique => true
   add_index "var_aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
+
+  add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
+  add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 

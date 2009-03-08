@@ -123,7 +123,7 @@ class Timeseries
   end
 
   def minimal_samples(lookback_fun, *args)
-    lookback_fun ? Talib.send(lookback_fun, *args) : 0
+    lookback_fun ? Talib.send(lookback_fun, *args) : args.sum
   end
 
   def calc_indexes(loopback_fun, *args)

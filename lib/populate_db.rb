@@ -130,7 +130,7 @@ class TradingDBLoader
     self.start_time = Time.now
     logger.info("Starting with #{symbols.count} symbols")
     ActiveRecord::Base.silence do
-      symbols.in_groups_of(25, false) do |group|
+      symbols.in_groups_of(10, false) do |group|
         YahooFinance::get_quotes(query_protocol, group) do |qt|
           if qt.valid?
             self.symbol_count += 1
@@ -138,8 +138,12 @@ class TradingDBLoader
           else
             logger.error("Invalid Listing reqturned, retiring: #{qt.symbol}") if logger
             ticker = Ticker.find_by_symbol(qt.symbol)
-            ticker.update_attribute(:dormant, true)
-            self.retired_symbols << qt.symbol
+            if ticker.nil?
+              puts "Nil for ticker #{qt.symbol}"
+            else
+              ticker.update_attribute(:dormant, true)
+              self.retired_symbols << qt.symbol
+            end
           end
         end
       end
@@ -162,9 +166,17 @@ class TradingDBLoader
   def update_listing(qt)
     syms = CurrentListing.content_columns.collect { |col| col.name.to_sym }
     attrs = syms.inject({}) { |hash, sym| hash[sym] = qt.send(sym); hash }
-    ticker = Ticker.find_by_symbol(qt.symbol)
-    if (cl = ticker.current_listing).nil?
-      cl = CurrentListing.new(:ticker_id => ticker.id)
+    begin
+      ticker = Ticker.find_by_symbol(qt.symbol)
+      if (cl = ticker.current_listing).nil?
+        cl = CurrentListing.new(:ticker_id => ticker.id)
+      end
+    rescue
+      base = qt.symbol.delete('-')
+      if ticker = Ticker.find_by_symbol(base)
+        ticker.update_attribute(:alias, qt.symbol) and retry
+      end
+      puts "Uknown symbol in update #{qt.symbol}"
     end
     begin
       cl.update_attributes!(attrs)

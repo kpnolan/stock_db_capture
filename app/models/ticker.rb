@@ -14,12 +14,11 @@
 class Ticker < ActiveRecord::Base
   belongs_to :exchange
 
-  has_one  :current_listing
-  has_many :real_time_quotes
-  has_many :daily_returns
-  has_many :daily_closes
-  has_many :aggregations
-  has_many :positions
+  has_one  :current_listing, :dependent => :destroy
+  has_many :live_quotes
+  has_many :daily_closes, :dependent => :destroy
+  has_many :aggregate, :dependent => :destroy
+  has_many :positions, :dependent => :destroy
 
   def last_close
     DailyClose.connection.select_value("select adj_close from daily_closes where ticker_id = #{id} having max(date)").to_f
@@ -27,6 +26,10 @@ class Ticker < ActiveRecord::Base
 
   def listing
     current_listing
+  end
+
+  def self.find_by_symbol(sym)
+    Ticker.first(:conditions => ["symbol = ? OR alias = ?", sym, sym])
   end
 
   def self.listing_name(symbol)

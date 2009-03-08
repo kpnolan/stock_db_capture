@@ -28,4 +28,25 @@ namespace :active_trader do
       e = CurrentListing.create!(:ticker_id => t.id, :name => pair.last)
     end
   end
+  desc "Populate ticker DB from listings in CBI's files"
+  task :update_symbols => :environment do
+    file = ENV['FILE']
+    if file =~ /NASDAQ/
+      eid = Exchange.find_by_symbol('NasdaqNM').id
+    elsif file =~ /nyse/
+      eid = Exchange.find_by_symbol('NYSE').id
+    elsif file =~ /AMEX/
+      eid = Exchange.find_by_symbol('AMEX').id
+    else
+      raise ArgumentError.new("Uknown exchange")
+    end
+    IO.foreach(file) do |line|
+      unless line.length < 72
+        symbol = line[63..71].strip
+        unless Ticker.find_by_symbol(symbol)
+          Ticker.create!(:symbol => symbol, :exchange_id => eid, :dormant => false, :active => true)
+        end
+      end
+    end
+  end
 end

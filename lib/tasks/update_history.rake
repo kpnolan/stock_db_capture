@@ -8,20 +8,22 @@ extend LogReturns
 
 namespace :active_trader do
 
-  desc "Initialize returns, log returns and anualized returns"
-  task :init_returns => :environment do
-    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_history.log'))
-    initialize_returns(@logger)
-  end
-
   desc "Update Daily Close table with new history"
   task :update_history => :environment do
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_history.log'))
     update_history(@logger)
   end
 
-  desc "Update Daily Close table with new history"
-  task :update_returns => :update_history do
+  desc "Backfill history to 01/01/2000"
+  task :backfill_history => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_history.log'))
+    backfill_history(@logger)
+  end
+
+  desc "Update Daily Close with momentum values"
+  task :update_returns => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_returns.log'))
+    initialize_returns(@logger)
     update_returns(@logger)
   end
 end

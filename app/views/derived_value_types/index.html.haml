@@ -1,0 +1,8 @@
+%h1 Listing derived_value_types
+%table
+  %tr.heading
+    %th Name
+
+  = render :partial => 'derived_value_type', :collection => current_objects
+
+= link_to 'New derived_value_type', new_object_path 

@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :derived_value_types
+
   map.resources :positions
 
   map.resources :positions

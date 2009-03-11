@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090218001147
+# Schema version: 20090311210559
 #
 # Table name: tickers
 #
@@ -9,6 +9,9 @@
 #  active          :boolean(1)
 #  dormant         :boolean(1)
 #  last_trade_time :datetime
+#  missed_minutes  :integer(4)      default(0)
+#  validated       :boolean(1)
+#  name            :string(255)
 #
 
 class Ticker < ActiveRecord::Base
@@ -26,10 +29,6 @@ class Ticker < ActiveRecord::Base
 
   def listing
     current_listing
-  end
-
-  def self.find_by_symbol(sym)
-    Ticker.first(:conditions => ["symbol = ? OR alias = ?", sym, sym])
   end
 
   def self.listing_name(symbol)

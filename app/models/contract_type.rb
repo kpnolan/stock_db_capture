@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090218001147
+# Schema version: 20090311210559
 #
 # Table name: contract_types
 #

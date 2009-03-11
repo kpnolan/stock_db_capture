@@ -1,15 +1,9 @@
 ActionController::Routing::Routes.draw do |map|
+
   map.resources :derived_value_types
-
   map.resources :positions
-
-  map.resources :positions
-
   map.resources :contract_types
-
   map.resources :portfolios
-
-
   map.resources :plot_types
   map.resources :plot_attributes
   map.resources :listing_categories

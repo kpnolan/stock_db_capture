@@ -28,25 +28,41 @@ namespace :active_trader do
       e = CurrentListing.create!(:ticker_id => t.id, :name => pair.last)
     end
   end
+
   desc "Populate ticker DB from listings in CBI's files"
   task :update_symbols => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_tickers.log'))
     file = ENV['FILE']
-    if file =~ /NASDAQ/
+    if file =~ /nasdaq/
       eid = Exchange.find_by_symbol('NasdaqNM').id
     elsif file =~ /nyse/
       eid = Exchange.find_by_symbol('NYSE').id
-    elsif file =~ /AMEX/
-      eid = Exchange.find_by_symbol('AMEX').id
+    elsif file =~ /etf/
+      eid = Exchange.find_by_symbol('ETF').id
+    elsif file =~ /index/
+      eid = Exchange.find_by_symbol('IDX').id
     else
       raise ArgumentError.new("Uknown exchange")
     end
     IO.foreach(file) do |line|
-      unless line.length < 72
-        symbol = line[63..71].strip
-        unless Ticker.find_by_symbol(symbol)
-          Ticker.create!(:symbol => symbol, :exchange_id => eid, :dormant => false, :active => true)
-        end
+      symbol = line.strip
+      begin
+        Ticker.create!(:symbol => symbol, :exchange_id => eid, :dormant => false, :active => true, :validated => true)
+      rescue => e
+        @logger.info("Duplicate symbol: #{symbol}")
       end
+    end
+  end
+
+  desc "Make symbol files of 1000 symbols each for use with Askons downloader"
+  task :split_symbols => :environment do
+    symbols = Ticker.all(:order => 'symbol').map { |t| t.symbol }
+    count = 1
+    symbols.in_groups_of(300, false) do |list|
+      f = File.open("/work/railsapps/stock_db_capture/tmp/symbol#{count}.tlf", "w")
+      list.each { |el| f.puts("#{el}\r") }
+      count += 1
+      f.close
     end
   end
 end

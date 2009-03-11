@@ -4,7 +4,7 @@
   %td.exchange_id
     = lkup ticker.exchange, 'symbol'
   %td.listing
-    = lkup ticker.current_listing, 'name'
+    = h ticker.name
   %td.listing
     = link_to 'Listing', :controller => 'current_listing', :action => 'show', :ticker_id => ticker.id
   %td.show

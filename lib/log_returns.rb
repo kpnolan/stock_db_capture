@@ -25,9 +25,13 @@ module LogReturns
     self.counter = 1
     self.count = ticker_ids.length
     for ticker_id in ticker_ids
-      symbol = Ticker.find(ticker_id).symbol
-      compute_vectors_and_update(symbol, ticker_id)
-      self.counter += 1
+      begin
+        symbol = Ticker.find(ticker_id).symbol
+        compute_vectors_and_update(symbol, ticker_id)
+        self.counter += 1
+      rescue => e
+        puts e.message
+      end
     end
   end
 

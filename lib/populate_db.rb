@@ -94,6 +94,7 @@ class TradingDBLoader
     case query_type
     when 's' : [ YahooFinance::StandardQuote, LiveQuote ]
     when 'x' : [ YahooFinance::ExtendedQuote, CurrentListing ]
+    when 'n' : [ YahooFinance::NameQuote, Ticker ]
     when 'r' : [ YahooFinance::RealTimeQuote, RealTimeQuote ]
     when 'z' : [ YahooFinance::HistoricalQuote, DailyClose ]
     when 'w','W' : [ YahooFinance::HistoricalQuote, Aggregation ]
@@ -151,6 +152,65 @@ class TradingDBLoader
     self.retired_symbols
   end
 
+  def validate_symbols(symbols)
+    self.start_time = Time.now
+    logger.info("\nStarting with #{symbols.count} symbols")
+    ActiveRecord::Base.silence do
+      symbols.in_groups_of(10, false) do |group|
+        idx = 0
+        YahooFinance::get_quotes(query_protocol, group) do |qt|
+          if qt.valid?
+            self.symbol_count += 1
+            update_symbol(qt, group[idx])
+          else
+            logger.error("Invalid symbol reqturned, invalidating: #{qt.symbol} (#{group[idx]})") if logger
+            ticker = Ticker.find_by_symbol(group[idx])
+            if ticker.nil?
+              puts "Nil for ticker #{group[idx]}"
+            else
+              ticker.update_attribute(:validated, false)
+              self.retired_symbols << qt.symbol
+            end
+          end
+          idx += 1
+        end
+      end
+    end
+    self.retired_symbols
+  end
+
+  #
+  # This is a TOTAL hack, but it should only have to be done once!
+  #
+  def cleanup_symbols()
+    symbols = Ticker.connection.select_values("select symbol from tickers where symbol like '%+%'")
+    symbols.each do |symbol|
+      orig = symbol.dup
+      i = symbol.index('+')
+      next if i.nil?
+      symbol[i] = '-'
+      YahooFinance::get_quotes(query_protocol, [symbol]) do |qt|
+        if qt.valid?
+          ticker = Ticker.find_by_symbol(orig)
+          ticker.symbol = qt.symbol
+          ticker.save!
+          logger.info("Changed symbol #{orig} to #{ticker.symbol}")
+          next
+        end
+      end
+      symbol =~ /([A-Z]+)-([A-Z]+)/
+      newsym = "#{$1}-P#{$2}"
+      YahooFinance::get_quotes(query_protocol, [newsym]) do |qt|
+        if qt.valid?
+          ticker = Ticker.find_by_symbol(orig)
+          ticker.symbol = qt.symbol
+          ticker.save!
+          logger.info("Changed symbol #{orig} to #{ticker.symbol}")
+        end
+      end
+    end
+  end
+
   def cleanup_iteration(tickers)
     self.iteration += 1
     delta = (Time.now - start_time)
@@ -183,6 +243,19 @@ class TradingDBLoader
     rescue => e
       logger.error("Error creating #{qt.symbol} with attrs #{attrs} msg: #{e.message}") if logger
     end
+  end
+
+  def update_symbol(qt, symbol)
+    if Exchange.find_by_symbol(qt.stock_exchange).nil?
+      Exchange.create!(:symbol => qt.stock_exchange, :timezone => 'ET', :country => 'USA', :currency => 'USD')
+      logger.info("Adding Exchange #{qt.stock_exchange}")
+    end
+    exchange_id = Exchange.find_by_symbol(qt.stock_exchange)
+    if (ticker = Ticker.find_by_symbol(qt.symbol)).nil?
+      ticker = Ticker.find_by_symbol(symbol)
+      logger.info("Changing #{symbol} to #{qt.symbol}")
+    end
+    ticker.update_attributes(:symbol => qt.symbol, :name => qt.name, :exchange_id => exchange_id)
   end
 
   def create_quote_row(model, qt)

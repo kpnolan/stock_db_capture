@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090218001147
+# Schema version: 20090311210559
 #
 # Table name: tickers
 #
@@ -9,6 +9,9 @@
 #  active          :boolean(1)
 #  dormant         :boolean(1)
 #  last_trade_time :datetime
+#  missed_minutes  :integer(4)      default(0)
+#  validated       :boolean(1)
+#  name            :string(255)
 #
 
 one:

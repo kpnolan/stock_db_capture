@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090308043254) do
+ActiveRecord::Schema.define(:version => 20090310211259) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -115,7 +115,6 @@ ActiveRecord::Schema.define(:version => 20090308043254) do
     t.float   "weeks52_range_high"
     t.float   "peg_ratio"
     t.float   "dividend_yield"
-    t.string  "name"
     t.float   "price_per_eps_estimate_current_year"
     t.float   "oneyear_target_price"
     t.float   "dividend_per_share"
@@ -162,9 +161,7 @@ ActiveRecord::Schema.define(:version => 20090308043254) do
   add_index "daily_closes", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
   create_table "derived_value_types", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string "name"
   end
 
   create_table "derived_values", :force => true do |t|
@@ -173,8 +170,6 @@ ActiveRecord::Schema.define(:version => 20090308043254) do
     t.date     "date"
     t.datetime "time"
     t.float    "value"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   add_index "derived_values", ["ticker_id"], :name => "ticker_id"
@@ -215,6 +210,14 @@ ActiveRecord::Schema.define(:version => 20090308043254) do
   create_table "memberships", :force => true do |t|
     t.integer "ticker_id"
     t.integer "listing_category_id"
+  end
+
+  create_table "partial_dailys", :id => false, :force => true do |t|
+    t.integer "ticker_id", :null => false
+  end
+
+  create_table "partial_syms", :id => false, :force => true do |t|
+    t.string "symbol", :limit => 8
   end
 
   create_table "pimary_key_ids", :force => true do |t|
@@ -307,6 +310,8 @@ ActiveRecord::Schema.define(:version => 20090308043254) do
     t.datetime "last_trade_time"
     t.integer  "missed_minutes",               :default => 0
     t.string   "alias"
+    t.boolean  "validated"
+    t.string   "name"
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol", :unique => true

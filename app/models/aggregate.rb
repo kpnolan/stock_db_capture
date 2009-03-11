@@ -1,21 +1,19 @@
 # == Schema Information
-# Schema version: 20090218001147
+# Schema version: 20090311210559
 #
 # Table name: aggregates
 #
-#  id           :integer(4)      not null, primary key
-#  ticker_id    :integer(4)
-#  date         :date
-#  start        :datetime
-#  open         :float
-#  close        :float
-#  high         :float
-#  low          :float
-#  volume       :integer(4)
-#  period       :integer(4)
-#  r            :float
-#  logr         :float
-#  sample_count :integer(4)
+#  id        :integer(4)      not null, primary key
+#  ticker_id :integer(4)
+#  date      :date
+#  start     :datetime
+#  open      :float
+#  close     :float
+#  high      :float
+#  low       :float
+#  volume    :integer(4)
+#  r         :float
+#  logr      :float
 #
 
 class Aggregate < ActiveRecord::Base

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090218001147
+# Schema version: 20090311210559
 #
 # Table name: current_listings
 #
@@ -11,7 +11,6 @@
 #  weeks52_range_high                      :float
 #  peg_ratio                               :float
 #  dividend_yield                          :float
-#  name                                    :string(255)
 #  price_per_eps_estimate_current_year     :float
 #  oneyear_target_price                    :float
 #  dividend_per_share                      :float

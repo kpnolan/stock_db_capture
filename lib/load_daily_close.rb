@@ -3,11 +3,11 @@ module LoadDailyClose
   attr_accessor :logger
 
   def tickers_with_no_history
-    DailyClose.connection.select_values("SELECT tickers.id FROM tickers LEFT OUTER JOIN daily_closes ON tickers.id = ticker_id WHERE ticker_id IS NULL")
+    DailyClose.connection.select_values("SELECT tickers.id FROM tickers LEFT OUTER JOIN daily_closes ON tickers.id = ticker_id WHERE ticker_id IS NULL order by symbol")
   end
 
   def tickers_with_partial_history
-    DailyClose.connection.select_values("select ticker_id from daily_closes group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}'")
+    DailyClose.connection.select_values("select ticker_id from daily_closes group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}' order by symbol")
   end
 
   def update_history(logger)
@@ -20,12 +20,20 @@ module LoadDailyClose
     min_date = Date.parse('01/01/2000')
     tids = tickers_with_no_history()
     tids.each do |ticker_id|
-      symbol = Ticker.find_by_id(ticker_id).symbol
-      rows = YahooFinance::get_historical_quotes(symbol, min_date, Date.today-1.day, 'd')
-      Ticker.find(ticker_id).update_attribute(:active, false) if rows == 0
+      ticker = Ticker.transaction do
+        ticker = Ticker.find_by_id(ticker_id, :lock => true)
+        next if ticker.dormant
+        ticker.dormant = true
+        ticker.save!
+        ticker
+      end
+      next if ticker.nil?
+      symbol = ticker.symbol
+      rows = YahooFinance::get_historical_quotes(symbol, min_date, Date.today, 'd')
+      ticker.update_attribute(:active, false) if rows == 0
       logger.info("#{symbol} returned #{rows.length} rows") if logger
       rows.each do |row|
-        create_history_row(ticker_id, row)
+        create_history_row(ticker.id, row)
       end
     end
   end

@@ -109,6 +109,12 @@ module YahooFinance
 #    "k3" => [ "lastTradeSize", "convert(val)" ],
   }
 
+  NAMEHASH = {
+    "s" => [ "symbol", "val" ],
+    "n" => [ "name", "val" ],
+    "x" => [ "stock_exchange", "val" ]
+  }
+
   EXTENDEDHASH = {
     "s" => [ "symbol", "val" ],
     "n" => [ "name", "val" ],
@@ -210,6 +216,10 @@ module YahooFinance
       return get_extended_quotes( symbols, &block )
     elsif quote_class == YahooFinance::RealTimeQuote
       return get_realtime_quotes( symbols, &block )
+    elsif quote_class == YahooFinance::NameQuote
+      return get_name_quotes( symbols, &block )
+    elsif quote_class == YahooFinance::NameQuote
+      return get_name_quotes( symbols, &block )
     else
       # Use the standard quote if the given quote_class was not recoginized.
       return get_standard_quotes( symbols, &block )
@@ -233,6 +243,19 @@ module YahooFinance
     ret = Hash.new
     FasterCSV.parse( csvquotes ) do |row|
       qt = ExtendedQuote.new( row )
+      if block_given?
+        yield qt
+      end
+      ret[qt.symbol] = qt
+    end
+    ret
+  end
+
+  def YahooFinance.get_name_quotes( symbols )
+    csvquotes = YahooFinance::get( symbols, NAMEHASH.keys.join )
+    ret = Hash.new
+    FasterCSV.parse( csvquotes ) do |row|
+      qt = NameQuote.new( row )
       if block_given?
         yield qt
       end
@@ -374,6 +397,15 @@ module YahooFinance
   class ExtendedQuote < YahooFinance::BaseQuote
     def initialize( valarray=nil )
       super( YahooFinance::EXTENDEDHASH, valarray )
+    end
+  end
+
+  class NameQuote < YahooFinance::BaseQuote
+    def initialize( valarray=nil )
+      super( YahooFinance::NAMEHASH, valarray )
+    end
+    def valid?()
+      super() && @symbol != @name
     end
   end
 
@@ -599,6 +631,9 @@ if $0 == __FILE__
 
         opts.on( "-s", "Retrieve standard quotes (default)." ) {
           options.quote_class = YahooFinance::StandardQuote
+        }
+        opts.on( "-n", "Retrieve Name for Symbol" ) {
+          options.quote_class = YahooFinance::NameQuote
         }
         opts.on( "-x", "Retrieve extended quotes." ) {
           options.quote_class = YahooFinance::ExtendedQuote

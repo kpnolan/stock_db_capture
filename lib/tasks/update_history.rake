@@ -24,6 +24,6 @@ namespace :active_trader do
   task :update_returns => :environment do
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_returns.log'))
     initialize_returns(@logger)
-    update_returns(@logger)
+#    update_returns(@logger)
   end
 end

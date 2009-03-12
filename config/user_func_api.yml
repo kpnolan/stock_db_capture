@@ -163,3 +163,39 @@ FinancialFunctions:
           Name: High
           Type: Price
       ShortDescription: Relative Volatility Index
+    - Abbreviation: rvig
+      CamelCaseName: RVig
+      GroupId: Momentum Indicators
+      OptionalInputArguments:
+        OptionalInputArgument:
+          DefaultValue: 10
+          Name: Time Period
+          Range:
+            Maximum: 50
+            Minimum: 2
+            SuggestedEnd: 50
+            SuggestedIncrement: 1
+            SuggestedStart: 5
+          ShortDescription: Number of period
+          Type: Integer
+      OutputArguments:
+        OutputArgument:
+          - Flags:
+              Flag: Dashed Line
+            Name: outRvi
+            Type: Double Array
+          - Flags:
+              Flag: Line
+            Name: outRviSig
+            Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          - Name: High
+            Type: Price
+          - Name: Low
+            Type: Price
+          - Name: Open
+            Type: Price
+          - Name: Close
+            Type: Price
+      ShortDescription: Relative Vigor

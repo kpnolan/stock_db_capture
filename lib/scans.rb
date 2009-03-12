@@ -37,7 +37,7 @@ module Scans
   end
 
   def scan_type
-    @scan_type ||= DerivedValueType.find_by_name('KirkRatio')
+    @scan_type ||= DerivedValueType.find_by_name('KirkRatioSP500')
   end
 
   def init
@@ -48,12 +48,11 @@ module Scans
     init()
     date = Date.today
     dates = get_dates(26, 4)
-    population = sample_population(10000)
+    population = sample_population(2000)
     count = 0
+    reference_close = reference_value('^GSPC', dates)
     for symbol in population
       ticker_id = Ticker.find_by_symbol(symbol).id
-      reference_close = reference_value(symbol, dates)
-      next if reference_close.nil?
       begin
         current_close = DailyClose.first(:conditions => { :ticker_id => ticker_id, :date => @ref_date }).adj_close
         ratio = current_close / reference_close

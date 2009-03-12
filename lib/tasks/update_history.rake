@@ -26,4 +26,9 @@ namespace :active_trader do
     initialize_returns(@logger)
 #    update_returns(@logger)
   end
+
+  desc "Clear locks on Tickers"
+  task :clear_locks => :environment do
+    Ticker.connection.execute('update tickers set locked = 0')
+  end
 end

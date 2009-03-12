@@ -632,9 +632,9 @@ module TechnicalAnalysis
 
   #Exponential Moving Average
   def ema(options={})
-    options.reverse_merge!(:time_period => 5)
+    options.reverse_merge!(:input => price, :time_period => 5)
     idx_range = calc_indexes(:ta_ema_lookback, options[:time_period])
-    result = Talib.ta_ema(idx_range.begin, idx_range.end, price, options[:time_period])
+    result = Talib.ta_ema(idx_range.begin, idx_range.end, options[:input], options[:time_period])
     memoize_result(self, :ema, idx_range, options, result, :overlap)
     nil
   end

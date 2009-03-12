@@ -90,7 +90,7 @@ if ARGV.empty?
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 #  ts(:qqqq, 2.years.ago..23.months.ago, 30.minutes, :populate => true)
-  ts(:a, 3.year.ago..30.month.ago, 1.day, :populate => true)
+  ts('^gspc', 3.months.ago..Date.yesterday, 1.day, :populate => true)
 end
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)

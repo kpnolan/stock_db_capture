@@ -32,7 +32,7 @@ class Ticker < ActiveRecord::Base
   end
 
   def self.listing_name(symbol)
-    (ticker = find_by_symbol(symbol.to_s.upcase)) && ticker.current_listing.name
+    (ticker = find_by_symbol(symbol.to_s.upcase)) && ticker.name
   end
 
   def self.symbols
@@ -41,6 +41,10 @@ class Ticker < ActiveRecord::Base
 
   def self.active_symbols
     self.connection.select_values('SELECT symbol FROM tickers WHERE active = 1 ORDER BY symbol')
+  end
+
+  def self.active_ids
+    self.connection.select_values('SELECT id FROM tickers WHERE active = 1 ORDER BY symbol')
   end
 
   def self.ids

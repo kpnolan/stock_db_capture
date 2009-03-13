@@ -11,7 +11,7 @@ module LogReturns
   MinusInfinity = -1.0/0.0
 
   def ticker_ids
-    DailyClose.connection.select_values('SELECT DISTINCT ticker_id FROM daily_closes LEFT OUTER JOIN tickers on tickers.id = ticker_id WHERE active = 1 and r IS NULL ORDER BY symbol')
+    @rnulls ||= DailyClose.connection.select_values('SELECT DISTINCT ticker_id FROM daily_closes LEFT OUTER JOIN tickers on tickers.id = ticker_id WHERE r IS NULL ORDER BY symbol')
   end
 
   def all_ticker_ids
@@ -23,8 +23,8 @@ module LogReturns
   def initialize_returns(logger)
     self.logger = logger
     self.counter = 1
-    self.count = Ticker.active_ids.length
-    for ticker_id in Ticker.active_ids
+    self.count = ticker_ids()
+    for ticker_id in ticker_ids()
         ticker = Ticker.transaction do
           ticker = Ticker.find_by_id(ticker_id, :lock => true)
           next if ticker.locked

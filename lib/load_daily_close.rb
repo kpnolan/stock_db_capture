@@ -7,13 +7,17 @@ module LoadDailyClose
   end
 
   def tickers_with_partial_history
-    DailyClose.connection.select_values("select ticker_id from daily_closes group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}' order by symbol")
+    DailyClose.connection.select_values("select ticker_id from daily_closes LEFT OUTER JOIN tickers ON tickers.id = ticker_id group by ticker_id having active = 1 and max(date) < '#{(Date.today-1).to_s(:db)}' order by symbol")
+  end
+
+  def load_history(logger)
+    self.logger = logger
+    load_empty_history()
   end
 
   def update_history(logger)
-    logger = logger
-    load_empty_history()
-#    load_partial_history()
+    self.logger = logger
+    load_partial_history()
   end
 
   def load_empty_history()
@@ -22,8 +26,8 @@ module LoadDailyClose
     tids.each do |ticker_id|
       ticker = Ticker.transaction do
         ticker = Ticker.find_by_id(ticker_id, :lock => true)
-        next if ticker.dormant
-        ticker.dormant = true
+        next if ticker.locked
+        ticker.locked = true
         ticker.save!
         ticker
       end
@@ -34,24 +38,6 @@ module LoadDailyClose
       logger.info("#{symbol} returned #{rows.length} rows") if logger
       rows.each do |row|
         create_history_row(ticker.id, row)
-      end
-    end
-  end
-
-  def backfill_history(logger, min_date=Date.parse('01/01/2000'))
-    tids = DailyClose.connection.select_values('select ticker_id from partial_dailys')
-    max_date = Date.parse('2003-12-29')
-    for tid in tids
-      begin
-        ticker = Ticker.find(tid)
-        symbol = ticker.symbol
-        rows = YahooFinance::get_historical_quotes(symbol, min_date, max_date, 'd')
-        logger.info("#{symbol} returned #{rows.length} rows") if logger
-        rows.each do |row|
-          create_history_row(ticker.id, row)
-        end
-      rescue
-        logger.info( "cannot find ticker id #{ticker_id}") if logger
       end
     end
   end

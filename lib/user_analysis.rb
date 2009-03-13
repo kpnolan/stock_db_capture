@@ -36,7 +36,6 @@ module UserAnalysis
     idx_range = calc_indexes(nil, options[:time_period])
     out = (rvi_1(high, options) + rvi_1(low, options)).scale(0.5)
     result = [0, idx_range.begin, out]
-    debugger
     memoize_result(self, :rvi, idx_range, options, result, :financebars)
     nil
   end

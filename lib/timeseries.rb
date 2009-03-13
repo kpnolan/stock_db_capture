@@ -66,6 +66,15 @@ class Timeseries
     clear_results
   end
 
+  def multi_fopt(fopt_vec, options={})
+    fopt_vec.each do |ary|
+      raise ArgumentError.new("Expecting an Array of [:function, {options}]") unless ary.is_a? Array
+      self.send(ary.first, ary.last.merge(:noplot => true))
+    end
+    aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
+    clear_results
+  end
+
   def clear_results
     self.derived_values = []
   end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090311210559
+# Schema version: 20090403161440
 #
 # Table name: tickers
 #
@@ -12,6 +12,7 @@
 #  missed_minutes  :integer(4)      default(0)
 #  validated       :boolean(1)
 #  name            :string(255)
+#  locked          :boolean(1)
 #
 
 one:

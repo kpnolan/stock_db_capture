@@ -8,7 +8,7 @@ class Timeseries
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 252
 
-  DEFAULT_OPTIONS = { DailyClose => { :attrs => [:date, :volume, :high, :low, :open, :close, :r, :logr],
+  DEFAULT_OPTIONS = { DailyClose => { :attrs => [:date, :volume, :high, :low, :open, :close, :week, :r, :logr],
                                       :sample_period => [ 1.day ],
                                       :end_time => Time.now },
                      LiveQuote => { :attrs => [:last_trade, :volume ],
@@ -25,24 +25,28 @@ class Timeseries
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
   attr_accessor :timevec, :xval_vec, :time_map, :index_map, :local_range, :price
 
-  def initialize(symbol, local_range, time_resolution, options={})
-    options.reverse_merge! :price => :default
+  def initialize(symbol_or_id, local_range, time_resolution, options={})
+    options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true
     initialize_state()
-    self.symbol = symbol
+    self.symbol = symbol_or_id.is_a? Fixnum ? Tickers.find(symbol_or_id).symbol : symbol_or_id
     self.source_model = select_by_resolution(time_resolution)
     bars_per_day = 1
     if source_model == Aggregate
       minutes = time_resolution / 60
       Aggregate.set_table_name("bar_#{minutes}s")
       bars_per_day = TRADING_PERIOD / time_resolution
-      day_offset = (PRECALC_BARS / bars_per_day) + 1
+      if options[:pre_buffer]
+        day_offset = (PRECALC_BARS / bars_per_day) + 1
+      else
+        day_offset = (PRECALC_BARS / bars_per_day) + 1
+      end
       self.start_time = (local_range.begin - day_offset.days).to_time
     elsif source_model == DailyClose
       self.start_time = (local_range.begin - 365.days).to_time
     else
       raise ArgumentError.new("Bar resolution cannot be retrieved")
     end
-    self.plot_results = true
+    self.plot_results = options[:plot_results]
     self.local_range = local_range
     options.reverse_merge!(DEFAULT_OPTIONS[source_model])
     apply_options(options)
@@ -73,6 +77,11 @@ class Timeseries
     end
     aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
     clear_results
+  end
+
+  def find_result(fcn, options={})
+    values = derived_values.select { |pb| pb.match(fcn, options) }
+    return values.first unless values.empty?
   end
 
   def clear_results
@@ -168,6 +177,14 @@ class Timeseries
     return time_map[adj_time]
   end
 
+  def value_at(index, slot)
+    send(slot)[index]
+  end
+
+  def times_for(indexes)
+    indexes.map { |index| index2time(index) }
+  end
+
   def index2time(index)
     time = index_map[index]
     time && time.send(source_model.time_convert)
@@ -184,9 +201,15 @@ class Timeseries
     if graph_type == :overlap
       aggregate(symbol, pb, options.merge(:with => 'financebars')) unless options[:noplot]
     else
-      with_function fcn
+      with_function fcn  unless options[:noplot]
     end
-    nil
+    case options[:result]
+    when nil    : nil
+    when :keys  : pb.keys
+    when :memo  : pb
+    when :raw   : results
+    else        nil
+    end
   end
 
   def avg_price
@@ -249,11 +272,28 @@ class ParamBlock
     self.timeseries = ts
     self.result_hash = {}
 
-    names.each_with_index { |name, idx| self.result_hash[name.to_sym] = vectors[idx] }
+    self.names.each_with_index { |name, idx| self.result_hash[name.to_sym] = vectors[idx] }
   end
 
-  def get_vector(sym)
-    result_hash[sym]
+  def vector_for(sym)
+    if result_hash.has_key? sym
+      result_hash[sym]
+    elsif ts.methods.include? sym.to_s
+      timeseries.send(sym)
+    else
+      raise ArgumentError.new("#{function}.#{sym} is not available")
+    end
+  end
+
+  def match(fcn, options={})
+    opts = self.options.dup
+    opts.delete(:noplot)
+    opts.delete(:input)
+    return self if function == fcn && opts == options
+  end
+
+  def keys
+    result_hash.keys
   end
 
   def to_ts

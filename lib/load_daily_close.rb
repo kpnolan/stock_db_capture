@@ -7,7 +7,7 @@ module LoadDailyClose
   end
 
   def tickers_with_partial_history
-    DailyClose.connection.select_values("select ticker_id from daily_closes LEFT OUTER JOIN tickers ON tickers.id = ticker_id group by ticker_id having active = 1 and max(date) < '#{(Date.today-1).to_s(:db)}' order by symbol")
+    DailyClose.connection.select_values("select ticker_id from daily_closes LEFT OUTER JOIN tickers ON tickers.id = ticker_id where  tickers.active = 1 group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}' order by symbol")
   end
 
   def load_history(logger)

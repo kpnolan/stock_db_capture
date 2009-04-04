@@ -1,0 +1,21 @@
+# == Schema Information
+# Schema version: 20090403161440
+#
+# Table name: strategies
+#
+#  id          :integer(4)      not null, primary key
+#  name        :string(255)
+#  description :string(255)
+#  params_yaml :string(255)
+#
+
+one:
+  id: 1
+  name: MyString
+  description: MyString
+  filename: MyString
+two:
+  id: 2
+  name: MyString
+  description: MyString
+  filename: MyString

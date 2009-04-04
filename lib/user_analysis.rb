@@ -2,23 +2,19 @@ include GSL
 
 module UserAnalysis
   def zema(options = {})
-    options.reverse_merge!(:time_period => 3, :gain => 1.0)
-    options.reverse_merge! :alpha => 2 / (options[:time_period]+1)
-    idx_range = calc_indexes(nil, options[:mlag])
+    options.reverse_merge!(:time_period => 3, :gain => 1.0, :mlag => 3)
+    options.reverse_merge! :alpha => 2.0 / (options[:time_period]+1)
+    idx_range = calc_indexes(nil, options[:time_period])
     mlag = options[:mlag]
     alpha = options[:alpha]
     gain = options[:gain]
     raise ArgumentError, "begin time must be equal or more than #{mlag} bars into the timeseries!" if idx_range.begin < mlag
     zema = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
-    today = idx_range.begin - mlag
-    prevMA = price[today]
-    #FIXME compute a SMA here
-    while today <= idx_range.begin
-      prevMA = ((price[today] + gain*(price[today] - price[today-mlag]) - prevMA) * alpha) + prevMA
-      today += 1
-    end
+    today = idx_range.begin - options[:time_period]
+    prevMA = price[today..idx_range.begin].mean
     zema[0] = prevMA
     outidx = 1
+    today = idx_range.begin+1
     while today <= idx_range.end
       prevMA = ((price[today] + gain*(price[today] - price[today-mlag]) - prevMA) * alpha) + prevMA
       zema[outidx] = prevMA
@@ -30,6 +26,7 @@ module UserAnalysis
     nil
   end
 
+  # Relative Valatility Index
   def rvi(options={})
     options.reverse_merge! :time_period => 5
     options.reverse_merge! :alpha => (2.0 / (options[:time_period] + 1))
@@ -90,7 +87,7 @@ module UserAnalysis
 # DENUM = SUM (VALUE2, N)
 # RVI = NUM / DENUM
 # RVISig = (RVI + 2 * RVI (1) + 2 * RVI (2) + RVI (3)) / 6
-
+  # Relative 
   def rvig(options={})
     options.reverse_merge! :time_period => 10
     idx_range = calc_indexes(nil, options[:time_period], 6)

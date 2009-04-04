@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090311210559
+# Schema version: 20090403161440
 #
 # Table name: tickers
 #
@@ -12,6 +12,7 @@
 #  missed_minutes  :integer(4)      default(0)
 #  validated       :boolean(1)
 #  name            :string(255)
+#  locked          :boolean(1)
 #
 
 class Ticker < ActiveRecord::Base
@@ -22,6 +23,7 @@ class Ticker < ActiveRecord::Base
   has_many :daily_closes, :dependent => :destroy
   has_many :aggregate, :dependent => :destroy
   has_many :positions, :dependent => :destroy
+  has_and_belongs_to_many :scans
 
   def last_close
     DailyClose.connection.select_value("select adj_close from daily_closes where ticker_id = #{id} having max(date)").to_f
@@ -29,6 +31,10 @@ class Ticker < ActiveRecord::Base
 
   def listing
     current_listing
+  end
+
+  def self.lookup(symbol)
+    find(:first, :conditions => { :symbol => symbol.to_s.upcase })
   end
 
   def self.listing_name(symbol)

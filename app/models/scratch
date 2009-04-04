@@ -1,0 +1,1 @@
+SELECT ticker_id FROM daily_closes WHERE date >= '2009-01-01' AND date <= '2009-3-30' GROUP BY ticker_id HAVING AVG(volume) > 100000 AND count(ticker_id) > 100

@@ -1,0 +1,13 @@
+%tr[strategy]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.name
+    = h strategy.name
+  %td.description
+    = h strategy.description
+  %td.filename
+    = h strategy.filename
+  %td.show
+    = link_to 'Show', object_path(strategy)
+  %td.edit
+    = link_to 'Edit', edit_object_path(strategy)
+  %td.destroy
+    = link_to 'Destroy', object_path(strategy), :confirm => 'Really destroy strategy?', :method => :delete

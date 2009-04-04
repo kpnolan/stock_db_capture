@@ -53,10 +53,10 @@ module TechnicalAnalysis
   end
 
   #Absolute Price Oscillator
-  def apo(inReal, options={})
+  def apo(options={})
     options.reverse_merge!(:fast_period => 12, :slow_period => 26, :ma_type => 0)
     idx_range = calc_indexes(:ta_apo_lookback, options[:fast_period], options[:slow_period], options[:ma_type])
-    result = Talib.ta_apo(idx_range.begin, idx_range.end, inReal, options[:fast_period], options[:slow_period], options[:ma_type])
+    result = Talib.ta_apo(idx_range.begin, idx_range.end, price, options[:fast_period], options[:slow_period], options[:ma_type])
     memoize_result(self, :apo, idx_range, options, result)
   end
 
@@ -106,10 +106,10 @@ module TechnicalAnalysis
   end
 
   #Bollinger Bands
-  def bbands(inReal=price, options={})
+  def bbands(options={})
     options.reverse_merge!(:time_period => 5, :deviations_up => 2.0, :deviations_down => 2.0, :ma_type => 0)
     idx_range = calc_indexes(:ta_bbands_lookback, options[:time_period], options[:deviations_up], options[:deviations_down], options[:ma_type])
-    result = Talib.ta_bbands(idx_range.begin, idx_range.end, inReal, options[:time_period], options[:deviations_up], options[:deviations_down], options[:ma_type])
+    result = Talib.ta_bbands(idx_range.begin, idx_range.end, price, options[:time_period], options[:deviations_up], options[:deviations_down], options[:ma_type])
     memoize_result(self, :bbands, idx_range, options, result, :overlap)
   end
 
@@ -608,10 +608,10 @@ module TechnicalAnalysis
   end
 
   #Double Exponential Moving Average
-  def dema(inReal, options={})
+  def dema(options={})
     options.reverse_merge!(:time_period => 30)
     idx_range = calc_indexes(:ta_dema_lookback, options[:time_period])
-    result = Talib.ta_dema(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_dema(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :dema, idx_range, options, result, :overlap)
   end
 
@@ -712,26 +712,26 @@ module TechnicalAnalysis
   end
 
   #Linear Regression Angle
-  def linearreg_angle(inReal, options={})
+  def linearreg_angle(options={})
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_linearreg_angle_lookback, options[:time_period])
-    result = Talib.ta_linearreg_angle(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_linearreg_angle(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :linearreg_angle, idx_range, options, result)
   end
 
   #Linear Regression Intercept
-  def linearreg_intercept(inReal, options={})
+  def linearreg_intercept(options={})
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_linearreg_intercept_lookback, options[:time_period])
-    result = Talib.ta_linearreg_intercept(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_linearreg_intercept(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :linearreg_intercept, idx_range, options, result, :overlap)
   end
 
   #Linear Regression Slope
-  def linearreg_slope(inReal, options={})
+  def linearreg_slope(options={})
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_linearreg_slope_lookback, options[:time_period])
-    result = Talib.ta_linearreg_slope(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_linearreg_slope(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :linearreg_slope, idx_range, options, result)
   end
 
@@ -758,26 +758,26 @@ module TechnicalAnalysis
   end
 
   #Moving Average Convergence/Divergence
-  def macd(inReal, options={})
+  def macd(options={})
     options.reverse_merge!(:fast_period => 12, :slow_period => 26, :signal_period => 9)
     idx_range = calc_indexes(:ta_macd_lookback, options[:fast_period], options[:slow_period], options[:signal_period])
-    result = Talib.ta_macd(idx_range.begin, idx_range.end, inReal, options[:fast_period], options[:slow_period], options[:signal_period])
+    result = Talib.ta_macd(idx_range.begin, idx_range.end, price, options[:fast_period], options[:slow_period], options[:signal_period])
     memoize_result(self, :macd, idx_range, options, result)
   end
 
   #MACD with controllable MA type
-  def macdext(inReal, options={})
+  def macdext(options={})
     options.reverse_merge!(:fast_period => 12, :fast_ma => 0, :slow_period => 26, :slow_ma => 0, :signal_period => 9, :signal_ma => 0)
     idx_range = calc_indexes(:ta_macdext_lookback, options[:fast_period], options[:fast_ma], options[:slow_period], options[:slow_ma], options[:signal_period], options[:signal_ma])
-    result = Talib.ta_macdext(idx_range.begin, idx_range.end, inReal, options[:fast_period], options[:fast_ma], options[:slow_period], options[:slow_ma], options[:signal_period], options[:signal_ma])
+    result = Talib.ta_macdext(idx_range.begin, idx_range.end, price, options[:fast_period], options[:fast_ma], options[:slow_period], options[:slow_ma], options[:signal_period], options[:signal_ma])
     memoize_result(self, :macdext, idx_range, options, result)
   end
 
   #Moving Average Convergence/Divergence Fix 12/26
-  def macdfix(inReal, options={})
+  def macdfix(options={})
     options.reverse_merge!(:signal_period => 9)
     idx_range = calc_indexes(:ta_macdfix_lookback, options[:signal_period])
-    result = Talib.ta_macdfix(idx_range.begin, idx_range.end, inReal, options[:signal_period])
+    result = Talib.ta_macdfix(idx_range.begin, idx_range.end, price, options[:signal_period])
     memoize_result(self, :macdfix, idx_range, options, result)
   end
 
@@ -790,10 +790,10 @@ module TechnicalAnalysis
   end
 
   #Moving average with variable period
-  def mavp(inReal, inPeriods, options={})
+  def mavp(inPeriods, options={})
     options.reverse_merge!(:minimum_period => 2, :maximum_period => 30, :ma_type => 0)
     idx_range = calc_indexes(:ta_mavp_lookback, options[:minimum_period], options[:maximum_period], options[:ma_type])
-    result = Talib.ta_mavp(idx_range.begin, idx_range.end, inReal, inPeriods, options[:minimum_period], options[:maximum_period], options[:ma_type])
+    result = Talib.ta_mavp(idx_range.begin, idx_range.end, price, inPeriods, options[:minimum_period], options[:maximum_period], options[:ma_type])
     memoize_result(self, :mavp, idx_range, options, result, :overlap)
   end
 
@@ -825,7 +825,7 @@ module TechnicalAnalysis
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_mfi_lookback, options[:time_period])
     result = Talib.ta_mfi(idx_range.begin, idx_range.end, high, low, close, volume, options[:time_period])
-    memoize_result(self, :mfi, idx_range, options, result, :unstable_period)
+    memoize_result(self, :mfi, idx_range, options, result, :financebars)
   end
 
   #MidPoint over period
@@ -939,42 +939,42 @@ module TechnicalAnalysis
   end
 
   #Percentage Price Oscillator
-  def ppo(inReal, options={})
+  def ppo(options={})
     options.reverse_merge!(:fast_period => 12, :slow_period => 26, :ma_type => 0)
     idx_range = calc_indexes(:ta_ppo_lookback, options[:fast_period], options[:slow_period], options[:ma_type])
-    result = Talib.ta_ppo(idx_range.begin, idx_range.end, inReal, options[:fast_period], options[:slow_period], options[:ma_type])
+    result = Talib.ta_ppo(idx_range.begin, idx_range.end, price, options[:fast_period], options[:slow_period], options[:ma_type])
     memoize_result(self, :ppo, idx_range, options, result)
   end
 
   #Rate of change : ((price/prevPrice)-1)*100
-  def roc(inReal, options={})
+  def roc(options={})
     options.reverse_merge!(:time_period => 10)
     idx_range = calc_indexes(:ta_roc_lookback, options[:time_period])
-    result = Talib.ta_roc(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_roc(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :roc, idx_range, options, result)
   end
 
   #Rate of change Percentage: (price-prevPrice)/prevPrice
-  def rocp(inReal, options={})
+  def rocp(options={})
     options.reverse_merge!(:time_period => 10)
     idx_range = calc_indexes(:ta_rocp_lookback, options[:time_period])
-    result = Talib.ta_rocp(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_rocp(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :rocp, idx_range, options, result)
   end
 
   #Rate of change ratio: (price/prevPrice)
-  def rocr(inReal, options={})
+  def rocr(options={})
     options.reverse_merge!(:time_period => 10)
     idx_range = calc_indexes(:ta_rocr_lookback, options[:time_period])
-    result = Talib.ta_rocr(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_rocr(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :rocr, idx_range, options, result)
   end
 
   #Rate of change ratio 100 scale: (price/prevPrice)*100
-  def rocr100(inReal, options={})
+  def rocr100(options={})
     options.reverse_merge!(:time_period => 10)
     idx_range = calc_indexes(:ta_rocr100_lookback, options[:time_period])
-    result = Talib.ta_rocr100(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_rocr100(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :rocr100, idx_range, options, result)
   end
 
@@ -1079,10 +1079,10 @@ module TechnicalAnalysis
   end
 
   #Triple Exponential Moving Average (T3)
-  def t3(inReal, options={})
+  def t3(options={})
     options.reverse_merge!(:time_period => 5, :volume_factor => 0.7)
     idx_range = calc_indexes(:ta_t3_lookback, options[:time_period], options[:volume_factor])
-    result = Talib.ta_t3(idx_range.begin, idx_range.end, inReal, options[:time_period], options[:volume_factor])
+    result = Talib.ta_t3(idx_range.begin, idx_range.end, price, options[:time_period], options[:volume_factor])
     memoize_result(self, :t3, idx_range, options, result, :overlap)
   end
 
@@ -1101,10 +1101,10 @@ module TechnicalAnalysis
   end
 
   #Triple Exponential Moving Average
-  def tema(inReal, options={})
+  def tema(options={})
     options.reverse_merge!(:time_period => 30)
     idx_range = calc_indexes(:ta_tema_lookback, options[:time_period])
-    result = Talib.ta_tema(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_tema(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :tema, idx_range, options, result, :overlap)
   end
 
@@ -1116,18 +1116,18 @@ module TechnicalAnalysis
   end
 
   #Triangular Moving Average
-  def trima(inReal, options={})
+  def trima(options={})
     options.reverse_merge!(:time_period => 30)
     idx_range = calc_indexes(:ta_trima_lookback, options[:time_period])
-    result = Talib.ta_trima(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_trima(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :trima, idx_range, options, result, :overlap)
   end
 
   #1-day Rate-Of-Change (ROC) of a Triple Smooth EMA
-  def trix(inReal, options={})
+  def trix(options={})
     options.reverse_merge!(:time_period => 30)
     idx_range = calc_indexes(:ta_trix_lookback, options[:time_period])
-    result = Talib.ta_trix(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_trix(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :trix, idx_range, options, result)
   end
 
@@ -1155,10 +1155,10 @@ module TechnicalAnalysis
   end
 
   #Variance
-  def var(inReal, options={})
+  def var(options={})
     options.reverse_merge!(:time_period => 5, :deviations => 1.0)
     idx_range = calc_indexes(:ta_var_lookback, options[:time_period], options[:deviations])
-    result = Talib.ta_var(idx_range.begin, idx_range.end, inReal, options[:time_period], options[:deviations])
+    result = Talib.ta_var(idx_range.begin, idx_range.end, price, options[:time_period], options[:deviations])
     memoize_result(self, :var, idx_range, options, result)
   end
 
@@ -1178,10 +1178,10 @@ module TechnicalAnalysis
   end
 
   #Weighted Moving Average
-  def wma(inReal=price, options={})
+  def wma(options={})
     options.reverse_merge!(:time_period => 30)
     idx_range = calc_indexes(:ta_wma_lookback, options[:time_period])
-    result = Talib.ta_wma(idx_range.begin, idx_range.end, inReal, options[:time_period])
+    result = Talib.ta_wma(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :wma, idx_range, options, result, :overlap)
   end
 

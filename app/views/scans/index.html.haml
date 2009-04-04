@@ -1,0 +1,11 @@
+%h1 Listing Scans
+%table
+  %tr.heading
+    %th Name
+    %th Start
+    %th End
+    %th Condidtions
+
+  = render :partial => 'scan', :collection => current_objects
+
+= link_to 'Scan', new_object_path 

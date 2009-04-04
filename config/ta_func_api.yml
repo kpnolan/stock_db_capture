@@ -2118,7 +2118,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outEma
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:

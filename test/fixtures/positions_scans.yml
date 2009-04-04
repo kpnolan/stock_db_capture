@@ -1,0 +1,18 @@
+# == Schema Information
+# Schema version: 20090403161440
+#
+# Table name: positions_scans
+#
+#  position_id :integer(4)
+#  scan_id     :integer(4)
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  position_id: 1
+  scan_id: 1
+
+two:
+  position_id: 1
+  scan_id: 1

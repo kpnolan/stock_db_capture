@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090311210559
+# Schema version: 20090403161440
 #
 # Table name: aggregates
 #

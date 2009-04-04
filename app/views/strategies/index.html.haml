@@ -1,0 +1,10 @@
+%h1 Listing strategies
+%table
+  %tr.heading
+    %th Name
+    %th Description
+    %th Filename
+
+  = render :partial => 'strategy', :collection => current_objects
+
+= link_to 'New strategy', new_object_path 

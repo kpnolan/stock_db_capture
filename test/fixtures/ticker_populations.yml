@@ -1,0 +1,25 @@
+# == Schema Information
+# Schema version: 20090331042022
+#
+# Table name: ticker_populations
+#
+#  id          :integer(4)      not null, primary key
+#  name        :string(255)
+#  start_date  :date
+#  end_date    :date
+#  conditions  :text
+#  description :string(255)
+#
+
+one:
+  id: 1
+  name: MyString
+  start: 2009-03-30
+  end: 2009-03-30
+  sql_query: MyText
+two:
+  id: 2
+  name: MyString
+  start: 2009-03-30
+  end: 2009-03-30
+  sql_query: MyText

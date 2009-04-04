@@ -1,5 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
-
+  map.resources :scans
+  map.resources :strategies
   map.resources :derived_value_types
   map.resources :positions
   map.resources :contract_types

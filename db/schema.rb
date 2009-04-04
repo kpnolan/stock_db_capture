@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090312145039) do
+ActiveRecord::Schema.define(:version => 20090403161440) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -246,7 +246,6 @@ ActiveRecord::Schema.define(:version => 20090312145039) do
   end
 
   create_table "positions", :force => true do |t|
-    t.integer  "portfolio_id"
     t.integer  "ticker_id"
     t.boolean  "open"
     t.datetime "entry_date"
@@ -254,16 +253,43 @@ ActiveRecord::Schema.define(:version => 20090312145039) do
     t.float    "entry_price"
     t.float    "exit_price"
     t.integer  "num_shares"
-    t.integer  "contract_type_id"
-    t.integer  "side"
     t.string   "stop_loss"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.integer  "strategy_id"
+    t.integer  "days_held"
+    t.float    "nomalized_return"
+    t.float    "risk_factor"
+    t.integer  "week"
+    t.integer  "population_id"
+    t.integer  "ticker_population_id"
   end
 
-  add_index "positions", ["portfolio_id"], :name => "portfolio_id"
-  add_index "positions", ["ticker_id"], :name => "ticker_id"
-  add_index "positions", ["contract_type_id"], :name => "contract_type_id"
+  add_index "positions", ["strategy_id"], :name => "strategy_id"
+  add_index "positions", ["ticker_id"], :name => "index_positions_on_portfolio_id_and_ticker_id"
+  add_index "positions", ["ticker_population_id"], :name => "ticker_population_id"
+
+  create_table "positions_scans", :id => false, :force => true do |t|
+    t.integer "position_id"
+    t.integer "scan_id"
+  end
+
+  add_index "positions_scans", ["position_id"], :name => "position_id"
+  add_index "positions_scans", ["scan_id"], :name => "scan_id"
+
+  create_table "scans", :force => true do |t|
+    t.string "name"
+    t.date   "start_date"
+    t.date   "end_date"
+    t.text   "conditions"
+    t.string "description"
+  end
+
+  create_table "scans_tickers", :id => false, :force => true do |t|
+    t.integer "ticker_id"
+    t.integer "scan_id"
+  end
+
+  add_index "scans_tickers", ["ticker_id"], :name => "ticker_id"
+  add_index "scans_tickers", ["scan_id"], :name => "scan_id"
 
   create_table "shorts", :force => true do |t|
     t.string  "symbol", :limit => 8
@@ -293,6 +319,14 @@ ActiveRecord::Schema.define(:version => 20090312145039) do
     t.datetime "updated_at"
     t.float    "cv"
   end
+
+  create_table "strategies", :force => true do |t|
+    t.string "name"
+    t.string "description"
+    t.string "params_yaml"
+  end
+
+  add_index "strategies", ["name"], :name => "index_strategies_on_name", :unique => true
 
   create_table "tickers", :force => true do |t|
     t.string   "symbol",          :limit => 8
@@ -334,8 +368,14 @@ ActiveRecord::Schema.define(:version => 20090312145039) do
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 
-  add_foreign_key "positions", ["portfolio_id"], "portfolios", ["id"], :name => "positions_ibfk_1"
+  add_foreign_key "positions", ["ticker_population_id"], "scans", ["id"], :name => "positions_ibfk_4"
   add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_2"
-  add_foreign_key "positions", ["contract_type_id"], "contract_types", ["id"], :name => "positions_ibfk_3"
+  add_foreign_key "positions", ["strategy_id"], "strategies", ["id"], :name => "positions_ibfk_3"
+
+  add_foreign_key "positions_scans", ["position_id"], "positions", ["id"], :name => "positions_scans_ibfk_1"
+  add_foreign_key "positions_scans", ["scan_id"], "scans", ["id"], :name => "positions_scans_ibfk_2"
+
+  add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
+  add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
 
 end

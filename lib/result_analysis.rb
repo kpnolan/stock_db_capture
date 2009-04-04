@@ -7,24 +7,32 @@ module ResultAnalysis
 
   VALID_OPS = [:gt, :lt, :ge, :le, :eq]
 
+  def over_threshold(threshold, sym)
+    threshold_crossing(threshold, sym, :gt).to_a
+  end
+
+  def under_threshold(threshold, sym)
+    threshold_crossing(threshold, sym, :lt).to_a
+  end
+
   def threshold_crossing(threshold, sym, op)
     raise ArgumentError, "#{op} not one of #{VALID_OPS.join(', ')}" unless VALID_OPS.include? op
-    vec = get_vector(sym)
+    vec = vector_for(sym)
     tvec = GSL::Vector.alloc(vec.len).set_all(threshold)
     bitmap = vec.send(op, tvec)
     bitmap.where { |bflag| bflag == 1 }
   end
 
   def crosses_over(sym1 ,sym2)
-    a_vec = get_vector(sym1)
-    b_vec = get_vector(sym2)
-    crossing(:gt, a_vec, b_vec)
+    a_vec = vector_for(sym1)
+    b_vec = vector_for(sym2)
+    crossing(:gt, a_vec, b_vec).to_a
   end
 
   def crosses_under(sym1, sym2)
-    a_vec = get_vector(sym1)
-    b_vec = get_vector(sym2)
-    crossing(:lt, a_vec, b_vec)
+    a_vec = vector_for(sym1)
+    b_vec = vector_for(sym2)
+    crossing(:lt, a_vec, b_vec).to_a
   end
 
   def crossing(method, a, b)
@@ -38,7 +46,7 @@ module ResultAnalysis
   end
 
   def find_ones(sym)
-    get_vector(sym).where { |e| e == 1 }
+    vector_for(sym).where { |e| e == 1 }
   end
 end
 

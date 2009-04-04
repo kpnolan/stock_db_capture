@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090311210559
+# Schema version: 20090403161440
 #
 # Table name: portfolios
 #
@@ -12,6 +12,4 @@
 
 class Portfolio < ActiveRecord::Base
   has_many :positions
-
-
 end

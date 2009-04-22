@@ -1,6 +1,6 @@
 require 'strategy_engine'
 
-define_analytics do
+analytics do
 
   desc "Find all places where RSI gooes under 30"
   open_position :rsi_oversold, :threshold => 30, :time_period => 15 do |ts, params|
@@ -19,7 +19,9 @@ define_analytics do
     memo = ts.rvi params.merge(:noplot => true, :result => :memo)
     memo.over_threshold(params[:threshold], :rvi)
   end
+end
 
+populations do
   liquid = 'min(volume) > 100000 and count(*) > 100'
   0.upto(8) do |year|
     desc "Population of all stocks with a minimum value of 100000 and at least100 days traded in #{2000+yaer}"
@@ -36,7 +38,7 @@ define_analytics do
   end
 end
 
-define_backtests do
+backtests do
 
   apply(:ris_oversold, :liquid_08) do |positions|
     positions.each { |position| position.close_at_max(:hold_time => 1..10) }

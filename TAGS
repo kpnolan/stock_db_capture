@@ -1317,10 +1317,25 @@ class CreateIndexOnDailyCloses < ActiveRecord::MigrationCreateIndexOnDailyClose
   def self.upup2,57
   def self.downdown6,145
 
+db/migrate/20090330190109_change_name_on_population.rb,131
+class ChangeNameOnPopulation < ActiveRecord::MigrationChangeNameOnPopulation1,0
+  def self.upup2,55
+  def self.downdown8,254
+
+db/migrate/20090326155725_restructure_positions.rb,128
+class RestructurePositions < ActiveRecord::MigrationRestructurePositions1,0
+  def self.upup2,53
+  def self.downdown15,443
+
 db/migrate/20090207205520_add_index2_to_live_quotes.rb,129
 class AddIndex2ToLiveQuotes < ActiveRecord::MigrationAddIndex2ToLiveQuotes1,0
   def self.upup2,54
   def self.downdown6,125
+
+db/migrate/20090330160603_change_portfolio_to_population.rb,141
+class ChangePortfolioToPopulation < ActiveRecord::MigrationChangePortfolioToPopulation1,0
+  def self.upup2,60
+  def self.downdown7,184
 
 db/migrate/20090307022324_create_derived_values.rb,126
 class CreateDerivedValues < ActiveRecord::MigrationCreateDerivedValues1,0
@@ -1340,6 +1355,11 @@ class MigrateDataToTickers < ActiveRecord::MigrationMigrateDataToTickers1,0
 db/migrate/20090207202449_add_index2_to_aggregates.rb,129
 class AddIndex2ToAggregates < ActiveRecord::MigrationAddIndex2ToAggregates1,0
   def self.upup2,54
+  def self.downdown6,122
+
+db/migrate/20090330163411_add_index_to_strategy.rb,123
+class AddIndexToStrategy < ActiveRecord::MigrationAddIndexToStrategy1,0
+  def self.upup2,51
   def self.downdown6,122
 
 db/migrate/20090217200947_create_portfolios.rb,120
@@ -1437,6 +1457,21 @@ class RemoveUpdatedAtFromRealTimeQuotes < ActiveRecord::MigrationRemoveUpdatedA
   def self.upup2,66
   def self.downdown6,136
 
+db/migrate/20090330162336_add_params_yaml_to_strategy.rb,133
+class AddParamsYamlToStrategy < ActiveRecord::MigrationAddParamsYamlToStrategy1,0
+  def self.upup2,56
+  def self.downdown7,168
+
+db/migrate/20090326161245_add_index_to_position.rb,123
+class AddIndexToPosition < ActiveRecord::MigrationAddIndexToPosition1,0
+  def self.upup2,51
+  def self.downdown6,126
+
+db/migrate/20090403161440_create_scans_tickers.rb,123
+class CreateScansTickers < ActiveRecord::MigrationCreateScansTickers1,0
+  def self.upup2,51
+  def self.downdown9,185
+
 db/migrate/20081231002802_rename_cols_in_daily_close.rb,131
 class RenameColsInDailyClose < ActiveRecord::MigrationRenameColsInDailyClose1,0
   def self.upup2,55
@@ -1447,6 +1482,11 @@ class CreateIsamLiveQuotes < ActiveRecord::MigrationCreateIsamLiveQuotes1,0
   def self.upup2,53
   def self.downdown17,570
 
+db/migrate/20090331042022_add_description_to_ticker_population.rb,151
+class AddDescriptionToTickerPopulation < ActiveRecord::MigrationAddDescriptionToTickerPopulation1,0
+  def self.upup2,65
+  def self.downdown6,144
+
 db/migrate/20090310211259_add_validated_to_ticker.rb,127
 class AddValidatedToTicker < ActiveRecord::MigrationAddValidatedToTicker1,0
   def self.upup2,53
@@ -1456,6 +1496,16 @@ db/migrate/20090310213733_add_foreign_key_to_daily_closes.rb,139
 class AddForeignKeyToDailyCloses < ActiveRecord::MigrationAddForeignKeyToDailyCloses1,0
   def self.upup2,59
   def self.downdown6,239
+
+db/migrate/20090330155610_create_ticker_populations.rb,134
+class CreateTickerPopulations < ActiveRecord::MigrationCreateTickerPopulations1,0
+  def self.upup2,56
+  def self.downdown11,228
+
+db/migrate/20090326154625_create_strategies.rb,120
+class CreateStrategies < ActiveRecord::MigrationCreateStrategies1,0
+  def self.upup2,49
+  def self.downdown10,204
 
 db/migrate/20090311210559_move_name_field_to_tickers.rb,131
 class MoveNameFieldToTickers < ActiveRecord::MigrationMoveNameFieldToTickers1,0
@@ -1487,6 +1537,11 @@ class AddAliasToTickers < ActiveRecord::MigrationAddAliasToTickers1,0
   def self.upup2,50
   def self.downdown7,143
 
+db/migrate/20090403160358_create_positions_scans.rb,127
+class CreatePositionsScans < ActiveRecord::MigrationCreatePositionsScans1,0
+  def self.upup2,53
+  def self.downdown9,191
+
 db/migrate/20090210174733_add_last_trade_to_ticker.rb,128
 class AddLastTradeToTicker < ActiveRecord::MigrationAddLastTradeToTicker1,0
   def self.upup2,53
@@ -1502,6 +1557,11 @@ class AddActiveToTicker < ActiveRecord::MigrationAddActiveToTicker1,0
   def self.upup2,50
   def self.downdown6,114
 
+db/migrate/20090326160102_add_week_to_position.rb,121
+class AddWeekToPosition < ActiveRecord::MigrationAddWeekToPosition1,0
+  def self.upup2,50
+  def self.downdown6,114
+
 db/migrate/20090210230614_create_var_aggregates.rb,125
 class CreateVarAggregates < ActiveRecord::MigrationCreateVarAggregates1,0
   def self.upup2,52
@@ -1511,6 +1571,11 @@ db/migrate/20081230211500_rename_listing_table.rb,123
 class RenameListingTable < ActiveRecord::MigrationRenameListingTable1,0
   def self.upup2,51
   def self.downdown6,118
+
+db/migrate/20090403144352_rename_tp_to_scan.rb,115
+class RenameTpToScan < ActiveRecord::MigrationRenameTpToScan1,0
+  def self.upup2,47
+  def self.downdown6,113
 
 db/migrate/20090228185436_remove_vestigial_columns_from_aggregate.rb,157
 class RemoveVestigialColumnsFromAggregate < ActiveRecord::MigrationRemoveVestigialColumnsFromAggregate1,0
@@ -1548,6 +1613,18 @@ class CreatePositions < ActiveRecord::MigrationCreatePositions1,0
   def self.downdown19,493
 
 public/dispatch.rb,0
+
+test/functional/strategies_controller_test.rb,644
+class StrategiesController; def rescue_action(e) raise e end; endStrategiesController5,128
+class StrategiesControllerTest < Test::Unit::TestCaseStrategiesControllerTest7,195
+  def setupsetup10,273
+  def test_should_get_indextest_should_get_index16,440
+  def test_should_get_newtest_should_get_new22,551
+  def test_should_create_strategytest_should_create_strategy27,626
+  def test_should_show_strategytest_should_show_strategy35,840
+  def test_should_get_edittest_should_get_edit40,932
+  def test_should_update_strategytest_should_update_strategy45,1019
+  def test_should_destroy_strategytest_should_destroy_strategy50,1163
 
 test/functional/plot_types_controller_test.rb,648
 class PlotTypesController; def rescue_action(e) raise e end; endPlotTypesController5,128
@@ -1732,6 +1809,18 @@ class HistoricalAttributesControllerTest < Test::Unit::TestCaseHistoricalAttrib
   def test_should_update_historical_attributetest_should_update_historical_attribute45,1164
   def test_should_destroy_historical_attributetest_should_destroy_historical_attribute50,1356
 
+test/functional/ticker_populations_controller_test.rb,745
+class TickerPopulationsController; def rescue_action(e) raise e end; endTickerPopulationsController5,136
+class TickerPopulationsControllerTest < Test::Unit::TestCaseTickerPopulationsControllerTest7,210
+  def setupsetup10,303
+  def test_should_get_indextest_should_get_index16,477
+  def test_should_get_newtest_should_get_new22,596
+  def test_should_create_ticker_populationtest_should_create_ticker_population27,671
+  def test_should_show_ticker_populationtest_should_show_ticker_population35,937
+  def test_should_get_edittest_should_get_edit40,1038
+  def test_should_update_ticker_populationtest_should_update_ticker_population45,1125
+  def test_should_destroy_ticker_populationtest_should_destroy_ticker_population50,1305
+
 test/functional/plot_attributes_controller_test.rb,717
 class PlotAttributesController; def rescue_action(e) raise e end; endPlotAttributesController5,133
 class PlotAttributesControllerTest < Test::Unit::TestCasePlotAttributesControllerTest7,204
@@ -1779,6 +1868,10 @@ test/unit/daily_query_worker_worker_test.rb,123
 class DailyQueryWorkerWorkerTest < Test::Unit::TestCaseDailyQueryWorkerWorkerTest6,196
   def test_truthtest_truth9,292
 
+test/unit/ticker_population_test.rb,110
+class TickerPopulationTest < Test::Unit::TestCaseTickerPopulationTest3,52
+  def test_truthtest_truth4,102
+
 test/unit/portfolio_test.rb,95
 class PortfolioTest < Test::Unit::TestCasePortfolioTest3,52
   def test_truthtest_truth4,95
@@ -1790,6 +1883,9 @@ class ContractTypeTest < Test::Unit::TestCaseContractTypeTest3,52
 test/unit/rail_time_quote_worker_test.rb,117
 class RailTimeQuoteWorkerTest < Test::Unit::TestCaseRailTimeQuoteWorkerTest6,193
   def test_truthtest_truth9,286
+
+test/unit/positions_scans_test.rb,75
+class PositionsScansTest < ActiveSupport::TestCasePositionsScansTest3,23
 
 test/unit/var_aggregate_test.rb,71
 class VarAggregateTest < ActiveSupport::TestCaseVarAggregateTest3,23
@@ -1806,9 +1902,16 @@ test/unit/listing_category_test.rb,108
 class ListingCategoryTest < Test::Unit::TestCaseListingCategoryTest3,52
   def test_truthtest_truth4,101
 
+test/unit/strategy_test.rb,93
+class StrategyTest < Test::Unit::TestCaseStrategyTest3,52
+  def test_truthtest_truth4,94
+
 test/unit/derived_value_type_test.rb,110
 class DerivedValueTypeTest < Test::Unit::TestCaseDerivedValueTypeTest3,52
   def test_truthtest_truth4,102
+
+test/unit/scans_tickers_test.rb,71
+class ScansTickersTest < ActiveSupport::TestCaseScansTickersTest3,23
 
 test/unit/listing_test.rb,91
 class ListingTest < Test::Unit::TestCaseListingTest3,52
@@ -1839,11 +1942,11 @@ lib/load_daily_close.rb,447
 module LoadDailyCloseLoadDailyClose1,0
   def tickers_with_no_historytickers_with_no_history5,48
   def tickers_with_partial_historytickers_with_partial_history9,254
-  def load_history(logger)load_history13,523
-  def update_history(logger)update_history18,607
-  def load_empty_history()load_empty_history23,695
-  def load_partial_history()load_partial_history45,1392
-  def create_history_row(ticker_id, row)create_history_row59,1955
+  def load_history(logger)load_history13,534
+  def update_history(logger)update_history18,618
+  def load_empty_history()load_empty_history23,706
+  def load_partial_history()load_partial_history45,1403
+  def create_history_row(ticker_id, row)create_history_row59,1966
 
 lib/smart_form_builder.rb,1194
 class SmartFormBuilder < ActionView::Helpers::FormBuilderSmartFormBuilder1,0
@@ -1883,6 +1986,12 @@ module StockStatisticsStockStatistics4,34
   def self.generate(tickers,  attrs=ATTRS, extra_conditions={ })generate77,1730
   def self.most_volatile()most_volatile97,2490
   def self.crunch_and_storecrunch_and_store104,2781
+
+lib/rsi_strategy.rb,107
+class RsiStrategy < StrategyEngineRsiStrategy3,27
+  def compute_open_indexes()compute_open_indexes4,62
+
+lib/strategies.rb,0
 
 lib/populate_db.rb,1489
 class StringString12,183
@@ -1945,35 +2054,45 @@ module ScansScans3,16
   def initinit43,1344
   def kirk_ratiokirk_ratio47,1458
 
-lib/timeseries.rb,1551
+lib/timeseries.rb,1787
 class TimeseriesTimeseries1,0
-  def initialize(symbol, local_range, time_resolution, options={})initialize28,1190
-  def inspectinspect54,2208
-  def all(*args)all58,2239
-  def multi_calc(fcn_vec, options={})multi_calc62,2284
-  def multi_fopt(fopt_vec, options={})multi_fopt69,2549
-  def clear_resultsclear_results78,2894
-  def reset_price(expression = :default)reset_price82,2950
-  def select_by_resolution(period)select_by_resolution92,3226
-  def init_timevecinit_timevec99,3466
-  def repopulate(options)repopulate104,3595
-  def apply_options(options)apply_options117,4032
-  def compute_timestampscompute_timestamps123,4167
-  def minimal_samples(lookback_fun, *args)minimal_samples134,4650
-  def calc_indexes(loopback_fun, *args)calc_indexes138,4762
-  def time2index(time, direction, raise_on_range_error=true)time2index152,5263
-  def index2time(index)index2time171,6236
-  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result176,6344
-  def avg_priceavg_price192,6938
-  def find_memo(fcn_symbol, time_range=nil, options={})find_memo196,6999
-  def add_methods_for_attributes(attrs)add_methods_for_attributes205,7275
-  def initialize_stateinitialize_state216,7630
-class ParamBlockParamBlock225,7886
-  def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)initialize240,8196
-  def get_vector(sym)get_vector255,8706
-  def to_tsto_ts259,8756
-  def decode(*syms)decode263,8790
-def ts(symbol, local_range, seconds, options={})ts270,8876
+  def initialize(symbol_or_id, local_range, time_resolution, options={})initialize28,1208
+  def inspectinspect60,2670
+  def all(*args)all64,2701
+  def multi_calc(fcn_vec, options={})multi_calc68,2746
+  def multi_fopt(fopt_vec, options={})multi_fopt75,3011
+  def find_result(fcn, options={})find_result84,3356
+  def clear_resultsclear_results89,3510
+  def reset_price(expression = :default)reset_price93,3566
+  def select_by_resolution(period)select_by_resolution103,3842
+  def init_timevecinit_timevec110,4082
+  def repopulate(options)repopulate115,4211
+  def apply_options(options)apply_options128,4648
+  def compute_timestampscompute_timestamps134,4783
+  def minimal_samples(lookback_fun, *args)minimal_samples145,5266
+  def calc_indexes(loopback_fun, *args)calc_indexes149,5378
+  def time2index(time, direction, raise_on_range_error=true)time2index163,5879
+  def value_at(index, slot)value_at182,6852
+  def times_for(indexes)times_for186,6909
+  def index2time(index, offset=0)index2time190,6987
+  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result195,7112
+  def avg_priceavg_price217,7872
+  def find_memo(fcn_symbol, time_range=nil, options={})find_memo221,7933
+  def add_methods_for_attributes(attrs)add_methods_for_attributes230,8209
+  def initialize_stateinitialize_state241,8564
+class ParamBlockParamBlock250,8820
+  def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)initialize265,9130
+  def vector_for(sym)vector_for280,9645
+  def match(fcn, options={})match290,9881
+  def keyskeys297,10048
+  def to_tsto_ts301,10087
+  def decode(*syms)decode305,10121
+def ts(symbol, local_range, seconds, options={})ts312,10207
+
+lib/foo.rb,93
+class FooFoo1,0
+  def method_missing(method, *args)method_missing2,10
+  def barbar6,94
 
 lib/current_method.rb,115
 module CurrentMethodCurrentMethod1,0
@@ -2029,6 +2148,27 @@ module PlotPlot6,76
   def scale(vec)scale306,9873
   def histogram(symbol, attr)histogram314,10008
   def titleize(syms)titleize334,10556
+
+lib/analytics/builder.rb,607
+module AnalyticsAnalytics3,16
+  class HashHash5,34
+    def to_yaml( opts = {} )to_yaml9,205
+  class BuilderExceptionBuilderException20,484
+    def initialize(name)initialize21,509
+  class BuilderBuilder26,602
+    def initialize()initialize27,618
+    def find_strategy(name)find_strategy34,736
+    def find_openning(name)find_openning38,828
+    def strategy(name, params={}, &block)strategy42,919
+    def open_position(name, params={}, &block)open_position50,1253
+    def desc(string)desc58,1592
+    def process_scansprocess_scans62,1652
+    def scan(name, options={})scan69,1786
+
+lib/analytics/maker.rb,120
+module AnalyticsAnalytics1,0
+  module MakerMaker2,17
+    def make_analytics(options={}, &block)make_analytics3,32
 
 lib/talib/ext/extconf.rb,0
 
@@ -2098,21 +2238,31 @@ module LogReturnsLogReturns6,73
 lib/user_analysis.rb,185
 module UserAnalysisUserAnalysis3,13
   def zema(options = {})zema4,33
-  def rvi(options={})rvi33,1118
-  def rvi_1(price, options)rvi_143,1508
-  def rvig(options={})rvig94,3060
+  def rvi(options={})rvi30,1048
+  def rvi_1(price, options)rvi_140,1438
+  def rvig(options={})rvig91,3003
 
 lib/plot_aux_info.rb,92
 module PlotAuxInfoPlotAuxInfo1,0
   def plot_commands_for(function)plot_commands_for2,19
 
-lib/result_analysis.rb,300
+lib/trading_utils.rb,369
+module TradingUtilsTradingUtils1,0
+  def trading_days(date_range)trading_days6,216
+  def trading_days_from(date, number)trading_days_from10,340
+  def trading_day_count(date1, date2)trading_day_count27,778
+  def format_dates_where_clause(dates)format_dates_where_clause31,861
+  def trading_to_calender(start_date, trading_day_count)trading_to_calender35,944
+
+lib/result_analysis.rb,421
 module ResultAnalysisResultAnalysis4,34
-  def threshold_crossing(threshold, sym, op)threshold_crossing10,113
-  def crosses_over(sym1 ,sym2)crosses_over18,417
-  def crosses_under(sym1, sym2)crosses_under24,545
-  def crossing(method, a, b)crossing30,674
-  def find_ones(sym)find_ones40,887
+  def over_threshold(threshold, sym)over_threshold10,113
+  def under_threshold(threshold, sym)under_threshold14,206
+  def threshold_crossing(threshold, sym, op)threshold_crossing18,300
+  def crosses_over(sym1 ,sym2)crosses_over26,604
+  def crosses_under(sym1, sym2)crosses_under32,737
+  def crossing(method, a, b)crossing38,871
+  def find_ones(sym)find_ones48,1084
 
 lib/csv_dumper.rb,163
 module CsvDumperCsvDumper5,57
@@ -2149,7 +2299,7 @@ class BuildShadowBuildShadow1,0
   def expand_opt_args(opt_args)expand_opt_args148,4122
   def buffer(str)buffer160,4389
 
-lib/technical_analysis.rb,8003
+lib/technical_analysis.rb,7823
 module TechnicalAnalysisTechnicalAnalysis9,757
   def acos(inReal, options={})acos11,811
   def ad(options={})ad18,1044
@@ -2157,158 +2307,158 @@ module TechnicalAnalysisTechnicalAnalysis9,757
   def adosc(options={})adosc32,1539
   def adx(options={})adx40,1962
   def adxr(options={})adxr48,2329
-  def apo(inReal, options={})apo56,2684
-  def aroon(options={})aroon64,3114
-  def aroonosc(options={})aroonosc72,3439
-  def asin(inReal, options={})asin80,3785
-  def atan(inReal, options={})atan87,4027
-  def atr(options={})atr94,4262
-  def avgprice(options={})avgprice102,4601
-  def bbands(inReal=price, options={})bbands109,4867
-  def beta(inReal0, inReal1, options={})beta117,5409
-  def bop(options={})bop125,5754
-  def cci(options={})cci132,5998
-  def cdl2crows(options={})cdl2crows140,6315
-  def cdl3blackcrows(options={})cdl3blackcrows147,6593
-  def cdl3inside(options={})cdl3inside154,6894
-  def cdl3linestrike(options={})cdl3linestrike161,7176
-  def cdl3outside(options={})cdl3outside168,7478
-  def cdl3starsinsouth(options={})cdl3starsinsouth175,7771
-  def cdl3whitesoldiers(options={})cdl3whitesoldiers182,8090
-  def cdlabandonedbaby(options={})cdlabandonedbaby189,8397
-  def cdladvanceblock(options={})cdladvanceblock197,8791
-  def cdlbelthold(options={})cdlbelthold204,9083
-  def cdlbreakaway(options={})cdlbreakaway211,9359
-  def cdlclosingmarubozu(options={})cdlclosingmarubozu218,9646
-  def cdlconcealbabyswall(options={})cdlconcealbabyswall225,9964
-  def cdlcounterattack(options={})cdlcounterattack232,10276
-  def cdldarkcloudcover(options={})cdldarkcloudcover239,10579
-  def cdldoji(options={})cdldoji247,10968
-  def cdldojistar(options={})cdldojistar254,11228
-  def cdldragonflydoji(options={})cdldragonflydoji261,11509
-  def cdlengulfing(options={})cdlengulfing268,11813
-  def cdleveningdojistar(options={})cdleveningdojistar275,12101
-  def cdleveningstar(options={})cdleveningstar283,12502
-  def cdlgapsidesidewhite(options={})cdlgapsidesidewhite291,12911
-  def cdlgravestonedoji(options={})cdlgravestonedoji298,13225
-  def cdlhammer(options={})cdlhammer305,13522
-  def cdlhangingman(options={})cdlhangingman312,13792
-  def cdlharami(options={})cdlharami319,14081
-  def cdlharamicross(options={})cdlharamicross326,14360
-  def cdlhighwave(options={})cdlhighwave333,14655
-  def cdlhikkake(options={})cdlhikkake340,14937
-  def cdlhikkakemod(options={})cdlhikkakemod347,15224
-  def cdlhomingpigeon(options={})cdlhomingpigeon354,15512
-  def cdlidentical3crows(options={})cdlidentical3crows361,15816
-  def cdlinneck(options={})cdlinneck368,16126
-  def cdlinvertedhammer(options={})cdlinvertedhammer375,16400
-  def cdlkicking(options={})cdlkicking382,16698
-  def cdlkickingbylength(options={})cdlkickingbylength389,17014
-  def cdlladderbottom(options={})cdlladderbottom396,17322
-  def cdllongleggeddoji(options={})cdllongleggeddoji403,17621
-  def cdllongline(options={})cdllongline410,17928
-  def cdlmarubozu(options={})cdlmarubozu417,18203
-  def cdlmatchinglow(options={})cdlmatchinglow424,18482
-  def cdlmathold(options={})cdlmathold431,18769
-  def cdlmorningdojistar(options={})cdlmorningdojistar439,19143
-  def cdlmorningstar(options={})cdlmorningstar447,19544
-  def cdlonneck(options={})cdlonneck455,19932
-  def cdlpiercing(options={})cdlpiercing462,20207
-  def cdlrickshawman(options={})cdlrickshawman469,20486
-  def cdlrisefall3methods(options={})cdlrisefall3methods476,20793
-  def cdlseparatinglines(options={})cdlseparatinglines483,21108
-  def cdlshootingstar(options={})cdlshootingstar490,21416
-  def cdlshortline(options={})cdlshortline497,21716
-  def cdlspinningtop(options={})cdlspinningtop504,21999
-  def cdlstalledpattern(options={})cdlstalledpattern511,22293
-  def cdlsticksandwich(options={})cdlsticksandwich518,22598
-  def cdltakuri(options={})cdltakuri525,22936
-  def cdltasukigap(options={})cdltasukigap532,23205
-  def cdlthrusting(options={})cdlthrusting539,23493
-  def cdltristar(options={})cdltristar546,23779
-  def cdlunique3river(options={})cdlunique3river553,24056
-  def cdlupsidegap2crows(options={})cdlupsidegap2crows560,24359
-  def cdlxsidegap3methods(options={})cdlxsidegap3methods567,24687
-  def ceil(inReal, options={})ceil574,24997
-  def cmo(options={})cmo581,25240
-  def correl(inReal0, inReal1, options={})correl589,25588
-  def cos(inReal, options={})cos597,25950
-  def cosh(inReal, options={})cosh604,26188
-  def dema(inReal, options={})dema611,26438
-  def div(inReal0, inReal1, options={})div619,26779
-  def dx(options={})dx626,27038
-  def ema(options={})ema634,27386
-  def exp(inReal, options={})exp643,27748
-  def floor(inReal, options={})floor650,27973
-  def ht_dcperiod(options={})ht_dcperiod657,28235
-  def ht_dcphase(options={})ht_dcphase664,28511
-  def ht_phasor(options={})ht_phasor671,28780
-  def ht_sine(options={})ht_sine678,29036
-  def ht_trendline(options={})ht_trendline685,29299
-  def ht_trendmode(options={})ht_trendmode692,29588
-  def kama(options={})kama699,29859
-  def linearreg(inReal, options={})linearreg707,30187
-  def linearreg_angle(inReal, options={})linearreg_angle715,30550
-  def linearreg_intercept(inReal, options={})linearreg_intercept723,30931
-  def linearreg_slope(inReal, options={})linearreg_slope731,31334
-  def ln(inReal, options={})ln739,31706
-  def log10(inReal, options={})log10746,31927
-  def ma(options={})ma753,32162
-  def macd(inReal, options={})macd761,32555
-  def macdext(inReal, options={})macdext769,33032
-  def macdfix(inReal, options={})macdfix777,33703
-  def mama(options={})mama785,34058
-  def mavp(inReal, inPeriods, options={})mavp793,34467
-  def max(inReal, options={})max801,34982
-  def maxindex(inReal, options={})maxindex809,35344
-  def medprice(options={})medprice817,35682
-  def mfi(options={})mfi824,35936
-  def midpoint(inReal, options={})midpoint832,36290
-  def midprice(options={})midprice840,36652
-  def min(inReal, options={})min848,37019
-  def minindex(inReal, options={})minindex856,37380
-  def minmax(inReal, options={})minmax864,37755
-  def minmaxindex(inReal, options={})minmaxindex872,38143
-  def minus_di(options={})minus_di880,38508
-  def minus_dm(options={})minus_dm888,38880
-  def mom(options={})mom896,39227
-  def mult(inReal0, inReal1, options={})mult904,39546
-  def natr(options={})natr911,39812
-  def obv(options={})obv919,40159
-  def plus_di(options={})plus_di926,40397
-  def plus_dm(options={})plus_dm934,40764
-  def ppo(inReal, options={})ppo942,41126
-  def roc(inReal, options={})roc950,41593
-  def rocp(inReal, options={})rocp958,41953
-  def rocr(inReal, options={})rocr966,42302
-  def rocr100(inReal, options={})rocr100974,42665
-  def rsi(options={})rsi982,43010
-  def sar(options={})sar990,43334
-  def sarext(options={})sarext998,43759
-  def sin(inReal, options={})sin1006,44589
-  def sinh(inReal, options={})sinh1013,44827
-  def sma(options={})sma1020,45065
-  def sqrt(inReal, options={})sqrt1028,45390
-  def stddev(inReal, options={})stddev1035,45625
-  def stoch(options={})stoch1043,46016
-  def stochf(options={})stochf1051,46612
-  def stochrsi(options={})stochrsi1059,47101
-  def sub(inReal0, inReal1, options={})sub1067,47663
-  def sum(inReal, options={})sum1074,47905
-  def t3(inReal, options={})t31082,48249
-  def tan(inReal, options={})tan1090,48657
-  def tanh(inReal, options={})tanh1097,48895
-  def tema(inReal, options={})tema1104,49145
-  def trange(options={})trange1112,49475
-  def trima(inReal, options={})trima1119,49727
-  def trix(inReal, options={})trix1127,50100
-  def tsf(options={})tsf1135,50430
-  def typprice(options={})typprice1143,50750
-  def ultosc(options={})ultosc1150,51014
-  def var(inReal, options={})var1158,51485
-  def wclprice(options={})wclprice1166,51874
-  def willr(options={})willr1173,52131
-  def wma(inReal=price, options={})wma1181,52470
+  def apo(options={})apo56,2684
+  def aroon(options={})aroon64,3105
+  def aroonosc(options={})aroonosc72,3430
+  def asin(inReal, options={})asin80,3776
+  def atan(inReal, options={})atan87,4018
+  def atr(options={})atr94,4253
+  def avgprice(options={})avgprice102,4592
+  def bbands(options={})bbands109,4858
+  def beta(inReal0, inReal1, options={})beta117,5385
+  def bop(options={})bop125,5730
+  def cci(options={})cci132,5974
+  def cdl2crows(options={})cdl2crows140,6291
+  def cdl3blackcrows(options={})cdl3blackcrows147,6569
+  def cdl3inside(options={})cdl3inside154,6870
+  def cdl3linestrike(options={})cdl3linestrike161,7152
+  def cdl3outside(options={})cdl3outside168,7454
+  def cdl3starsinsouth(options={})cdl3starsinsouth175,7747
+  def cdl3whitesoldiers(options={})cdl3whitesoldiers182,8066
+  def cdlabandonedbaby(options={})cdlabandonedbaby189,8373
+  def cdladvanceblock(options={})cdladvanceblock197,8767
+  def cdlbelthold(options={})cdlbelthold204,9059
+  def cdlbreakaway(options={})cdlbreakaway211,9335
+  def cdlclosingmarubozu(options={})cdlclosingmarubozu218,9622
+  def cdlconcealbabyswall(options={})cdlconcealbabyswall225,9940
+  def cdlcounterattack(options={})cdlcounterattack232,10252
+  def cdldarkcloudcover(options={})cdldarkcloudcover239,10555
+  def cdldoji(options={})cdldoji247,10944
+  def cdldojistar(options={})cdldojistar254,11204
+  def cdldragonflydoji(options={})cdldragonflydoji261,11485
+  def cdlengulfing(options={})cdlengulfing268,11789
+  def cdleveningdojistar(options={})cdleveningdojistar275,12077
+  def cdleveningstar(options={})cdleveningstar283,12478
+  def cdlgapsidesidewhite(options={})cdlgapsidesidewhite291,12887
+  def cdlgravestonedoji(options={})cdlgravestonedoji298,13201
+  def cdlhammer(options={})cdlhammer305,13498
+  def cdlhangingman(options={})cdlhangingman312,13768
+  def cdlharami(options={})cdlharami319,14057
+  def cdlharamicross(options={})cdlharamicross326,14336
+  def cdlhighwave(options={})cdlhighwave333,14631
+  def cdlhikkake(options={})cdlhikkake340,14913
+  def cdlhikkakemod(options={})cdlhikkakemod347,15200
+  def cdlhomingpigeon(options={})cdlhomingpigeon354,15488
+  def cdlidentical3crows(options={})cdlidentical3crows361,15792
+  def cdlinneck(options={})cdlinneck368,16102
+  def cdlinvertedhammer(options={})cdlinvertedhammer375,16376
+  def cdlkicking(options={})cdlkicking382,16674
+  def cdlkickingbylength(options={})cdlkickingbylength389,16990
+  def cdlladderbottom(options={})cdlladderbottom396,17298
+  def cdllongleggeddoji(options={})cdllongleggeddoji403,17597
+  def cdllongline(options={})cdllongline410,17904
+  def cdlmarubozu(options={})cdlmarubozu417,18179
+  def cdlmatchinglow(options={})cdlmatchinglow424,18458
+  def cdlmathold(options={})cdlmathold431,18745
+  def cdlmorningdojistar(options={})cdlmorningdojistar439,19119
+  def cdlmorningstar(options={})cdlmorningstar447,19520
+  def cdlonneck(options={})cdlonneck455,19908
+  def cdlpiercing(options={})cdlpiercing462,20183
+  def cdlrickshawman(options={})cdlrickshawman469,20462
+  def cdlrisefall3methods(options={})cdlrisefall3methods476,20769
+  def cdlseparatinglines(options={})cdlseparatinglines483,21084
+  def cdlshootingstar(options={})cdlshootingstar490,21392
+  def cdlshortline(options={})cdlshortline497,21692
+  def cdlspinningtop(options={})cdlspinningtop504,21975
+  def cdlstalledpattern(options={})cdlstalledpattern511,22269
+  def cdlsticksandwich(options={})cdlsticksandwich518,22574
+  def cdltakuri(options={})cdltakuri525,22912
+  def cdltasukigap(options={})cdltasukigap532,23181
+  def cdlthrusting(options={})cdlthrusting539,23469
+  def cdltristar(options={})cdltristar546,23755
+  def cdlunique3river(options={})cdlunique3river553,24032
+  def cdlupsidegap2crows(options={})cdlupsidegap2crows560,24335
+  def cdlxsidegap3methods(options={})cdlxsidegap3methods567,24663
+  def ceil(inReal, options={})ceil574,24973
+  def cmo(options={})cmo581,25216
+  def correl(inReal0, inReal1, options={})correl589,25564
+  def cos(inReal, options={})cos597,25926
+  def cosh(inReal, options={})cosh604,26164
+  def dema(options={})dema611,26414
+  def div(inReal0, inReal1, options={})div619,26746
+  def dx(options={})dx626,27005
+  def ema(options={})ema634,27353
+  def exp(inReal, options={})exp643,27715
+  def floor(inReal, options={})floor650,27940
+  def ht_dcperiod(options={})ht_dcperiod657,28202
+  def ht_dcphase(options={})ht_dcphase664,28478
+  def ht_phasor(options={})ht_phasor671,28747
+  def ht_sine(options={})ht_sine678,29003
+  def ht_trendline(options={})ht_trendline685,29266
+  def ht_trendmode(options={})ht_trendmode692,29555
+  def kama(options={})kama699,29826
+  def linearreg(inReal, options={})linearreg707,30154
+  def linearreg_angle(options={})linearreg_angle715,30517
+  def linearreg_intercept(options={})linearreg_intercept723,30889
+  def linearreg_slope(options={})linearreg_slope731,31283
+  def ln(inReal, options={})ln739,31646
+  def log10(inReal, options={})log10746,31867
+  def ma(options={})ma753,32102
+  def macd(options={})macd761,32495
+  def macdext(options={})macdext769,32963
+  def macdfix(options={})macdfix777,33625
+  def mama(options={})mama785,33971
+  def mavp(inPeriods, options={})mavp793,34380
+  def max(inReal, options={})max801,34886
+  def maxindex(inReal, options={})maxindex809,35248
+  def medprice(options={})medprice817,35586
+  def mfi(options={})mfi824,35840
+  def midpoint(inReal, options={})midpoint832,36190
+  def midprice(options={})midprice840,36552
+  def min(inReal, options={})min848,36919
+  def minindex(inReal, options={})minindex856,37280
+  def minmax(inReal, options={})minmax864,37655
+  def minmaxindex(inReal, options={})minmaxindex872,38043
+  def minus_di(options={})minus_di880,38408
+  def minus_dm(options={})minus_dm888,38780
+  def mom(options={})mom896,39127
+  def mult(inReal0, inReal1, options={})mult904,39446
+  def natr(options={})natr911,39712
+  def obv(options={})obv919,40059
+  def plus_di(options={})plus_di926,40297
+  def plus_dm(options={})plus_dm934,40664
+  def ppo(options={})ppo942,41026
+  def roc(options={})roc950,41484
+  def rocp(options={})rocp958,41835
+  def rocr(options={})rocr966,42175
+  def rocr100(options={})rocr100974,42529
+  def rsi(options={})rsi982,42865
+  def sar(options={})sar990,43189
+  def sarext(options={})sarext998,43614
+  def sin(inReal, options={})sin1006,44444
+  def sinh(inReal, options={})sinh1013,44682
+  def sma(options={})sma1020,44920
+  def sqrt(inReal, options={})sqrt1028,45245
+  def stddev(inReal, options={})stddev1035,45480
+  def stoch(options={})stoch1043,45871
+  def stochf(options={})stochf1051,46467
+  def stochrsi(options={})stochrsi1059,46956
+  def sub(inReal0, inReal1, options={})sub1067,47518
+  def sum(inReal, options={})sum1074,47760
+  def t3(options={})t31082,48104
+  def tan(inReal, options={})tan1090,48503
+  def tanh(inReal, options={})tanh1097,48741
+  def tema(options={})tema1104,48991
+  def trange(options={})trange1112,49312
+  def trima(options={})trima1119,49564
+  def trix(options={})trix1127,49928
+  def tsf(options={})tsf1135,50249
+  def typprice(options={})typprice1143,50569
+  def ultosc(options={})ultosc1150,50833
+  def var(options={})var1158,51304
+  def wclprice(options={})wclprice1166,51684
+  def willr(options={})willr1173,51941
+  def wma(options={})wma1181,52280
 
 lib/convert_talib_meta_info.rb,1285
 module ConvertTalibMetaInfoConvertTalibMetaInfo1,0
@@ -2382,17 +2532,15 @@ module YahooFinanceYahooFinance80,2122
     def self.help( options, opts )help583,17579
     def self.parse( args, options )parse590,17757
 
-lib/aggregator.rb,662
-module AggregatorAggregator1,0
-  def init_tables(dates)init_tables11,347
-  def trading_days(date_range)trading_days19,809
-  def format_date_where_clause(dates)format_date_where_clause23,933
-  def compute_aggregates(period_in_seconds)compute_aggregates27,1008
-  def compute_aggregate_range(ticker, date_range, period_in_seconds)compute_aggregate_range44,1595
-  def compute_aggregate(ticker, date, period_in_seconds)compute_aggregate56,1924
-  def form_where_clause(tid, btime, etime)form_where_clause84,3011
-  def generate_aggregate(tid, date, start_time, period, last_close, recs)generate_aggregate88,3181
-  def out_of_dateout_of_date108,4008
+lib/aggregator.rb,541
+module AggregatorAggregator3,25
+  def init_tables(dates)init_tables13,204
+  def compute_aggregates(period_in_seconds)compute_aggregates21,666
+  def compute_aggregate_range(ticker, date_range, period_in_seconds)compute_aggregate_range38,1253
+  def compute_aggregate(ticker, date, period_in_seconds)compute_aggregate50,1582
+  def form_where_clause(tid, btime, etime)form_where_clause78,2669
+  def generate_aggregate(tid, date, start_time, period, last_close, recs)generate_aggregate82,2839
+  def out_of_dateout_of_date102,3666
 
 lib/timeseries_exception.rb,104
 class TimeseriesException < ExceptionTimeseriesException1,0
@@ -2402,7 +2550,19 @@ lib/load_etf.rb,59
 module LoadEtfLoadEtf3,15
   def load_etf()load_etf4,30
 
-lib/strategy.rb,0
+lib/backtest/builder.rb,283
+module BacktestBacktest3,19
+  class BacktestrExceptionBacktestrException5,36
+    def initialize(name)initialize6,63
+  class BuilderBuilder11,156
+    def initialize()initialize12,172
+    def apply(strategy, populations, &block)apply17,252
+    def desc(string)desc24,615
+
+lib/backtest/maker.rb,122
+module BacktestBacktest1,0
+  module MakerMaker2,16
+    def define_backtests(options={}, &block)define_backtests3,31
 
 lib/table_extract.rb,693
 module TableExtractTableExtract1,0
@@ -2415,6 +2575,17 @@ module TableExtractTableExtract1,0
   def find_last_close(ticker_id, date)find_last_close46,1688
   def normalize_ticker(ticker, bdate=nil, edate=nil)normalize_ticker52,1914
   def form_conditions(ticker, bdate=nil, edate=nil)form_conditions62,2293
+
+lib/strategy_engine.rb,178
+class StrategyEngineStrategyEngine1,0
+  def initialize(population, date_range, options={})initialize4,107
+  def run()run11,423
+  def log_positions(ts)log_positions19,619
+
+app/models/scan.rb,168
+class Scan < ActiveRecord::BaseScan14,257
+  def clear_associations_if_dirtyclear_associations_if_dirty23,470
+  def tickers_ids(repopulate=false)tickers_ids27,541
 
 app/models/derived_value.rb,60
 class DerivedValue < ActiveRecord::BaseDerivedValue14,329
@@ -2429,9 +2600,10 @@ class FastLiveQuote < ActiveRecord::BaseFastLiveQuote12,212
   def self.time_class ; Time ;  endtime_class23,517
   def self.time_res; 60; endtime_res24,553
 
-app/models/position.rb,93
-class Position < ActiveRecord::BasePosition22,546
-  def current_valuecurrent_value26,628
+app/models/position.rb,215
+class Position < ActiveRecord::BasePosition24,668
+  def self.log_position(population, strategy, ticker, open, entry_date, entry_price, week)log_position32,807
+  def close_at_max(options={})close_at_max41,1367
 
 app/models/derived_value_type.rb,68
 class DerivedValueType < ActiveRecord::BaseDerivedValueType10,166
@@ -2486,17 +2658,18 @@ class Aggregate < ActiveRecord::BaseAggregate19,353
 app/models/contract_type.rb,60
 class ContractType < ActiveRecord::BaseContractType12,221
 
-app/models/ticker.rb,400
-class Ticker < ActiveRecord::BaseTicker17,407
-  def last_closelast_close26,683
-  def listinglisting30,830
-  def self.listing_name(symbol)listing_name34,871
-  def self.symbolssymbols38,975
-  def self.active_symbolsactive_symbols42,1081
-  def self.active_idsactive_ids46,1211
-  def self.idsids50,1333
-  def self.id_groups(count)id_groups54,1448
-  def self.lname(symbol)lname59,1619
+app/models/ticker.rb,442
+class Ticker < ActiveRecord::BaseTicker18,438
+  def last_closelast_close28,747
+  def listinglisting32,894
+  def self.lookup(symbol)lookup36,935
+  def self.listing_name(symbol)listing_name40,1035
+  def self.symbolssymbols44,1139
+  def self.active_symbolsactive_symbols48,1245
+  def self.active_idsactive_ids52,1375
+  def self.idsids56,1497
+  def self.id_groups(count)id_groups60,1612
+  def self.lname(symbol)lname65,1783
 
 app/models/current_listing.rb,101
 class CurrentListing < ActiveRecord::BaseCurrentListing41,1780
@@ -2505,11 +2678,17 @@ class CurrentListing < ActiveRecord::BaseCurrentListing41,1780
 app/models/listing_category.rb,66
 class ListingCategory < ActiveRecord::BaseListingCategory10,177
 
+app/models/positions_scans.rb,64
+class PositionsScans < ActiveRecord::BasePositionsScans10,148
+
 app/models/plot_type.rb,52
 class PlotType < ActiveRecord::BasePlotType16,346
 
 app/models/membership.rb,56
 class Membership < ActiveRecord::BaseMembership11,234
+
+app/models/scans_tickers.rb,60
+class ScansTickers < ActiveRecord::BaseScansTickers10,142
 
 app/models/stat_value.rb,141
 class StatValue < ActiveRecord::BaseStatValue30,889
@@ -2517,6 +2696,9 @@ class StatValue < ActiveRecord::BaseStatValue30,889
 
 app/models/portfolio.rb,54
 class Portfolio < ActiveRecord::BasePortfolio13,253
+
+app/models/strategy.rb,52
+class Strategy < ActiveRecord::BaseStrategy12,227
 
 app/helpers/plot_attributes_helper.rb,164
 module PlotAttributesHelperPlotAttributesHelper1,0
@@ -2538,6 +2720,11 @@ module DailyReturnsHelperDailyReturnsHelper1,0
   def daily_returns_pathdaily_returns_path2,26
   def daily_return_path(obj)daily_return_path6,75
 
+app/helpers/scans.rb,104
+module ScansHelperScansHelper1,0
+  def scans_pathscans_path2,19
+  def scan_path(obj)scan_path6,60
+
 app/helpers/positions_helper.rb,128
 module PositionsHelperPositionsHelper1,0
   def positions_pathpositions_path2,23
@@ -2552,6 +2739,11 @@ app/helpers/listing_categories_helper.rb,178
 module ListingCategoriesHelperListingCategoriesHelper1,0
   def listing_categories_pathlisting_categories_path2,31
   def listing_category_path(obj)listing_category_path6,85
+
+app/helpers/strategies_helper.rb,132
+module StrategiesHelperStrategiesHelper1,0
+  def strategies_pathstrategies_path2,24
+  def strategy_path(obj)strategy_path6,70
 
 app/helpers/derived_value_types_helper.rb,184
 module DerivedValueTypesHelperDerivedValueTypesHelper1,0
@@ -2654,6 +2846,9 @@ class ExchangesController < ApplicationControllerExchangesController1,0
 app/controllers/portfolios_controller.rb,76
 class PortfoliosController < ApplicationControllerPortfoliosController1,0
 
+app/controllers/scans_contoller.rb,66
+class ScansController < ApplicationControllerScansController1,0
+
 app/controllers/current_listing_controller.rb,85
 class CurrentListingController <  ApplicationControllerCurrentListingController1,0
 
@@ -2667,6 +2862,9 @@ class DailyClosesController < ApplicationControllerDailyClosesController1,0
   def begin_catchupbegin_catchup18,287
   def begin_loadbegin_load34,1055
   def progressprogress51,1887
+
+app/controllers/strategies_controller.rb,76
+class StrategiesController < ApplicationControllerStrategiesController1,0
 
 app/controllers/daily_returns_controller.rb,80
 class DailyReturnsController < ApplicationControllerDailyReturnsController1,0

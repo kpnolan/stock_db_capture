@@ -20,7 +20,7 @@ class Timeseries
 
                                  }
 
-  attr_accessor :symbol, :source_model, :value_hash
+  attr_accessor :symbol, :icker_id, :source_model, :value_hash
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
   attr_accessor :timevec, :xval_vec, :time_map, :index_map, :local_range, :price
@@ -28,7 +28,9 @@ class Timeseries
   def initialize(symbol_or_id, local_range, time_resolution, options={})
     options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true
     initialize_state()
-    self.symbol = symbol_or_id.is_a? Fixnum ? Tickers.find(symbol_or_id).symbol : symbol_or_id
+    self.ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id) : Ticker.find_by_symbol(symbol_or_id.to_s)
+    raise ArgumentError("Excpecting ticker symbol or ticker id as first argument. Neither could be found") if ticker_id.nil?
+    self.symbol = Ticker.find(ticker_id).symbol
     self.source_model = select_by_resolution(time_resolution)
     bars_per_day = 1
     if source_model == Aggregate
@@ -185,8 +187,8 @@ class Timeseries
     indexes.map { |index| index2time(index) }
   end
 
-  def index2time(index)
-    time = index_map[index]
+  def index2time(index, offset=0)
+    time = index_map[index+offset]
     time && time.send(source_model.time_convert)
   end
 

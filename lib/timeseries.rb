@@ -200,6 +200,7 @@ class Timeseries
 
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
+
     if graph_type == :overlap
       aggregate(symbol, pb, options.merge(:with => 'financebars')) unless options[:noplot]
     else

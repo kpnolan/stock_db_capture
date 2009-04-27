@@ -40,6 +40,7 @@ class Backtester
     self.strategy.block = $analytics.find_openning(sname).third
     phash = params(strategy.params_yaml)
     # Loop through all of the populations given for this backtest
+    startt = Time.now
     ActiveRecord::Base.benchmark("Open Positions", Logger::INFO) do
       for pname in pnames
         self.pop = Scan.find_by_name(pname)
@@ -56,16 +57,26 @@ class Backtester
           open_positions(ts, phash)
         end
       end
+      endt = Time.now
+      delta = endt - startt
+      deltam = delta/60.0
+      puts "Open position elapsed time: #{deltam} minutes"
       # Now closes the posisitons that we just openned by running the block associated with the backtest
       # The purpose for "apply" kind of backtest is to open positions based upon the criterion given
       # in the "analytics" section and then close them be evaluating the block associated with the "apply"
       # If everybody does what they're supposed to do, we end up with a set of positions that have been openned
       # and closed, giving the raw data for the analysis of the backtest
+      puts "Beginning close positions analysis..."
+      startt = Time.now
       ActiveRecord::Base.benchmark("Close Positions", Logger::INFO) do
         for position in pop.positions
           block.call(position)
         end
       end
+      endt = Time.now
+      delta = endt - startt
+      deltam = delta/60.0
+      puts "Backtest (close positions) elapsed time: #{deltam} minutes"
     end
   end
 
@@ -86,6 +97,8 @@ class Backtester
         date = ts.index2time(index)
         pop.positions << Position.open(pop, strategy, ticker, date, price)
       end
+    rescue NoMethodError => e
+      puts e.message unless e.message =~ /to_v/
     rescue Exception => e
       puts e.message
     end

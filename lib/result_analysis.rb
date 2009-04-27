@@ -8,11 +8,11 @@ module ResultAnalysis
   VALID_OPS = [:gt, :lt, :ge, :le, :eq]
 
   def over_threshold(threshold, sym)
-    threshold_crossing(threshold, sym, :gt).to_a
+    threshold_crossing(threshold, sym, :gt).to_v.to_i.add_constant!(outidx).to_a
   end
 
   def under_threshold(threshold, sym)
-    threshold_crossing(threshold, sym, :lt).to_a
+    threshold_crossing(threshold, sym, :lt).to_v.to_i.add_constant!(outidx).to_a
   end
 
   def threshold_crossing(threshold, sym, op)
@@ -26,13 +26,13 @@ module ResultAnalysis
   def crosses_over(sym1 ,sym2)
     a_vec = vector_for(sym1)
     b_vec = vector_for(sym2)
-    crossing(:gt, a_vec, b_vec).to_a
+    crossing(:gt, a_vec, b_vec).add_constant!(outidx).to_a
   end
 
   def crosses_under(sym1, sym2)
     a_vec = vector_for(sym1)
     b_vec = vector_for(sym2)
-    crossing(:lt, a_vec, b_vec).to_a
+    crossing(:lt, a_vec, b_vec).add_constant!(outidx).to_a
   end
 
   def crossing(method, a, b)
@@ -46,7 +46,7 @@ module ResultAnalysis
   end
 
   def find_ones(sym)
-    vector_for(sym).where { |e| e == 1 }
+    vector_for(sym).where { |e| e == 1 }.add_constant!(outidx).to_a
   end
 end
 

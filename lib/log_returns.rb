@@ -37,7 +37,7 @@ module LogReturns
         symbol = ticker.symbol
         compute_vectors_and_update(symbol, ticker_id)
         self.counter += 1
-      rescue => e
+      rescue Exception => e
         puts e.message
       end
     end
@@ -125,7 +125,7 @@ module LogReturns
     for rec in recs
         begin
           rec.update_attributes!(:r => nr_vec[index], :logr => nlogr_vec[index], :alr => nalr_vec[index])
-        rescue => e
+        rescue Exception => e
           self.logger.error("#{e.message} for #{ticker_id} at index: #{index}")
           rec.update_attributes!(:r => 1.0, :logr => 0.0, :alr => 0.0)
         else

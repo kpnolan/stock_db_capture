@@ -20,7 +20,7 @@ class Timeseries
 
                                  }
 
-  attr_accessor :symbol, :icker_id, :source_model, :value_hash
+  attr_accessor :symbol, :ticker_id, :source_model, :value_hash
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
   attr_accessor :timevec, :xval_vec, :time_map, :index_map, :local_range, :price
@@ -163,7 +163,7 @@ class Timeseries
   def time2index(time, direction, raise_on_range_error=true)
     adj_time = time.to_time.utc.midnight
     if direction == -1
-      raise TimeseriesException.new("Requested time is before recorded history: starting #{timevec.first}") if adj_time < timevec.first
+      raise TimeseriesException.new("#{symbol}: requested time is before recorded history: starting #{timevec.first}") if adj_time < timevec.first
       until time_map.include?(adj_time) || adj_time < timevec.first
         adj_time -= sample_period.first
       end

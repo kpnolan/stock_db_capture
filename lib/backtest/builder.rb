@@ -1,4 +1,4 @@
-require 'ostruct'
+require 'backtester'
 
 module Backtest
 
@@ -9,21 +9,28 @@ module Backtest
   end
 
   class Builder
-    def initialize()
-      @applications = []
-      @descriptions = []
+
+    attr_reader :options, :description, :backtests
+
+    def initialize(options)
+      @options = options
+      @backtests = []
     end
 
     def apply(strategy, populations, &block)
       raise ArgumentError.new("Block missing") unless block_given?
       populations = [ populations ] unless populations.is_a? Array
-      @applications << OpenStruct.new(:strategy => strategy, :desc => @descriptions.shift,
-                                      :populations => populations, :block => block)
+      @backtests << Backtester.new(strategy, populations, description, options, &block)
     end
 
     def desc(string)
-      @descriptions << string
+      @description = string
     end
 
+    def run()
+      backtests.each do |backtest|
+        backtest.run
+      end
+    end
   end
 end

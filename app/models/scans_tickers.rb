@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090403161440
+# Schema version: 20090425175412
 #
 # Table name: scans_tickers
 #
@@ -8,4 +8,6 @@
 #
 
 class ScansTickers < ActiveRecord::Base
+  belongs_to :ticker
+  belongs_to :scan
 end

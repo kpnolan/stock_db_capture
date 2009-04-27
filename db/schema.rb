@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090403161440) do
+ActiveRecord::Schema.define(:version => 20090425175412) do
 
   create_table "aggregates", :force => true do |t|
     t.integer  "ticker_id"
@@ -247,7 +247,6 @@ ActiveRecord::Schema.define(:version => 20090403161440) do
 
   create_table "positions", :force => true do |t|
     t.integer  "ticker_id"
-    t.boolean  "open"
     t.datetime "entry_date"
     t.datetime "exit_date"
     t.float    "entry_price"
@@ -259,13 +258,12 @@ ActiveRecord::Schema.define(:version => 20090403161440) do
     t.float    "nomalized_return"
     t.float    "risk_factor"
     t.integer  "week"
-    t.integer  "population_id"
-    t.integer  "ticker_population_id"
+    t.integer  "scan_id"
   end
 
   add_index "positions", ["strategy_id"], :name => "strategy_id"
   add_index "positions", ["ticker_id"], :name => "index_positions_on_portfolio_id_and_ticker_id"
-  add_index "positions", ["ticker_population_id"], :name => "ticker_population_id"
+  add_index "positions", ["scan_id"], :name => "scan_id"
 
   create_table "positions_scans", :id => false, :force => true do |t|
     t.integer "position_id"
@@ -368,7 +366,7 @@ ActiveRecord::Schema.define(:version => 20090403161440) do
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 
-  add_foreign_key "positions", ["ticker_population_id"], "scans", ["id"], :name => "positions_ibfk_4"
+  add_foreign_key "positions", ["scan_id"], "scans", ["id"], :name => "positions_ibfk_4"
   add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_2"
   add_foreign_key "positions", ["strategy_id"], "strategies", ["id"], :name => "positions_ibfk_3"
 

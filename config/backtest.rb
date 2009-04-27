@@ -23,19 +23,20 @@ end
 
 populations do
   liquid = 'min(volume) > 100000 and count(*) > 100'
-  0.upto(8) do |year|
-    desc "Population of all stocks with a minimum value of 100000 and at least100 days traded in #{2000+yaer}"
+#  0.upto(8) do |year|
+    year = 8
+    desc "Population of all stocks with a minimum value of 100000 and at least100 days traded in #{2000+year}"
     scan "liquid_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid
 
-    desc "Flat stocks of #{2000+year}"
-    scan "flat_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid+' and stddev(close)/avg(close) < 0.25 and count(*) > 100'
+#   desc "Flat stocks of #{2000+year}"
+#    scan "flat_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid+' and stddev(close)/avg(close) < 0.25 and count(*) > 100'
 
-    desc "Volatile stocks of #{2000+year}"
-    scan "volatile_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid+' and stddev(close)/avg(close) > 1 and count(*) > 100'
+#    desc "Volatile stocks of #{2000+year}"
+#    scan "volatile_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid+' and stddev(close)/avg(close) > 1 and count(*) > 100'
 
-    desc "Big Daily Swings of #{2000+year}"
-    scan "active_swings_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid+' and avg(high-low)/avg((high+low)/2) > 0.1'
-  end
+#    desc "Big Daily Swings of #{2000+year}"
+#    scan "active_swings_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid+' and avg(high-low)/avg((high+low)/2) > 0.1'
+#  end
 end
 
 backtests do
@@ -45,4 +46,4 @@ backtests do
   end
 end
 
-$backtester.run
+debugger

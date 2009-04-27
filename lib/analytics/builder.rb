@@ -1,4 +1,6 @@
 require 'yaml'
+require 'rubygems'
+require 'ruby-debug'
 
 module Analytics
 
@@ -24,11 +26,11 @@ module Analytics
   end
 
   class Builder
-    def initialize()
+    def initialize(options)
+      @options = options
       @strategies = []
       @descriptions = []
       @opennings = []
-      @scans = []
     end
 
     def find_strategy(name)
@@ -49,43 +51,14 @@ module Analytics
 
     def open_position(name, params={}, &block)
       raise ArgumentError.new("Block missing for #{name}") unless block_given?
-      if Strategy.find_by_name(name).nil?
-        Strategy.create!(:name => name,  :description => @descriptions.shift, :params_yaml => params.to_yaml)
+      if Strategy.find_by_name(name.to_s.downcase).nil?
+        Strategy.record!(name, @descriptions.shift, params.to_yaml)
       end
       @opennings << [name, params, block]
     end
 
     def desc(string)
       @descriptions << string
-    end
-
-    def process_scans
-      @scans.each do |pair|
-        scan, changed = pair
-        scan.tickers_ids if changed
-      end
-    end
-
-    def scan(name, options={})
-      begin
-        if (scan = Scan.find_by_name(name))
-          options[:start_date] = Date.parse(options[:start_date])
-          options[:end_date] = Date.parse(options[:end_date])
-          options[:description] = @descriptions.shift
-          options.reject { |key, value| [:start_date, :end_date, :description].include? key }
-          scan.update_attributes!(options)
-          @scans << scan
-        else
-          options[:start_date] = Date.parse(options[:start_date])
-          options[:end_date] = Date.parse(options[:end_date])
-          options[:description] = @descriptions.shift
-          options.reject { |key, value| [:start_date, :end_date, :description].include? key }
-          scan = Scan.create!({:name => name}.merge(options))
-          @scans << scan
-        end
-      rescue
-        raise BuilderException.new(name)
-      end
     end
   end
 end

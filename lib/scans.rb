@@ -59,7 +59,7 @@ module Scans
         DerivedValue.create!(:derived_value_type => scan_type, :ticker_id => ticker_id,
                              :date => date, :time => date.to_time, :value => ratio)
         count += 1
-      rescue => e
+      rescue Exception => e
         @logger.info("#{symbol}(#{ticker_id}): #{e.message}")
       end
     end

@@ -1,4 +1,6 @@
 
+config/milestone.rb,0
+
 config/boot.rb,795
 module RailsRails6,175
     def boot!boot!8,204
@@ -19,6 +21,8 @@ module RailsRails6,175
       def load_rubygemsload_rubygems83,1963
       def parse_gem_version(text)parse_gem_version96,2452
         def read_environment_rbread_environment_rb101,2593
+
+config/backtest.rb,0
 
 config/environment.rb,0
 
@@ -1447,6 +1451,11 @@ class AddIndexToDailyCloses < ActiveRecord::MigrationAddIndexToDailyCloses1,0
   def self.upup2,54
   def self.downdown6,142
 
+db/migrate/20090425175412_rework_position.rb,115
+class ReworkPosition < ActiveRecord::MigrationReworkPosition1,0
+  def self.upup2,47
+  def self.downdown7,166
+
 db/migrate/20081227180640_create_aggregates.rb,120
 class CreateAggregates < ActiveRecord::MigrationCreateAggregates1,0
   def self.upup2,49
@@ -1991,8 +2000,6 @@ lib/rsi_strategy.rb,107
 class RsiStrategy < StrategyEngineRsiStrategy3,27
   def compute_open_indexes()compute_open_indexes4,62
 
-lib/strategies.rb,0
-
 lib/populate_db.rb,1489
 class StringString12,183
   def to_timeto_time14,197
@@ -2056,38 +2063,38 @@ module ScansScans3,16
 
 lib/timeseries.rb,1787
 class TimeseriesTimeseries1,0
-  def initialize(symbol_or_id, local_range, time_resolution, options={})initialize28,1208
-  def inspectinspect60,2670
-  def all(*args)all64,2701
-  def multi_calc(fcn_vec, options={})multi_calc68,2746
-  def multi_fopt(fopt_vec, options={})multi_fopt75,3011
-  def find_result(fcn, options={})find_result84,3356
-  def clear_resultsclear_results89,3510
-  def reset_price(expression = :default)reset_price93,3566
-  def select_by_resolution(period)select_by_resolution103,3842
-  def init_timevecinit_timevec110,4082
-  def repopulate(options)repopulate115,4211
-  def apply_options(options)apply_options128,4648
-  def compute_timestampscompute_timestamps134,4783
-  def minimal_samples(lookback_fun, *args)minimal_samples145,5266
-  def calc_indexes(loopback_fun, *args)calc_indexes149,5378
-  def time2index(time, direction, raise_on_range_error=true)time2index163,5879
-  def value_at(index, slot)value_at182,6852
-  def times_for(indexes)times_for186,6909
-  def index2time(index, offset=0)index2time190,6987
-  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result195,7112
-  def avg_priceavg_price217,7872
-  def find_memo(fcn_symbol, time_range=nil, options={})find_memo221,7933
-  def add_methods_for_attributes(attrs)add_methods_for_attributes230,8209
-  def initialize_stateinitialize_state241,8564
-class ParamBlockParamBlock250,8820
-  def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)initialize265,9130
-  def vector_for(sym)vector_for280,9645
-  def match(fcn, options={})match290,9881
-  def keyskeys297,10048
-  def to_tsto_ts301,10087
-  def decode(*syms)decode305,10121
-def ts(symbol, local_range, seconds, options={})ts312,10207
+  def initialize(symbol_or_id, local_range, time_resolution, options={})initialize28,1209
+  def inspectinspect60,2671
+  def all(*args)all64,2702
+  def multi_calc(fcn_vec, options={})multi_calc68,2747
+  def multi_fopt(fopt_vec, options={})multi_fopt75,3012
+  def find_result(fcn, options={})find_result84,3357
+  def clear_resultsclear_results89,3511
+  def reset_price(expression = :default)reset_price93,3567
+  def select_by_resolution(period)select_by_resolution103,3843
+  def init_timevecinit_timevec110,4083
+  def repopulate(options)repopulate115,4212
+  def apply_options(options)apply_options128,4649
+  def compute_timestampscompute_timestamps134,4784
+  def minimal_samples(lookback_fun, *args)minimal_samples145,5267
+  def calc_indexes(loopback_fun, *args)calc_indexes149,5379
+  def time2index(time, direction, raise_on_range_error=true)time2index163,5880
+  def value_at(index, slot)value_at182,6853
+  def times_for(indexes)times_for186,6910
+  def index2time(index, offset=0)index2time190,6988
+  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result195,7113
+  def avg_priceavg_price217,7873
+  def find_memo(fcn_symbol, time_range=nil, options={})find_memo221,7934
+  def add_methods_for_attributes(attrs)add_methods_for_attributes230,8210
+  def initialize_stateinitialize_state241,8565
+class ParamBlockParamBlock250,8821
+  def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)initialize265,9131
+  def vector_for(sym)vector_for280,9646
+  def match(fcn, options={})match290,9882
+  def keyskeys297,10049
+  def to_tsto_ts301,10088
+  def decode(*syms)decode305,10122
+def ts(symbol, local_range, seconds, options={})ts312,10208
 
 lib/foo.rb,93
 class FooFoo1,0
@@ -2149,26 +2156,34 @@ module PlotPlot6,76
   def histogram(symbol, attr)histogram314,10008
   def titleize(syms)titleize334,10556
 
-lib/analytics/builder.rb,607
-module AnalyticsAnalytics3,16
-  class HashHash5,34
-    def to_yaml( opts = {} )to_yaml9,205
-  class BuilderExceptionBuilderException20,484
-    def initialize(name)initialize21,509
-  class BuilderBuilder26,602
-    def initialize()initialize27,618
-    def find_strategy(name)find_strategy34,736
-    def find_openning(name)find_openning38,828
-    def strategy(name, params={}, &block)strategy42,919
-    def open_position(name, params={}, &block)open_position50,1253
-    def desc(string)desc58,1592
-    def process_scansprocess_scans62,1652
-    def scan(name, options={})scan69,1786
+lib/backtester.rb,352
+class BacktestException < ExceptionBacktestException12,219
+  def initialize(msg)initialize13,255
+class BacktesterBacktester18,303
+  def initialize(strategy_name, population_names, description, options, &block)initialize22,482
+  def run()run36,1024
+  def params(yaml_str)params67,2548
+  def open_positions(ts, params)open_positions75,2931
 
-lib/analytics/maker.rb,120
-module AnalyticsAnalytics1,0
-  module MakerMaker2,17
-    def make_analytics(options={}, &block)make_analytics3,32
+lib/analytics/builder.rb,527
+module AnalyticsAnalytics5,56
+  class HashHash7,74
+    def to_yaml( opts = {} )to_yaml11,245
+  class BuilderExceptionBuilderException22,524
+    def initialize(name)initialize23,549
+  class BuilderBuilder28,642
+    def initialize(options)initialize29,658
+    def find_strategy(name)find_strategy36,790
+    def find_openning(name)find_openning40,882
+    def strategy(name, params={}, &block)strategy44,973
+    def open_position(name, params={}, &block)open_position52,1307
+    def desc(string)desc60,1618
+
+lib/analytics/maker.rb,164
+module AnalyticsAnalytics4,41
+  module MakerMaker5,58
+    def self.analytics(options, &block)analytics6,73
+def analytics(options={}, &block)analytics13,229
 
 lib/talib/ext/extconf.rb,0
 
@@ -2246,14 +2261,6 @@ lib/plot_aux_info.rb,92
 module PlotAuxInfoPlotAuxInfo1,0
   def plot_commands_for(function)plot_commands_for2,19
 
-lib/trading_utils.rb,369
-module TradingUtilsTradingUtils1,0
-  def trading_days(date_range)trading_days6,216
-  def trading_days_from(date, number)trading_days_from10,340
-  def trading_day_count(date1, date2)trading_day_count27,778
-  def format_dates_where_clause(dates)format_dates_where_clause31,861
-  def trading_to_calender(start_date, trading_day_count)trading_to_calender35,944
-
 lib/result_analysis.rb,421
 module ResultAnalysisResultAnalysis4,34
   def over_threshold(threshold, sym)over_threshold10,113
@@ -2298,6 +2305,15 @@ class BuildShadowBuildShadow1,0
   def emit_opt_args(opt_args)emit_opt_args144,4048
   def expand_opt_args(opt_args)expand_opt_args148,4122
   def buffer(str)buffer160,4389
+
+lib/trading_calendar.rb,415
+module TradingCalendarTradingCalendar1,0
+  def holidays()holidays14,1114
+  def trading_days(date_range)trading_days25,1324
+  def trading_days_from(date, number)trading_days_from29,1448
+  def trading_day_count(date1, date2)trading_day_count46,1886
+  def format_dates_where_clause(dates)format_dates_where_clause50,1969
+  def trading_to_calender(start_date, trading_day_count)trading_to_calender54,2052
 
 lib/technical_analysis.rb,7823
 module TechnicalAnalysisTechnicalAnalysis9,757
@@ -2460,6 +2476,24 @@ module TechnicalAnalysisTechnicalAnalysis9,757
   def willr(options={})willr1173,51941
   def wma(options={})wma1181,52280
 
+lib/population/builder.rb,391
+module PopulationPopulation3,16
+  class HashHash5,35
+    def to_yaml( opts = {} )to_yaml9,206
+  class BuilderExceptionBuilderException20,485
+    def initialize(name, msg)initialize21,510
+  class BuilderBuilder26,616
+    def initialize(options)initialize30,659
+    def find_scan(name)find_scan36,764
+    def desc(string)desc40,847
+    def scan(name, options={})scan44,907
+
+lib/population/maker.rb,173
+module PopulationPopulation1,0
+  module MakerMaker2,18
+    def self.populations(options, &block)populations3,33
+def populations(options={}, &block)populations10,193
+
 lib/convert_talib_meta_info.rb,1285
 module ConvertTalibMetaInfoConvertTalibMetaInfo1,0
   def self.normalize_key(str)normalize_key4,30
@@ -2533,14 +2567,14 @@ module YahooFinanceYahooFinance80,2122
     def self.parse( args, options )parse590,17757
 
 lib/aggregator.rb,541
-module AggregatorAggregator3,25
-  def init_tables(dates)init_tables13,204
-  def compute_aggregates(period_in_seconds)compute_aggregates21,666
-  def compute_aggregate_range(ticker, date_range, period_in_seconds)compute_aggregate_range38,1253
-  def compute_aggregate(ticker, date, period_in_seconds)compute_aggregate50,1582
-  def form_where_clause(tid, btime, etime)form_where_clause78,2669
-  def generate_aggregate(tid, date, start_time, period, last_close, recs)generate_aggregate82,2839
-  def out_of_dateout_of_date102,3666
+module AggregatorAggregator3,28
+  def init_tables(dates)init_tables13,210
+  def compute_aggregates(period_in_seconds)compute_aggregates21,672
+  def compute_aggregate_range(ticker, date_range, period_in_seconds)compute_aggregate_range38,1259
+  def compute_aggregate(ticker, date, period_in_seconds)compute_aggregate50,1588
+  def form_where_clause(tid, btime, etime)form_where_clause78,2675
+  def generate_aggregate(tid, date, start_time, period, last_close, recs)generate_aggregate82,2845
+  def out_of_dateout_of_date102,3672
 
 lib/timeseries_exception.rb,104
 class TimeseriesException < ExceptionTimeseriesException1,0
@@ -2550,19 +2584,21 @@ lib/load_etf.rb,59
 module LoadEtfLoadEtf3,15
   def load_etf()load_etf4,30
 
-lib/backtest/builder.rb,283
-module BacktestBacktest3,19
-  class BacktestrExceptionBacktestrException5,36
-    def initialize(name)initialize6,63
-  class BuilderBuilder11,156
-    def initialize()initialize12,172
-    def apply(strategy, populations, &block)apply17,252
-    def desc(string)desc24,615
+lib/backtest/builder.rb,315
+module BacktestBacktest3,22
+  class BacktestrExceptionBacktestrException5,39
+    def initialize(name)initialize6,66
+  class BuilderBuilder11,159
+    def initialize(options)initialize15,228
+    def apply(strategy, populations, &block)apply20,312
+    def desc(string)desc26,588
+    def run()run30,646
 
-lib/backtest/maker.rb,122
-module BacktestBacktest1,0
-  module MakerMaker2,16
-    def define_backtests(options={}, &block)define_backtests3,31
+lib/backtest/maker.rb,162
+module BacktestBacktest3,22
+  module MakerMaker4,38
+    def self.backtests(options, &block)backtests5,53
+def backtests(options={}, &block)backtests12,209
 
 lib/table_extract.rb,693
 module TableExtractTableExtract1,0
@@ -2576,16 +2612,11 @@ module TableExtractTableExtract1,0
   def normalize_ticker(ticker, bdate=nil, edate=nil)normalize_ticker52,1914
   def form_conditions(ticker, bdate=nil, edate=nil)form_conditions62,2293
 
-lib/strategy_engine.rb,178
-class StrategyEngineStrategyEngine1,0
-  def initialize(population, date_range, options={})initialize4,107
-  def run()run11,423
-  def log_positions(ts)log_positions19,619
-
-app/models/scan.rb,168
+app/models/scan.rb,231
 class Scan < ActiveRecord::BaseScan14,257
-  def clear_associations_if_dirtyclear_associations_if_dirty23,470
-  def tickers_ids(repopulate=false)tickers_ids27,541
+  def self.find_by_name(keyword_or_string)find_by_name23,470
+  def clear_associations_if_dirtyclear_associations_if_dirty27,590
+  def tickers_ids(repopulate=false)tickers_ids32,705
 
 app/models/derived_value.rb,60
 class DerivedValue < ActiveRecord::BaseDerivedValue14,329
@@ -2600,10 +2631,10 @@ class FastLiveQuote < ActiveRecord::BaseFastLiveQuote12,212
   def self.time_class ; Time ;  endtime_class23,517
   def self.time_res; 60; endtime_res24,553
 
-app/models/position.rb,215
-class Position < ActiveRecord::BasePosition24,668
-  def self.log_position(population, strategy, ticker, open, entry_date, entry_price, week)log_position32,807
-  def close_at_max(options={})close_at_max41,1367
+app/models/position.rb,187
+class Position < ActiveRecord::BasePosition22,540
+  def self.open(population, strategy, ticker, entry_date, entry_price)open30,682
+  def close_at_max(options={})close_at_max37,1002
 
 app/models/derived_value_type.rb,68
 class DerivedValueType < ActiveRecord::BaseDerivedValueType10,166
@@ -2632,17 +2663,18 @@ class PlotAttributes < ActiveRecord::BasePlotAttributes15,311
 app/models/historical_attribute.rb,74
 class HistoricalAttribute < ActiveRecord::BaseHistoricalAttribute10,168
 
-app/models/daily_close.rb,530
+app/models/daily_close.rb,580
 class DailyClose < ActiveRecord::BaseDailyClose22,436
   def symbol=(value) ;  endsymbol=28,533
   def last_trade_date=(value) ;  endlast_trade_date=29,561
-  def self.order ; 'date, id'; endorder30,598
-  def self.time_col ; :date ;  endtime_col31,633
-  def self.time_convert ; :to_date ;  endtime_convert32,668
-  def self.time_class ; Date ;  endtime_class33,710
-  def self.time_res; 1; endtime_res34,746
-  def self.catchup_to_date(date=nil)catchup_to_date36,775
-  def self.avg_volume(from, to)avg_volume43,1081
+    def order ; 'date, id'; endorder33,616
+    def time_col ; :date ;  endtime_col34,648
+    def time_convert ; :to_date ;  endtime_convert35,680
+    def time_class ; Date ;  endtime_class36,719
+    def time_res; 1; endtime_res37,752
+    def catchup_to_date(date=nil)catchup_to_date39,778
+    def avg_volume(from, to)avg_volume46,1087
+    def max_between(column, ticker_id, date_range)max_between53,1487
 
 app/models/exchange.rb,52
 class Exchange < ActiveRecord::BaseExchange14,264
@@ -2697,8 +2729,10 @@ class StatValue < ActiveRecord::BaseStatValue30,889
 app/models/portfolio.rb,54
 class Portfolio < ActiveRecord::BasePortfolio13,253
 
-app/models/strategy.rb,52
-class Strategy < ActiveRecord::BaseStrategy12,227
+app/models/strategy.rb,174
+class Strategy < ActiveRecord::BaseStrategy14,243
+    def record!(name, description, params_str)record!22,421
+    def find_by_name(keyword_or_string)find_by_name26,577
 
 app/helpers/plot_attributes_helper.rb,164
 module PlotAttributesHelperPlotAttributesHelper1,0

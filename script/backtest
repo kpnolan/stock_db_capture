@@ -1,0 +1,25 @@
+#!/usr/bin/env ./script/runner
+
+require 'backtester'
+
+proc_count = 1
+
+if ARGV.empty?
+   puts "Usage: ./script/backtest <backtest config file>"
+   exit()
+end
+
+require File.dirname(__FILE__) + "/../config/#{ARGV[0]}.rb"
+
+puts "Done reading backeest config file, beginning #{$backtester.backtests.length} backtest using #{proc_count} processors..."
+
+begin
+  $backtester.run()
+rescue => e
+  puts e.message
+  raise BacktestException.new("Backtest cancelled because of previous errors")
+end
+
+
+
+

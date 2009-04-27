@@ -1,8 +1,8 @@
-require 'trading_utils'
+require 'trading_calendar'
 
 module Aggregator
 
-  include TradingUtils
+  include TradingCalendar
 
   BEGIN_TIME = 9.hours + 30.minutes
   END_TIME = 16.hours
@@ -93,7 +93,7 @@ module Aggregator
       agg_model.create!(:ticker_id => tid, :date => date, :start => start_time+UTC_OFFSET, :open => open,
                         :close => close, :high => high, :low => low, :volume => volume, :period => period,
                         :r => r, :logr => logr, :sample_count => recs.length)
-    rescue => e
+    rescue Exception => e
       $logger.error("duplicate #{agg_model.to_s} tid: #{tid} start: #{start_time} #{period} seconds")
     end
     return close

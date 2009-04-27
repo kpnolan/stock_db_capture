@@ -7,7 +7,7 @@ module LoadEtf
         str.chomp!
         Ticker.create!(:symbol => str, :exchange_id => 26, :dormant => false, :active => true)
         puts "created #{str}"
-      rescue => e
+      rescue Exception => e
         puts "#{e.message} with #{str}"
       end
     end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090403161440
+# Schema version: 20090425175412
 #
 # Table name: current_listings
 #

@@ -240,7 +240,7 @@ class TradingDBLoader
     end
     begin
       cl.update_attributes!(attrs)
-    rescue => e
+    rescue Exception => e
       logger.error("Error creating #{qt.symbol} with attrs #{attrs} msg: #{e.message}") if logger
     end
   end

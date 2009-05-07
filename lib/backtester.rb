@@ -16,7 +16,7 @@ class BacktestException < Exception
 end
 
 class Backtester
-  attr_accessor :tid_array, :ticker, :date_range, :ts, :result_hash, :meta_data_hash, :strategy, :pop
+  attr_accessor :tid_array, :ticker, :date_range, :ts, :result_hash, :meta_data_hash, :strategy, :scan
   attr_reader :pnames, :sname, :desc, :options, :positions, :block
 
   def initialize(strategy_name, population_names, description, options, &block)
@@ -42,21 +42,29 @@ class Backtester
     # Loop through all of the populations given for this backtest
     startt = Time.now
     ActiveRecord::Base.benchmark("Open Positions", Logger::INFO) do
-      for pname in pnames
-        self.pop = Scan.find_by_name(pname)
-        next unless pop.positions.empty?
-        self.tid_array = pop.tickers_ids
-        sdate = pop.start_date
-        edate = pop.end_date
+      for scan_name in pnames
+        self.scan = Scan.find_by_name(scan_name)
+        if strategy.scan_ids.include?(scan.id)
+          #TODO wipe all the scans associated with this position if position changed
+          puts "Using CACHED positions"
+          next
+        else
+          puts "Recomputing Positions"
+        end
+        self.tid_array = scan.tickers_ids
+        sdate = scan.start_date
+        edate = scan.end_date
         self.date_range = sdate..edate
         # Foreach ticker in the population, create a timeseries for the date range given with the population
         # and run the analysis given with the strategy on said timeseries
         for tid in tid_array
           self.ticker = Ticker.find tid
           ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options)
-          open_positions(ts, phash)
+          open_positions(ts, phash) if strategy.positions
         end
+        strategy.scans << scan
       end
+
       endt = Time.now
       delta = endt - startt
       deltam = delta/60.0
@@ -69,7 +77,7 @@ class Backtester
       puts "Beginning close positions analysis..."
       startt = Time.now
       ActiveRecord::Base.benchmark("Close Positions", Logger::INFO) do
-        for position in pop.positions
+        for position in strategy.positions
           block.call(position)
         end
       end
@@ -95,7 +103,8 @@ class Backtester
       for index in open_indexes
         price = ts.value_at(index, :open)
         date = ts.index2time(index)
-        pop.positions << Position.open(pop, strategy, ticker, date, price)
+        #TODO wipe all positions associated with the strategy if the strategy changes
+        strategy.positions << Position.open(scan, strategy, ticker, date, price)
       end
     rescue NoMethodError => e
       puts e.message unless e.message =~ /to_v/

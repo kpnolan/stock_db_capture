@@ -14,7 +14,7 @@
 class Scan < ActiveRecord::Base
 
   has_and_belongs_to_many :tickers
-  has_and_belongs_to_many :positions
+  has_and_belongs_to_many :strategies
 
   validates_uniqueness_of :name
   validates_presence_of :name, :start_date, :end_date, :conditions
@@ -27,6 +27,7 @@ class Scan < ActiveRecord::Base
 
   def clear_associations_if_dirty
     tickers.clear if changed?
+    strategies.clear if changed?
   end
 
   # TODO find a better name for this method
@@ -42,7 +43,7 @@ class Scan < ActiveRecord::Base
       self.ticker_ids = @population_ids
       ticker_ids
     else
-      puts "Using cached values for scan #{name}"
+      puts "Using *CACHED* values for scan #{name}"
       ticker_ids
     end
   end

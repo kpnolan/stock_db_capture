@@ -30,7 +30,8 @@ module TradingCalendar
   end
 
   def trading_days_from(date, number)
-    calendar_days = 0
+    return date if number.zero?
+    calendar_days = 1
     trading_days = []
     while trading_days.length < number
       next_date = date + calendar_days
@@ -42,14 +43,14 @@ module TradingCalendar
         calendar_days += 1
       end
     end
-    return trading_days, calendar_days
+    return trading_days
   end
 
   def trading_day_count(date1, date2)
     (date1..date2).to_a.count do |date|
       wday = date.to_time.wday
       wday != 0 && wday != 6 && !holidays[date]
-    end
+    end - 1
   end
 
   def format_dates_where_clause(dates)
@@ -57,7 +58,6 @@ module TradingCalendar
   end
 
   def trading_to_calendar(start_date, day_count)
-    dummy, count = trading_days_from(start_date, day_count)
-    start_date + count.days
+    trading_days_from(start_date, day_count).last
   end
 end

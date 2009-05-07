@@ -57,6 +57,10 @@ class Timeseries
     reset_price(options[:price])
   end
 
+  def to_s
+    "#{symbol} #{local_range.begin}-#{local_range.end} #{timevec.length} data values"
+  end
+
   def inspect
     super
   end

@@ -1,0 +1,9 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  strategy_id: 1
+  position_id: 1
+
+two:
+  strategy_id: 1
+  position_id: 1

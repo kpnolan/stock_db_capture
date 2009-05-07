@@ -89,8 +89,11 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 #  ts(:qqqq, 2.years.ago..23.months.ago, 30.minutes, :populate => true)
-  ts(:a, 1.year.ago..1.month.ago, 1.day, :populate => true)
+#  ts(:a, 1.year.ago..1.month.ago, 1.day, :populate => true)
 end
+
+#puts "RAILS_ENV: #{RAILS_ENV}"
+#puts "ENV['RAILS_ENV']: #{ENV['RAILS_ENV']}"
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 #$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)

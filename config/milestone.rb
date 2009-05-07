@@ -43,15 +43,15 @@
 analytics do
 
   desc "Find all places where RSI gooes under 30"
-  open_position :rsi_oversold_5, :threshold => 30, :time_period => 5 do |ts, params|
+  open_position :rsi_oversold, :threshold => 30, :time_period => 5 do |ts, params|
       memo = ts.rsi params.merge(:noplot => true, :result => :memo)
       memo.under_threshold(params[:threshold], :real)
   end
 
   desc "Find all places where the low of a day crosses below 2 std dev form the SMA(5)"
-  open_position :bband_overshold, :time_period => 5, :deviations_up => 2.0, :deviations_down => 2.0 do |ts, params|
+  open_position :bband_overshold, :time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0 do |ts, params|
     memo = ts.bband params.merge(:noplot => true, :result => :memo)
-    memo.crosses_over(:price, :lower_band)
+    memo.crosses_under(:price, :lower_band)
   end
 
   desc "Find all date where Relative Volatility Index (RVI) is greater then 50"
@@ -66,10 +66,16 @@ populations do
   year = 8
   desc "Population of all stocks with a minimum value of 100000 and at least100 days traded in #{2000+year}"
   scan "liquid_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid
+
+  test_ibm = 'ticker_id = 1674'
+  desc "One stock: IBM, one year 2008"
+  scan "test_ibm", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => test_ibm
 end
 
 backtests() do
-  apply(:rsi_oversold_5, :liquid_2008) do |position|
-    position.close_at_max(:hold_time => 1..10)
+  apply(:rsi_oversold, :liquid_2008) do |position|
+#    position.close_at_max(:hold_time => 1..10)
+#    position.close_at_days_held(10)
+    position.close_at(:indicator => :rsi, :params => { :threshold => 70, :time_period => 5})
   end
 end

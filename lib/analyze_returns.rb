@@ -7,20 +7,23 @@ module AnalyzeReturns
 
   class << self
 
-    def nreturn_histogram(sigma=2.0)
-      avg = Position.average(:nreturn, :conditions => 'nreturn is not null')
-      stddev = Position.connection.select_value('select stddev(nreturn) from positions where nreturn is not null').to_f
+    def nreturn_histogram(val, sigma)
+
+      avg = Position.average(val, :conditions => 'nreturn is not null')
+      stddev = Position.connection.select_value("select stddev(#{val}) from positions where nreturn is not null").to_f
       min = avg - sigma*stddev
       max = avg + sigma*stddev
       #max = Position.maximum(:nreturn, :conditions => 'nreturn is not null')
       #min = Position.minimum(:nreturn, :conditions => 'nreturn is not null')
-      hist = GSL::Histogram.alloc(200, min, max)
+      hist = GSL::Histogram.alloc(400, min, max)
 
-      nreturns = Position.connection.select_values("select nreturn from positions where exit_price is not null").map! { |str| str.to_f }
+      nreturns = Position.connection.select_values("select #{val} from positions where nreturn is not null").map! { |str| str.to_f }
       nreturns.each { |r| hist.accumulate(r) }
 
-#      hist.graph('-C')
-      hist.graph('-T gif -C')
+#      debugger
+
+      hist.graph('-C')
+#      hist.graph('-T gif -C')
     end
 
     def nreturn_pdf()

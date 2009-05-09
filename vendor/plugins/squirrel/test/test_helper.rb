@@ -20,18 +20,18 @@ class Test::Unit::TestCase #:nodoc:
       Fixtures.create_fixtures(Test::Unit::TestCase.fixture_path, table_names)
     end
   end
-  
-	def self.load_all_fixtures
-		all_fixtures = Dir.glob("#{File.dirname(__FILE__)}/fixtures/*.yml").collect do |f|
-			puts "Loading fixture '#{f}'"
-			File.basename(f).gsub(/\.yml$/, "").to_sym
-		end
-		Fixtures.create_fixtures(Test::Unit::TestCase.fixture_path, all_fixtures)
-	end
+
+        def self.load_all_fixtures
+                all_fixtures = Dir.glob("#{File.dirname(__FILE__)}/fixtures/*.yml").collect do |f|
+                        puts "Loading fixture '#{f}'"
+                        File.basename(f).gsub(/\.yml$/, "").to_sym
+                end
+                Fixtures.create_fixtures(Test::Unit::TestCase.fixture_path, all_fixtures)
+        end
 
   # Turn off transactional fixtures if you're working with MyISAM tables in MySQL
   self.use_transactional_fixtures = true
-  
+
   # Instantiated fixtures are slow, but give you @david where you otherwise would need people(:david)
   self.use_instantiated_fixtures  = false
 

@@ -1,4 +1,25 @@
 # == Schema Information
+# Schema version: 20090506055841
+#
+# Table name: positions
+#
+#  id          :integer(4)      not null, primary key
+#  ticker_id   :integer(4)
+#  entry_date  :datetime
+#  exit_date   :datetime
+#  entry_price :float
+#  exit_price  :float
+#  num_shares  :integer(4)
+#  stop_loss   :string(255)
+#  strategy_id :integer(4)
+#  days_held   :integer(4)
+#  nreturn     :float
+#  risk_factor :float
+#  week        :integer(4)
+#  scan_id     :integer(4)
+#
+
+# == Schema Information
 # Schema version: 20090425175412
 #
 # Table name: positions

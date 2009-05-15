@@ -72,7 +72,7 @@ populations do
   scan "test_ibm", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => test_ibm
 end
 
-backtests() do
+backtests(:price => :close) do
   apply(:rsi_oversold, :liquid_2008) do |position|
 #    position.close_at_max(:hold_time => 1..10)
 #    position.close_at_days_held(10)

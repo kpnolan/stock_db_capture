@@ -7,7 +7,7 @@ sigma = 2.0
 val = 'nreturn'
 
 case
-  when ARGV[0] == nil : puts "Usage: histo_plot.rb <value> <opt_sigma>"
+  when ARGV[0] == '-h' : puts "Usage: histo_plot.rb <value> <opt_sigma>"
   when ARGV[0] != nil : val = ARGV[0]
   when ARGV[1] != nil : sigma = ARGV[1].to_f
 end

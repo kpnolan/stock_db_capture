@@ -22,8 +22,8 @@ module AnalyzeReturns
 
 #      debugger
 
-      hist.graph('-C')
-#      hist.graph('-T gif -C')
+#      hist.graph('-C')
+      hist.graph('-T gif -C')
     end
 
     def nreturn_pdf()
@@ -40,8 +40,8 @@ module AnalyzeReturns
       pdf = GSL::Histogram::Pdf.alloc(hist)
 
       pdf.graph('-C')
-      #      hist.graph('-C')
-      #hist.graph('-T gif -C')
+            hist.graph('-C')
+      hist.graph('-T gif -C')
     end
   end
 end

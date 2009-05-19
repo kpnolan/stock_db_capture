@@ -104,7 +104,7 @@ class Backtester
     begin
       open_indexes = strategy.block.call(ts, params)
       for index in open_indexes
-        price = ts.value_at(index, :open)
+        price = ts.value_at(index, :close)
         date = ts.index2time(index)
         #TODO wipe all positions associated with the strategy if the strategy changes
         strategy.positions << Position.open(scan, strategy, ticker, date, price)

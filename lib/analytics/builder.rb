@@ -19,7 +19,7 @@ module Analytics
     end
   end
 
-  class BuilderException
+  class BuilderException < Exception
     def initialize(name)
       super("Problem with statement named: #{name}")
     end

@@ -63,13 +63,13 @@ end
 
 populations do
   liquid = 'min(volume) > 100000 and count(*) > 100'
-  year = 8
+  year = 5
   desc "Population of all stocks with a minimum value of 100000 and at least100 days traded in #{2000+year}"
   scan "liquid_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid
 
-  test_ibm = 'ticker_id = 1674'
-  desc "One stock: IBM, one year 2008"
-  scan "test_ibm", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => test_ibm
+  test_msft = 'ticker_id = 5722'
+  desc "One stock: MSO, one year 2008"
+  scan "test_msft", :start_date => '1/1/2005', :end_date => "12/31/2005", :conditions => test_msft
 end
 
 backtests(:price => :close) do
@@ -78,4 +78,7 @@ backtests(:price => :close) do
 #    position.close_at_days_held(10)
     position.close_at(:indicator => :rsi, :params => { :threshold => 70, :time_period => 5})
   end
+#  apply(:rsi_oversold2, :test_msft) do |position|
+#    position.close_at(:indicator => :rsi, :params => { :threshold => 70, :time_period => 5})
+#  end
 end

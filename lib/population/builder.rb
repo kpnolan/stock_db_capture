@@ -17,7 +17,7 @@ module Population
     end
   end
 
-  class BuilderException
+  class BuilderException < Exception
     def initialize(name, msg)
       super("Problem with statement named: #{name}: #{msg}")
     end

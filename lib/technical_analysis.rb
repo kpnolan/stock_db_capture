@@ -980,7 +980,7 @@ module TechnicalAnalysis
 
   #Relative Strength Index
   def rsi(options={})
-    options.reverse_merge!(:time_period => 14)
+    options.reverse_merge!(:time_period => 20)
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
     result = Talib.ta_rsi(idx_range.begin, idx_range.end, close, options[:time_period])
     memoize_result(self, :rsi, idx_range, options, result, :financebars)

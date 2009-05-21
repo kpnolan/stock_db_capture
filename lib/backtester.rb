@@ -80,7 +80,7 @@ class Backtester
       puts "Beginning close positions analysis..."
       startt = Time.now
       ActiveRecord::Base.benchmark("Close Positions", Logger::INFO) do
-        for position in strategy.positions
+        for position in positions
           block.call(position)
         end
       end
@@ -107,7 +107,10 @@ class Backtester
         price = ts.value_at(index, :close)
         date = ts.index2time(index)
         #TODO wipe all positions associated with the strategy if the strategy changes
-        strategy.positions << Position.open(scan, strategy, ticker, date, price)
+        position = Position.open(scan, strategy, ticker, date, price)
+        @positions << position
+        strategy.positions << position
+        position
       end
     rescue NoMethodError => e
       puts e.message unless e.message =~ /to_v/

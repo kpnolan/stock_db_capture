@@ -1,6 +1,7 @@
 // Include the Ruby headers and goodies
 #include "ruby.h"
 #include <stdio.h>
+#include <time.h>
 
 // Defining a space for information and references about the module to be stored internally
 VALUE Tda2Ruby = Qnil;
@@ -150,6 +151,7 @@ VALUE method_parse_header(VALUE self, VALUE buff) {
   // Now we are ready for the bar count, which is 4 bytes
   //
   rbar_count = uint2rb(&str[i]);
+  i += 4;
   //
   // Now we will package the 4 ruby objects into a ruby array (hey, it's easy)
   //
@@ -247,6 +249,7 @@ VALUE next_ts(unsigned char* str) {
   secs = tmp / 1000;
   usecs_t = tmp % 1000;
   usecs_t *= 1000;
+
   secs_t = secs;
 
   return rb_time_new(secs_t, usecs_t);

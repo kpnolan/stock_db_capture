@@ -113,6 +113,16 @@ module Plot
       names = names.dup
 
       timevec = set_xvalues(plot, self.xval_vec[index_range])
+      close = close_before_cast[index_range]
+
+      vec = vecs.first
+#       puts "close len: #{close.length}"
+#       puts "result leng: #{vec.len}"
+#       i = 0
+#       for c in close
+#         puts "#{timevec[i]} -- close: #{c} result: #{vec[i]}"
+#         i += 1
+#       end
 
       plot.data = []
       vecs.each do |vec|

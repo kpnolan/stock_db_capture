@@ -27,7 +27,6 @@ class Strategy < ActiveRecord::Base
 
   def clear_associations_if_dirty
     positions.clear if changed?
-    strategies.clear if changed?
   end
 
   attr_accessor :block

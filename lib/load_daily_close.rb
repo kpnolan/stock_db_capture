@@ -27,7 +27,7 @@ module LoadDailyClose
     for symbol in symbols
       puts "loading #{symbol} #{count} of #{max}"
       begin
-        DailyBar.load_tda_history(symbol, '01/03/2000', '05/21/2009')
+        DailyBar.load_tda_history(symbol, '01/03/2000', '05/22/2009')
       rescue Exception => e
         puts ("#{symbol}:01/03/2000 #{e.to_s}")
         @logger.error("#{symbol}:01/03/2000 #{e.to_s}")

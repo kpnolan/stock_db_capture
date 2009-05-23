@@ -38,16 +38,6 @@ namespace :active_trader do
     load_tda_history(@logger)
   end
 
-  desc "Load TDA History"
-  task :drop_tda_index => :environment do
-    DailyBar.connection.remove_index :daily_bars, :column => [:ticker_id, :date]
-  end
-
-  desc "Load TDA History"
-  task :add_tda_index => :environment do
-    DailyBar.connection.add_index :daily_bars, :column => [:ticker_id, :date]
-  end
-
   desc "Clear locks on Tickers"
   task :clear_locks => :environment do
     Ticker.connection.execute('update tickers set locked = 0')

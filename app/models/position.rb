@@ -1,4 +1,25 @@
 # == Schema Information
+# Schema version: 20090522155818
+#
+# Table name: positions
+#
+#  id          :integer(4)      not null, primary key
+#  ticker_id   :integer(4)
+#  entry_date  :datetime
+#  exit_date   :datetime
+#  entry_price :float
+#  exit_price  :float
+#  num_shares  :integer(4)
+#  stop_loss   :string(255)
+#  strategy_id :integer(4)
+#  days_held   :integer(4)
+#  nreturn     :float
+#  risk_factor :float
+#  week        :integer(4)
+#  scan_id     :integer(4)
+#
+
+# == Schema Information
 # Schema version: 20090506055841
 #
 # Table name: positions
@@ -78,6 +99,7 @@ class Position < ActiveRecord::Base
     begin
       indicator = options[:indicator]
       params = options[:params]
+      max_days_held = options[:max_days_held]
       ts = Timeseries.new(ticker_id, entry_date..(entry_date+4.months), 1.day,
                           :populate => true, :pre_buffer => false)
       memo = ts.send(indicator, params.merge(:noplot => true, :result => :memo))
@@ -87,7 +109,7 @@ class Position < ActiveRecord::Base
                            :days_held => nil, :nreturn => nil,
                            :risk_factor => nil)
       else
-        index = indexes.first
+        index = indexes.first > max_days_held ? max_days_held : indexes.first
         price = ts.value_at(index, :close)
         edate = entry_date.to_date
         xdate = ts.index2time(index)

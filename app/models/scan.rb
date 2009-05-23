@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090506055841
+# Schema version: 20090522155818
 #
 # Table name: scans
 #

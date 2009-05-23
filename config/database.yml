@@ -1,12 +1,11 @@
-# SQLite version 3.x
-#   gem install sqlite3-ruby (not necessary on OS X Leopard)
+# MySql Version
 development:
   adapter: mysql
   database: active_trader_development
   encoding: utf8
   username: kevin
   password: Troika3.
-  host: amd64
+  host: localhost
 
 # Warning: The database defined as "test" will be erased and
 # re-generated from your development database when you run "rake".
@@ -25,5 +24,5 @@ production:
   encoding: utf8
   username: kevin
   password: Troika3.
-  host: amd64
+  host: localhost
 

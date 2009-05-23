@@ -89,7 +89,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 #  ts(:qqqq, 2.years.ago..23.months.ago, 30.minutes, :populate => true)
-  ts(:msft, Date.parse('3/1/2005')..Date.parse('3/30/2005'), 1.day, :populate => true)
+#  ts(:msft, Date.parse('3/1/2005')..Date.parse('3/30/2005'), 1.day, :populate => true)
 end
 
 #puts "RAILS_ENV: #{RAILS_ENV}"

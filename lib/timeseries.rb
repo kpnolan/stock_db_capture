@@ -8,16 +8,9 @@ class Timeseries
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 252
 
-  DEFAULT_OPTIONS = { DailyClose => { :attrs => [:date, :volume, :high, :low, :open, :close, :week, :r, :logr],
+  DEFAULT_OPTIONS = { DailyBar => { :attrs => [:date, :volume, :high, :low, :open, :close, :r, :logr],
                                       :sample_period => [ 1.day ],
                                       :end_time => Time.now },
-                     LiveQuote => { :attrs => [:last_trade, :volume ],
-                                    :sample_period => [ 1.minute ],
-                                    :end_time => Time.now },
-                    Aggregate => {  :attrs => [ :date, :start, :volume, :high, :low, :open, :close, :r, :logr ],
-                                    :sample_period => [ 5.minute, 10.minutes, 30.minutes ],
-                                    :end_time => Time.now }
-
                                  }
 
   attr_accessor :symbol, :ticker_id, :source_model, :value_hash
@@ -33,9 +26,9 @@ class Timeseries
     self.symbol = Ticker.find(ticker_id).symbol
     self.source_model = select_by_resolution(time_resolution)
     bars_per_day = 1
-    if source_model == Aggregate
+    if source_model != DailyBar
       minutes = time_resolution / 60
-      Aggregate.set_table_name("bar_#{minutes}s")
+      DailBar.set_table_name("bar_#{minutes}s")
       bars_per_day = TRADING_PERIOD / time_resolution
       if options[:pre_buffer]
         day_offset = (PRECALC_BARS / bars_per_day) + 1
@@ -43,7 +36,7 @@ class Timeseries
         day_offset = (PRECALC_BARS / bars_per_day) + 1
       end
       self.start_time = (local_range.begin - day_offset.days).to_time
-    elsif source_model == DailyClose
+    elsif source_model == DailyBar
       self.start_time = (local_range.begin - 365.days).to_time
     else
       raise ArgumentError.new("Bar resolution cannot be retrieved")
@@ -143,7 +136,7 @@ class Timeseries
     end
     self.timevec.each_with_index { |time, idx| self.time_map[time] = idx }
     self.index_map = time_map.invert
-    self.xval_vec = source_model == Aggregate ? (1..timevec.length).to_a : timevec
+    self.xval_vec = source_model == IntraDayBar ? (1..timevec.length).to_a : timevec
   end
 
   def minimal_samples(lookback_fun, *args)

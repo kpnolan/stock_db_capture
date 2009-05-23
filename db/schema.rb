@@ -9,97 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090506055841) do
-
-  create_table "aggregates", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.float    "r"
-    t.float    "logr"
-  end
-
-  add_index "aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
-
-  create_table "aggregates_save", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.integer  "period"
-    t.float    "r"
-    t.float    "logr"
-    t.integer  "sample_count"
-  end
-
-  create_table "bar_10s", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.float    "r"
-    t.float    "logr"
-  end
-
-  add_index "bar_10s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
-
-  create_table "bar_30s", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.float    "r"
-    t.float    "logr"
-  end
-
-  add_index "bar_30s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
-
-  create_table "bar_5s", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.float    "r"
-    t.float    "logr"
-  end
-
-  add_index "bar_5s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
-
-  create_table "bar_60s", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.float    "r"
-    t.float    "logr"
-  end
-
-  add_index "bar_60s", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
+ActiveRecord::Schema.define(:version => 20090522155818) do
 
   create_table "contract_types", :force => true do |t|
     t.string   "name"
@@ -142,6 +52,20 @@ ActiveRecord::Schema.define(:version => 20090506055841) do
     t.float   "weeks52_change_percent_from_high"
   end
 
+  create_table "daily_bars", :force => true do |t|
+    t.integer "ticker_id", :null => false
+    t.date    "date"
+    t.float   "open"
+    t.float   "close"
+    t.float   "high"
+    t.float   "low"
+    t.integer "volume"
+    t.float   "r"
+    t.float   "logr"
+  end
+
+  add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
+
   create_table "daily_closes", :force => true do |t|
     t.integer "ticker_id", :null => false
     t.date    "date"
@@ -183,38 +107,32 @@ ActiveRecord::Schema.define(:version => 20090506055841) do
     t.string "timezone"
   end
 
-  create_table "fast_live_quotes", :id => false, :force => true do |t|
-    t.integer  "ticker_id"
-    t.datetime "last_trade_time"
-    t.float    "last_trade"
-    t.integer  "volume"
-  end
-
-  add_index "fast_live_quotes", ["ticker_id", "last_trade_time"], :name => "index_ticker_id_last_trade_time", :unique => true
-
   create_table "historical_attributes", :force => true do |t|
     t.string "name"
   end
+
+  create_table "intra_day_bars", :force => true do |t|
+    t.integer  "ticker_id",  :null => false
+    t.datetime "start_time"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.float    "logr"
+    t.integer  "interval"
+    t.float    "delta"
+  end
+
+  add_index "intra_day_bars", ["ticker_id", "start_time"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
   create_table "listing_categories", :force => true do |t|
     t.string "name"
   end
 
-  create_table "live_quotes", :id => false, :force => true do |t|
-    t.integer  "ticker_id"
-    t.datetime "last_trade_time"
-    t.float    "last_trade"
-    t.integer  "volume"
-  end
-
   create_table "memberships", :force => true do |t|
     t.integer "ticker_id"
     t.integer "listing_category_id"
-  end
-
-  create_table "pimary_key_ids", :force => true do |t|
-    t.string  "table_name"
-    t.integer "auto_increment"
   end
 
   create_table "plot_attributes", :force => true do |t|
@@ -236,13 +154,6 @@ ActiveRecord::Schema.define(:version => 20090506055841) do
     t.string  "resolution"
     t.string  "inputs"
     t.integer "num_outputs"
-  end
-
-  create_table "portfolios", :force => true do |t|
-    t.string   "name"
-    t.float    "initial_value"
-    t.datetime "created_at"
-    t.datetime "updated_at"
   end
 
   create_table "positions", :force => true do |t|
@@ -299,11 +210,6 @@ ActiveRecord::Schema.define(:version => 20090506055841) do
   add_index "scans_tickers", ["ticker_id"], :name => "ticker_id"
   add_index "scans_tickers", ["scan_id"], :name => "scan_id"
 
-  create_table "shorts", :force => true do |t|
-    t.string  "symbol", :limit => 8
-    t.integer "count",  :limit => 8, :default => 0, :null => false
-  end
-
   create_table "stat_values", :force => true do |t|
     t.integer  "historical_attribute_id"
     t.integer  "ticker_id"
@@ -350,24 +256,6 @@ ActiveRecord::Schema.define(:version => 20090506055841) do
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol", :unique => true
   add_index "tickers", ["id", "last_trade_time"], :name => "index_tickers_on_id_and_last_trade_time"
-
-  create_table "var_aggregates", :force => true do |t|
-    t.integer  "ticker_id"
-    t.date     "date"
-    t.datetime "start"
-    t.float    "open"
-    t.float    "close"
-    t.float    "high"
-    t.float    "low"
-    t.integer  "volume"
-    t.integer  "period"
-    t.float    "r"
-    t.float    "logr"
-    t.integer  "sample_count"
-  end
-
-  add_index "var_aggregates", ["ticker_id", "start", "period"], :name => "index_aggregates_on_ticker_id_and_start_and_period", :unique => true
-  add_index "var_aggregates", ["ticker_id", "date"], :name => "index_aggregates_on_ticker_id_and_date"
 
   add_foreign_key "daily_closes", ["ticker_id"], "tickers", ["id"], :on_update => :cascade, :on_delete => :cascade, :name => "daily_closes_fk_ticker_id_tickers_id"
 

@@ -29,37 +29,29 @@ module TdAmeritrade
     include Tda2Ruby
     include Net
 
-    attr_reader :options, :bars, :interval_type, :frequency, :symbol, :start_date, :end_date
+    attr_reader :ioptions, :bars, :interval_type, :frequency
     attr_reader :response, :body
 
     def initialize(options={})
       options.reverse_merge! :login => 'LWSG'
-      @options = options
+      @ioptions = options
       @bars = []
       @interval_type = nil
       @frequency = nil
-      @symbol = nil
     end
 
     def test
-      buff = intraday_for('SKF', Date.parse('05/19/2009'), Date.parse('05/19/2009'), 30)
-      #buff = dailys_for('IBM', Date.parse('05/01/2009'), Date.parse('05/19/2009'))
-      GC.disable
-      symbol_count, symbol, bar_count = parse_header(buff)
-      bar_count.times do
-        bar_ary = parse_bar(buff)
-        bars.push(bar_ary)
-      end
-      GC.enable
+      #bars = dailys_for('MMPI', Date.parse('01/25/2007'), Date.parse('02/25/2007'))
+      bars = dailys_for('MMPI', Date.parse('01/25/2009'), Date.parse('02/25/2009'))
       for bar in bars
         puts %Q(#{bar.join("\t")})
       end
     end
 
-    def dailys_for(symbol, start_date, end_date)
-      quote_for(symbol, start_date, end_date, TdAmeritrade::DAY, 1)
-      buff = quote_for(symbol, start_date, end_date, TdAmeritrade::MINUTE, minute_resolution)
+    def dailys_for(symbol, start_date, end_date, options={})
+      buff = quote_for(symbol, start_date, end_date, TdAmeritrade::DAY, 1, options)
       GC.disable
+      @bars = []
       symbol_count, symbol, bar_count = parse_header(buff)
       bar_count.times do
         bar_ary = parse_bar(buff)
@@ -70,8 +62,8 @@ module TdAmeritrade
       bars
     end
 
-    def intraday_for(symbol, start_date, end_date, minute_resolution)
-      buff = quote_for(symbol, start_date, end_date, TdAmeritrade::MINUTE, minute_resolution)
+    def intraday_for(symbol, start_date, end_date, minute_resolution, options={})
+      buff = quote_for(symbol, start_date, end_date, TdAmeritrade::MINUTE, minute_resolution, options)
       GC.disable
       symbol_count, symbol, bar_count = parse_header(buff)
       bar_count.times do
@@ -82,24 +74,22 @@ module TdAmeritrade
       bars
     end
 
-    def quote_for(symbol, start_date, end_date, period, resolution)
+    def quote_for(symbol, start_date, end_date, period, resolution, options={})
       validate_resolution(period, resolution)
-      @symbol = symbol
-      @start_date = start_date
-      @end_date = end_date
-      submit_request()
+      submit_request(symbol, start_date, end_date, options)
     end
 
-    def submit_request
+    def submit_request(symbol, start_date, end_date, options)
       url = URI.parse(TdAmeritrade::URL)
       req = HTTP::Post.new(url.path)
-      form_data = { 'source' => options[:login], 'requestvalue' => symbol, 'requestidentifiertype' => 'SYMBOL',
+      form_data = { 'source' => ioptions[:login], 'requestvalue' => symbol, 'requestidentifiertype' => 'SYMBOL',
         'intervaltype' => interval_type, 'intervalduration' => frequency,
         'startdate' => start_date.to_s(:db).delete("-"), 'enddate' => end_date.to_s(:db).delete("-") }
+      form_data['extended'] = 'true' if options[:extended]
       req.set_form_data(form_data)
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true
-      #http.set_debug_output($stderr)
+      http.set_debug_output($stderr) if options[:debug]
       res = http.start { http.request(req) }
 
       case res

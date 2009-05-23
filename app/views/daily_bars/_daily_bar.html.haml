@@ -1,0 +1,21 @@
+%tr[daily_bar]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.ticker_id
+    = lkup daily_bar.ticker
+  %td.date
+    = h daily_bar.date
+  %td.open
+    = h daily_bar.open
+  %td.close
+    = h daily_bar.close
+  %td.high
+    = h daily_bar.high
+  %td.volume
+    = h daily_bar.volume
+  %td.logr
+    = h daily_bar.logr
+  %td.show
+    = link_to 'Show', object_path(daily_bar)
+  %td.edit
+    = link_to 'Edit', edit_object_path(daily_bar)
+  %td.destroy
+    = link_to 'Destroy', object_path(daily_bar), :confirm => 'Really destroy daily_bar?', :method => :delete

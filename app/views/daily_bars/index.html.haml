@@ -1,0 +1,14 @@
+%h1 Listing daily_bars
+%table
+  %tr.heading
+    %th Ticker
+    %th Date
+    %th Open
+    %th Close
+    %th High
+    %th Volume
+    %th Logr
+
+  = render :partial => 'daily_bar', :collection => current_objects
+
+= link_to 'New daily_bar', new_object_path 

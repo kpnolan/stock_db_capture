@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :intra_day_bars
+
+  map.resources :daily_bars
+
   map.resources :scans
   map.resources :strategies
   map.resources :derived_value_types

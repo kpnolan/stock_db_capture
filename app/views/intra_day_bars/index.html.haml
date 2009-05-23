@@ -1,0 +1,15 @@
+%h1 Listing intra_day_bars
+%table
+  %tr.heading
+    %th Ticker
+    %th Interval
+    %th Start Time
+    %th Open
+    %th Close
+    %th High
+    %th Volume
+    %th Delta
+
+  = render :partial => 'intra_day_bar', :collection => current_objects
+
+= link_to 'New intra_day_bar', new_object_path 

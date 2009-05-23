@@ -1,24 +1,20 @@
 # == Schema Information
-# Schema version: 20090522155818
+# Schema version: 20090523152306
 #
 # Table name: intra_day_bars
 #
 #  id         :integer(4)      not null, primary key
-#  ticker_id  :integer(4)      not null
+#  ticker_id  :integer(4)
+#  interval   :integer(4)
 #  start_time :datetime
 #  open       :float
 #  close      :float
 #  high       :float
-#  low        :float
 #  volume     :integer(4)
-#  logr       :float
-#  interval   :integer(4)
 #  delta      :float
 #
 
 class IntraDayBar < ActiveRecord::Base
-  belongs_to :ticker
-
   extend TableExtract
   extend Plot
 
@@ -34,4 +30,3 @@ class IntraDayBar < ActiveRecord::Base
     def time_res; 1; end
   end
 end
-

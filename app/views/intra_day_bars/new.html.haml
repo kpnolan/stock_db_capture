@@ -1,0 +1,10 @@
+%h1 Creating Intra Day Bar
+
+= error_messages_for :intra_day_bar
+
+%fieldset
+  - smart_form_for(current_object) do |f|
+    = render :partial => "form", :locals => {:f => f}
+    %p= f.submit "Create"
+
+= link_to 'Back', objects_path

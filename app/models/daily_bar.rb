@@ -1,21 +1,18 @@
 # == Schema Information
-# Schema version: 20090522155818
+# Schema version: 20090523152306
 #
 # Table name: daily_bars
 #
 #  id        :integer(4)      not null, primary key
-#  ticker_id :integer(4)      not null
+#  ticker_id :integer(4)
 #  date      :date
 #  open      :float
 #  close     :float
 #  high      :float
-#  low       :float
 #  volume    :integer(4)
-#  r         :float
 #  logr      :float
 #
-require 'rubygems'
-require 'ruby-debug'
+
 class DailyBar < ActiveRecord::Base
 
   COLUMN_ORDER = [:close, :high, :low, :open, :volume, :date]
@@ -87,4 +84,3 @@ class DailyBar < ActiveRecord::Base
     end
   end
 end
-

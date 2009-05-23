@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090522155818) do
+ActiveRecord::Schema.define(:version => 20090523152306) do
 
   create_table "contract_types", :force => true do |t|
     t.string   "name"
@@ -53,6 +53,16 @@ ActiveRecord::Schema.define(:version => 20090522155818) do
   end
 
   create_table "daily_bars", :force => true do |t|
+    t.integer "ticker_id"
+    t.date    "date"
+    t.float   "open"
+    t.float   "close"
+    t.float   "high"
+    t.integer "volume"
+    t.float   "logr"
+  end
+
+  create_table "daily_bars1", :force => true do |t|
     t.integer "ticker_id", :null => false
     t.date    "date"
     t.float   "open"
@@ -63,8 +73,6 @@ ActiveRecord::Schema.define(:version => 20090522155818) do
     t.float   "r"
     t.float   "logr"
   end
-
-  add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
   create_table "daily_closes", :force => true do |t|
     t.integer "ticker_id", :null => false
@@ -112,19 +120,15 @@ ActiveRecord::Schema.define(:version => 20090522155818) do
   end
 
   create_table "intra_day_bars", :force => true do |t|
-    t.integer  "ticker_id",  :null => false
+    t.integer  "ticker_id"
+    t.integer  "interval"
     t.datetime "start_time"
     t.float    "open"
     t.float    "close"
     t.float    "high"
-    t.float    "low"
     t.integer  "volume"
-    t.float    "logr"
-    t.integer  "interval"
     t.float    "delta"
   end
-
-  add_index "intra_day_bars", ["ticker_id", "start_time"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
 
   create_table "listing_categories", :force => true do |t|
     t.string "name"

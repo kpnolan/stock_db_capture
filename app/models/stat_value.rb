@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090522155818
+# Schema version: 20090523152306
 #
 # Table name: stat_values
 #

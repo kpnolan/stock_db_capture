@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090523152306) do
+ActiveRecord::Schema.define(:version => 20090523161236) do
 
   create_table "contract_types", :force => true do |t|
     t.string   "name"
@@ -60,6 +60,7 @@ ActiveRecord::Schema.define(:version => 20090523152306) do
     t.float   "high"
     t.integer "volume"
     t.float   "logr"
+    t.float   "low"
   end
 
   create_table "daily_bars1", :force => true do |t|
@@ -128,6 +129,7 @@ ActiveRecord::Schema.define(:version => 20090523152306) do
     t.float    "high"
     t.integer  "volume"
     t.float    "delta"
+    t.float    "low"
   end
 
   create_table "listing_categories", :force => true do |t|

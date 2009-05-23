@@ -76,6 +76,7 @@ require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
 require 'ruby-debug'
+
 # ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
 # ARGV[0] contains the name of the rake task otherwise. Since, at this point, we don't have any rake
 # tasks the use Talib functions, we will skip this whole initialization block for rake tasks.

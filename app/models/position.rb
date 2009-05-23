@@ -78,6 +78,7 @@ class Position < ActiveRecord::Base
     begin
       indicator = options[:indicator]
       params = options[:params]
+      max_days_held = options[:max_days_held]
       ts = Timeseries.new(ticker_id, entry_date..(entry_date+4.months), 1.day,
                           :populate => true, :pre_buffer => false)
       memo = ts.send(indicator, params.merge(:noplot => true, :result => :memo))

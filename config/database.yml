@@ -25,5 +25,6 @@ production:
   encoding: utf8
   username: kevin
   password: Troika3.
-  host: amd64
+  host: localhost
+#  host: amd64
 

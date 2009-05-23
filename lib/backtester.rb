@@ -63,7 +63,7 @@ class Backtester
         for tid in tid_array
           self.ticker = Ticker.find tid
           ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options)
-          open_positions(ts, phash) if strategy.positions
+          open_positions(ts, phash)
         end
         strategy.scans << scan
       end
@@ -80,7 +80,7 @@ class Backtester
       puts "Beginning close positions analysis..."
       startt = Time.now
       ActiveRecord::Base.benchmark("Close Positions", Logger::INFO) do
-        for position in positions
+        for position in strategy.positions
           block.call(position)
         end
       end

@@ -7,30 +7,42 @@ module LoadDailyClose
     DailyClose.connection.select_values(sql)
   end
 
+  def tickers_with_partial_history
+    sql = "select symbol,min(date) from daily_closes left outer join tickers on ticker_id = tickers.id  group by ticker_id having min(date) > '20000103' order by symbol"
+    DailyClose.connection.select_rows(sql)
+  end
+
   def tickers_with_no_history
     DailyClose.connection.select_values("SELECT tickers.id FROM tickers LEFT OUTER JOIN daily_closes ON tickers.id = ticker_id WHERE ticker_id IS NULL order by symbol")
   end
 
-  def tickers_with_partial_history
-    DailyClose.connection.select_values("select ticker_id from daily_closes LEFT OUTER JOIN tickers ON tickers.id = ticker_id where  tickers.active = 1 group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}' order by symbol")
-  end
+#  def tickers_with_partial_history
+#    DailyClose.connection.select_values("select ticker_id from daily_closes LEFT OUTER JOIN tickers ON tickers.id = ticker_id where  tickers.active = 1 group by ticker_id having max(date) < '#{(Date.today-1).to_s(:db)}' order by symbol")
+#  end
 
   def load_tda_history(logger)
     @logger = logger
-    symbols = tickers_with_full_history()
-    load_tda_dailys(symbols)
+    pairs = tickers_with_partial_history()
+    load_tda_dailys(pairs)
   end
 
-  def load_tda_dailys(symbols)
-    max = symbols.length
+#   def load_tda_history(logger)
+#     @logger = logger
+#     symbols = tickers_with_full_history()
+#     load_tda_dailys(symbols, '01/03/2000')
+#   end
+
+  def load_tda_dailys(pairs)
+    max = pairs.length
     count = 1
-    for symbol in symbols
+    for pair in pairs
+      symbol, start_date = pair
       puts "loading #{symbol} #{count} of #{max}"
       begin
-        DailyBar.load_tda_history(symbol, '01/03/2000', '05/22/2009')
+        DailyBar.load_tda_history(symbol, start_date, '05/22/2009')
       rescue Exception => e
-        puts ("#{symbol}:01/03/2000 #{e.to_s}")
-        @logger.error("#{symbol}:01/03/2000 #{e.to_s}")
+        puts ("#{symbol}#{start_date.to_s(:short)} #{e.to_s}")
+        @logger.error("#{symbol}:#{start_date.to_s(:short)} #{e.to_s}")
       rescue SystemExit => e
         exit
       end

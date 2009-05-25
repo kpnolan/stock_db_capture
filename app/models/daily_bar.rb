@@ -35,8 +35,10 @@ class DailyBar < ActiveRecord::Base
     def time_res; 1; end
 
     def load_tda_history(symbol, start_date, end_date)
+      state_date.is_a? Date ? start_date : Date.parse(start_date)
+      end_date.is_a? Date ? end_date : Date.parse(end_date)
       @@qs ||= TdAmeritrade::QuoteServer.new()
-      bars = @@qs.dailys_for(symbol, Date.parse(start_date), Date.parse(end_date))
+      bars = @@qs.dailys_for(symbol, start_date, end_date)
       bars.each { |bar| create_bar(symbol, bar) }
     end
 

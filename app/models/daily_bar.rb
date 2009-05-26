@@ -12,6 +12,7 @@
 #  volume    :integer(4)
 #  logr      :float
 #
+require 'date'
 
 class DailyBar < ActiveRecord::Base
 
@@ -35,8 +36,8 @@ class DailyBar < ActiveRecord::Base
     def time_res; 1; end
 
     def load_tda_history(symbol, start_date, end_date)
-      state_date.is_a? Date ? start_date : Date.parse(start_date)
-      end_date.is_a? Date ? end_date : Date.parse(end_date)
+      start_date = start_date.class == String ? Date.parse(start_date) : start_date
+      end_date = end_date.class == String ? Date.parse(end_date) : end_date
       @@qs ||= TdAmeritrade::QuoteServer.new()
       bars = @@qs.dailys_for(symbol, start_date, end_date)
       bars.each { |bar| create_bar(symbol, bar) }

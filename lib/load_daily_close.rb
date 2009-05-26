@@ -1,4 +1,5 @@
 module LoadDailyClose
+  MAX_ID = 10440071
 
   attr_accessor :logger
 
@@ -26,11 +27,12 @@ module LoadDailyClose
     load_tda_dailys(pairs)
   end
 
-#   def load_tda_history(logger)
-#     @logger = logger
-#     symbols = tickers_with_full_history()
-#     load_tda_dailys(symbols, '01/03/2000')
-#   end
+   def load_tda_history(logger)
+     @logger = logger
+     symbols = tickers_with_full_history()
+     pairs = symbols.map { |s| [s, '01/04/1999'] }
+     load_tda_dailys(pairs)
+   end
 
   def load_tda_dailys(pairs)
     max = pairs.length
@@ -39,10 +41,10 @@ module LoadDailyClose
       symbol, start_date = pair
       puts "loading #{symbol} #{count} of #{max}"
       begin
-        DailyBar.load_tda_history(symbol, start_date, '05/22/2009')
+        DailyBar.load_tda_history(symbol, start_date, '12/31/1999')
       rescue Exception => e
-        puts ("#{symbol}#{start_date.to_s(:short)} #{e.to_s}")
-        @logger.error("#{symbol}:#{start_date.to_s(:short)} #{e.to_s}")
+        puts ("#{symbol}:#{start_date} #{e.to_s}")
+        @logger.error("#{symbol}:#{start_date} #{e.to_s}")
       rescue SystemExit => e
         exit
       end

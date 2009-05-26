@@ -11,7 +11,7 @@ module LogReturns
   MinusInfinity = -1.0/0.0
 
   def ticker_ids
-    @rnulls ||= DailyClose.connection.select_values('SELECT DISTINCT ticker_id FROM daily_closes LEFT OUTER JOIN tickers on tickers.id = ticker_id WHERE r IS NULL ORDER BY symbol')
+    @rnulls ||= DailyBar.connection.select_values('SELECT DISTINCT ticker_id FROM daily_bars LEFT OUTER JOIN tickers on tickers.id = ticker_id WHERE logr IS NULL ORDER BY symbol')
   end
 
   def all_ticker_ids
@@ -70,21 +70,20 @@ module LogReturns
       curval = tuples[i].second.to_f
       preval = tuples[i-1].second.to_f
       if preval == 0.0 || curval == 0
-        r, lr, alr = 1.0, 0.0, 0.0
+        r, lr = 1.0, 0.0
       else
         r = (curval/preval)
         lr = Math.log(r)
-        alr = lr*252.0
       end
-      dc = DailyClose.find tuples[i].first
-      dc.update_attributes!(:r => r, :logr => lr, :alr => alr)
+      dc = DailyBar.find tuples[i].first
+      dc.update_attributes!(:logr => lr)
     end
     nil
   end
 
   def get_last_close(ticker_id)
-    sql = "SELECT id, adj_close from daily_closes where ticker_id = #{ticker_id} and r IS NOT NULL having max(date)"
-    tuples = DailyClose.connection.select_rows(sql)
+    sql = "SELECT id, adj_close from daily_bars where ticker_id = #{ticker_id} and r IS NOT NULL having max(date)"
+    tuples = DailyBar.connection.select_rows(sql)
     if tuples.length != 1
       raise RetiredSymbolException.new(Ticker.find(ticker_id).symbol)
     else
@@ -93,19 +92,19 @@ module LogReturns
   end
 
   def get_tuples(symbol, ticker_id)
-    sql = "SELECT id, adj_close from daily_closes where ticker_id = #{ticker_id} AND r is null order by date"
-    tuples = DailyClose.connection.select_rows(sql)
+    sql = "SELECT id, close from daily_bars where ticker_id = #{ticker_id} AND logr is null order by date"
+    tuples = DailyBar.connection.select_rows(sql)
     logger.info("computing #{tuples.length} returns for #{symbol}")
     tuples
   end
 
   # This function replaces
   def compute_vectors_and_update(symbol, ticker_id)
-    recs = DailyClose.find_all_by_ticker_id(ticker_id, :order => 'date')
+    recs = DailyBar.find_all_by_ticker_id(ticker_id, :order => 'date')
 
     logger.info("computing #{recs.length} returns for #{symbol} (#{counter} out of #{count})")
 
-    close_vec = recs.map { |rec| rec.adj_close }
+    close_vec = recs.map { |rec| rec.close }
     close_vec1 = close_vec.dup
     close_vec1.unshift(close_vec.first)
     close_vec.push(close_vec.last)
@@ -118,16 +117,15 @@ module LogReturns
     # so we get adj_close/prev_adj_close in all elements
     nr_vec = nclose_vec / nshifted_vec
     nlogr_vec = NMath.log(nr_vec)
-    nalr_vec = nlogr_vec*252.0
 
-    # now is just a matter of updating the DailyClose records with the new values
+    # now is just a matter of updating the DailyBar records with the new values
     index = 0
     for rec in recs
         begin
-          rec.update_attributes!(:r => nr_vec[index], :logr => nlogr_vec[index], :alr => nalr_vec[index])
+          rec.update_attributes!(logr => nlogr_vec[index])
         rescue Exception => e
           self.logger.error("#{e.message} for #{ticker_id} at index: #{index}")
-          rec.update_attributes!(:r => 1.0, :logr => 0.0, :alr => 0.0)
+          rec.update_attributes!(:logr => 0.0)
         else
       end
       index += 1

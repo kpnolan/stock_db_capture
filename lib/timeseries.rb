@@ -184,8 +184,7 @@ class Timeseries
 
   def index2time(index, offset=0)
     return nil if index >= timevec.length
-    time = timevec[index]
-    time && time.send(source_model.time_convert)
+    timevec[index] ? timevec[index].send(source_model.time_convert) : nil
   end
 
   def memo

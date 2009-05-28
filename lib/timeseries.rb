@@ -47,8 +47,7 @@ class Timeseries
     apply_options(options)
     options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
-    reset_price(options[:close])
-    a = 1
+    reset_price(:close)
   end
 
   def to_s

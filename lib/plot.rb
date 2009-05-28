@@ -21,7 +21,7 @@ module Plot
         plot.unset 'ylabel'
         plot.pointsize 3
         plot.grid
-        timevec = set_xvalues(plot, xval_vec[index_range])
+        timevec = set_xvalues(plot, self.timevec[index_range])
 
         plot.data = []
         vecs_or_params.each do |vec|
@@ -78,7 +78,7 @@ module Plot
       plot.origin options[:origin] if options[:origin]
       plot.size options[:size] if options[:size]
 
-      timevec = set_xvalues(plot, self.xval_vec[index_range])
+      timevec = set_xvalues(plot, self.timevec[index_range])
       withs = options[:with]
 
       plot.data = []
@@ -112,7 +112,7 @@ module Plot
       index_range, vecs, names = param.decode(:index_range, :vectors, :names)
       names = names.dup
 
-      timevec = set_xvalues(plot, self.xval_vec[index_range])
+      timevec = set_xvalues(plot, self.timevec[index_range])
       close = close_before_cast[index_range]
 
       vec = vecs.first
@@ -181,7 +181,7 @@ module Plot
 
         names = names.dup
 
-        date = set_xvalues(plot, self.xval_vec[index_range])
+        date = set_xvalues(plot, self.timevec[index_range])
         open = open_before_cast[index_range]
         close = close_before_cast[index_range]
         high = high_before_cast[index_range]
@@ -236,7 +236,7 @@ module Plot
 
         names = names.dup
 
-        date = set_xvalues(plot, self.xval_vec[index_range])
+        date = set_xvalues(plot, self.timevec[index_range])
         open = open_before_cast[index_range]
         close = close_before_cast[index_range]
         high = high_before_cast[index_range]
@@ -274,7 +274,7 @@ module Plot
     plot.origin options[:origin] if options[:origin]
     plot.size options[:size] if options[:size]
 
-    date = set_xvalues(plot, self.xval_vec[index_range])
+    date = set_xvalues(plot, self.timevec[index_range])
     open = open_before_cast[index_range]
     close = close_before_cast[index_range]
     high = high_before_cast[index_range]

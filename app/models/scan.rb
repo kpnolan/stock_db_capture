@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090523152306
+# Schema version: 20090528012055
 #
 # Table name: scans
 #
@@ -32,7 +32,7 @@ class Scan < ActiveRecord::Base
 
   # TODO find a better name for this method
   def tickers_ids(repopulate=false)
-    sql = "SELECT ticker_id FROM daily_closes WHERE " +
+    sql = "SELECT ticker_id FROM daily_bars WHERE " +
           "date >= '#{start_date.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
           "GROUP BY ticker_id " +
           "HAVING #{conditions}"

@@ -6,23 +6,21 @@ class Timeseries
   include CsvDumper
 
   TRADING_PERIOD = 6.hours + 30.minutes
-  PRECALC_BARS = 252
+  PRECALC_BARS = 120
 
-  DEFAULT_OPTIONS = { DailyBar => { :attrs => [:date, :volume, :high, :low, :open, :close, :r, :logr],
-                                      :sample_period => [ 1.day ],
-                                      :end_time => Time.now },
-                                 }
+  DEFAULT_OPTIONS = { DailyBar => { :attrs => [:date, :volume, :high, :low, :open, :close, :logr],
+      :sample_period => [ 1.day ]  } }
 
   attr_accessor :symbol, :ticker_id, :source_model, :value_hash
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
-  attr_accessor :timevec, :xval_vec, :time_map, :index_map, :local_range, :price
+  attr_accessor :timevec, :time_map, :local_range, :price
 
   def initialize(symbol_or_id, local_range, time_resolution, options={})
     options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true
     initialize_state()
-    self.ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id) : Ticker.find_by_symbol(symbol_or_id.to_s)
-    raise ArgumentError("Excpecting ticker symbol or ticker id as first argument. Neither could be found") if ticker_id.nil?
+    self.ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
+    raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     self.symbol = Ticker.find(ticker_id).symbol
     self.source_model = select_by_resolution(time_resolution)
     bars_per_day = 1
@@ -36,10 +34,12 @@ class Timeseries
         day_offset = (PRECALC_BARS / bars_per_day) + 1
       end
       self.start_time = (local_range.begin - day_offset.days).to_time
+      self.end_time = (local_range.end + day_offset.days).to_time > Time.now ? Time.now : (local_range.begin + day_offset.days).to_time
     elsif source_model == DailyBar
-      self.start_time = (local_range.begin - 365.days).to_time
+      self.start_time = (local_range.begin - 120.days).to_time
+      self.end_time = (local_range.end + 120.days).to_time > Time.now ? Time.now : (local_range.end + 120.days).to_time
     else
-      raise ArgumentError.new("Bar resolution cannot be retrieved")
+      raise ArgumentError, "Bar resolution cannot be retrieved"
     end
     self.plot_results = options[:plot_results]
     self.local_range = local_range
@@ -47,7 +47,8 @@ class Timeseries
     apply_options(options)
     options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
-    reset_price(options[:price])
+    reset_price(options[:close])
+    a = 1
   end
 
   def to_s
@@ -71,7 +72,7 @@ class Timeseries
 
   def multi_fopt(fopt_vec, options={})
     fopt_vec.each do |ary|
-      raise ArgumentError.new("Expecting an Array of [:function, {options}]") unless ary.is_a? Array
+      raise ArgumentError, "Expecting an Array of [:function, {options}]" unless ary.is_a? Array
       self.send(ary.first, ary.last.merge(:noplot => true))
     end
     aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
@@ -135,8 +136,6 @@ class Timeseries
       self.timevec = value_hash[source_model.time_col.to_sym].collect { |twz| twz.time }
     end
     self.timevec.each_with_index { |time, idx| self.time_map[time] = idx }
-    self.index_map = time_map.invert
-    self.xval_vec = source_model == IntraDayBar ? (1..timevec.length).to_a : timevec
   end
 
   def minimal_samples(lookback_fun, *args)
@@ -160,19 +159,19 @@ class Timeseries
   def time2index(time, direction, raise_on_range_error=true)
     adj_time = time.to_time.utc.midnight
     if direction == -1
-      raise TimeseriesException.new("#{symbol}: requested time is before recorded history: starting #{timevec.first}") if adj_time < timevec.first
+      raise TimeseriesException, "#{symbol}: requested time is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
       until time_map.include?(adj_time) || adj_time < timevec.first
         adj_time -= sample_period.first
       end
-      raise TimeseriesException.new("#{time} is not contained within the DB") if time_map[adj_time].nil?
+      raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
       time_map[adj_time]
     else # this is split into two loop to simplify the boundry test
-      raise TimeseriesException.new("Requested time is after recorded history: ending #{timevec.last}") if adj_time > timevec.last
+      raise TimeseriesException, "Requested time is after recorded history: ending #{timevec.last}" if adj_time > timevec.last
       until time_map.include?(adj_time) || adj_time > timevec.last
         adj_time += sample_period.first
       end
     end
-    raise TimeseriesException.new("#{time} is not contained within the DB") if time_map[adj_time].nil?
+    raise TimeseriesException.new, "#{time} is not contained within the DB" if time_map[adj_time].nil?
     return time_map[adj_time]
   end
 
@@ -185,8 +184,13 @@ class Timeseries
   end
 
   def index2time(index, offset=0)
-    time = index_map[index+offset]
+    return nil if index >= timevec.length
+    time = timevec[index]
     time && time.send(source_model.time_convert)
+  end
+
+  def memo
+    derived_values.first
   end
 
   def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)
@@ -237,7 +241,7 @@ class Timeseries
 #  end
 
   def initialize_state
-    self.value_hash, self.time_map, self.index_map = {}, {}, {}
+    self.value_hash, self.time_map = {}, {}
     self.derived_values,  self.attrs = [], []
     self.timevec = []
     self.num_points, self.sample_period = 0, []
@@ -275,13 +279,18 @@ class ParamBlock
     self.names.each_with_index { |name, idx| self.result_hash[name.to_sym] = vectors[idx] }
   end
 
+  def result_for(index, vector_idx=0)
+    raise ArgumentError, "Seoncd arg can only be the index of the output vector" unless vector_idx.class == Fixnum
+    vectors[vector_idx][index-outidx]
+  end
+
   def vector_for(sym)
     if result_hash.has_key? sym
       result_hash[sym]
     elsif ts.methods.include? sym.to_s
       timeseries.send(sym)
     else
-      raise ArgumentError.new("#{function}.#{sym} is not available")
+      raise ArgumentError, "#{function}.#{sym} is not available"
     end
   end
 

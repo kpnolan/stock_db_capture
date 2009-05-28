@@ -63,13 +63,9 @@ end
 
 populations do
   liquid = 'min(volume) > 100000 and count(*) > 100'
-  year = 5
+  year = 8
   desc "Population of all stocks with a minimum value of 100000 and at least100 days traded in #{2000+year}"
-  scan "liquid_#{2000+year}", :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid
-
-  test_msft = 'ticker_id = 5722'
-  desc "One stock: MSO, one year 2008"
-  scan "test_msft", :start_date => '1/1/2005', :end_date => "12/31/2005", :conditions => test_msft
+  scan "liquid_#{2000+year}", :start_date => "06/01/#{2000+year-1}", :end_date => "12/31/#{2000+year}", :conditions => liquid
 end
 
 backtests(:price => :close) do

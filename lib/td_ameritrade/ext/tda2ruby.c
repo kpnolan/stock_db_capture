@@ -188,7 +188,7 @@ VALUE method_parse_bar(VALUE self, VALUE buff) {
   i += sizeof(float);
   rb_ary_push(bar_ary, float2rb(&str[i], 1.0));    // open
   i += sizeof(float);
-  rb_ary_push(bar_ary, float2rb(&str[i], 1000.0)); // volume
+  rb_ary_push(bar_ary, float2rb(&str[i], 100.0)); // volume
   i += sizeof(float);
   //
   // grab 8 bytes to form the bignum epoch_seconds

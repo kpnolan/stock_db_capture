@@ -2,9 +2,9 @@ require 'date'
 
 module Scans
   def sample_population(size)
-    sql = "SELECT symbol FROM daily_closes LEFT OUTER JOIN tickers ON tickers.id = ticker_id WHERE "+
+    sql = "SELECT symbol FROM daily_bars LEFT OUTER JOIN tickers ON tickers.id = ticker_id WHERE "+
           "symbol IS NOT NULL AND symbol NOT LIKE '^%' GROUP BY ticker_id ORDER BY AVG(volume) DESC LIMIT #{size}"
-    @population ||= DailyClose.connection.select_values(sql)
+    @population ||= DailyBar.connection.select_values(sql)
   end
 
   def get_dates(num, dow)
@@ -26,13 +26,13 @@ module Scans
 
   def reference_value(symbol, dates)
     ticker_id = Ticker.find_by_symbol(symbol).id
-    count = DailyClose.connection.select_value("select count(close) from daily_closes where ticker_id = #{ticker_id} and date in ( #{dates_selector(dates)} )").to_i
+    count = DailyBar.connection.select_value("select count(close) from daily_bars where ticker_id = #{ticker_id} and date in ( #{dates_selector(dates)} )").to_i
     if count < dates.length-3 #holiday?
       @logger.info("Rejected #{symbol} #{count} < #{dates.count}")
       nil
     else
-      sql = "select avg(close) from daily_closes where ticker_id = #{ticker_id} and date in ( #{dates_selector(dates)} )"
-      @ref_value = DailyClose.connection.select_value(sql).to_f
+      sql = "select avg(close) from daily_bars where ticker_id = #{ticker_id} and date in ( #{dates_selector(dates)} )"
+      @ref_value = DailyBar.connection.select_value(sql).to_f
     end
   end
 
@@ -54,7 +54,7 @@ module Scans
     for symbol in population
       ticker_id = Ticker.find_by_symbol(symbol).id
       begin
-        current_close = DailyClose.first(:conditions => { :ticker_id => ticker_id, :date => @ref_date }).adj_close
+        current_close = DailyBar.first(:conditions => { :ticker_id => ticker_id, :date => @ref_date }).adj_close
         ratio = current_close / reference_close
         DerivedValue.create!(:derived_value_type => scan_type, :ticker_id => ticker_id,
                              :date => date, :time => date.to_time, :value => ratio)

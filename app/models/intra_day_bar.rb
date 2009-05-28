@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090523152306
+# Schema version: 20090528012055
 #
 # Table name: intra_day_bars
 #
@@ -12,6 +12,7 @@
 #  high       :float
 #  volume     :integer(4)
 #  delta      :float
+#  low        :float
 #
 
 class IntraDayBar < ActiveRecord::Base

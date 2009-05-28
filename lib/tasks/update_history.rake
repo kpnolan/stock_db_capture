@@ -1,9 +1,8 @@
 require 'rubygems'
-require 'populate_db'
-require 'load_daily_close'
 require 'log_returns'
+require 'load_daily_bars'
 
-extend LoadDailyClose
+extend LoadDailyBars
 extend LogReturns
 
 namespace :active_trader do

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090523152306
+# Schema version: 20090528012055
 #
 # Table name: strategies
 #

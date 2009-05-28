@@ -1,44 +1,25 @@
 # == Schema Information
-# Schema version: 20090523152306
+# Schema version: 20090528012055
 #
 # Table name: positions
 #
-#  id          :integer(4)      not null, primary key
-#  ticker_id   :integer(4)
-#  entry_date  :datetime
-#  exit_date   :datetime
-#  entry_price :float
-#  exit_price  :float
-#  num_shares  :integer(4)
-#  stop_loss   :string(255)
-#  strategy_id :integer(4)
-#  days_held   :integer(4)
-#  nreturn     :float
-#  risk_factor :float
-#  week        :integer(4)
-#  scan_id     :integer(4)
+#  id            :integer(4)      not null, primary key
+#  ticker_id     :integer(4)
+#  entry_date    :datetime
+#  exit_date     :datetime
+#  entry_price   :float
+#  exit_price    :float
+#  num_shares    :integer(4)
+#  stop_loss     :string(255)
+#  strategy_id   :integer(4)
+#  days_held     :integer(4)
+#  nreturn       :float
+#  risk_factor   :float
+#  scan_id       :integer(4)
+#  entry_trigger :float
+#  exit_trigger  :float
 #
 
-# == Schema Information
-# Schema version: 20090506055841
-#
-# Table name: positions
-#
-#  id          :integer(4)      not null, primary key
-#  ticker_id   :integer(4)
-#  entry_date  :datetime
-#  exit_date   :datetime
-#  entry_price :float
-#  exit_price  :float
-#  num_shares  :integer(4)
-#  stop_loss   :string(255)
-#  strategy_id :integer(4)
-#  days_held   :integer(4)
-#  nreturn     :float
-#  risk_factor :float
-#  week        :integer(4)
-#  scan_id     :integer(4)
-#
 require 'rubygems'
 require 'ruby-debug'
 class Position < ActiveRecord::Base
@@ -48,10 +29,9 @@ class Position < ActiveRecord::Base
   belongs_to :ticker
   has_and_belongs_to_many :strategies
 
-  def self.open(population, strategy, ticker, entry_date, entry_price)
-    week = entry_date.to_date.cweek
+  def self.open(population, strategy, ticker, entry_date, entry_price, entry_trigger)
     create!(:scan_id => population.id, :strategy_id => strategy.id, :ticker_id => ticker.id,
-            :entry_price => entry_price, :entry_date => entry_date, :num_shares => 1, :week => week)
+            :entry_price => entry_price, :entry_date => entry_date, :num_shares => 1, :entry_trigger => entry_trigger)
   end
 
   def close_at_max(options={})
@@ -83,18 +63,6 @@ class Position < ActiveRecord::Base
                        :risk_factor => risk)
   end
 
-  def close_at_days_held(day_number)
-    date = Position.trading_to_calendar(entry_date.to_date, day_number)
-    dc = DailyClose.first(:conditions => { :ticker_id => ticker_id, :date => date } )
-    if dc
-      nreturn = ((dc.adj_close - entry_price) / entry_price) / day_number
-      update_attributes!(:exit_price => dc.adj_close, :exit_date => date,
-                         :days_held => day_number, :nreturn => nreturn,
-                         :risk_factor => nil)
-    else
-      puts "Cannot find Daily Close for #{ticker.symbol} on #{date}"
-    end
-  end
   def close_at(options)
     begin
       indicator = options[:indicator]
@@ -109,8 +77,9 @@ class Position < ActiveRecord::Base
                            :days_held => nil, :nreturn => nil,
                            :risk_factor => nil)
       else
-        index = indexes.first > max_days_held ? max_days_held : indexes.first
+        index = indexes.first
         price = ts.value_at(index, :close)
+        exit_trigger = memo.result_for(index)
         edate = entry_date.to_date
         xdate = ts.index2time(index)
         days_held = Position.trading_day_count(edate, xdate)
@@ -118,7 +87,7 @@ class Position < ActiveRecord::Base
         puts "#{edate}\t#{days_held}\t#{entry_price}\t#{price}\t#{nreturn*100.0}"
         update_attributes!(:exit_price => price, :exit_date => xdate,
                            :days_held => days_held, :nreturn => nreturn,
-                           :risk_factor => nil)
+                           :risk_factor => nil, :exit_trigger => exit_trigger)
       end
     rescue Exception => e
       puts "Exception Raised: #{e.to_s} skipping closure}"

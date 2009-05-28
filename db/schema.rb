@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090523161236) do
+ActiveRecord::Schema.define(:version => 20090528012055) do
 
   create_table "contract_types", :force => true do |t|
     t.string   "name"
@@ -63,17 +63,7 @@ ActiveRecord::Schema.define(:version => 20090523161236) do
     t.float   "low"
   end
 
-  create_table "daily_bars1", :force => true do |t|
-    t.integer "ticker_id", :null => false
-    t.date    "date"
-    t.float   "open"
-    t.float   "close"
-    t.float   "high"
-    t.float   "low"
-    t.integer "volume"
-    t.float   "r"
-    t.float   "logr"
-  end
+  add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_bars_on_ticker_id_and_date"
 
   create_table "daily_closes", :force => true do |t|
     t.integer "ticker_id", :null => false
@@ -141,6 +131,21 @@ ActiveRecord::Schema.define(:version => 20090523161236) do
     t.integer "listing_category_id"
   end
 
+  create_table "no_history", :force => true do |t|
+    t.string   "symbol",          :limit => 8
+    t.string   "exchange_id"
+    t.boolean  "active"
+    t.boolean  "dormant",                      :default => false
+    t.datetime "last_trade_time"
+    t.integer  "missed_minutes",               :default => 0
+    t.boolean  "validated"
+    t.string   "name"
+    t.boolean  "locked"
+  end
+
+  add_index "no_history", ["symbol"], :name => "index_tickers_on_symbol", :unique => true
+  add_index "no_history", ["id", "last_trade_time"], :name => "index_tickers_on_id_and_last_trade_time"
+
   create_table "plot_attributes", :force => true do |t|
     t.string   "name"
     t.integer  "ticker_id"
@@ -174,8 +179,9 @@ ActiveRecord::Schema.define(:version => 20090523161236) do
     t.integer  "days_held"
     t.float    "nreturn"
     t.float    "risk_factor"
-    t.integer  "week"
     t.integer  "scan_id"
+    t.float    "entry_trigger"
+    t.float    "exit_trigger"
   end
 
   add_index "positions", ["strategy_id"], :name => "strategy_id"

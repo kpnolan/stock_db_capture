@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090523152306
+# Schema version: 20090528012055
 #
 # Table name: tickers
 #
@@ -20,13 +20,13 @@ class Ticker < ActiveRecord::Base
 
   has_one  :current_listing, :dependent => :destroy
   has_many :live_quotes
-  has_many :daily_closes, :dependent => :destroy
+  has_many :daily_bars, :dependent => :destroy
   has_many :aggregate, :dependent => :destroy
   has_many :positions, :dependent => :destroy
   has_and_belongs_to_many :scans
 
   def last_close
-    DailyClose.connection.select_value("select adj_close from daily_closes where ticker_id = #{id} having max(date)").to_f
+    DailyBar.connection.select_value("select adj_close from daily_bars where ticker_id = #{id} having max(date)").to_f
   end
 
   def listing

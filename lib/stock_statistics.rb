@@ -77,7 +77,7 @@ module StockStatistics
   def self.generate(tickers,  attrs=ATTRS, extra_conditions={ })
     tickers.each do |ticker|
       t = Ticker.find_by_symbol(ticker)
-      if t and not (rows = DailyClose.all(:conditions => { :ticker_id => t.id }.merge(extra_conditions), :order => 'date')).empty?
+      if t and not (rows = DailyBar.all(:conditions => { :ticker_id => t.id }.merge(extra_conditions), :order => 'date')).empty?
         attrs.each do |attr|
           sample_vec = rows.collect(&attr)
           begin
@@ -95,8 +95,8 @@ module StockStatistics
 
   # Return all stocks ordered by the coefficient of variance of the entire year.
   def self.most_volatile()
-    sql = "select symbol from daily_closes join tickers on tickers.id = ticker_id group by ticker_id order by stddev(close)/avg(close) desc"
-    vs = DailyClose.connection.select_values(sql)
+    sql = "select symbol from daily_bars join tickers on tickers.id = ticker_id group by ticker_id order by stddev(close)/avg(close) desc"
+    vs = DailyBar.connection.select_values(sql)
     $cache.set('VolatileStocks', vs.join(','), nil, false)
     vs
   end

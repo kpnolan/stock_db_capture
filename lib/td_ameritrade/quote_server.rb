@@ -41,11 +41,11 @@ module TdAmeritrade
     end
 
     def test
-      #bars = dailys_for('MMPI', Date.parse('01/25/2007'), Date.parse('02/25/2007'))
-      bars = dailys_for('MMPI', Date.parse('01/25/2009'), Date.parse('02/25/2009'))
+      bars = dailys_for('JAVA', Date.parse('05/01/2009'), Date.parse('05/01/2009'), :extended => true)
       for bar in bars
         puts %Q(#{bar.join("\t")})
       end
+      nil
     end
 
     def dailys_for(symbol, start_date, end_date, options={})

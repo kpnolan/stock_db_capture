@@ -30,18 +30,18 @@ module TradingCalendar
     end
   end
 
-  def trading_days_from(date, number)
+  def trading_days_from(date, number, dir=1)
     return date if number.zero?
     calendar_days = 1
     trading_days = []
     while trading_days.length < number
-      next_date = date + calendar_days
+      next_date = date + calendar_days.days
       case
-      when [0,6].include?(next_date.to_time.wday) : calendar_days += 1
-      when holidays[next_date] : calendar_days += 1
+      when [0,6].include?(next_date.to_time.wday) : calendar_days += dir
+      when holidays[next_date] : calendar_days += dir
       else
         trading_days << next_date
-        calendar_days += 1
+        calendar_days += dir
       end
     end
     return trading_days

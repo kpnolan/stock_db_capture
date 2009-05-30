@@ -1,0 +1,8 @@
+%h1 Listing sectors
+%table
+  %tr.heading
+    %th Name
+
+  = render :partial => 'sector', :collection => current_objects
+
+= link_to 'New sector', new_object_path 

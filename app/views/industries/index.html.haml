@@ -1,0 +1,8 @@
+%h1 Listing industries
+%table
+  %tr.heading
+    %th Name
+
+  = render :partial => 'industry', :collection => current_objects
+
+= link_to 'New industry', new_object_path 

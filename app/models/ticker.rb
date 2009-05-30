@@ -1,28 +1,27 @@
 # == Schema Information
-# Schema version: 20090528012055
+# Schema version: 20090528233608
 #
 # Table name: tickers
 #
-#  id              :integer(4)      not null, primary key
-#  symbol          :string(8)
-#  exchange_id     :string(255)
-#  active          :boolean(1)
-#  dormant         :boolean(1)
-#  last_trade_time :datetime
-#  missed_minutes  :integer(4)      default(0)
-#  validated       :boolean(1)
-#  name            :string(255)
-#  locked          :boolean(1)
+#  id          :integer(4)      not null, primary key
+#  symbol      :string(8)
+#  exchange_id :string(255)
+#  active      :boolean(1)
+#  rety_count  :integer(4)      default(0)
+#  name        :string(255)
+#  locked      :boolean(1)
+#  etf         :boolean(1)
+#  sector_id   :integer(4)
+#  industry_id :integer(4)
 #
 
 class Ticker < ActiveRecord::Base
   belongs_to :exchange
+  has_one  :current_listing,    :dependent => :destroy
+  has_many :daily_bars,         :dependent => :protect
+  has_many :intrday_bars,       :dependent => :protect
+  has_many :positions,          :dependent => :protect
 
-  has_one  :current_listing, :dependent => :destroy
-  has_many :live_quotes
-  has_many :daily_bars, :dependent => :destroy
-  has_many :aggregate, :dependent => :destroy
-  has_many :positions, :dependent => :destroy
   has_and_belongs_to_many :scans
 
   def last_close

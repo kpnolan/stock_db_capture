@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :industries
+
+  map.resources :sectors
+
   map.resources :intra_day_bars
 
   map.resources :daily_bars

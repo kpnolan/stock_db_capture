@@ -4,6 +4,7 @@ class Timeseries
   include TechnicalAnalysis
   include UserAnalysis
   include CsvDumper
+  include Enumerable
 
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 120
@@ -11,13 +12,13 @@ class Timeseries
   DEFAULT_OPTIONS = { DailyBar => { :attrs => [:date, :volume, :high, :low, :open, :close, :logr],
       :sample_period => [ 1.day ]  } }
 
-  attr_accessor :symbol, :ticker_id, :source_model, :value_hash
+  attr_accessor :symbol, :ticker_id, :source_model, :value_hash, :enum_index, :enum_attrs
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
   attr_accessor :timevec, :time_map, :local_range, :price
 
   def initialize(symbol_or_id, local_range, time_resolution, options={})
-    options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true
+    options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true, :populate => true
     initialize_state()
     self.ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
@@ -31,13 +32,14 @@ class Timeseries
       if options[:pre_buffer]
         day_offset = (PRECALC_BARS / bars_per_day) + 1
       else
-        day_offset = (PRECALC_BARS / bars_per_day) + 1
+        day_offset = 0
       end
       self.start_time = (local_range.begin - day_offset.days).to_time
       self.end_time = (local_range.end + day_offset.days).to_time > Time.now ? Time.now : (local_range.begin + day_offset.days).to_time
     elsif source_model == DailyBar
-      self.start_time = (local_range.begin - 120.days).to_time
-      self.end_time = (local_range.end + 120.days).to_time > Time.now ? Time.now : (local_range.end + 120.days).to_time
+      offset = options[:pre_buffer] ? 120 : 0
+      self.start_time = (local_range.begin - offset.days).to_time
+      self.end_time = (local_range.end + offset.days).to_time > Time.now ? Time.now : (local_range.end + offset.days).to_time
     else
       raise ArgumentError, "Bar resolution cannot be retrieved"
     end
@@ -58,8 +60,21 @@ class Timeseries
     super
   end
 
+  def set_enum_attrs(attrs)
+    raise ArgumentError, "attrs is not a proper subset of available values" unless attrs.all? { |attr|self.attrs.include? attr }
+    self.enum_attrs = attrs
+  end
+
+  def each
+    @timevec.each_with_index { |time,i | debugger; yield(values_at(i, enum_attrs)) }
+  end
+
   def all(*args)
     multi_calc(args)
+  end
+
+  def values_at(index, vals)
+    vals.map { |v| value_hash[v][index] }
   end
 
   def multi_calc(fcn_vec, options={})
@@ -187,6 +202,10 @@ class Timeseries
     timevec[index] ? timevec[index].send(source_model.time_convert) : nil
   end
 
+  def length
+    timevec.length
+  end
+
   def memo
     derived_values.first
   end
@@ -244,6 +263,8 @@ class Timeseries
     self.timevec = []
     self.num_points, self.sample_period = 0, []
     self.utc_offset = Time.now.utc_offset
+    self.enum_attrs = self.attrs
+    self.enum_index = 0
   end
 end
 
@@ -317,5 +338,4 @@ end
 def ts(symbol, local_range, seconds, options={})
   options.reverse_merge! :populate => true
   $ts = Timeseries.new(symbol, local_range, seconds, options)
-  nil
 end

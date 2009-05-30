@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090528012055) do
+ActiveRecord::Schema.define(:version => 20090528233608) do
 
   create_table "contract_types", :force => true do |t|
     t.string   "name"
@@ -108,6 +108,12 @@ ActiveRecord::Schema.define(:version => 20090528012055) do
 
   create_table "historical_attributes", :force => true do |t|
     t.string "name"
+  end
+
+  create_table "industries", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
   end
 
   create_table "intra_day_bars", :force => true do |t|
@@ -222,6 +228,12 @@ ActiveRecord::Schema.define(:version => 20090528012055) do
   add_index "scans_tickers", ["ticker_id"], :name => "ticker_id"
   add_index "scans_tickers", ["scan_id"], :name => "scan_id"
 
+  create_table "sectors", :force => true do |t|
+    t.string   "name"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "stat_values", :force => true do |t|
     t.integer  "historical_attribute_id"
     t.integer  "ticker_id"
@@ -255,19 +267,21 @@ ActiveRecord::Schema.define(:version => 20090528012055) do
   add_index "strategies", ["name"], :name => "index_strategies_on_name", :unique => true
 
   create_table "tickers", :force => true do |t|
-    t.string   "symbol",          :limit => 8
-    t.string   "exchange_id"
-    t.boolean  "active"
-    t.boolean  "dormant",                      :default => false
-    t.datetime "last_trade_time"
-    t.integer  "missed_minutes",               :default => 0
-    t.boolean  "validated"
-    t.string   "name"
-    t.boolean  "locked"
+    t.string  "symbol",      :limit => 8
+    t.string  "exchange_id"
+    t.boolean "active"
+    t.integer "rety_count",               :default => 0
+    t.string  "name"
+    t.boolean "locked"
+    t.boolean "etf"
+    t.integer "sector_id"
+    t.integer "industry_id"
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol", :unique => true
-  add_index "tickers", ["id", "last_trade_time"], :name => "index_tickers_on_id_and_last_trade_time"
+  add_index "tickers", ["id"], :name => "index_tickers_on_id_and_last_trade_time"
+  add_index "tickers", ["sector_id"], :name => "sector_id"
+  add_index "tickers", ["industry_id"], :name => "industry_id"
 
   add_foreign_key "daily_closes", ["ticker_id"], "tickers", ["id"], :on_update => :cascade, :on_delete => :cascade, :name => "daily_closes_fk_ticker_id_tickers_id"
 
@@ -288,5 +302,8 @@ ActiveRecord::Schema.define(:version => 20090528012055) do
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
+
+  add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
+  add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"
 
 end

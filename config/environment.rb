@@ -74,7 +74,11 @@ require 'talib'
 require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
+require 'excel_simulation_dumper'
 require 'ruby-debug'
+
+include TradingCalendar
+include ExcelSimulationDumper
 
 # ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
 # ARGV[0] contains the name of the rake task otherwise. Since, at this point, we don't have any rake
@@ -92,10 +96,17 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   ts(:msft, Date.parse('3/1/2005')..Date.parse('3/30/2005'), 1.day, :populate => true)
 
   def lookup(symbol, start_date, end_date=nil, options={})
-    $qs ||= TdAmeritrade::QuoteServer.new
-    start_date = Date.parse(start_date)
-    end_date = end_date.nil? ? start_date : Date.parse(end_date)
-    $qs.dailys_for(symbol, start_date, end_date, options)
+    begin
+      $qs ||= TdAmeritrade::QuoteServer.new
+      start_date = Date.parse(start_date)
+      end_date = end_date.nil? ? start_date : Date.parse(end_date)
+      td = trading_days(start_date..end_date).length
+      puts "#{td} trading days in period specified"
+      $qs.dailys_for(symbol, start_date, end_date, options) #unless td.zero?
+    rescue Exception => e
+      debugger
+      a=1
+    end
   end
 end
 

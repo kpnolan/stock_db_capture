@@ -37,6 +37,12 @@ namespace :active_trader do
     load_tda_history(@logger)
   end
 
+  desc "Load TDA Stocks"
+  task :load_tda_stocks => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'tda_symbol_load.log'))
+    load_tda_symbols(@logger)
+  end
+
   desc "Clear locks on Tickers"
   task :clear_locks => :environment do
     Ticker.connection.execute('update tickers set locked = 0')

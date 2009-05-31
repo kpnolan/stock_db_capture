@@ -67,7 +67,7 @@ class IntraDayBar < ActiveRecord::Base
         @accum_volume = attrs[:volume]
         attrs[:accum_volume] = @accum_volume
         attrs[:delta] = @last_close.nil? ? nil : attrs[:close] - @last_close
-        @last_close = attr[:close]
+        @last_close = attrs[:close]
       end
       begin
         create! attrs

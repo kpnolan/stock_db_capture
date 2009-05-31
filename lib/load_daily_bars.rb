@@ -5,6 +5,8 @@ require 'faster_csv'
 
 module LoadDailyBars
 
+  MAX_RETRY = 12
+
   include TradingCalendar
 
   attr_accessor :logger
@@ -54,17 +56,17 @@ module LoadDailyBars
       next if td.zero?
       begin
         puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
+        logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         DailyBar.load_tda_history(symbol, start_date, end_date)
       rescue Net::HTTPServerException => e
-        if e.to_s.split.first = '400'
-
+        if e.to_s.split.first == '400'
+          ticker = Ticker.find_by_symbol(symbol)
+          ticker.increment! :retry_count if ticker
+          ticker.toggle! :active if ticker.rety_count == 12
         end
       rescue Exception => e
         puts "#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}"
         @logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
-        next
-      ensure
-        count += 1
       end
       count += 1
     end

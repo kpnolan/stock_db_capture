@@ -9,7 +9,17 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090528233608) do
+ActiveRecord::Schema.define(:version => 20090531043108) do
+
+  create_table "bar_lookup", :force => true do |t|
+  end
+
+  add_index "bar_lookup", ["id"], :name => "id"
+
+  create_table "close_lookup", :force => true do |t|
+  end
+
+  add_index "close_lookup", ["id"], :name => "id"
 
   create_table "contract_types", :force => true do |t|
     t.string   "name"
@@ -111,9 +121,7 @@ ActiveRecord::Schema.define(:version => 20090528233608) do
   end
 
   create_table "industries", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string "name"
   end
 
   create_table "intra_day_bars", :force => true do |t|
@@ -188,6 +196,7 @@ ActiveRecord::Schema.define(:version => 20090528233608) do
     t.integer  "scan_id"
     t.float    "entry_trigger"
     t.float    "exit_trigger"
+    t.float    "logr"
   end
 
   add_index "positions", ["strategy_id"], :name => "strategy_id"
@@ -229,9 +238,7 @@ ActiveRecord::Schema.define(:version => 20090528233608) do
   add_index "scans_tickers", ["scan_id"], :name => "scan_id"
 
   create_table "sectors", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string "name"
   end
 
   create_table "stat_values", :force => true do |t|

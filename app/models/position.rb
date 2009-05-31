@@ -20,8 +20,9 @@
 #  exit_trigger  :float
 #
 
-require 'rubygems'
-require 'ruby-debug'
+#require 'rubygems'
+#require 'ruby-debug'
+
 class Position < ActiveRecord::Base
 
   extend TradingCalendar
@@ -84,10 +85,11 @@ class Position < ActiveRecord::Base
         xdate = ts.index2time(index)
         days_held = Position.trading_day_count(edate, xdate)
         nreturn = days_held.zero? ? 0.0 : ((price - entry_price) / entry_price) / days_held
+        logr = Math.log(nreturn)
         puts "#{edate}\t#{days_held}\t#{entry_price}\t#{price}\t#{nreturn*100.0}"
         update_attributes!(:exit_price => price, :exit_date => xdate,
                            :days_held => days_held, :nreturn => nreturn,
-                           :risk_factor => nil, :exit_trigger => exit_trigger)
+                           :risk_factor => nil, :exit_trigger => exit_trigger, :logr => logr)
       end
     rescue Exception => e
       puts "Exception Raised: #{e.to_s} skipping closure}"

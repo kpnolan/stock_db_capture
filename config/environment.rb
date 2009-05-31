@@ -103,9 +103,10 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
       td = trading_days(start_date..end_date).length
       puts "#{td} trading days in period specified"
       $qs.dailys_for(symbol, start_date, end_date, options) #unless td.zero?
+    rescue Net::HTTPServerException => e
+      puts "No Data Found for #{symbol}" if e.to_s.split.first == '400'
     rescue Exception => e
-      debugger
-      a=1
+      puts e.to_s
     end
   end
 end

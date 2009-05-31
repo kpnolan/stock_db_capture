@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090531043108) do
+ActiveRecord::Schema.define(:version => 20090531211334) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -134,6 +134,7 @@ ActiveRecord::Schema.define(:version => 20090531043108) do
     t.integer  "volume"
     t.float    "delta"
     t.float    "low"
+    t.float    "accum_volume"
   end
 
   create_table "listing_categories", :force => true do |t|

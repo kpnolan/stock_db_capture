@@ -3,7 +3,7 @@ require 'ruby-debug'
 require 'trading_calendar'
 require 'faster_csv'
 
-module LoadDailyBars
+module LoadBars
 
   MAX_RETRY = 12
 
@@ -20,14 +20,23 @@ module LoadDailyBars
     end
   end
 
+  def latest_intrday
+    Date.parse('05/29/2009')
+  end
+
   def tickers_with_full_history
     sql = "select symbol from daily_closes left outer join tickers on ticker_id = tickers.id  group by ticker_id having min(date) = '20000103' order by symbol"
     DailyClose.connection.select_values(sql)
   end
 
   def tickers_with_lagging_history
-    sql = "select symbol, max(date) from daily_closes left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < #{latest_date} order by symbol"
-    DailyClose.connection.select_rows(sql)
+    sql = "select symbol, max(date) from daily_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
+    DailyBar.connection.select_rows(sql)
+  end
+
+    def tickers_with_lagging_history
+    sql = "select symbol, max(date) from intrday_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
+    DailyBar.connection.select_rows(sql)
   end
 
   def tickers_with_bad_symbols
@@ -39,10 +48,20 @@ module LoadDailyBars
     DailyBar.connection.select_rows("select symbol, min(date), max(date) from daily_closes right outer join no_history on no_history.id = ticker_id group by ticker_id")
   end
 
+  def tickers_with_no_intraday
+    IntraDayBar.connection.select_values("select symbol from intra_day_bars right outer join tickers on ticker_id = tickers.id where ticker_id is null order by symbol")
+  end
+
   def update_daily_history(logger)
     @logger = logger
-    tuples = tickers_lagging_history()
+    tuples = tickers_with_lagging_history()
     load_tda_dailys(tuples)
+  end
+
+  def load_intraday_history(logger)
+    @logger = logger
+    symbols = tickers_with_no_intraday()
+    load_tda_intraday(symbols)
   end
 
   def load_tda_dailys(tuples)
@@ -58,6 +77,34 @@ module LoadDailyBars
         puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         DailyBar.load_tda_history(symbol, start_date, end_date)
+      rescue Net::HTTPServerException => e
+        if e.to_s.split.first == '400'
+          ticker = Ticker.find_by_symbol(symbol)
+          ticker.increment! :retry_count if ticker
+          ticker.toggle! :active if ticker.rety_count == 12
+        end
+      rescue Exception => e
+        puts "#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}"
+        @logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
+      end
+      count += 1
+    end
+  end
+
+  def load_tda_intraday(tuples)
+    count = 1
+    max = tuples.length
+    end_date = latest_intrday()
+    for tuple in tuples
+      next if tuple.nil?
+      symbol = tuple
+      start_date = end_date - 6.months
+      td = trading_days(start_date..end_date).length
+      next if td.zero?
+      begin
+        puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
+        logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
+        IntraDayBar.load_tda_history(symbol, start_date, end_date)
       rescue Net::HTTPServerException => e
         if e.to_s.split.first == '400'
           ticker = Ticker.find_by_symbol(symbol)

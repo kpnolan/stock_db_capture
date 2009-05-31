@@ -32,7 +32,7 @@ module TradingCalendar
 
   def trading_days_from(date, number, dir=1)
     return date if number.zero?
-    calendar_days = 1
+    calendar_days = dir
     trading_days = []
     while trading_days.length < number
       next_date = date + calendar_days.days

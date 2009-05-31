@@ -37,7 +37,7 @@ class DailyBar < ActiveRecord::Base
     def time_col ; :date ;  end
     def time_convert ; :to_date ;  end
     def time_class ; Date ;  end
-    def time_res; 1; end
+    def time_res; 1.day; end
 
     def load_tda_history(symbol, start_date, end_date)
       start_date = start_date.class == String ? Date.parse(start_date) : start_date

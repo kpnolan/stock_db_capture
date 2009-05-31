@@ -41,7 +41,7 @@ module TdAmeritrade
     end
 
     def test
-      bars = dailys_for('JAVA', Date.parse('05/01/2009'), Date.parse('05/01/2009'), :extended => true)
+      bars = intraday_for('JAVA', Date.parse('01/03/2009'), Date.parse("01/05/2009"), 5)
       for bar in bars
         puts %Q(#{bar.join("\t")})
       end

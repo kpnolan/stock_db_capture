@@ -51,7 +51,7 @@ analytics do
   desc "Find all places where the low of a day crosses below 2 std dev form the SMA(5)"
   open_position :bband_overshold, :time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0 do |ts, params|
     memo = ts.bband params.merge(:noplot => true, :result => :memo)
-    memo.crosses_under(:price, :lower_band)
+    memo.crosses_under(:low, :lower_band)
   end
 
   desc "Find all date where Relative Volatility Index (RVI) is greater then 50"
@@ -73,7 +73,10 @@ populations do
 end
 
 backtests(:price => :close) do
-  apply(:rsi_oversold, $names) do |position|
-    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
+#  apply(:rsi_oversold, $names) do |position|
+#    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
+#  end
+  apply(:bband_oversold, :liquid_2008) do |position|
+    position.close_at(:indicator => :bband, :params => {:time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0})
   end
 end

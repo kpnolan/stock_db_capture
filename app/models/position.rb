@@ -65,13 +65,44 @@ class Position < ActiveRecord::Base
                        :risk_factor => risk)
   end
 
+  def crosses_under(options)
+    begin
+      indicator = options[:indicator]
+      params = options[:params]
+      ts = Timeseries.new(ticker_id, entry_date..(entry_date+4.months), 1.day,
+                          :populate => true, :pre_buffer => true, :post_buffer => true)
+      memo = ts.send(indicator, params.merge(:noplot => true, :result => :memo))
+      indexes = memo.crosses_under(:high, :upper_band)
+      if indexes.empty?
+        update_attributes!(:exit_price => nil, :exit_date => nil,
+                           :days_held => nil, :nreturn => nil,
+                           :risk_factor => nil)
+      else
+        index = indexes.first
+        price = ts.value_at(index, :close)
+        exit_trigger = memo.result_for(index)
+        edate = entry_date.to_date
+        xdate = ts.index2time(index)
+        debugger if xdate.nil?
+        days_held = Position.trading_day_count(edate, xdate)
+        nreturn = days_held.zero? ? 0.0 : ((price - entry_price) / entry_price) / days_held
+        update_attributes!(:exit_price => price, :exit_date => xdate,
+                           :days_held => days_held, :nreturn => nreturn,
+                           :risk_factor => nil, :exit_trigger => exit_trigger)
+      end
+    rescue Exception => e
+      $logger.error "Exception Raised: #{e.to_s} skipping closure}" if $logger
+      $logger.error self.inspect if $logger
+    end
+    self
+  end
+
   def close_at(options)
     begin
       indicator = options[:indicator]
       params = options[:params]
-      max_days_held = options[:max_days_held]
       ts = Timeseries.new(ticker_id, entry_date..(entry_date+4.months), 1.day,
-                          :populate => true, :pre_buffer => false, :post_buffer => :true)
+                          :populate => true, :pre_buffer => true, :post_buffer => true)
       memo = ts.send(indicator, params.merge(:noplot => true, :result => :memo))
       indexes = memo.over_threshold(params[:threshold], :real)
       if indexes.empty?
@@ -84,17 +115,17 @@ class Position < ActiveRecord::Base
         exit_trigger = memo.result_for(index)
         edate = entry_date.to_date
         xdate = ts.index2time(index)
+        debugger if xdate.nil?
         days_held = Position.trading_day_count(edate, xdate)
         nreturn = days_held.zero? ? 0.0 : ((price - entry_price) / entry_price) / days_held
-        logr = Math.log(nreturn)
-        $logger.info "#{edate}\t#{days_held}\t#{entry_price}\t#{price}\t#{nreturn*100.0}" if $logger
         update_attributes!(:exit_price => price, :exit_date => xdate,
                            :days_held => days_held, :nreturn => nreturn,
-                           :risk_factor => nil, :exit_trigger => exit_trigger, :logr => logr)
+                           :risk_factor => nil, :exit_trigger => exit_trigger)
       end
     rescue Exception => e
       $logger.error "Exception Raised: #{e.to_s} skipping closure}" if $logger
       $logger.error self.inspect if $logger
     end
+    self
   end
 end

@@ -80,9 +80,17 @@ class Backtester
       # and closed, giving the raw data for the analysis of the backtest
       logger.info "Beginning close positions analysis..."
       startt = Time.now
+      pos_count = strategy.positions.length
+      counter = 1
       ActiveRecord::Base.benchmark("Close Positions", Logger::INFO) do
         for position in strategy.positions
-          block.call(position)
+          p = block.call(position)
+          if position.exit_price.nil?
+            logger.info "Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t>120\t#{p.entry_price}\t***.**\t0.000000"
+            else
+            logger.info "Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t#{p.days_held}\t#{p.entry_price}\t#{p.exit_price}\t#{p.nreturn*100.0}"
+          end
+          counter += 1
         end
       end
       endt = Time.now

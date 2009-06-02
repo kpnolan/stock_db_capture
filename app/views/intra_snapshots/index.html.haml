@@ -1,0 +1,15 @@
+%h1 Listing intra_snapshots
+%table
+  %tr.heading
+    %th Ticker
+    %th Interval
+    %th Start Time
+    %th Open
+    %th Close
+    %th High
+    %th Low
+    %th Volume
+
+  = render :partial => 'intra_snapshot', :collection => current_objects
+
+= link_to 'New intra_snapshot', new_object_path 

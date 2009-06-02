@@ -1,0 +1,20 @@
+one:
+  id: 1
+  ticker_id: 1
+  interval: 1
+  start_time: 
+  open: 1.5
+  close: 1.5
+  high: 1.5
+  low: 1.5
+  volume: 1
+two:
+  id: 2
+  ticker_id: 1
+  interval: 1
+  start_time: 
+  open: 1.5
+  close: 1.5
+  high: 1.5
+  low: 1.5
+  volume: 1

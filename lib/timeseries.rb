@@ -339,4 +339,5 @@ end
 def ts(symbol, local_range, seconds, options={})
   options.reverse_merge! :populate => true
   $ts = Timeseries.new(symbol, local_range, seconds, options)
+  nil
 end

@@ -51,7 +51,7 @@ analytics do
   desc "Find all places where the low of a day crosses below 2 std dev form the SMA(5)"
   open_position :bband_overshold, :time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0 do |ts, params|
     memo = ts.bband params.merge(:noplot => true, :result => :memo)
-    memo.crosses_under(:low, :lower_band)
+    memo.crosses_under(:low, :real_lower_band)
   end
 
   desc "Find all date where Relative Volatility Index (RVI) is greater then 50"

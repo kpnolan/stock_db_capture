@@ -1,12 +1,10 @@
 # == Schema Information
-# Schema version: 20090528233608
+# Schema version: 20090531043108
 #
 # Table name: industries
 #
-#  id         :integer(4)      not null, primary key
-#  name       :string(255)
-#  created_at :datetime
-#  updated_at :datetime
+#  id   :integer(4)      not null, primary key
+#  name :string(255)
 #
 
 one:

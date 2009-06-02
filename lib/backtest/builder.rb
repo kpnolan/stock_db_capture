@@ -27,9 +27,9 @@ module Backtest
       @description = string
     end
 
-    def run()
+    def run(logger)
       backtests.each do |backtest|
-        backtest.run
+        backtest.run(logger)
       end
     end
   end

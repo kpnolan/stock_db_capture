@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090528233608
+# Schema version: 20090531043108
 #
 # Table name: daily_bars
 #

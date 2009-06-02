@@ -11,10 +11,10 @@ end
 
 require File.dirname(__FILE__) + "/../config/#{ARGV[0]}.rb"
 
-puts "Done reading backeest config file, beginning #{$backtester.backtests.length} backtest using #{proc_count} processors..."
+logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{ARGV[0]}_backtest.log"))
 
 #begin
-  $backtester.run()
+  $backtester.run(logger)
 #rescue => e
 #  puts e.message
 #  raise BacktestException.new("Backtest cancelled because of previous errors")

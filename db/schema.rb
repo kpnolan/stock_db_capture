@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090531211334) do
+ActiveRecord::Schema.define(:version => 20090601221401) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -75,24 +75,6 @@ ActiveRecord::Schema.define(:version => 20090531211334) do
 
   add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_bars_on_ticker_id_and_date"
 
-  create_table "daily_closes", :force => true do |t|
-    t.integer "ticker_id", :null => false
-    t.date    "date"
-    t.float   "open"
-    t.float   "close"
-    t.float   "high"
-    t.float   "low"
-    t.float   "adj_close"
-    t.integer "volume"
-    t.integer "week"
-    t.integer "month"
-    t.float   "r"
-    t.float   "logr"
-    t.float   "alr"
-  end
-
-  add_index "daily_closes", ["ticker_id", "date"], :name => "index_daily_closes_on_ticker_id_and_date", :unique => true
-
   create_table "derived_value_types", :force => true do |t|
     t.string "name"
   end
@@ -136,6 +118,19 @@ ActiveRecord::Schema.define(:version => 20090531211334) do
     t.float    "low"
     t.float    "accum_volume"
   end
+
+  create_table "intra_snapshots", :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "interval"
+    t.datetime "start_time"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+  end
+
+  add_index "intra_snapshots", ["ticker_id"], :name => "ticker_id"
 
   create_table "listing_categories", :force => true do |t|
     t.string "name"
@@ -291,10 +286,10 @@ ActiveRecord::Schema.define(:version => 20090531211334) do
   add_index "tickers", ["sector_id"], :name => "sector_id"
   add_index "tickers", ["industry_id"], :name => "industry_id"
 
-  add_foreign_key "daily_closes", ["ticker_id"], "tickers", ["id"], :on_update => :cascade, :on_delete => :cascade, :name => "daily_closes_fk_ticker_id_tickers_id"
-
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
+
+  add_foreign_key "intra_snapshots", ["ticker_id"], "tickers", ["id"], :name => "intra_snapshots_ibfk_1"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 

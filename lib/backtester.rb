@@ -34,8 +34,9 @@ class Backtester
     end
   end
 
-  def run()
-    puts "Processing backtest of #{sname} against #{pnames.join(', ')}"
+  def run(logger)
+    $logger = logger
+    logger.info "Processing backtest of #{sname} against #{pnames.join(', ')}"
     self.strategy = Strategy.find_by_name(sname)
     self.strategy.block = $analytics.find_openning(sname).third
     phash = params(strategy.params_yaml)
@@ -49,10 +50,10 @@ class Backtester
         # FIXME totally different values
         if strategy.scan_ids.include?(scan.id)
           #TODO wipe all the scans associated with this position if position changed
-          puts "Using CACHED positions"
+          logger.info "Using CACHED positions"
           next
         else
-          puts "Recomputing Positions"
+          logger.info "Recomputing Positions"
         end
         self.tid_array = scan.tickers_ids
         sdate = scan.start_date
@@ -71,13 +72,13 @@ class Backtester
       endt = Time.now
       delta = endt - startt
       deltam = delta/60.0
-      puts "Open position elapsed time: #{deltam} minutes"
+      logger.info "Open position elapsed time: #{deltam} minutes"
       # Now closes the posisitons that we just openned by running the block associated with the backtest
       # The purpose for "apply" kind of backtest is to open positions based upon the criterion given
       # in the "analytics" section and then close them be evaluating the block associated with the "apply"
       # If everybody does what they're supposed to do, we end up with a set of positions that have been openned
       # and closed, giving the raw data for the analysis of the backtest
-      puts "Beginning close positions analysis..."
+      logger.info "Beginning close positions analysis..."
       startt = Time.now
       ActiveRecord::Base.benchmark("Close Positions", Logger::INFO) do
         for position in strategy.positions
@@ -87,7 +88,7 @@ class Backtester
       endt = Time.now
       delta = endt - startt
       deltam = delta/60.0
-      puts "Backtest (close positions) elapsed time: #{deltam} minutes"
+      logger.info "Backtest (close positions) elapsed time: #{deltam} minutes"
     end
   end
 
@@ -115,9 +116,9 @@ class Backtester
         position
       end
     rescue NoMethodError => e
-      puts e.message unless e.message =~ /to_v/
+      logger.info e.message unless e.message =~ /to_v/
     rescue TimeseriesException => e
-      puts e.messge unless e.message =~ /recorded history/
+      logger e.messge unless e.message =~ /recorded history/
     end
   end
 end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090528233608
+# Schema version: 20090531043108
 #
 # Table name: positions
 #
@@ -18,6 +18,7 @@
 #  scan_id       :integer(4)
 #  entry_trigger :float
 #  exit_trigger  :float
+#  logr          :float
 #
 
 one:

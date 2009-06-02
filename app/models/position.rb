@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090528233608
+# Schema version: 20090531043108
 #
 # Table name: positions
 #
@@ -18,6 +18,7 @@
 #  scan_id       :integer(4)
 #  entry_trigger :float
 #  exit_trigger  :float
+#  logr          :float
 #
 
 #require 'rubygems'
@@ -70,7 +71,7 @@ class Position < ActiveRecord::Base
       params = options[:params]
       max_days_held = options[:max_days_held]
       ts = Timeseries.new(ticker_id, entry_date..(entry_date+4.months), 1.day,
-                          :populate => true, :pre_buffer => false)
+                          :populate => true, :pre_buffer => false, :post_buffer => :true)
       memo = ts.send(indicator, params.merge(:noplot => true, :result => :memo))
       indexes = memo.over_threshold(params[:threshold], :real)
       if indexes.empty?
@@ -86,14 +87,14 @@ class Position < ActiveRecord::Base
         days_held = Position.trading_day_count(edate, xdate)
         nreturn = days_held.zero? ? 0.0 : ((price - entry_price) / entry_price) / days_held
         logr = Math.log(nreturn)
-        puts "#{edate}\t#{days_held}\t#{entry_price}\t#{price}\t#{nreturn*100.0}"
+        $logger.info "#{edate}\t#{days_held}\t#{entry_price}\t#{price}\t#{nreturn*100.0}" if $logger
         update_attributes!(:exit_price => price, :exit_date => xdate,
                            :days_held => days_held, :nreturn => nreturn,
                            :risk_factor => nil, :exit_trigger => exit_trigger, :logr => logr)
       end
     rescue Exception => e
-      puts "Exception Raised: #{e.to_s} skipping closure}"
-      puts self.inspect
+      $logger.error "Exception Raised: #{e.to_s} skipping closure}" if $logger
+      $logger.error self.inspect if $logger
     end
   end
 end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090528233608
+# Schema version: 20090531043108
 #
 # Table name: scans
 #
@@ -37,13 +37,13 @@ class Scan < ActiveRecord::Base
           "GROUP BY ticker_id " +
           "HAVING #{conditions}"
     if repopulate || tickers.empty?
-      puts "Performing #{name} scan because it is not be done before or criterion have changed"
+      $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger
       tickers.clear
       @population_ids = Scan.connection.select_values(sql)
       self.ticker_ids = @population_ids
       ticker_ids
     else
-      puts "Using *CACHED* values for scan #{name}"
+      $logger.info "Using *CACHED* values for scan #{name}"
       ticker_ids
     end
   end

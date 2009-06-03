@@ -1,0 +1,28 @@
+#!/usr/bin/env /work/tdameritrade/stock_db_capture/script/runner
+
+ENV['RAILS_ENV'] = 'production'
+
+if ARGV[0] == '-h'
+  puts "Usage: truncate <strategy>"
+  exit
+end
+puts "strategy must be given as the first arg" if ARGV[0].nil?
+
+require 'analyze_returns'
+
+def do_query(strategy)
+  val = Strategy.connection.select_value("select id from strategies where name = '#{strategy}'")
+  if val.nil?
+    puts "Uknown strategy #{strategy}"
+    exit
+  else
+    strategy_id = val.to_i
+  end
+  PositionsStrategies.connection.execute "delete from positions_strategies where strategy_id = #{strategy_id}"
+  Position.connection.execute "delete from positions where strategy_id = #{strategy_id}"
+end
+
+do_query(ARGV[0])
+
+
+

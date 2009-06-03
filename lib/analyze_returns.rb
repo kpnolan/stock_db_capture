@@ -7,23 +7,27 @@ module AnalyzeReturns
 
   class << self
 
-    def nreturn_histogram(val, sigma)
+    def nreturn_histogram(strategy, sigma)
 
-      avg = Position.average(val, :conditions => 'nreturn is not null')
-      stddev = Position.connection.select_value("select stddev(#{val}) from positions where nreturn is not null").to_f
+      avg = do_query(strategy, 'avg(nreturn)').first.to_f
+      stddev = do_query(strategy, 'stddev(nreturn)').first.to_f
       min = avg - sigma*stddev
       max = avg + sigma*stddev
       #max = Position.maximum(:nreturn, :conditions => 'nreturn is not null')
       #min = Position.minimum(:nreturn, :conditions => 'nreturn is not null')
-      hist = GSL::Histogram.alloc(400, min, max)
+      hist = GSL::Histogram.alloc(1000, min, max)
 
-      nreturns = Position.connection.select_values("select #{val} from positions where nreturn is not null").map! { |str| str.to_f }
+      nreturns = do_query(strategy, 'nreturn').map! { |str| str.to_f }
       nreturns.each { |r| hist.accumulate(r) }
 
-#      debugger
-
       hist.graph('-C')
-      hist.graph('-T gif -C')
+#      hist.graph('-T gif -C')
+    end
+
+    def do_query(strategy, value)
+      sql = "select #{value} from positions left outer join strategies on strategies.name = '#{strategy}' "+
+            "where strategy_id = strategies.id and nreturn is not null"
+      Position.connection.select_values(sql)
     end
 
     def nreturn_pdf()

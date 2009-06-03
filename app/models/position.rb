@@ -72,7 +72,7 @@ class Position < ActiveRecord::Base
       ts = Timeseries.new(ticker_id, entry_date..(entry_date+4.months), 1.day,
                           :populate => true, :pre_buffer => true, :post_buffer => true)
       memo = ts.send(indicator, params.merge(:noplot => true, :result => :memo))
-      indexes = memo.crosses_under(:high, :upper_band)
+      indexes = memo.crosses_under(:high, :real_upper_band)
       if indexes.empty?
         update_attributes!(:exit_price => nil, :exit_date => nil,
                            :days_held => nil, :nreturn => nil,

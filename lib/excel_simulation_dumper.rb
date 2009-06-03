@@ -28,10 +28,13 @@ module ExcelSimulationDumper
         puts "#{symbol} #{entry_date.to_s}"
         range_start = trading_days_from(pos.entry_date, options[:pre_days], -1).last
         range_end = trading_days_from(pos.entry_date, options[:post_days]).last
-        ts = ts(symbol, range_start..range_end, 1.day, :pre_buffer => false)
-        val_vec = options[:values]
-        0.upto(ts.timevec.length-1) do |i|
-          val_vec.each { |val| row << ts.value_at(i, val) }
+        puts "start: #{range_start} end: #{range_end}"
+        ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => false)
+        ts.set_enum_attrs(options[:values])
+        debugger
+        ts.each do |vec|
+          debugger
+          vec.each { |e| row << e }
         end
         csv << row
         csv.flush

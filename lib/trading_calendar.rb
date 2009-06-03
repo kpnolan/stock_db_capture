@@ -49,6 +49,7 @@ module TradingCalendar
 
   def trading_day_count(date1, date2)
     (date1..date2).to_a.count do |date|
+      puts date
       wday = date.to_time.wday
       wday != 0 && wday != 6 && !holidays[date]
     end - 1

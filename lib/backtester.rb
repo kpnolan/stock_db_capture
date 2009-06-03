@@ -124,9 +124,9 @@ class Backtester
         position
       end
     rescue NoMethodError => e
-      logger.info e.message unless e.message =~ /to_v/
+      $logger.info e.message unless e.message =~ /to_v/ or $logger.nil?
     rescue TimeseriesException => e
-      logger e.messge unless e.message =~ /recorded history/
+      $logger.info e.messge unless e.message =~ /recorded history/ or $logger.nil?
     end
   end
 end

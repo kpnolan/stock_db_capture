@@ -67,7 +67,7 @@ class Timeseries
   end
 
   def each
-    @timevec.each_with_index { |time,i | debugger; yield(values_at(i, enum_attrs)) }
+    @timevec.each_with_index { |time,i | yield(values_at(i, enum_attrs)) }
   end
 
   def all(*args)
@@ -305,10 +305,10 @@ class ParamBlock
   end
 
   def vector_for(sym)
-    if result_hash.has_key? sym
-      result_hash[sym]
-    elsif ts.methods.include? sym.to_s
-      timeseries.send(sym)
+    case
+    when result_hash.has_key?(sym)                : result_hash[sym]
+    when timeseries.value_hash.has_key?(sym)      : timeseries.value_hash[sym][index_range].to_gv
+    when timeseries.methods.include?(sym.to_s)    : timeseries.send(sym)[index_range].to_gv
     else
       raise ArgumentError, "#{function}.#{sym} is not available"
     end

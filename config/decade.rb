@@ -49,8 +49,8 @@ analytics do
   end
 
   desc "Find all places where the low of a day crosses below 2 std dev form the SMA(5)"
-  open_position :bband_overshold, :time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0 do |ts, params|
-    memo = ts.bband params.merge(:noplot => true, :result => :memo)
+  open_position :bband_oversold, :time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0 do |ts, params|
+    memo = ts.bbands params.merge(:noplot => true, :result => :memo)
     memo.crosses_under(:low, :real_lower_band)
   end
 
@@ -77,6 +77,6 @@ backtests(:price => :close) do
 #    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
 #  end
   apply(:bband_oversold, :liquid_2008) do |position|
-    position.close_at(:indicator => :bband, :params => {:time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0})
+    position.crosses_under(:indicator => :bbands, :params => {:time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0})
   end
 end

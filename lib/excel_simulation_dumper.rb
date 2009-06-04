@@ -10,6 +10,7 @@ module ExcelSimulationDumper
 
   def make_sheet(strategy=nil, options={})
     options.reverse_merge! :values => [:open, :close, :high, :low, :volume], :pre_days => 10, :post_days => 10
+    day_count = options[:pre_days] + options[:post_days] + 1
     if strategy
       strategy_id = Strategy.find_by_name(strategy)
       conditions = { :strategy_id => strategy_id }
@@ -28,16 +29,13 @@ module ExcelSimulationDumper
         puts "#{symbol} #{entry_date.to_s}"
         range_start = trading_days_from(pos.entry_date, options[:pre_days], -1).last
         range_end = trading_days_from(pos.entry_date, options[:post_days]).last
-        puts "start: #{range_start} end: #{range_end}"
         ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => false)
         ts.set_enum_attrs(options[:values])
-        debugger
-        ts.each do |vec|
-          debugger
-          vec.each { |e| row << e }
+        if ts.length == day_count || options[:keep]
+          ts.each { |vec| vec.each { |e| row << e } }
+          csv << row
+          csv.flush
         end
-        csv << row
-        csv.flush
       end
     end
     true

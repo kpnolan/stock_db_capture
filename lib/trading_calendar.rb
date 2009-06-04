@@ -34,7 +34,7 @@ module TradingCalendar
     return date if number.zero?
     calendar_days = dir
     trading_days = []
-    while trading_days.length < number
+    while trading_days.length <= number
       next_date = date + calendar_days.days
       case
       when [0,6].include?(next_date.to_time.wday) : calendar_days += dir

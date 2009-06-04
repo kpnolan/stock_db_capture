@@ -9,7 +9,7 @@ module ExcelSimulationDumper
   OCHLV = [:date, :open, :high, :low, :close, :volume, :logr]
 
   def make_sheet(strategy=nil, options={})
-    options.reverse_merge! :values => [:open, :close, :high, :low, :volume], :pre_days => 10, :post_days => 10
+    options.reverse_merge! :values => [:open, :close, :high, :low, :volume], :pre_days => 10, :post_days => 10, :keep => false
     day_count = options[:pre_days] + options[:post_days] + 1
     if strategy
       strategy_id = Strategy.find_by_name(strategy)

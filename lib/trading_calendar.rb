@@ -31,10 +31,10 @@ module TradingCalendar
   end
 
   def trading_days_from(date, number, dir=1)
-    return date if number.zero?
+    return [ date ] if number.zero?
+    trading_days = [ ]
     calendar_days = dir
-    trading_days = []
-    while trading_days.length <= number
+    while trading_days.length < number
       next_date = date + calendar_days.days
       case
       when [0,6].include?(next_date.to_time.wday) : calendar_days += dir

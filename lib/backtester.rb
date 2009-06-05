@@ -63,7 +63,7 @@ class Backtester
         # and run the analysis given with the strategy on said timeseries
         for tid in tid_array
           self.ticker = Ticker.find tid
-          ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options)
+          ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options.merge(:post_buffer => 7))
           open_positions(ts, phash)
         end
         strategy.scans << scan

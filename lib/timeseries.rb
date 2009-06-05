@@ -37,8 +37,8 @@ class Timeseries
       self.start_time = (local_range.begin - day_offset.days).to_time
       self.end_time = (local_range.end + day_offset.days).to_time > Time.now ? Time.now : (local_range.begin + day_offset.days).to_time
     elsif source_model == DailyBar
-      pre_offset = options[:pre_buffer] ? 120 : 0
-      post_offset = options[:post_buffer] ? 120 : 0
+      pre_offset = options[:pre_buffer] == true ? 120 : options[:pre_buffer].is_a?(Fixnum) ? options[:pre_buffer] : 0
+      post_offset = options[:post_buffer] == true ? 120 : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
       self.start_time = (local_range.begin - pre_offset.days).to_time
       self.end_time = (local_range.end + post_offset.days).to_time > Time.now ? Time.now : (local_range.end + post_offset.days).to_time
     else

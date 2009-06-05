@@ -75,23 +75,6 @@ module TdAmeritrade
       bars
     end
 
-    def intraslice_for(symbol, start_date, end_date, minute_resolutioin, slice, options={})
-      slices_per_day = MINUTES_PER_DAY / minute_resolution
-      buff = quote_for(symbol, start_date, end_date, TdAmeritrade::MINUTE, minute_resolution, options)
-      GC.disable
-      symbol_count, symbol, bar_count = parse_header(buff)
-      # See if we got a whole number of slices, i.e. no partial days
-      if bar_count % slices_per_day == 0
-        slice_counter = 0
-        bar_count.times do
-          bar_ary = parse_bar(buff)
-          bars.push(bar_ary) if slice_counter % slices_per_day == slice
-          slice_counter += 1
-        end
-        GC.enable
-        bars
-    end
-
     def quote_for(symbol, start_date, end_date, period, resolution, options={})
       validate_resolution(period, resolution)
       submit_request(symbol, start_date, end_date, options)

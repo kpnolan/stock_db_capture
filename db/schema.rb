@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090601221401) do
+ActiveRecord::Schema.define(:version => 20090605144414) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -122,7 +122,7 @@ ActiveRecord::Schema.define(:version => 20090601221401) do
   create_table "intra_snapshots", :force => true do |t|
     t.integer  "ticker_id"
     t.integer  "interval"
-    t.datetime "start_time"
+    t.datetime "snap_time"
     t.float    "open"
     t.float    "close"
     t.float    "high"

@@ -73,10 +73,10 @@ populations do
 end
 
 backtests(:price => :close) do
-#  apply(:rsi_oversold, $names) do |position|
-#    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
-#  end
-  apply(:bband_oversold, :liquid_2008) do |position|
-    position.crosses_under(:indicator => :bbands, :params => {:time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0})
+  apply(:rsi_oversold, 'liquid_2005') do |position|
+    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
   end
+#  apply(:bband_oversold, :liquid_2008) do |position|
+#    position.crosses_under(:indicator => :bbands, :params => {:time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0})
+#  end
 end

@@ -1,18 +1,19 @@
 # == Schema Information
-# Schema version: 20090531043108
+# Schema version: 20090605144414
 #
 # Table name: intra_day_bars
 #
-#  id         :integer(4)      not null, primary key
-#  ticker_id  :integer(4)
-#  interval   :integer(4)
-#  start_time :datetime
-#  open       :float
-#  close      :float
-#  high       :float
-#  volume     :integer(4)
-#  delta      :float
-#  low        :float
+#  id           :integer(4)      not null, primary key
+#  ticker_id    :integer(4)
+#  interval     :integer(4)
+#  start_time   :datetime
+#  open         :float
+#  close        :float
+#  high         :float
+#  volume       :integer(4)
+#  delta        :float
+#  low          :float
+#  accum_volume :float
 #
 
 one:

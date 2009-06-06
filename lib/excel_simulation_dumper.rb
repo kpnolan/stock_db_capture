@@ -22,10 +22,18 @@ module ExcelSimulationDumper
       positions = Position.find(:all, :conditions => conditions)
       positions.each do |pos|
         symbol = pos.ticker.symbol
-        entry_date = pos.entry_date
+        entry_date =   pos.entry_date.to_date.to_s
+        exit_date =    pos.exit_date.nil? ? '': pos.exit_date.to_date.to_s
+        entry_price =  pos.entry_price
+        exit_price =   pos.exit_price.nil? ? '': pos.exit_price
+        days_held =    pos.days_held.nil? ? '' : pos.days_held
         row = []
         row << symbol
-        row << entry_date.to_date.to_s
+        row << entry_date
+        row << exit_date
+        row << entry_price
+        row << exit_price
+        row << days_held
         range_start = trading_days_from(pos.entry_date, options[:pre_days], -1).last
         range_end = trading_days_from(pos.entry_date, options[:post_days]).last
         ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => false)

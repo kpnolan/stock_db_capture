@@ -44,7 +44,7 @@ module ExcelSimulationDumper
           csv << row
           csv.flush
         else
-          debugger
+          #debugger
           puts "#{symbol}\t#{entry_date.to_s}\t#{ts.length} <<<<<<<<<<<<<"
         end
       end
@@ -59,6 +59,10 @@ module ExcelSimulationDumper
     range = (0-options[:pre_days])..options[:post_days]
     row << 'symbol'
     row << 'entry-date'
+    row << 'exit-date'
+    row << 'entry-price'
+    row << 'exit-price'
+    row << 'days-held'
     range.to_a.each do |idx|
       vals.each { |v| row << "#{v.to_s}#{idx}" }
     end

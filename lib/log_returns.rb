@@ -24,7 +24,6 @@ module LogReturns
     self.logger = logger
     self.counter = 1
     self.count = ticker_ids().length
-    debugger
     for ticker_id in ticker_ids()
         ticker = Ticker.transaction do
           ticker = Ticker.find_by_id(ticker_id, :lock => true)

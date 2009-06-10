@@ -34,7 +34,7 @@ module ExcelSimulationDumper
         row << entry_price
         row << exit_price
         row << days_held
-        range_start = trading_days_from(pos.entry_date, options[:pre_days], -1).last
+        range_start = trading_days_from(entry_date, options[:pre_days], -1).last
         range_end = trading_days_from(pos.entry_date, options[:post_days]).last
         ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => false)
         ts.set_enum_attrs(options[:values])
@@ -44,6 +44,7 @@ module ExcelSimulationDumper
           csv << row
           csv.flush
         else
+          debugger
           puts "#{symbol}\t#{entry_date.to_s}\t#{ts.length} <<<<<<<<<<<<<"
         end
       end

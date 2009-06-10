@@ -45,11 +45,12 @@ module TradingCalendar
   end
 
   def trading_days_from(date, number, dir=1)
+    date = date.to_date
     return [ date ] if number.zero?
     trading_days = [ ]
     calendar_days = dir
     while trading_days.length < number
-      next_date = date + calendar_days.days
+      next_date = date + calendar_days
       case
       when [0,6].include?(next_date.to_time.wday) : calendar_days += dir
       when holidays[next_date] : calendar_days += dir

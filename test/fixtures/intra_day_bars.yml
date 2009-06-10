@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090608195510
+# Schema version: 20090610015332
 #
 # Table name: intra_day_bars
 #

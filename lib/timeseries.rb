@@ -3,6 +3,7 @@ class Timeseries
   include Plot
   include TechnicalAnalysis
   include UserAnalysis
+  include CompositeAnalysis
   include CsvDumper
   include Enumerable
 

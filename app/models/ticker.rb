@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090608195510
+# Schema version: 20090610015332
 #
 # Table name: tickers
 #
@@ -7,7 +7,7 @@
 #  symbol      :string(8)
 #  exchange_id :string(255)
 #  active      :boolean(1)
-#  rety_count  :integer(4)      default(0)
+#  retry_count :integer(4)      default(0)
 #  name        :string(255)
 #  locked      :boolean(1)
 #  etf         :boolean(1)

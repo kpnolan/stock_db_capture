@@ -42,13 +42,13 @@
 
 analytics do
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :rsi_oversold, :threshold => 30, :time_period => 5 do |ts, params|
+  open_position :rsi_oversold, :threshold => 20, :time_period => 5 do |ts, params|
       memo = ts.rsi params.merge(:noplot => true, :result => :memo)
       memo.under_threshold(params[:threshold], :real)
   end
 
   desc "Find all places where RSI gooes heads upwards of 70"
-  close_position :rsi_oversold, :threshold => 70, :time_period => 5 do |ts, params|
+  close_position :rsi_oversold, :threshold => 80, :time_period => 5 do |ts, params|
     memo = ts.rsi params.merge(:noplot => true, :result => :memo)
     memo.under_threshold(params[:threshold], :real)
   end

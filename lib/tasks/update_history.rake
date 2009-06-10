@@ -19,16 +19,22 @@ namespace :active_trader do
     update_daily_history(@logger)
   end
 
-  desc "Load all Daily Close with momentum values"
-  task :load_returns => :environment do
-    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_returns.log'))
+  desc "Load all Daily Close with logr values"
+  task :load_logr => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'init_logr.log'))
     initialize_returns(@logger)
   end
 
-  desc "Update Daily Close with new momentum values"
-  task :load_returns => :environment do
+  desc "Update DailyBars with new logr values"
+  task :update_logr => :environment do
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_returns.log'))
     update_returns(@logger)
+  end
+
+  desc "Load a year's worth of daily bars"
+  task :load_year => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_year.log'))
+    load_dailys_for_year(@logger, 2008)
   end
 
   desc "Load TDA Stocks"

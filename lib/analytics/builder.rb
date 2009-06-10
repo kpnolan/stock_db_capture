@@ -1,6 +1,7 @@
 require 'yaml'
 require 'rubygems'
 require 'ruby-debug'
+require 'ostruct'
 
 module Analytics
 
@@ -28,33 +29,42 @@ module Analytics
   class Builder
     def initialize(options)
       @options = options
-      @strategies = []
+      @openings = []
+      @closings = []
+      @openings = []
       @descriptions = []
-      @opennings = []
     end
 
-    def find_strategy(name)
-      @strategies.find { |tuple| tuple.first == name }
+    def find_opening(name)
+      @openings.find { |o| o.name == name }
     end
 
-    def find_openning(name)
-      @opennings.find { |tuple| tuple.first == name }
+    def find_closing(name)
+      @closings.find { |c| c.name == name }
     end
 
-    def strategy(name, params={}, &block)
-      raise ArgumentError.new("Block missing for #{name}") unless block_given?
-      if Strategy.find_by_name(name).nil?
-        Strategy.create!(:name => name, :description => @descriptions.shift, :params_yaml => params.to_yaml)
-      end
-      @strategies << [name, params, block]
+    def has_pair?(name)
+      find_opening(name) && find_closing(name)
     end
 
     def open_position(name, params={}, &block)
-      raise ArgumentError.new("Block missing for #{name}") unless block_given?
-      if Strategy.find_by_name(name.to_s.downcase).nil?
-        Strategy.record!(name, @descriptions.shift, params.to_yaml)
-      end
-      @opennings << [name, params, block]
+      raise ArgumentError.new("Block missing for open position #{name}") unless block_given?
+      Strategy.record_open!(name, @descriptions.shift, params.to_yaml)
+      opening = OpenStruct.new
+      opening.name = name
+      opening.params = params
+      opening.block = block
+      @openings << opening
+    end
+
+    def close_position(name, params={}, &block)
+      raise ArgumentError.new("Block missing for close position #{name}") unless block_given?
+      Strategy.record_close!(name, @descriptions.shift, params.to_yaml)
+      closing = OpenStruct.new
+      closing.name = name
+      closing.params = params
+      closing.block = block
+      @closings << closing
     end
 
     def desc(string)

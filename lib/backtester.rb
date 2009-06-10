@@ -16,18 +16,17 @@ class BacktestException < Exception
 end
 
 class Backtester
-  attr_accessor :tid_array, :ticker, :date_range, :ts, :result_hash, :meta_data_hash, :strategy, :scan
-  attr_reader :pnames, :sname, :desc, :options, :positions, :block
+  attr_accessor :tid_array, :ticker, :date_range, :ts, :result_hash, :meta_data_hash, :strategy, :opening, :closing, :scan
+  attr_reader :pnames, :sname, :desc, :options
 
-  def initialize(strategy_name, population_names, description, options, &block)
+  def initialize(strategy_name, population_names, description, options)
     @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false
     @sname = strategy_name
     @pnames = population_names
     @desc = description
-    @block = block
     @positions = []
 
-    raise BacktestException.new("Cannot find strategy: #{sname.to_s}") if Strategy.find_by_name(sname).nil?
+    raise BacktestException.new("Cannot find strategy: #{sname.to_s}") unless $analytics.has_pair?(sname)
 
     pnames.each do |pname|
       raise BacktestException.new("Cannot find population: #{pname.to_s}") if Scan.find_by_name(pname).nil?
@@ -38,8 +37,8 @@ class Backtester
     $logger = logger
     logger.info "Processing backtest of #{sname} against #{pnames.join(', ')}"
     self.strategy = Strategy.find_by_name(sname)
-    self.strategy.block = $analytics.find_openning(sname).third
-    phash = params(strategy.params_yaml)
+    self.opening = $analytics.find_opening(sname)
+    self.closing = $analytics.find_closing(sname)
     # Loop through all of the populations given for this backtest
     startt = Time.now
     ActiveRecord::Base.benchmark("Open Positions", Logger::INFO) do
@@ -64,7 +63,7 @@ class Backtester
         for tid in tid_array
           self.ticker = Ticker.find tid
           ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options.merge(:post_buffer => 7))
-          open_positions(ts, phash)
+          open_positions(ts, opening.params)
         end
         strategy.scans << scan
       end
@@ -84,10 +83,10 @@ class Backtester
       counter = 1
       ActiveRecord::Base.benchmark("Close Positions", Logger::INFO) do
         for position in strategy.positions
-          p = block.call(position)
-          if position.exit_price.nil?
+          p = close_position(position)
+          if p.exit_price.nil?
             logger.info "Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t>120\t#{p.entry_price}\t***.**\t0.000000"
-            else
+          else
             logger.info "Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t#{p.days_held}\t#{p.entry_price}\t#{p.exit_price}\t#{p.nreturn*100.0}"
           end
           counter += 1
@@ -100,26 +99,20 @@ class Backtester
     end
   end
 
-  # Convert the yaml formatted hash of params back into a hash
-  def params(yaml_str)
-    @params ||= YAML.load(yaml_str)
-  end
-
   # Run the analysis associated with the strategy which returns a set of indexes for which analysis is true
   # Convert this indexes to dates and open a position on that date at the openning price
   # Remember all of the positions openned for the second part of the backtest, which is to close
   # the open positions
   def open_positions(ts, params)
     begin
-      open_indexes = strategy.block.call(ts, params)
+      open_indexes = opening.block.call(ts, params)
       for index in open_indexes
         price = ts.value_at(index, :close)
         date = ts.index2time(index)
         debugger if date.nil?
         entry_trigger = ts.memo.result_for(index)
         #TODO wipe all positions associated with the strategy if the strategy changes
-        position = Position.open(scan, strategy, ticker, date, price, entry_trigger)
-        @positions << position
+        position = Position.open(scan, strategy, ticker, date, price, entry_trigger, params[:short])
         strategy.positions << position
         position
       end
@@ -128,6 +121,37 @@ class Backtester
     rescue TimeseriesException => e
       $logger.info e.messge unless e.message =~ /recorded history/ or $logger.nil?
     end
+  end
+
+  # Close a position opened during the first phase of the backtest
+  def close_position(p)
+    begin
+      ts = Timeseries.new(p.ticker_id, p.entry_date..(p.entry_date+4.months), 1.day,
+                          :pre_buffer => 30, :post_buffer => 7)
+      indexes = closing.block.call(ts, closing.params)
+      if indexes.empty?
+        p.update_attributes!(:exit_price => nil, :exit_date => nil,
+                             :days_held => nil, :nreturn => nil,
+                             :risk_factor => nil)
+      else
+        index = indexes.first
+        price = ts.value_at(index, :close)
+        exit_trigger = ts.memo.result_for(index)
+        edate = p.entry_date.to_date
+        xdate = ts.index2time(index)
+        debugger if xdate.nil?
+        days_held = Position.trading_day_count(edate, xdate)
+        nreturn = days_held.zero? ? 0.0 : ((price - p.entry_price) / p.entry_price) / days_held
+        nreturn *= -1.0 if p.short and nreturn != 0.0
+        p.update_attributes!(:exit_price => price, :exit_date => xdate,
+                             :days_held => days_held, :nreturn => nreturn,
+                             :risk_factor => nil, :exit_trigger => exit_trigger)
+      end
+    rescue Exception => e
+      $logger.error "Exception Raised: #{e.to_s} skipping closure}" if $logger
+      $logger.error p.inspect if $logger
+    end
+    p
   end
 end
 

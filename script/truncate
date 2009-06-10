@@ -18,6 +18,7 @@ def do_query(strategy)
   else
     strategy_id = val.to_i
   end
+  Position.connection.execute "delete from scans_strategies where strategy_id = #{strategy_id}"
   PositionsStrategies.connection.execute "delete from positions_strategies where strategy_id = #{strategy_id}"
   Position.connection.execute "delete from positions where strategy_id = #{strategy_id}"
 end

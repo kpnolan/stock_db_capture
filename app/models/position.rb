@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090605144414
+# Schema version: 20090608195510
 #
 # Table name: positions
 #
@@ -19,6 +19,7 @@
 #  entry_trigger :float
 #  exit_trigger  :float
 #  logr          :float
+#  short         :boolean(1)
 #
 
 #require 'rubygems'
@@ -31,9 +32,10 @@ class Position < ActiveRecord::Base
   belongs_to :ticker
   has_and_belongs_to_many :strategies
 
-  def self.open(population, strategy, ticker, entry_date, entry_price, entry_trigger)
+  def self.open(population, strategy, ticker, entry_date, entry_price, entry_trigger, short=false)
     create!(:scan_id => population.id, :strategy_id => strategy.id, :ticker_id => ticker.id,
-            :entry_price => entry_price, :entry_date => entry_date, :num_shares => 1, :entry_trigger => entry_trigger)
+            :entry_price => entry_price, :entry_date => entry_date, :num_shares => 1, :entry_trigger => entry_trigger,
+            :short => short)
   end
 
   def close_at_max(options={})
@@ -84,7 +86,7 @@ class Position < ActiveRecord::Base
         edate = entry_date.to_date
         xdate = ts.index2time(index)
         debugger if xdate.nil?
-        days_held = Position.trading_day_count(edate, xdate)
+        days_held = Position.trading_day_count(edate, xdate) - 1
         nreturn = days_held.zero? ? 0.0 : ((price - entry_price) / entry_price) / days_held
         update_attributes!(:exit_price => price, :exit_date => xdate,
                            :days_held => days_held, :nreturn => nreturn,

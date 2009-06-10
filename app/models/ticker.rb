@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090605144414
+# Schema version: 20090608195510
 #
 # Table name: tickers
 #
@@ -21,6 +21,8 @@ class Ticker < ActiveRecord::Base
   has_many :daily_bars,         :dependent => :protect
   has_many :intrday_bars,       :dependent => :protect
   has_many :positions,          :dependent => :protect
+
+  validates_presence_of :symbol
 
   has_and_belongs_to_many :scans
 

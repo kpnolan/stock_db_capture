@@ -92,14 +92,14 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   USER_META_INFO_HASH.underscore_keys!
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
-#  ts(:qqqq, 2.years.ago..23.months.ago, 30.minutes, :populate => true)
+  ts(:skf, Date.parse('01/03/2008')..Date.parse('12/31/2008'), 1.day)
   #ts(:msft, Date.parse('01/01/2008')..Date.parse('12/31/2008'), 1.day, :populate => true)
 
   def lookup(symbol, start_date, end_date=nil, options={})
     begin
       $qs ||= TdAmeritrade::QuoteServer.new
-      start_date = Date.parse(start_date)
-      end_date = end_date.nil? ? start_date : Date.parse(end_date)
+      start_date = start_date.is_a?(Date) ? start_date : Date.parse(start_date)
+      end_date = end_date.nil? ? start_date : end_date.is_a?(Date) ? end_date : Date.parse(end_date)
       td = trading_days(start_date..end_date).length
       puts "#{td} trading days in period specified"
       $qs.dailys_for(symbol, start_date, end_date, options) #unless td.zero?

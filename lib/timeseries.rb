@@ -61,6 +61,10 @@ class Timeseries
     super
   end
 
+  def to_file(value)
+     IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{symbol}_#{value.to_s}.csv"), "w"), "w") { |io| io.puts(value_hash[value].join(', ')) }
+  end
+
   def set_enum_attrs(attrs)
     raise ArgumentError, "attrs is not a proper subset of available values" unless attrs.all? { |attr|self.attrs.include? attr }
     self.enum_attrs = attrs
@@ -230,6 +234,7 @@ class Timeseries
     when :keys  : pb.keys
     when :memo  : pb
     when :raw   : results
+    when :file  : IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{fcn.to_s}.csv"), "w"), "w") { |io| io.puts(results.first.to_a.join(', ')) }
     else        nil
     end
   end

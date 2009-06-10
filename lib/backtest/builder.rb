@@ -17,10 +17,9 @@ module Backtest
       @backtests = []
     end
 
-    def apply(strategy, populations, &block)
-      raise ArgumentError.new("Block missing") unless block_given?
+    def apply(strategy, populations)
       populations = [ populations ] unless populations.is_a? Array
-      @backtests << Backtester.new(strategy, populations, description, options, &block)
+      @backtests << Backtester.new(strategy, populations, description, options)
     end
 
     def desc(string)

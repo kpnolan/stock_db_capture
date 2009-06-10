@@ -2,6 +2,8 @@ require 'yaml'
 
 module Population
 
+  include TradingCalendar
+
   class Hash
     # Replacing the to_yaml function so it'll serialize hashes sorted (by their keys)
     #

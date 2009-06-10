@@ -59,6 +59,12 @@ analytics do
     memo = ts.rvi params.merge(:noplot => true, :result => :memo)
     memo.over_threshold(params[:threshold], :rvi)
   end
+
+  desc "Find all places where RSI gooes under 30"
+  open_position :aroonosc_up, :threshold => 0, :time_period => 14 do |ts, params|
+      memo = ts.rsi params.merge(:noplot => true, :result => :memo)
+      memo.under_threshold(params[:threshold], :real)
+  end
 end
 
 populations do
@@ -69,7 +75,10 @@ populations do
 end
 
 backtests(:price => :close) do
-  apply(:rsi_oversold, :liquid_2008) do |position|
-    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
+#  apply(:rsi_oversold, :liquid_2008) do |position|
+#    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
+#  end
+  apply(:aroonosc, :liquid_2008) do |position|
+    position.close_at(:indicator => :rsi,:params => { :threshold => 0, :time_period => 5})
   end
 end

@@ -9,17 +9,12 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090605144414) do
+ActiveRecord::Schema.define(:version => 20090610015332) do
 
   create_table "bar_lookup", :force => true do |t|
   end
 
   add_index "bar_lookup", ["id"], :name => "id"
-
-  create_table "close_lookup", :force => true do |t|
-  end
-
-  add_index "close_lookup", ["id"], :name => "id"
 
   create_table "contract_types", :force => true do |t|
     t.string   "name"
@@ -141,21 +136,6 @@ ActiveRecord::Schema.define(:version => 20090605144414) do
     t.integer "listing_category_id"
   end
 
-  create_table "no_history", :force => true do |t|
-    t.string   "symbol",          :limit => 8
-    t.string   "exchange_id"
-    t.boolean  "active"
-    t.boolean  "dormant",                      :default => false
-    t.datetime "last_trade_time"
-    t.integer  "missed_minutes",               :default => 0
-    t.boolean  "validated"
-    t.string   "name"
-    t.boolean  "locked"
-  end
-
-  add_index "no_history", ["symbol"], :name => "index_tickers_on_symbol", :unique => true
-  add_index "no_history", ["id", "last_trade_time"], :name => "index_tickers_on_id_and_last_trade_time"
-
   create_table "plot_attributes", :force => true do |t|
     t.string   "name"
     t.integer  "ticker_id"
@@ -193,6 +173,7 @@ ActiveRecord::Schema.define(:version => 20090605144414) do
     t.float    "entry_trigger"
     t.float    "exit_trigger"
     t.float    "logr"
+    t.boolean  "short"
   end
 
   add_index "positions", ["strategy_id"], :name => "strategy_id"
@@ -263,8 +244,10 @@ ActiveRecord::Schema.define(:version => 20090605144414) do
 
   create_table "strategies", :force => true do |t|
     t.string "name"
-    t.string "description"
-    t.string "params_yaml"
+    t.string "open_description"
+    t.string "open_params_yaml"
+    t.string "close_params_yaml"
+    t.string "close_description"
   end
 
   add_index "strategies", ["name"], :name => "index_strategies_on_name", :unique => true
@@ -273,7 +256,7 @@ ActiveRecord::Schema.define(:version => 20090605144414) do
     t.string  "symbol",      :limit => 8
     t.string  "exchange_id"
     t.boolean "active"
-    t.integer "rety_count",               :default => 0
+    t.integer "retry_count",              :default => 0
     t.string  "name"
     t.boolean "locked"
     t.boolean "etf"
@@ -285,6 +268,7 @@ ActiveRecord::Schema.define(:version => 20090605144414) do
   add_index "tickers", ["id"], :name => "index_tickers_on_id_and_last_trade_time"
   add_index "tickers", ["sector_id"], :name => "sector_id"
   add_index "tickers", ["industry_id"], :name => "industry_id"
+  add_index "tickers", ["name"], :name => "ticker_name_index"
 
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"

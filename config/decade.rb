@@ -41,42 +41,30 @@
 ####################################################################################################
 
 analytics do
-
-  desc "Find all places where RSI gooes under 30"
+  desc "Find all places where RSI gooes heads upwards of 30"
   open_position :rsi_oversold, :threshold => 30, :time_period => 5 do |ts, params|
       memo = ts.rsi params.merge(:noplot => true, :result => :memo)
       memo.under_threshold(params[:threshold], :real)
   end
 
-  desc "Find all places where the low of a day crosses below 2 std dev form the SMA(5)"
-  open_position :bband_oversold, :time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0 do |ts, params|
-    memo = ts.bbands params.merge(:noplot => true, :result => :memo)
-    memo.crosses_under(:low, :real_lower_band)
-  end
-
-  desc "Find all date where Relative Volatility Index (RVI) is greater then 50"
-  open_position :rvi, :time_period => 5, :threshold => 50  do |ts, params|
-    memo = ts.rvi params.merge(:noplot => true, :result => :memo)
-    memo.over_threshold(params[:threshold], :rvi)
+  desc "Find all places where RSI gooes heads upwards of 70"
+  close_position :rsi_oversold, :threshold => 70, :time_period => 5 do |ts, params|
+    memo = ts.rsi params.merge(:noplot => true, :result => :memo)
+    memo.under_threshold(params[:threshold], :real)
   end
 end
 
 populations do
   $names = []
-  for year in 0..8
-    name = "liquid_#{2000+year}"
-    liquid = 'min(volume) > 100000 and count(*) > 150'
-    desc "Population of all stocks with a minimum valume of 100000 and at least 150 days traded in #{2000+year}"
-    scan name, :start_date => "01/01/#{2000+year}", :end_date => "12/31/#{2000+year}", :conditions => liquid
+  for year in 2000..2008
+    name = "liquid_#{year}"
+    liquid = "min(volume) > 100000 and count(*) = #{trading_count_for_year(year)}"
+    desc "Population of all stocks with a minimum valume of 100000 and have #{trading_count_for_year(year)} days traded in #{year}"
+    scan name, :start_date => "01/01/#{year}", :end_date => "12/31/#{year}", :conditions => liquid
     $names << name
   end
 end
 
 backtests(:price => :close) do
-  apply(:rsi_oversold, 'liquid_2005') do |position|
-    position.close_at(:indicator => :rsi,:params => { :threshold => 70, :time_period => 5})
-  end
-#  apply(:bband_oversold, :liquid_2008) do |position|
-#    position.crosses_under(:indicator => :bbands, :params => {:time_period => 10, :deviations_up => 2.0, :deviations_down => 2.0})
-#  end
+  apply(:rsi_oversold, :liquid_2008)
 end

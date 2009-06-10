@@ -13,7 +13,7 @@ module ResultAnalysis
   attr_accessor :mode                                         # this will be used to optimize the where into first or something
 
   def over_threshold(threshold, sym)
-    unless (indexes = threshold_crossing(threshold, sym, :lt)).nil?
+    unless (indexes = threshold_crossing(threshold, sym, :gt)).nil?
       indexes.to_v.to_i.add_constant!(outidx).to_a
     else
       []
@@ -21,7 +21,11 @@ module ResultAnalysis
   end
 
   def under_threshold(threshold, sym)
-    threshold_crossing(threshold, sym, :lt).to_v.to_i.add_constant!(outidx).to_a
+    unless (indexes = threshold_crossing(threshold, sym, :lt)).nil?
+      indexes.to_v.to_i.add_constant!(outidx).to_a
+    else
+      []
+    end
   end
 
   def threshold_crossing(threshold, sym, op)

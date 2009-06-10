@@ -20,7 +20,7 @@ module LoadBars
     end
   end
 
-  def latest_intrday
+  def latest_intraday
     Date.parse('05/29/2009')
   end
 
@@ -34,10 +34,10 @@ module LoadBars
     DailyBar.connection.select_rows(sql)
   end
 
-    def tickers_with_lagging_history
-    sql = "select symbol, max(date) from intrday_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
-    DailyBar.connection.select_rows(sql)
-  end
+ #    def tickers_with_lagging_history
+ #   sql = "select symbol, max(date) from intrday_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
+ #   DailyBar.connection.select_rows(sql)
+ # end
 
   def tickers_with_bad_symbols
     sql = "select symbol,min(date),max(date) from daily_closes left outer join tickers on ticker_id = tickers.id where symbol regexp '^[A-Z]*-P[A-Z]+$' group by ticker_id order by symbol"
@@ -45,7 +45,7 @@ module LoadBars
   end
 
   def tickers_with_no_history
-    DailyBar.connection.select_rows("select symbol, min(date), max(date) from daily_closes right outer join no_history on no_history.id = ticker_id group by ticker_id")
+    DailyBar.connection.select_values("SELECT tickers.id FROM tickers LEFT OUTER JOIN daily_bars ON tickers.id = ticker_id WHERE ticker_id IS NULL order by symbol")
   end
 
   def tickers_with_no_intraday
@@ -62,6 +62,42 @@ module LoadBars
     @logger = logger
     symbols = tickers_with_no_intraday()
     load_tda_intraday(symbols)
+  end
+
+  def set_inactive_with_no_history
+    ids = tickers_with_no_history()
+    ids.each do |id|
+      ticker = Ticker.find id
+      ticker.update_attribute(:active, false)
+    end
+  end
+
+  def load_dailys_for_year(logger, year)
+    symbols = tickers_with_no_history()
+    max = symbols.length
+    count = 1
+    start_date = Date.civil(1999, 1, 1)
+    end_date = Date.civil(2009, 6, 5)
+    for symbol in symbols
+      next if symbol.nil?
+      begin
+        puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
+        logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
+        DailyBar.load_tda_history(symbol, start_date, end_date)
+      rescue Net::HTTPServerException => e
+        if e.to_s.split.first == '400'
+          puts "No data found for #{symbol}"
+          logger.info "No data found for #{symbol}"
+          ticker = Ticker.find_by_symbol(symbol)
+          ticker.increment! :retry_count if ticker
+          ticker.toggle! :active if ticker.retry_count == 12
+        end
+      rescue Exception => e
+        puts "#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}"
+        @logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
+      end
+      count += 1
+    end
   end
 
   def load_tda_dailys(tuples)
@@ -81,7 +117,7 @@ module LoadBars
         if e.to_s.split.first == '400'
           ticker = Ticker.find_by_symbol(symbol)
           ticker.increment! :retry_count if ticker
-          ticker.toggle! :active if ticker.rety_count == 12
+          ticker.toggle! :active if ticker.retry_count == 12
         end
       rescue Exception => e
         puts "#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}"
@@ -94,7 +130,7 @@ module LoadBars
   def load_tda_intraday(tuples)
     count = 1
     max = tuples.length
-    end_date = latest_intrday()
+    end_date = latest_intraday()
     for tuple in tuples
       next if tuple.nil?
       symbol = tuple
@@ -109,7 +145,7 @@ module LoadBars
         if e.to_s.split.first == '400'
           ticker = Ticker.find_by_symbol(symbol)
           ticker.increment! :retry_count if ticker
-          ticker.toggle! :active if ticker.rety_count == 12
+          ticker.toggle! :active if ticker.retry_count == 12
         end
       rescue Exception => e
         puts "#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}"
@@ -119,22 +155,13 @@ module LoadBars
     end
   end
 
-  def load_tda_symbols(logger)
-    @looger = logger
+  def load_tda_symbols()
     FasterCSV.foreach(File.join(RAILS_ROOT, '..', 'etfs.csv')) do |row|
-      industry_id = Industry.find_by_name('etf')
       symbol, name, sector = row
-      puts symbol
-      if (ticker = Ticker.find_by_symbol(symbol))
+      if (ticker = Ticker.find_by_name(symbol)) && ticker.symbol.nil?
         sector_id = Sector.find_by_name(sector)
-        ticker.update_attributes!(:active => true, :etf => true,
-                                  :name => name, :sector_id => sector_id, :industry_id => industry_id)
-        @logger.info("updated #{symbol}")
-      else
-        sector_id = Sector.find_by_name(sector)
-        Ticker.create!(:active => true, :etf => true,
-                       :name => name, :sector_id => sector_id, :industry_id => industry_id)
-        @logger.info("created #{symbol}")
+        puts "Creating #{symbol}"
+        Ticker.create!(:symbol => symbol, :name => name, :sector_id => sector_id, :industry_id => industry_id, :active => true, :etf => true);
       end
     end
   end

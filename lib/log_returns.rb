@@ -23,7 +23,8 @@ module LogReturns
   def initialize_returns(logger)
     self.logger = logger
     self.counter = 1
-    self.count = ticker_ids()
+    self.count = ticker_ids().length
+    debugger
     for ticker_id in ticker_ids()
         ticker = Ticker.transaction do
           ticker = Ticker.find_by_id(ticker_id, :lock => true)
@@ -70,10 +71,9 @@ module LogReturns
       curval = tuples[i].second.to_f
       preval = tuples[i-1].second.to_f
       if preval == 0.0 || curval == 0
-        r, lr = 1.0, 0.0
+        lr = 0.0
       else
-        r = (curval/preval)
-        lr = Math.log(r)
+        lr = Math.log(curval/preval)
       end
       dc = DailyBar.find tuples[i].first
       dc.update_attributes!(:logr => lr)
@@ -82,7 +82,7 @@ module LogReturns
   end
 
   def get_last_close(ticker_id)
-    sql = "SELECT id, adj_close from daily_bars where ticker_id = #{ticker_id} and r IS NOT NULL having max(date)"
+    sql = "SELECT id, close from daily_bars where ticker_id = #{ticker_id} and r IS NOT NULL having max(date)"
     tuples = DailyBar.connection.select_rows(sql)
     if tuples.length != 1
       raise RetiredSymbolException.new(Ticker.find(ticker_id).symbol)
@@ -117,15 +117,14 @@ module LogReturns
     # so we get adj_close/prev_adj_close in all elements
     nr_vec = nclose_vec / nshifted_vec
     nlogr_vec = NMath.log(nr_vec)
-
     # now is just a matter of updating the DailyBar records with the new values
     index = 0
     for rec in recs
         begin
-          rec.update_attributes!(logr => nlogr_vec[index])
+          rec.update_attribute(:logr, nlogr_vec[index])
         rescue Exception => e
-          self.logger.error("#{e.message} for #{ticker_id} at index: #{index}")
-          rec.update_attributes!(:logr => 0.0)
+          self.logger.error("#{e.message} for #{ticker_id} at index: #{index}") unless e.to_s =~ /Infinity/
+          rec.update_attribute(:logr, 0.0)
         else
       end
       index += 1

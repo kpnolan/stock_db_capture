@@ -43,7 +43,6 @@ class Backtester
     startt = Time.now
     ActiveRecord::Base.benchmark("Open Positions", Logger::INFO) do
       for scan_name in pnames
-        debugger
         self.scan = Scan.find_by_name(scan_name)
         # FIXME when a backtest specifies a different set of options, e.g. (:price => :close) we should
         # FIXME invalidate any cached posistions (including and exspecially scans_strategies because the positions will have

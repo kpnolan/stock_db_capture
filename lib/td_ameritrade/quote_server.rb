@@ -66,6 +66,7 @@ module TdAmeritrade
     def intraday_for(symbol, start_date, end_date, minute_resolution, options={})
       buff = quote_for(symbol, start_date, end_date, TdAmeritrade::MINUTE, minute_resolution, options)
       GC.disable
+      @bars = []
       symbol_count, symbol, bar_count = parse_header(buff)
       bar_count.times do
         bar_ary = parse_bar(buff)

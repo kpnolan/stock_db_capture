@@ -1,22 +1,22 @@
 analytics do
   desc "Find all places where RSI gooes heads upwards of 30 and momentum confirms"
-  open_position :rsi_oversold_mom, :threshold => 30, :time_period => 5 do |ts, params|
+  open_position :rsi_oversold_mom, :threshold => 30, :time_period => 14 do |ts, params|
     rsi_memo = ts.rsi params.merge(:noplot => true, :result => :memo)
     rsi_idxs = rsi_memo.under_threshold(params[:threshold], :real)
     mom_memo = ts.mom :time_period => 12, :noplot => true, :result => :memo
     mom_idxs = mom_memo.under_threshold(0, :real)
-    tuples = ts.intersect(rsi_idxs, mom_idxs, 1.week)
-    tuples.map { |tuple| tuple.first }
+    tuples = ts.intersect(mom_idxs, rsi_idxs, 7)
+    tuples.empty? ? [] : tuples.map { |tuple| tuple.first }
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 and momentum confirms"
   close_position :rsi_oversold_mom, :threshold => 70, :time_period => 5 do |ts, params|
     rsi_memo = ts.rsi params.merge(:noplot => true, :result => :memo)
     rsi_idxs = rsi_memo.under_threshold(params[:threshold], :real)
-    mom_memo = ts.mom :time_period => 12, :noplot => true, :result => :memo
-    mom_idxs = mom_memo.over_threshold(0, :real)
-    tuples = ts.intersect(rsi_idxs, mom_idxs, 1.week)
-    tuples.map { |tuple| tuple.first }
+#    mom_memo = ts.mom :time_period => 12, :noplot => true, :result => :memo
+#    mom_idxs = mom_memo.over_threshold(0, :real)
+#    tuples = ts.intersect(mom_idxs, rsi_idxs, 7)
+#    tuples.empty? ? [] : tuples.map { |tuple| tuple.second }
   end
 end
 
@@ -32,5 +32,7 @@ populations do
 end
 
 backtests(:price => :close) do
-  apply(:rsi_oversold_mom, :liquid_2008)
+  apply(:rsi_oversold_mom, :liquid_2008) do
+    IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "delta.csv"), "w"), "w") { |io| io.puts($deltas.join(', ')) }
+  end
 end

@@ -1,11 +1,11 @@
 # == Schema Information
-# Schema version: 20090610015332
+# Schema version: 20090611141759
 #
 # Table name: intra_day_bars
 #
 #  id           :integer(4)      not null, primary key
 #  ticker_id    :integer(4)
-#  interval     :integer(4)
+#  period       :integer(4)
 #  start_time   :datetime
 #  open         :float
 #  close        :float
@@ -43,7 +43,7 @@ class IntraDayBar < ActiveRecord::Base
       start_date = start_date.class == String ? Date.parse(start_date) : start_date
       end_date = end_date.class == String ? Date.parse(end_date) : end_date
       @@qs ||= TdAmeritrade::QuoteServer.new()
-      @interval = resolution
+      @period = resolution
       @accum_volume = 0
       @last_date = nil
       @last_close = 0.0
@@ -57,7 +57,7 @@ class IntraDayBar < ActiveRecord::Base
       attrs = COLUMN_ORDER.inject({}) { |h, col| h[col] = bar.shift; h }
       attrs[:ticker_id] = ticker_id
       attrs[:volume] = attrs[:volume].to_i
-      attrs[:interval] = @interval
+      attrs[:period] = @period
       if attrs[:start_time].to_date == @last_date
         @accum_volume += attrs[:volume]
         attrs[:delta] = attrs[:close] - @last_close

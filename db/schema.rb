@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090610015332) do
+ActiveRecord::Schema.define(:version => 20090611141759) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -68,7 +68,7 @@ ActiveRecord::Schema.define(:version => 20090610015332) do
     t.float   "low"
   end
 
-  add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_bars_on_ticker_id_and_date"
+  add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_bars_on_ticker_id_and_date", :unique => true
 
   create_table "derived_value_types", :force => true do |t|
     t.string "name"
@@ -103,7 +103,7 @@ ActiveRecord::Schema.define(:version => 20090610015332) do
 
   create_table "intra_day_bars", :force => true do |t|
     t.integer  "ticker_id"
-    t.integer  "interval"
+    t.integer  "period"
     t.datetime "start_time"
     t.float    "open"
     t.float    "close"

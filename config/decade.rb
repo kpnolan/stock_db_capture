@@ -66,5 +66,7 @@ populations do
 end
 
 backtests(:price => :close) do
-  apply(:rsi_oversold, :liquid_2008)
+  apply(:rsi_oversold, :liquid_2008) do
+    make_test()
+  end
 end

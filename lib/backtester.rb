@@ -17,14 +17,15 @@ end
 
 class Backtester
   attr_accessor :tid_array, :ticker, :date_range, :ts, :result_hash, :meta_data_hash, :strategy, :opening, :closing, :scan
-  attr_reader :pnames, :sname, :desc, :options
+  attr_reader :pnames, :sname, :desc, :options, :post_process
 
-  def initialize(strategy_name, population_names, description, options)
+  def initialize(strategy_name, population_names, description, options, &block)
     @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false
     @sname = strategy_name
     @pnames = population_names
     @desc = description
     @positions = []
+    @post_process = block
 
     raise BacktestException.new("Cannot find strategy: #{sname.to_s}") unless $analytics.has_pair?(sname)
 
@@ -96,6 +97,7 @@ class Backtester
       delta = endt - startt
       deltam = delta/60.0
       logger.info "Backtest (close positions) elapsed time: #{deltam} minutes"
+      post_process.call if post_process
     end
   end
 

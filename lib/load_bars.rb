@@ -20,10 +20,6 @@ module LoadBars
     end
   end
 
-  def latest_intraday
-    Date.parse('05/29/2009')
-  end
-
   def tickers_with_full_history
     sql = "select symbol from daily_closes left outer join tickers on ticker_id = tickers.id  group by ticker_id having min(date) = '20000103' order by symbol"
     DailyClose.connection.select_values(sql)
@@ -127,13 +123,11 @@ module LoadBars
     end
   end
 
-  def load_tda_intraday(tuples)
+  def load_tda_intraday(symbols)
     count = 1
-    max = tuples.length
-    end_date = latest_intraday()
-    for tuple in tuples
-      next if tuple.nil?
-      symbol = tuple
+    max = symbols.length
+    end_date = latest_date()
+    for symbol in symbols
       start_date = end_date - 6.months
       td = trading_days(start_date..end_date).length
       next if td.zero?

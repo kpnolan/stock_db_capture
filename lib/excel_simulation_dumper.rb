@@ -44,7 +44,6 @@ module ExcelSimulationDumper
           csv << row
           csv.flush
         else
-          debugger
           puts "#{symbol}\t#{entry_date.to_s}\t#{ts.length} <<<<<<<<<<<<<"
         end
       end

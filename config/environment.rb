@@ -97,13 +97,19 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   #ts(:msft, Date.parse('01/01/2008')..Date.parse('12/31/2008'), 1.day, :populate => true)
 
   def lookup(symbol, start_date, end_date=nil, options={})
+    options.reverse_merge! :interval => 1.day.seconds
     begin
       $qs ||= TdAmeritrade::QuoteServer.new
       start_date = start_date.is_a?(Date) ? start_date : Date.parse(start_date)
       end_date = end_date.nil? ? start_date : end_date.is_a?(Date) ? end_date : Date.parse(end_date)
-      td = trading_days(start_date..end_date).length
-      puts "#{td} trading days in period specified"
-      $qs.dailys_for(symbol, start_date, end_date, options) #unless td.zero?
+      if options[:interval] == 1.day.seconds
+        td = trading_days(start_date..end_date).length
+        puts "#{td} trading days in period specified"
+        $qs.dailys_for(symbol, start_date, end_date, options) #unless td.zero?
+      else
+        period = options[:interval] < 60 ? options[:interval] : options[:interval]/60
+        $qs.intraday_for(symbol, start_date, end_date, period, options)
+      end
     rescue Net::HTTPServerException => e
       puts "No Data Found for #{symbol}" if e.to_s.split.first == '400'
     rescue Exception => e
@@ -111,6 +117,8 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
     end
   end
 end
+
+$deltas = []
 
 #puts "RAILS_ENV: #{RAILS_ENV}"
 #puts "ENV['RAILS_ENV']: #{ENV['RAILS_ENV']}"

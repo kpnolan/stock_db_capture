@@ -22,7 +22,7 @@ class IntraDayBar < ActiveRecord::Base
 
   belongs_to :ticker
 
-  schema_validations :only => :ticker_id
+  schema_validations :only => :id
 
   include TradingCalendar
   extend TableExtract
@@ -72,6 +72,12 @@ class IntraDayBar < ActiveRecord::Base
       end
       begin
         create! attrs
+      rescue ActiveRecord::StatementInvalid => e
+        if e.to_s =~ /Duplicate/
+          raise e
+        else
+          puts "#{attrs[:date]}:#{e.to_s}"
+        end
       rescue Exception => e
         puts "#{attrs[:date]}:#{e.to_s}"
       end

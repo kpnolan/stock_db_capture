@@ -30,6 +30,11 @@ module LoadBars
     DailyBar.connection.select_rows(sql)
   end
 
+  def tickers_with_lagging_intraday
+    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id order by symbol"
+    DailyBar.connection.select_rows(sql)
+  end
+
  #    def tickers_with_lagging_history
  #   sql = "select symbol, max(date) from intrday_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
  #   DailyBar.connection.select_rows(sql)
@@ -45,7 +50,8 @@ module LoadBars
   end
 
   def tickers_with_no_intraday
-    IntraDayBar.connection.select_values("select symbol from intra_day_bars right outer join tickers on ticker_id = tickers.id where ticker_id is null order by symbol")
+    dir = ENV['INTRA_DAY'] == '2' ? 'DESC' : ''
+    IntraDayBar.connection.select_values("select symbol from intra_day_bars right outer join tickers on ticker_id = tickers.id where ticker_id is null order by symbol #{dir}")
   end
 
   def update_daily_history(logger)
@@ -141,6 +147,10 @@ module LoadBars
           ticker.increment! :retry_count if ticker
           ticker.toggle! :active if ticker.retry_count == 12
         end
+      rescue ActiveRecord::StatementInvalid => e
+        puts "Duplicate symbol/time #{symbol} aborting..."
+        @logger.error("Duplicate symbol/time #{symbol} aborting...")
+        exit
       rescue Exception => e
         puts "#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}"
         @logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")

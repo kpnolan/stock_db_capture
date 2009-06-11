@@ -1,4 +1,4 @@
-#!/usr/bin/env /work/tdameritrade/stock_db_capture/script/runner
+#!/usr/bin/env ./script/runner
 
 ENV['RAILS_ENV'] = 'production'
 

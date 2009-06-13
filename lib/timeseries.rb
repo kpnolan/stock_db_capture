@@ -4,6 +4,7 @@ class Timeseries
   include TechnicalAnalysis
   include UserAnalysis
   include CompositeAnalysis
+  include ResultAnalysis
   include CsvDumper
   include Enumerable
 
@@ -16,7 +17,7 @@ class Timeseries
   attr_accessor :symbol, :ticker_id, :source_model, :value_hash, :enum_index, :enum_attrs
   attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results
-  attr_accessor :timevec, :time_map, :local_range, :price
+  attr_accessor :timevec, :time_map, :local_range, :price, :index_range
 
   def initialize(symbol_or_id, local_range, time_resolution, options={})
     options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true, :populate => true, :post_buffer => false
@@ -60,6 +61,10 @@ class Timeseries
 
   def inspect
     super
+  end
+
+  def outidx
+    @index_range.begin
   end
 
   def to_file(value)
@@ -106,6 +111,22 @@ class Timeseries
 
   def clear_results
     self.derived_values = []
+  end
+
+  def vector_for(sym_or_pair)
+    derived_values.each do |memo|
+      case
+      when sym_or_pair.is_a?(Symbol) &&
+           memo.result_hash.has_key?(sym_or_pair)                       : return memo.result_hash[sym_or_pair]
+      when sym_or_pair.is_a?(Array) && sym_or_pair.first == memo.fcn &&
+           memo.result_hash.hash_key?(sym_or_pair.second)               : return memo.result_hash[sym_or_pair.second]
+      end
+    end
+    if sym_or_pair.is_a?(Symbol) && value_hash.has_key?(sym_or_pair)
+      value_hash[sym_or_pair][index_range].to_gv
+    else
+      raise ArgumentError, "Cannot find #{sym_or_pair}"
+    end
   end
 
   def reset_price(expression = :default)
@@ -162,6 +183,8 @@ class Timeseries
     lookback_fun ? Talib.send(lookback_fun, *args) : args.sum
   end
 
+  # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
+
   def calc_indexes(loopback_fun, *args)
     if self.local_range.is_a? Date
       begin_time = self.local_range.to_time
@@ -173,7 +196,8 @@ class Timeseries
     begin_index = time2index(begin_time, -1)
     end_index = time2index(end_time, 1)
     self.output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
-    return begin_index..end_index
+    raise ArgumentError, "Only subset of Date Range available, pre-buffer at least #{output_offset} more trading days" if output_offset > 0
+    @index_range = begin_index..end_index
   end
 
   def time2index(time, direction, raise_on_range_error=true)
@@ -213,7 +237,7 @@ class Timeseries
   end
 
   def memo
-    derived_values.first
+    derived_values.last
   end
 
   def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)
@@ -301,6 +325,8 @@ class ParamBlock
     self.names = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names
     self.timeseries = ts
     self.result_hash = {}
+
+    raise ArgumentError, "Output Index is not same as Index Rage, increase pre-buffer" if outidx != index_range.begin
 
     self.names.each_with_index { |name, idx| self.result_hash[name.to_sym] = vectors[idx] }
   end

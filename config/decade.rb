@@ -42,15 +42,17 @@
 
 analytics do
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :rsi_oversold, :threshold => 20, :time_period => 5 do |ts, params|
-      memo = ts.rsi params.merge(:noplot => true, :result => :memo)
-      memo.under_threshold(params[:threshold], :real)
+  open_position :rsi_oversold, :threshold => 30, :time_period => 5 do |ts, params|
+      rsi = ts.rsi params.merge(:noplot => true, :result => :memo)
+      rsi.under_threshold(params[:threshold], :real)
   end
 
-  desc "Find all places where RSI gooes heads upwards of 70"
-  close_position :rsi_oversold, :threshold => 80, :time_period => 5 do |ts, params|
-    memo = ts.rsi params.merge(:noplot => true, :result => :memo)
-    memo.under_threshold(params[:threshold], :real)
+  desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
+  close_position :rsi_oversold, :threshold => 70, :time_period => 5 do |ts, params|
+    rsi = ts.rsi params.merge(:noplot => true, :result => :memo)
+    under_30 = rsi.over_threshold(30, :real)
+    over_70 = rsi.under_threshold(70, :real)
+    under_30.first < over_70.first ? under_30.first : over_70.first
   end
 end
 
@@ -67,6 +69,6 @@ end
 
 backtests(:price => :close) do
   apply(:rsi_oversold, :liquid_2008) do
-    make_test()
+#    make_test()
   end
 end

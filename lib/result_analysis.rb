@@ -1,6 +1,8 @@
 require 'rubygems'
 require 'gsl'
 
+# This module is dependent on two methods begin available in the enclosing environment: vector_for, outidx
+
 # OPTIMIZE We should have two forms of each of this functions: one finds a vector of crossing and the other finds the first one
 # OPTIMIZE since when closing a position we are generally interested in the first event as opposed to opening positions where
 # OPTIMIZE we want to open positions for every crossing

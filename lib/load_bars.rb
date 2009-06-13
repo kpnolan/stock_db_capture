@@ -16,7 +16,7 @@ module LoadBars
     if time.hour >= 18
       @cur_date ||= time.to_date
     else
-      @cur_date ||= time.to_date - 1.day
+      @cur_date ||= time.to_date - 2.day
     end
   end
 
@@ -52,6 +52,11 @@ module LoadBars
   def tickers_with_no_intraday
     dir = ENV['INTRA_DAY'] == '2' ? 'DESC' : ''
     IntraDayBar.connection.select_values("select symbol from intra_day_bars right outer join tickers on ticker_id = tickers.id where ticker_id is null order by symbol #{dir}")
+  end
+
+  def tickers_with_lagging_intrday
+    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on tickers.id = ticker_id where active = 1 group by ticker_id"
+    IntraDayBar.connections.select_rows(sql)
   end
 
   def update_daily_history(logger)
@@ -110,7 +115,7 @@ module LoadBars
       symbol, max_date = tuple
       start_date = Date.parse(max_date) + 1.day
       td = trading_days(start_date..end_date).length
-      next if td.zero?
+      next if td - 1 == 0
       begin
         puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
@@ -136,11 +141,11 @@ module LoadBars
     for symbol in symbols
       start_date = end_date - 6.months
       td = trading_days(start_date..end_date).length
-      next if td.zero?
+      next if td - 1 == 0
       begin
         puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
-        IntraDayBar.load_tda_history(symbol, start_date, end_date)
+        IntraDayArchive.load_tda_history(symbol, start_date, end_date)
       rescue Net::HTTPServerException => e
         if e.to_s.split.first == '400'
           ticker = Ticker.find_by_symbol(symbol)

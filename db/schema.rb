@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090611141759) do
+ActiveRecord::Schema.define(:version => 20090612175413) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -101,6 +101,19 @@ ActiveRecord::Schema.define(:version => 20090611141759) do
     t.string "name"
   end
 
+  create_table "intra_day_archives", :id => false, :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "period"
+    t.datetime "start_time"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.integer  "accum_volume"
+    t.float    "delta"
+  end
+
   create_table "intra_day_bars", :force => true do |t|
     t.integer  "ticker_id"
     t.integer  "period"
@@ -108,10 +121,10 @@ ActiveRecord::Schema.define(:version => 20090611141759) do
     t.float    "open"
     t.float    "close"
     t.float    "high"
-    t.integer  "volume"
-    t.float    "delta"
     t.float    "low"
-    t.float    "accum_volume"
+    t.integer  "volume"
+    t.integer  "accum_volume"
+    t.float    "delta"
   end
 
   create_table "intra_snapshots", :force => true do |t|

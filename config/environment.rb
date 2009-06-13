@@ -75,10 +75,12 @@ require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
 require 'excel_simulation_dumper'
+require 'visualize_entry'
 require 'ruby-debug'
 
 include TradingCalendar
 include ExcelSimulationDumper
+include VisualizeEntry
 
 # ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
 # ARGV[0] contains the name of the rake task otherwise. Since, at this point, we don't have any rake
@@ -92,7 +94,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   USER_META_INFO_HASH.underscore_keys!
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
-  ts(:rri, Date.civil(2008, 7, 15)..Date.civil(2008,12, 15), 1.day)
+  #ts(:rri, Date.civil(2008, 7, 15)..Date.civil(2008,12, 15), 1.day)
 
   #ts(:msft, Date.parse('01/01/2008')..Date.parse('12/31/2008'), 1.day, :populate => true)
 
@@ -117,8 +119,6 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
     end
   end
 end
-
-$deltas = []
 
 #puts "RAILS_ENV: #{RAILS_ENV}"
 #puts "ENV['RAILS_ENV']: #{ENV['RAILS_ENV']}"

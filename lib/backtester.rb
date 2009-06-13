@@ -130,13 +130,12 @@ class Backtester
     begin
       ts = Timeseries.new(p.ticker_id, p.entry_date..(p.entry_date+4.months), 1.day,
                           :pre_buffer => 30, :post_buffer => 7)
-      indexes = closing.block.call(ts, closing.params)
-      if indexes.empty?
+      index = closing.block.call(ts, closing.params)
+      if indexes.nil?
         p.update_attributes!(:exit_price => nil, :exit_date => nil,
                              :days_held => nil, :nreturn => nil,
                              :risk_factor => nil)
       else
-        index = indexes.first
         price = ts.value_at(index, :close)
         exit_trigger = ts.memo.result_for(index)
         edate = p.entry_date.to_date

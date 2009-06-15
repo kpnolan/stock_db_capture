@@ -59,11 +59,16 @@ class Backtester
         sdate = scan.start_date
         edate = scan.end_date
         self.date_range = sdate..edate
+        unless opening.params[:time_period].nil?
+          post_buffer = opening.params[:time_period]
+        else
+          post_buffer = 10
+        end
         # Foreach ticker in the population, create a timeseries for the date range given with the population
         # and run the analysis given with the strategy on said timeseries
         for tid in tid_array
           self.ticker = Ticker.find tid
-          ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options.merge(:post_buffer => 7))
+          ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options.merge(:post_buffer => post_buffer))
           open_positions(ts, opening.params)
         end
         strategy.scans << scan
@@ -109,10 +114,15 @@ class Backtester
     begin
       open_indexes = opening.block.call(ts, params)
       for index in open_indexes
-        price = ts.value_at(index, :close)
-        date = ts.index2time(index)
-        debugger if date.nil?
-        entry_trigger = ts.memo.result_for(index)
+        next if index.nil?
+        begin
+          price = ts.value_at(index, :close)
+          date = ts.index2time(index)
+          debugger if date.nil?
+          entry_trigger = ts.memo.result_for(index)
+        rescue
+          next
+        end
         #TODO wipe all positions associated with the strategy if the strategy changes
         position = Position.open(scan, strategy, ticker, date, price, entry_trigger, params[:short])
         strategy.positions << position
@@ -131,7 +141,7 @@ class Backtester
       ts = Timeseries.new(p.ticker_id, p.entry_date..(p.entry_date+4.months), 1.day,
                           :pre_buffer => 30, :post_buffer => 7)
       index = closing.block.call(ts, closing.params)
-      if indexes.nil?
+      if index.nil?
         p.update_attributes!(:exit_price => nil, :exit_date => nil,
                              :days_held => nil, :nreturn => nil,
                              :risk_factor => nil)

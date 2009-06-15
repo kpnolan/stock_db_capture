@@ -87,7 +87,7 @@ module UserAnalysis
 # DENUM = SUM (VALUE2, N)
 # RVI = NUM / DENUM
 # RVISig = (RVI + 2 * RVI (1) + 2 * RVI (2) + RVI (3)) / 6
-  # Relative 
+  # Relative
   def rvig(options={})
     options.reverse_merge! :time_period => 10
     idx_range = calc_indexes(nil, options[:time_period], 6)
@@ -121,5 +121,14 @@ module UserAnalysis
     result = [0, idx_range.begin, rvi[3..rlen-1], rviSig]
     memoize_result(self, :rvig, idx_range, options, result, :financebars)
     nil
+  end
+
+  def linreg(entry_index, options={ })
+    options.reverse_merge! :time_period => 5
+    idx_range = calc_indexes(nil, options[:time_period], 0)
+    xvec = GSL::Vector.linspace(0, options[:time_period], options[:time_period])
+    close_vec = close[entry_index...(entry_index+options[:time_period])]
+    ret_vec = GSL::Fit::linear(xvec, close_vec)
+    return ret_vec.second
   end
 end

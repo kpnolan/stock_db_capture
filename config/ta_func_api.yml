@@ -3365,7 +3365,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outRsi
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:

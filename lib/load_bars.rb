@@ -51,11 +51,11 @@ module LoadBars
 
   def tickers_with_no_intraday
     dir = ENV['INTRA_DAY'] == '2' ? 'DESC' : ''
-    IntraDayBar.connection.select_values("select symbol from intra_day_bars right outer join tickers on ticker_id = tickers.id where ticker_id is null order by symbol #{dir}")
+    IntraDayBar.connection.select_values("select symbol from intra_day_archive right outer join tickers on ticker_id = tickers.id where ticker_id is null order by symbol #{dir}")
   end
 
   def tickers_with_lagging_intrday
-    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on tickers.id = ticker_id where active = 1 group by ticker_id"
+    sql = "select symbol, max(date(start_time)) from intra_day_archive left outer join tickers on tickers.id = ticker_id where active = 1 group by ticker_id"
     IntraDayBar.connections.select_rows(sql)
   end
 

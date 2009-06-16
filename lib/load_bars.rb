@@ -51,7 +51,7 @@ module LoadBars
 
   def tickers_with_no_intraday
     dir = ENV['INTRA_DAY'] == '2' ? 'DESC' : ''
-    IntraDayBar.connection.select_values("select symbol from intra_day_archive right outer join tickers on ticker_id = tickers.id where ticker_id is null order by symbol #{dir}")
+    IntraDayBar.connection.select_values("select symbol from intra_day_bars right outer join tickers on ticker_id = tickers.id where ticker_id is null and active = 1 order by symbol #{dir}")
   end
 
   def tickers_with_lagging_intrday
@@ -145,7 +145,7 @@ module LoadBars
       begin
         puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
-        IntraDayArchive.load_tda_history(symbol, start_date, end_date)
+        IntraDayBar.load_tda_history(symbol, start_date, end_date)
       rescue Net::HTTPServerException => e
         if e.to_s.split.first == '400'
           ticker = Ticker.find_by_symbol(symbol)

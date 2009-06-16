@@ -42,26 +42,26 @@
 
 analytics do
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :rsi_oversold, :threshold => 30, :time_period => 14 do |ts, params|
+  open_position :rsi_rvi, :threshold => 30, :time_period => 14 do |ts, params|
     rsi5_30 = ts.rsi params.merge(:noplot => true, :result => :memo)
     indexes = rsi5_30.under_threshold(params[:threshold], :rsi)
     indexes.map do |start_index|
-      slope = ts.linreg(start_index, :time_period => 10)
-      slope > 0.0 ? start_index : nil
+      slope = ts.linreg(start_index, :time_period => 10, :noplot => true)
+      slope > 0.01 ? start_index : nil
     end
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  close_position :rsi_oversold, :threshold => 70, :time_period => 14 do |ts, params|
+  close_position :rsi_rvi, :threshold => 70, :time_period => 14 do |ts, params|
     rsi5_70 = ts.rsi params.merge(:noplot => true, :result => :memo)
-    rsi5_30 = ts.rsi :time_period => 14, :noplot => true, :result => :memo
+    rvi = ts.rvi :time_period => 14, :noplot => true, :result => :memo
     r70 = rsi5_70.under_threshold(70, :rsi).first
-    r30 = rsi5_30.over_threshold(30, :rsi).first
+    r40 = rvi.over_threshold(40, :rvi).first
     case
-    when r70 && r30 : min(r30, r70)
-    when r70.nil? && r30.nil? : nil
-    when r70.nil? : r30
-    when r30.nil? : r70
+      when r70.nil? && r40 : r40
+      when r70 && r40 : min(r70, r40)
+      when r40.nil? : nil
+      when r40 : r40
     end
   end
 end
@@ -78,7 +78,7 @@ populations do
 end
 
 backtests(:price => :close) do
-  apply(:rsi_oversold, :liquid_2008) do
+  apply(:rsi_rvi, :liquid_2008) do
 #    make_test()
   end
 end

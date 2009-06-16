@@ -16,7 +16,7 @@ module LoadBars
     if time.hour >= 18
       @cur_date ||= time.to_date
     else
-      @cur_date ||= time.to_date - 2.day
+      @cur_date ||= time.to_date - 1.day
     end
   end
 

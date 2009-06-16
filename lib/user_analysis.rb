@@ -34,7 +34,6 @@ module UserAnalysis
     out = (rvi_1(high, options) + rvi_1(low, options)).scale(0.5)
     result = [0, idx_range.begin, out]
     memoize_result(self, :rvi, idx_range, options, result, :financebars)
-    nil
   end
 
   def rvi_1(price, options)
@@ -124,11 +123,16 @@ module UserAnalysis
   end
 
   def linreg(entry_index, options={ })
-    options.reverse_merge! :time_period => 5
+    options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(nil, options[:time_period], 0)
     xvec = GSL::Vector.linspace(0, options[:time_period], options[:time_period])
     close_vec = close[entry_index...(entry_index+options[:time_period])]
     ret_vec = GSL::Fit::linear(xvec, close_vec)
+    unless options[:noplot]
+      out_vec = xvec.to_a.map { |x| x * ret_vec.second + value_at(entry_index, :close)}
+      result = [ 0, entry_index, out_vec ]
+      memoize_result(self, :linreg, entry_index...(entry_index+options[:time_period]), options, result, :overlap)
+    end
     return ret_vec.second
   end
 end

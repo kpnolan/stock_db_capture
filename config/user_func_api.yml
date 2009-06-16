@@ -1,7 +1,7 @@
 --- #YAML:1.0
 FinancialFunctions:
   FinancialFunction:
-    - Abbreviation: linear_regression
+    - Abbreviation: linreg
       CamelCaseName: LinearRegression
       Flags:
         Flag: Overlap
@@ -10,7 +10,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outRegression
+          Name: outLinreg
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:

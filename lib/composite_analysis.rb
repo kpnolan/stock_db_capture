@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 module CompositeAnalysis
   def intersect(idx_ary1, idx_ary2, overlap_period)
     tuples = []

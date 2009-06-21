@@ -1,3 +1,13 @@
+# Class: Timeseries
+#
+# This is the work-horse class for the entire reset of the system.
+# Every sample of bar data is eventually converted to a timeseries
+# upon with every indicator must operate.
+# An element of a Timeseries is an entire bar (OHLCV) + logr (log return).
+# A Timerseries can have gaps and can have multiple resolutions, e.g. daily, intraday(5,6,15,30)
+#
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class Timeseries
 
   include Plot
@@ -52,7 +62,7 @@ class Timeseries
     apply_options(options)
     options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
-    reset_price(:close)
+    set_price(options[:price])
   end
 
   def to_s
@@ -105,7 +115,7 @@ class Timeseries
   end
 
   def find_result(fcn, options={})
-    values = derived_values.select { |pb| pb.match(fcn, options) }
+    values = derived_values.reverse.select { |pb| pb.match(fcn, options) }
     return values.first unless values.empty?
   end
 
@@ -129,14 +139,14 @@ class Timeseries
     end
   end
 
-  def reset_price(expression = :default)
-    if expression == :default
-      self.price = (high+low).scale(0.5)
-    elsif expression.is_a? Symbol
-      self.price = send(expression)
-    elsif expression.is_a? String
-      self.price = instance_eval(expression)
-    end
+  def set_price(expression = :default)
+    self.price = case
+                 when expression == :default      : close
+                 when expression == :average      : (high+low).scale(0.5)
+                 when expression == :all          : (open+close+high+low).scale(0.25)
+                 when expression.is_a?(Symbol)    : send(expression)
+                 when expression.is_a?(String)    : instance_eval(expression)
+                 end
   end
 
   def select_by_resolution(period)
@@ -229,7 +239,7 @@ class Timeseries
 
   def index2time(index, offset=0)
     return nil if index >= timevec.length
-    timevec[index] ? timevec[index].send(source_model.time_convert) : nil
+    timevec[index+offset] ? timevec[index+offset].send(source_model.time_convert) : nil
   end
 
   def length
@@ -259,7 +269,8 @@ class Timeseries
     when :keys  : pb.keys
     when :memo  : pb
     when :raw   : results
-    when :file  : IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{fcn.to_s}.csv"), "w"), "w") { |io| io.puts(results.first.to_a.join(', ')) }
+    when :filer  : IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{fcn.to_s}.csv"), "w"), "w") { |io| io.puts(results.first.to_a.join(', ')) }
+    when :filec  : IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{fcn.to_s}.csv"), "w"), "w") { |io| io.puts(results.first.to_a.join("\n")) }
     else        nil
     end
   end
@@ -270,7 +281,7 @@ class Timeseries
 
   def find_memo(fcn_symbol, time_range=nil, options={})
     fcn = fcn_symbol.to_sym
-    derived_values.find do |pb|
+    derived_values.reverse.find do |pb|
       pb.function == fcn_symbol &&
         (time_range.nil? || pb.time_range == time_range) &&
         (options.empty? || pb.options == options)
@@ -302,6 +313,7 @@ end
 class ParamBlock
 
   include ResultAnalysis
+  include Enumerable
 
   attr_accessor :timeseries
   attr_accessor :function
@@ -344,6 +356,13 @@ class ParamBlock
     else
       raise ArgumentError, "#{function}.#{sym} is not available"
     end
+  end
+
+  # FIXME this only fetches the first result of a possilby multi-result indicator
+  # FIXME I'm not sure how to get around this as you cannot pass parameters to each (I don't think)
+  def each
+    i = -1
+    vectors.first.each { |e| i+=1; yield [e, timeseries.index2time(i, outidx)] }
   end
 
   def match(fcn, options={})

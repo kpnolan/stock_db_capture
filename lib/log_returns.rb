@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'rubygems'
 require 'narray'
 require 'retired_symbol_exception'
@@ -10,8 +12,12 @@ module LogReturns
   Infinity = 1.0/0.0
   MinusInfinity = -1.0/0.0
 
-  def ticker_ids
-    @rnulls ||= DailyBar.connection.select_values('SELECT DISTINCT ticker_id FROM daily_bars LEFT OUTER JOIN tickers on tickers.id = ticker_id WHERE logr IS NULL ORDER BY symbol')
+  def ticker_ids(year=nil)
+    if year.nil?
+      @rnulls ||= DailyBar.connection.select_values('SELECT DISTINCT ticker_id FROM daily_bars LEFT OUTER JOIN tickers on tickers.id = ticker_id WHERE logr IS NULL ORDER BY symbol')
+    else
+      @rnulls ||= DailyBar.connection.select_values("SELECT DISTINCT ticker_id FROM daily_bars LEFT OUTER JOIN tickers on tickers.id = ticker_id WHERE date BETWEEN '#{year}0101' and '#{year}1231' ORDER BY symbol")
+    end
   end
 
   def all_ticker_ids
@@ -21,9 +27,11 @@ module LogReturns
   # This method computes the return, log return, and anunalized_returns for all returns for a given
   # ticker at once using vector math, so it's very fast
   def initialize_returns(logger)
+    year = ENV['YEAR']
+    year = year.to_i if year
     self.logger = logger
     self.counter = 1
-    self.count = ticker_ids().length
+    self.count = ticker_ids(year).length
     for ticker_id in ticker_ids()
         ticker = Ticker.transaction do
           ticker = Ticker.find_by_id(ticker_id, :lock => true)
@@ -35,7 +43,8 @@ module LogReturns
         next if ticker.nil?
       begin
         symbol = ticker.symbol
-        compute_vectors_and_update(symbol, ticker_id)
+        compute_vectors_and_update(symbol, ticker_id) unless year
+        compute_vectors_and_update(symbol, ticker_id, Date.civil(year,1,1)..Date.civil(year,12,31)) if year
         self.counter += 1
       rescue Exception => e
         puts e.message
@@ -98,14 +107,21 @@ module LogReturns
   end
 
   # This function replaces
-  def compute_vectors_and_update(symbol, ticker_id)
-    recs = DailyBar.find_all_by_ticker_id(ticker_id, :order => 'date')
+  def compute_vectors_and_update(symbol, ticker_id, date_range=nil)
+    conditions = date_range.nil? ? { } : { :date => date_range }
+    recs = DailyBar.find_all_by_ticker_id(ticker_id, :conditions => conditions, :order => 'date')
 
     logger.info("computing #{recs.length} returns for #{symbol} (#{counter} out of #{count})")
 
     close_vec = recs.map { |rec| rec.close }
     close_vec1 = close_vec.dup
-    close_vec1.unshift(close_vec.first)
+
+    prev_bar = nil
+    if date_range
+      prev_date = trading_days_from(date_range.begin, 1, -1).last
+      prev_bar = DailyBar.find_by_ticker_id_and_date(ticker_id, prev_date)
+    end
+    close_vec1.unshift(prev_bar ? prev_bar.close : close_vec.first)
     close_vec.push(close_vec.last)
 
     # compute returns by duplicating the adjusted_close vector and shifting it right one

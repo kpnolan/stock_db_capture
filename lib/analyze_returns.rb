@@ -1,7 +1,7 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'rubygems'
 require 'rbgsl'
-require 'ruby-debug'
-
 
 module AnalyzeReturns
 

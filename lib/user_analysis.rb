@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 include GSL
 
 module UserAnalysis
@@ -119,13 +121,12 @@ module UserAnalysis
     rlen = rvi.len
     result = [0, idx_range.begin, rvi[3..rlen-1], rviSig]
     memoize_result(self, :rvig, idx_range, options, result, :financebars)
-    nil
   end
 
   def linreg(entry_index, options={ })
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(nil, options[:time_period], 0)
-    xvec = GSL::Vector.linspace(0, options[:time_period], options[:time_period])
+    xvec = GSL::Vector.linspace(0, options[:time_period]-1, options[:time_period])
     close_vec = close[entry_index...(entry_index+options[:time_period])]
     ret_vec = GSL::Fit::linear(xvec, close_vec)
     unless options[:noplot]
@@ -134,5 +135,54 @@ module UserAnalysis
       memoize_result(self, :linreg, entry_index...(entry_index+options[:time_period]), options, result, :overlap)
     end
     return ret_vec.second
+  end
+
+  def lrsigma(options={ })
+    options.reverse_merge! :time_period => 14
+    idx_range = calc_indexes(nil, options[:time_period], 0)
+    xvec = GSL::Vector.linspace(0, options[:time_period], options[:time_period])
+    slopevec = []
+    chi = []
+    sumvec = []
+    today = idx_range.begin - options[:time_period]
+    while today < idx_range.end - options[:time_period]
+      close_vec = close[today...(today+options[:time_period])]
+      ret_vec = GSL::Fit::linear(xvec, close_vec)
+      slopevec << ret_vec.second
+      sumvec << slopevec.sum
+      chi << Math.sqrt(ret_vec[5])
+      today += 1
+    end
+    result = [0, idx_range.begin, sumvec, chi]
+    memoize_result(self, :lrsigma, index_range, options, result, :financebars)
+  end
+
+  def nreturn(options={ })
+    idx_range = calc_indexes(nil)
+    options.reverse_merge! :basis_index => idx_range.begin
+    close_vec = close.to_gv
+    len = close_vec.len
+    denom = GSL::Vector.linspace(1, len, len)
+    entry_price = close[options[:basis_index]]
+    outvec = ((close_vec - entry_price)/entry_price)/denom
+    result = [0, indx_range.begin, outvect]
+    memoize_result(self, :nreturn, index_range, options, result, :financebars)
+  end
+
+  def identity(options={})
+    options.reverse_merge! :slot => :close
+    idx_range = calc_indexes(nil)
+    vec = send(options[:slot])[idx_range]
+    result = [0, idx_range.begin, vec]
+    memoize_result(self, :identity, idx_range, options, result, :financebars)
+  end
+
+  def calculate(options={})
+    raise ArgumentError, "the option :expr must contain a string representing to calculation to perform" if options[:expr].nil? or options[:expr] == ''
+    idx_range = calc_indexes(nil)
+    expr_string = options[:expr]
+    vec = instance_eval(expr_string)
+    result = [0, idx_range.begin, vec[idx_range]]
+    memoize_result(self, :calculate, idx_range, options, result, :financebars)
   end
 end

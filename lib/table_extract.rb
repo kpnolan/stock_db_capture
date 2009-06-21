@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 module TableExtract
 
   FUNCTIONS = [ :ema_9, :ema_21 ]

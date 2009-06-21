@@ -1,0 +1,10 @@
+%h1 Listing studies
+%table
+  %tr.heading
+    %th Name
+    %th Start Date
+    %th End Date
+
+  = render :partial => 'study', :collection => current_objects
+
+= link_to 'New study', new_object_path 

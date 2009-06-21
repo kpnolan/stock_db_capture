@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090612175413) do
+ActiveRecord::Schema.define(:version => 20090618213332) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -93,7 +93,20 @@ ActiveRecord::Schema.define(:version => 20090612175413) do
     t.string "timezone"
   end
 
+  create_table "factors", :force => true do |t|
+    t.integer "study_id"
+    t.integer "indicator_id"
+    t.string  "params_str"
+  end
+
+  add_index "factors", ["study_id"], :name => "study_id"
+  add_index "factors", ["indicator_id"], :name => "indicator_id"
+
   create_table "historical_attributes", :force => true do |t|
+    t.string "name"
+  end
+
+  create_table "indicators", :force => true do |t|
     t.string "name"
   end
 
@@ -126,6 +139,8 @@ ActiveRecord::Schema.define(:version => 20090612175413) do
     t.integer  "accum_volume"
     t.float    "delta"
   end
+
+  add_index "intra_day_bars", ["ticker_id", "start_time"], :name => "ticker_id_and_start_time", :unique => true
 
   create_table "intra_snapshots", :force => true do |t|
     t.integer  "ticker_id"
@@ -231,30 +246,6 @@ ActiveRecord::Schema.define(:version => 20090612175413) do
     t.string "name"
   end
 
-  create_table "stat_values", :force => true do |t|
-    t.integer  "historical_attribute_id"
-    t.integer  "ticker_id"
-    t.date     "start_date"
-    t.date     "end_date"
-    t.integer  "sample_count"
-    t.float    "mean"
-    t.float    "min"
-    t.float    "max"
-    t.float    "stddev"
-    t.float    "absdev"
-    t.float    "skew"
-    t.float    "kurtosis"
-    t.float    "slope"
-    t.float    "yinter"
-    t.float    "cov00"
-    t.float    "cov01"
-    t.float    "cov11"
-    t.float    "chisq"
-    t.datetime "created_at"
-    t.datetime "updated_at"
-    t.float    "cv"
-  end
-
   create_table "strategies", :force => true do |t|
     t.string "name"
     t.string "open_description"
@@ -264,6 +255,28 @@ ActiveRecord::Schema.define(:version => 20090612175413) do
   end
 
   add_index "strategies", ["name"], :name => "index_strategies_on_name", :unique => true
+
+  create_table "studies", :force => true do |t|
+    t.string  "name"
+    t.date    "start_date"
+    t.date    "end_date"
+    t.string  "description", :limit => 128
+    t.integer "version"
+    t.integer "sub_version"
+    t.integer "iteration"
+  end
+
+  add_index "studies", ["name", "version", "sub_version", "iteration"], :name => "index_studies_on_name_and_version_and_sub_version_and_iteration", :unique => true
+
+  create_table "study_results", :force => true do |t|
+    t.integer "factor_id"
+    t.date    "date"
+    t.float   "value"
+    t.integer "ticker_id"
+  end
+
+  add_index "study_results", ["factor_id"], :name => "factor_id"
+  add_index "study_results", ["ticker_id"], :name => "ticker_id"
 
   create_table "tickers", :force => true do |t|
     t.string  "symbol",      :limit => 8
@@ -286,6 +299,9 @@ ActiveRecord::Schema.define(:version => 20090612175413) do
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
 
+  add_foreign_key "factors", ["study_id"], "studies", ["id"], :name => "factors_ibfk_1"
+  add_foreign_key "factors", ["indicator_id"], "indicators", ["id"], :name => "factors_ibfk_2"
+
   add_foreign_key "intra_snapshots", ["ticker_id"], "tickers", ["id"], :name => "intra_snapshots_ibfk_1"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
@@ -302,6 +318,9 @@ ActiveRecord::Schema.define(:version => 20090612175413) do
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
+
+  add_foreign_key "study_results", ["ticker_id"], "tickers", ["id"], :name => "study_results_ibfk_2"
+  add_foreign_key "study_results", ["factor_id"], "factors", ["id"], :on_delete => :cascade, :name => "study_results_ibfk_1"
 
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"

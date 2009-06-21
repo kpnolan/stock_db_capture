@@ -1,6 +1,4 @@
 require 'yaml'
-require 'rubygems'
-require 'ruby-debug'
 require 'ostruct'
 
 module Analytics

@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class SmartFormBuilder < ActionView::Helpers::FormBuilder
 
   def label(field, html_options = {})

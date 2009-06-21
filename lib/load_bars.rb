@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'rubygems'
 require 'ruby-debug'
 require 'trading_calendar'
@@ -13,7 +15,7 @@ module LoadBars
 
   def latest_date
     time = Time.now.getlocal
-    if time.hour >= 18
+    if time.hour >= 20
       @cur_date ||= time.to_date
     else
       @cur_date ||= time.to_date - 1.day
@@ -166,11 +168,12 @@ module LoadBars
 
   def load_tda_symbols()
     FasterCSV.foreach(File.join(RAILS_ROOT, '..', 'etfs.csv')) do |row|
-      symbol, name, sector = row
-      if (ticker = Ticker.find_by_name(symbol)) && ticker.symbol.nil?
-        sector_id = Sector.find_by_name(sector)
-        puts "Creating #{symbol}"
-        Ticker.create!(:symbol => symbol, :name => name, :sector_id => sector_id, :industry_id => industry_id, :active => true, :etf => true);
+      symbol, name, sector = row.map { |str| str.delete('"') }
+      if (ticker = Ticker.find_by_symbol(symbol)).nil?
+        puts "Symbol: #{symbol} not found"
+      else
+        sector_id = Sector.find_by_name(sector).id
+        ticker.update_attributes!(:sector_id => sector_id);
       end
     end
   end

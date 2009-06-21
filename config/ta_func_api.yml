@@ -22,7 +22,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outCaikinAD
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:
@@ -80,7 +80,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outAdosc
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:
@@ -114,7 +114,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outAdmx
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:

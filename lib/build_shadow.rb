@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class BuildShadow
 
   INTERNAL_ARGS = %w{ High Low Close Volume Open Close }

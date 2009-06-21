@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :studies
+
+  map.resources :indicators
+
   map.resources :intra_snapshots
 
   map.resources :industries

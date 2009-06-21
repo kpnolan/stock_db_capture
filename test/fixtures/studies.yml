@@ -1,0 +1,25 @@
+# == Schema Information
+# Schema version: 20090618213332
+#
+# Table name: studies
+#
+#  id          :integer(4)      not null, primary key
+#  name        :string(255)
+#  start_date  :date
+#  end_date    :date
+#  description :string(128)
+#  version     :integer(4)
+#  sub_version :integer(4)
+#  iteration   :integer(4)
+#
+
+one:
+  id: 1
+  name: MyString
+  start_date: 2009-06-17
+  end_date: 2009-06-17
+two:
+  id: 2
+  name: MyString
+  start_date: 2009-06-17
+  end_date: 2009-06-17

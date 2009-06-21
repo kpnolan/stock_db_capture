@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090611141759
+# Schema version: 20090618213332
 #
 # Table name: scans_tickers
 #

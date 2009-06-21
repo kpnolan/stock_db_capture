@@ -39,12 +39,24 @@ namespace :active_trader do
 
   desc "Load TDA Stocks"
   task :load_tda_stocks => :environment do
-    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'tda_symbol_load.log'))
-    load_tda_symbols(@logger)
+    #@logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'tda_symbol_load.log'))
+    load_tda_symbols()
   end
 
   desc "Clear locks on Tickers"
   task :clear_locks => :environment do
     Ticker.connection.execute('update tickers set locked = 0')
+  end
+
+  desc "Initialize Logr with optional year"
+  task :init_logr => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'init_logr.log'))
+    initialize_returns(@logger)
+  end
+
+  desc "Update Logr with"
+  task :update_logr => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_logr.log'))
+    update_returns(@logger)
   end
 end

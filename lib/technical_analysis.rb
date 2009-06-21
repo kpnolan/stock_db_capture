@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
     ###############################################################################################################
     # DON'T EDIT THIS FILE !!!
     # This file was automatically generated from 'ta_func.xml'
@@ -41,7 +43,7 @@ module TechnicalAnalysis
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_adx_lookback, options[:time_period])
     result = Talib.ta_adx(idx_range.begin, idx_range.end, high, low, close, options[:time_period])
-    memoize_result(self, :adx, idx_range, options, result, :unstable_period)
+    memoize_result(self, :adx, idx_range, options, result, :financebars)
   end
 
   #Average Directional Movement Index Rating
@@ -49,7 +51,7 @@ module TechnicalAnalysis
     options.reverse_merge!(:time_period => 14)
     idx_range = calc_indexes(:ta_adxr_lookback, options[:time_period])
     result = Talib.ta_adxr(idx_range.begin, idx_range.end, high, low, close, options[:time_period])
-    memoize_result(self, :adxr, idx_range, options, result, :unstable_period)
+    memoize_result(self, :adxr, idx_range, options, result, :financebars)
   end
 
   #Absolute Price Oscillator
@@ -1018,9 +1020,9 @@ module TechnicalAnalysis
 
   #Simple Moving Average
   def sma(options={})
-    options.reverse_merge!(:time_period => 30)
+    options.reverse_merge!(:time_period => 30, :input => price)
     idx_range = calc_indexes(:ta_sma_lookback, options[:time_period])
-    result = Talib.ta_sma(idx_range.begin, idx_range.end, price, options[:time_period])
+    result = Talib.ta_sma(idx_range.begin, idx_range.end, options[:input], options[:time_period])
     memoize_result(self, :sma, idx_range, options, result, :overlap)
   end
 

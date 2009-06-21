@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090611141759
+# Schema version: 20090618213332
 #
 # Table name: scans
 #
@@ -28,6 +28,10 @@ class Scan < ActiveRecord::Base
   def clear_associations_if_dirty
     tickers.clear if changed?
     strategies.clear if changed?
+  end
+
+  def population_ids(repopulate=false)
+    tickers_ids(repopulate)
   end
 
   # TODO find a better name for this method

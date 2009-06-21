@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 module VisualizeEntry
   def graph_entry
     losers = Position.connection.select_rows("select id, nreturn*days_held from positions where nreturn < 0.0 order by nreturn")

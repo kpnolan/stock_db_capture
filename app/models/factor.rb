@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090618213332
+# Schema version: 20090621183035
 #
 # Table name: factors
 #
@@ -7,8 +7,8 @@
 #  study_id     :integer(4)
 #  indicator_id :integer(4)
 #  params_str   :string(255)
+#  result       :string(255)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Hash
   # Replacing the to_yaml function so it'll serialize hashes sorted (by their keys)
@@ -37,25 +37,47 @@ class Factor < ActiveRecord::Base
   end
 
   def to_s(format)
-    case format
-    when :short : indicator.name
-    when :long : "#{indicator.name}_#{format_params}"
-    end
+    results = TALIB_META_INFO_DICTIONARY[indicator.name.to_sym].stripped_output_names.map { |n| n.downcase }
+    header = case
+             when format == :short && result == results.first : indicator.name
+             when format == :short && indicator.name == 'barval' : format_identity
+             when format == :short && result != results.first : "#{indicator.name}-#{result}"
+             when :long : "#{indicator.name}-#{result}_#{format_params}"
+             end
+    debugger if header.nil? or header == ''
+    header
   end
 
   def params
     params = YAML.load(params_str)
   end
 
+  def format_barval
+    case
+    when params.empty?  : 'close'
+    when params[:slot]  : params[:slot]
+    end
+  end
+
   class << self
 
     def create_from_args(study, fcn, params={})
-      name = fcn.to_s.downcase
+      results = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names.map { |n| n.downcase }
+      if params[:result]
+        selected = params[:result].is_a?(Array) ? params[:result] : [ params[:result] ]
+        selected.delete_if { |name| !results.include? name.to_s }
+      else
+        selected = [ results.first ]
+      end
+      params.delete :result
       params_str = params.to_yaml
+      name = fcn.to_s
       indicator = Indicator.find_by_name(name)
       indicator = Indicator.create!(:name => name) if indicator.nil?
-      factor = study.factors.find(:first, :conditions => { :indicator_id => indicator.id, :params_str => params_str })
-      factor = study.factors.create!(:indicator_id => indicator.id, :params_str => params_str) if factor.nil?
+      selected.each do |result|
+        factor = study.factors.find(:first, :conditions => { :indicator_id => indicator.id, :params_str => params_str, :result => result.to_s })
+        factor = study.factors.create!(:indicator_id => indicator.id, :params_str => params_str, :result => result.to_s ) if factor.nil?
+      end
     end
 
     def find_by_name_and_params(study, name, params)

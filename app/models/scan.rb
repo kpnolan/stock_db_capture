@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090618213332
+# Schema version: 20090621183035
 #
 # Table name: scans
 #
@@ -9,6 +9,7 @@
 #  end_date    :date
 #  conditions  :text
 #  description :string(255)
+#  join        :string(255)
 #
 
 class Scan < ActiveRecord::Base
@@ -17,7 +18,7 @@ class Scan < ActiveRecord::Base
   has_and_belongs_to_many :strategies
 
   validates_uniqueness_of :name
-  validates_presence_of :name, :start_date, :end_date, :conditions
+  validates_presence_of :name, :start_date, :end_date
 
   before_save :clear_associations_if_dirty
 
@@ -36,10 +37,11 @@ class Scan < ActiveRecord::Base
 
   # TODO find a better name for this method
   def tickers_ids(repopulate=false)
-    sql = "SELECT ticker_id FROM daily_bars WHERE " +
+    join = self.join ? self.join : ''
+    having = conditions ? "HAVING #{conditions}" : ''
+    sql = "SELECT daily_bars.ticker_id FROM daily_bars #{join} WHERE " +
           "date >= '#{start_date.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
-          "GROUP BY ticker_id " +
-          "HAVING #{conditions}"
+          "GROUP BY ticker_id " + having
     if repopulate || tickers.empty?
       $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger
       tickers.clear

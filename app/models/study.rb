@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090618213332
+# Schema version: 20090621183035
 #
 # Table name: studies
 #
@@ -12,7 +12,6 @@
 #  sub_version :integer(4)
 #  iteration   :integer(4)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Study < ActiveRecord::Base
   has_many :factors, :dependent => :delete_all
@@ -39,6 +38,9 @@ class Study < ActiveRecord::Base
       when options[:increment] == :redo then
         raise ArgumentError, ":redo given with no prior Study" unless study
         study.factors.destroy_all;
+        study.update_attributes!(:start_date => nil, :end_date => nil)
+        study
+      when options[:increment] == :retain
         study
       when options[:increment] == :none then
         raise ArgumentError, ":increment => :none given when Study already exists, use :redo or :version" if study

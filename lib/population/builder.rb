@@ -50,14 +50,14 @@ module Population
           options[:start_date] = Date.parse(options[:start_date])
           options[:end_date] = Date.parse(options[:end_date])
           options[:description] = @descriptions.shift
-          options.reject { |key, value| [:start_date, :end_date, :description, :conditions].include? key }
+          options.reject { |key, value| [:start_date, :end_date, :description, :conditions, :join].include? key }
           scan.update_attributes!(options)
           @scans << scan
         else
           options[:start_date] = Date.parse(options[:start_date])
           options[:end_date] = Date.parse(options[:end_date])
           options[:description] = @descriptions.shift
-          options.reject { |key, value| [:start_date, :end_date, :description, :conditions].include? key }
+          options.reject { |key, value| [:start_date, :end_date, :description, :conditions, :join].include? key }
           scan = Scan.create!({:name => name}.merge(options))
           @scans << scan
         end

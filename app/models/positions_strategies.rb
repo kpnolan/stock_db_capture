@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090618213332
+# Schema version: 20090621183035
 #
 # Table name: positions_strategies
 #

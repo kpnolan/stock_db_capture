@@ -41,7 +41,7 @@ Rails::Initializer.run do |config|
   # Make Time.zone default to the specified zone, and make Active Record store time values
   # in the database in UTC, and return them converted to the specified local zone.
   # Run "rake -D time" for a list of tasks for finding time zone names. Uncomment to use default local time.
-  config.time_zone = 'UTC'
+  config.time_zone = 'Eastern Time (US & Canada)'
 
   # Your secret key for verifying cookie session data integrity.
   # If you change this key, all old sessions will become invalid!
@@ -96,7 +96,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
   #ts(:rri, Date.civil(2008, 7, 15)..Date.civil(2008,12, 15), 1.day)
 
-  ts(:msft, Date.parse('01/01/2008')..Date.parse('12/31/2008'), 1.day, :populate => true)
+  ts(:msft, Date.parse('03/02/2009')..Date.parse('3/31/2009'), 30.minute, :populate => true)
 
   def lookup(symbol, start_date, end_date=nil, options={})
     options.reverse_merge! :interval => 1.day.seconds

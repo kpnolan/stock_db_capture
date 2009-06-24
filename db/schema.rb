@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090618213332) do
+ActiveRecord::Schema.define(:version => 20090621183035) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -97,6 +97,7 @@ ActiveRecord::Schema.define(:version => 20090618213332) do
     t.integer "study_id"
     t.integer "indicator_id"
     t.string  "params_str"
+    t.string  "result"
   end
 
   add_index "factors", ["study_id"], :name => "study_id"
@@ -216,12 +217,17 @@ ActiveRecord::Schema.define(:version => 20090618213332) do
   add_index "positions_strategies", ["strategy_id"], :name => "strategy_id"
   add_index "positions_strategies", ["position_id"], :name => "position_id"
 
+  create_table "samples", :id => false, :force => true do |t|
+    t.integer "ticker_id"
+  end
+
   create_table "scans", :force => true do |t|
     t.string "name"
     t.date   "start_date"
     t.date   "end_date"
     t.text   "conditions"
     t.string "description"
+    t.string "join"
   end
 
   create_table "scans_strategies", :id => false, :force => true do |t|
@@ -318,9 +324,6 @@ ActiveRecord::Schema.define(:version => 20090618213332) do
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
-
-  add_foreign_key "study_results", ["ticker_id"], "tickers", ["id"], :name => "study_results_ibfk_2"
-  add_foreign_key "study_results", ["factor_id"], "factors", ["id"], :on_delete => :cascade, :name => "study_results_ibfk_1"
 
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"

@@ -157,6 +157,25 @@ module UserAnalysis
     memoize_result(self, :lrsigma, index_range, options, result, :financebars)
   end
 
+  def lr(options={ })
+    options.reverse_merge! :time_period => 14
+    period = options[:time_period] / 2
+    idx_range = calc_indexes(nil, period, 0)
+    xvec = GSL::Vector.linspace(0, period*2, period*2)
+    slopevec = []
+    chisq = []
+    today = idx_range.begin - period
+    while today < idx_range.end - period +1
+      close_vec = close[(today-period)..(today+period)]
+      ret_vec = GSL::Fit::linear(xvec, close_vec)
+      slopevec << ret_vec.second
+      chisq << ret_vec[5]
+      today += 1
+    end
+    result = [0, idx_range.begin, slopevec, chisq]
+    memoize_result(self, :lr, index_range, options, result, :financebars)
+  end
+
   def nreturn(options={ })
     idx_range = calc_indexes(nil)
     options.reverse_merge! :basis_index => idx_range.begin
@@ -169,12 +188,12 @@ module UserAnalysis
     memoize_result(self, :nreturn, index_range, options, result, :financebars)
   end
 
-  def identity(options={})
+  def barval(options={})
     options.reverse_merge! :slot => :close
     idx_range = calc_indexes(nil)
     vec = send(options[:slot])[idx_range]
     result = [0, idx_range.begin, vec]
-    memoize_result(self, :identity, idx_range, options, result, :financebars)
+    memoize_result(self, :barval, idx_range, options, result, :financebars)
   end
 
   def calculate(options={})

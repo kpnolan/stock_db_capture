@@ -27,7 +27,7 @@ module Plot
 
         plot.data = []
         vecs_or_params.each do |vec|
-          if vec.class == ParamBlock
+          unless vec.extended_range?
             plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a] ) {  |ds|  ds.using = "1:2"; ds.with = "lines" }
           else
             plot.data << Gnuplot::DataSet.new( [timevec, vec.to_a[index_range]] ) {  |ds|  ds.using = "1:2"; ds.notitle; ds.with = "lines" }
@@ -139,7 +139,7 @@ module Plot
 
   def set_xvalues(plot, timevec)
     return normalize(timevec) if timevec.first.is_a? Fixnum
-    time_class = timevec.first.send(source_model.time_convert).class
+    time_class = timevec.first.send(model.time_convert).class
     if time_class == Date
       plot.xdata "time"
       plot.timefmt '"%Y-%m-%d"'

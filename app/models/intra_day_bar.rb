@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090618213332
+# Schema version: 20090621183035
 #
 # Table name: intra_day_bars
 #
@@ -37,7 +37,7 @@ class IntraDayBar < ActiveRecord::Base
     def time_col ; :start_time ;  end
     def time_convert ; :to_time ;  end
     def time_class ; Time ;  end
-    def time_res; 5.minutes; end
+    def time_res; 30.minutes; end
 
     def load_tda_history(symbol, start_date, end_date, resolution=30)
       start_date = start_date.class == String ? Date.parse(start_date) : start_date

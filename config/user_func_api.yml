@@ -1,8 +1,8 @@
 --- #YAML:1.0
 FinancialFunctions:
   FinancialFunction:
-    - Abbreviation: identity
-      CamelCaseName: identity
+    - Abbreviation: barval
+      CamelCaseName: barval
       Flags:
         Flag: Overlap
       GroupId: Primitive Functions
@@ -16,7 +16,7 @@ FinancialFunctions:
         RequiredInputArgument:
           Name: Close
           Type: Close
-      ShortDescription: Identity Function
+      ShortDescription: Returns one of OHLCV
     - Abbreviation: calculate
       CamelCaseName: calculate
       Flags:
@@ -67,6 +67,24 @@ FinancialFunctions:
           Name: Close
           Type: Close
       ShortDescription: Linear Regression Sigma
+    - Abbreviation: lr
+      CamelCaseName: lr
+      GroupId: Statistic Functions
+      OutputArguments:
+        OutputArgument:
+          - Flags:
+              Flag: Dashed Line
+            Name: outLR
+            Type: Double Array
+          - Flags:
+              Flag: Line
+            Name: outChisq
+            Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          Name: Close
+          Type: Close
+      ShortDescription: Linear Regression (non-lagged)
     - Abbreviation: nreturn
       CamelCaseName: nReturn
       Flags:

@@ -8,6 +8,8 @@
 #
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'date'
+
 class Timeseries
 
   include Plot
@@ -21,50 +23,50 @@ class Timeseries
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 120
 
-  DEFAULT_OPTIONS = { DailyBar => { :attrs => [:date, :volume, :high, :low, :open, :close, :logr],
-      :sample_period => [ 1.day ]  } }
+  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ]  },
+                      IntraDayBar => { :sample_resolution => [ 30.minutes ]  } }
 
-  attr_accessor :symbol, :ticker_id, :source_model, :value_hash, :enum_index, :enum_attrs
-  attr_accessor :start_time, :end_time, :num_points, :sample_period, :utc_offset
-  attr_accessor :attrs, :derived_values, :output_offset, :plot_results
+  attr_accessor :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs
+  attr_accessor :start_time, :end_time, :utc_offset, :resolution
+  attr_accessor :attrs, :derived_values, :output_offset, :plot_results, :stride
   attr_accessor :timevec, :time_map, :local_range, :price, :index_range
 
-  def initialize(symbol_or_id, local_range, time_resolution, options={})
+  def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true, :populate => true, :post_buffer => false
     initialize_state()
-    self.ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
+    @ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
-    self.symbol = Ticker.find(ticker_id).symbol
-    self.source_model = select_by_resolution(time_resolution)
-    bars_per_day = 1
-    if source_model != DailyBar
-      minutes = time_resolution / 60
-      DailBar.set_table_name("bar_#{minutes}s")
-      bars_per_day = TRADING_PERIOD / time_resolution
-      if options[:pre_buffer]
-        day_offset = (PRECALC_BARS / bars_per_day) + 1
-      else
-        day_offset = 0
-      end
-      self.start_time = (local_range.begin - day_offset.days).to_time
-      self.end_time = (local_range.end + day_offset.days).to_time > Time.now ? Time.now : (local_range.begin + day_offset.days).to_time
-    elsif source_model == DailyBar
-      pre_offset = options[:pre_buffer] == true ? 120 : options[:pre_buffer].is_a?(Fixnum) ? options[:pre_buffer] : 0
-      post_offset = options[:post_buffer] == true ? 120 : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
-      self.start_time = (local_range.begin - pre_offset.days).to_time
-      self.end_time = (local_range.end + post_offset.days).to_time > Time.now ? Time.now : (local_range.end + post_offset.days).to_time
-    else
-      raise ArgumentError, "Bar resolution cannot be retrieved"
-    end
-    self.plot_results = options[:plot_results]
-    self.local_range = local_range
-    options.reverse_merge!(DEFAULT_OPTIONS[source_model])
-    apply_options(options)
+    @symbol = Ticker.find(ticker_id).symbol
+    @model = select_by_resolution(time_resolution)
+    @resolution = time_resolution
+    @local_range = local_range.begin.to_time..local_range.end.to_time
+    @attrs = model.content_columns.map { |c| c.name.to_sym }
+    set_enum_attrs(attrs)
+    @stride = options[:stride].nil? ? 1 : options[:stride]
+    pre_offset = options[:pre_buffer] == true ? 120 : options[:pre_buffer].is_a?(Fixnum) ? options[:pre_buffer] : 0
+    post_offset = options[:post_buffer] == true ? 120 : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
+    @start_time = (@local_range.begin - pre_offset * resolution)
+    @end_time = (@local_range.end + post_offset * resolution) > Time.now ? Time.now : (@local_range.end + post_offset * resolution)
+    @plot_results = options[:plot_results]
+    options.reverse_merge!(DEFAULT_OPTIONS[model])
     options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
     set_price(options[:price])
   end
 
+  #
+  # Parse a date/time string with the nominal format (see 2nd arg to strptime)
+  # returning a time have the local timezone
+  #
+  def parse_time(date_time_str)
+    d = Date._strptime(date_time_str, "%m-%d-%Y %H:%M")
+    Time.local(d[:year], d[:mon], d[:mday], d[:hour], d[:min],
+               d[:sec], d[:sec_fraction], d[:zone])
+  end
+
+  #
+  # return a string summarizing the contents of this Timeseries
+  #
   def to_s
     "#{symbol} #{local_range.begin}-#{local_range.end} #{timevec.length} data values"
   end
@@ -73,37 +75,62 @@ class Timeseries
     super
   end
 
+  #
+  # Return the offset into the timeseries of the first result, whcih has to be the same
+  # as the beginning of the actual timeseries (minus any pre-buffering). We pre-buffer 120
+  # elements by default so that any TA methods (EMAs, SMAs, etc) which require extra elements
+  # to "warm up" the compuation have their needs meet by the pre-buffering. W/O pre-buffering
+  # the the "warm up" elements would be taken out of the actually data series, causing the first
+  # output to be some number of elements in (which would be bad).
+  #
   def outidx
     @index_range.begin
   end
 
-  def to_file(value)
-     IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{symbol}_#{value.to_s}.csv"), "w"), "w") { |io| io.puts(value_hash[value].join(', ')) }
-  end
-
+  #
+  # The method was added as a convenience method for generating Lewis's spreadsheets. The idea was that he
+  # could select a subset of the values in a bar for reporting on the timesheet. It's basically a hack
+  # and should be taken out. It was put in so that the "each" method (and therefore all Enumeration methods)
+  # could be used on a timeseries.
+  #
   def set_enum_attrs(attrs)
     raise ArgumentError, "attrs is not a proper subset of available values" unless attrs.all? { |attr|self.attrs.include? attr }
     self.enum_attrs = attrs
   end
 
+  #
+  # The is the "each" mentioned above. Notice that it only yields the preselected enum variables
+  #
   def each
     @timevec.each_with_index { |time,i | yield(values_at(i, enum_attrs)) }
   end
 
+  #
+  # Convenience methods that runs all the specified technical analysis function in one line, i.e:
+  #    $ts.all :rsi, :rvi, :ema, :lr
+  # Instead of having to specify them on seperate lines.
+  #
   def all(*args)
     multi_calc(args)
   end
 
+  #
+  # Return all values (OHLC...) for a given Timeseries index. This really should be superceeded with
+  # a non-hacked iterator like each
   def values_at(index, vals)
     vals.map { |v| value_hash[v][index] }
   end
 
+  #
+  # This is like all() only it allows for the specification of parameters
+  #
   def multi_calc(fcn_vec, options={})
     return nil if fcn_vec.empty?
     fcn_vec.each { |function| self.send(function, options.merge(:noplot => true)) }
     aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
     clear_results
   end
+
 
   def multi_fopt(fopt_vec, options={})
     fopt_vec.each do |ary|
@@ -149,27 +176,22 @@ class Timeseries
                  end
   end
 
-  def select_by_resolution(period)
+  def select_by_resolution(resolution)
     DEFAULT_OPTIONS.each_pair do |key, value|
-      return key if value[:sample_period].include? period
+      return key if value[:sample_resolution].include? resolution
     end
-    raise ArgumentError, "A sampling period/resolution of #{period} is not available"
+    raise ArgumentError, "A sampling resolution of #{resolution} is not available"
   end
 
   def init_timevec
-    value_hash[source_model.time_col.to_sym] = source_model.time_vector(symbol)
+    value_hash[model.time_col.to_sym] = model.time_vector(symbol, start_time, end_time)
     compute_timestamps
   end
 
   def repopulate(options)
-    apply_options unless options.empty?
-    attrs = (timevec.empty? ? self.attrs | [ source_model.time_col.to_sym ] : self.attrs)
-    if num_points > 0
-      self.value_hash = source_model.simple_vectors(symbol, attrs, start_time, num_points)
-    else
-      self.value_hash = source_model.general_vectors(symbol, attrs, start_time, end_time)
-    end
-    compute_timestamps if time_map.empty?
+    @value_hash = model.general_vectors(symbol, attrs, start_time, end_time)
+    raise Exception, "No values where return from #{model.to_s.tableize} for #{symbol} #{start_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
+    compute_timestamps
   end
 
 #  private
@@ -181,10 +203,10 @@ class Timeseries
   end
 
   def compute_timestamps
-    if source_model.time_class == Date
-      self.timevec = value_hash[source_model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time.midnight }
+    if model.time_class == Date
+      self.timevec = value_hash[model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time.midnight }
     else
-      self.timevec = value_hash[source_model.time_col.to_sym].collect { |twz| twz.time }
+      self.timevec = value_hash[model.time_col.to_sym].collect { |twz| twz.time }
     end
     self.timevec.each_with_index { |time, idx| self.time_map[time] = idx }
   end
@@ -196,14 +218,9 @@ class Timeseries
   # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
 
   def calc_indexes(loopback_fun, *args)
-    if self.local_range.is_a? Date
-      begin_time = self.local_range.to_time
-      end_time = begin_time + 23.hours + 59.minutes
-    else
-      begin_time = self.local_range.begin
-      end_time = self.local_range.end
-    end
-    begin_index = time2index(begin_time, -1)
+    begin_time = local_range.begin
+    end_time = local_range.end
+    begin_index = time2index(begin_time, 1)
     end_index = time2index(end_time, 1)
     self.output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
     raise ArgumentError, "Only subset of Date Range available, pre-buffer at least #{output_offset} more trading days" if output_offset > 0
@@ -211,18 +228,46 @@ class Timeseries
   end
 
   def time2index(time, direction, raise_on_range_error=true)
+    case
+    when model.time_class == Date : time2index_days(time, direction, raise_on_range_error=true)
+    when model.time_class == Time : time2index_time(time, direction, raise_on_range_error=true)
+    else debugger
+    end
+  end
+
+  def time2index_days(time, direction, raise_on_range_error)
     adj_time = time.to_time.utc.midnight
     if direction == -1
       raise TimeseriesException, "#{symbol}: requested time is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
       until time_map.include?(adj_time) || adj_time < timevec.first
-        adj_time -= sample_period.first
+        adj_time -= resolution
       end
       raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
       time_map[adj_time]
     else # this is split into two loop to simplify the boundry test
       raise TimeseriesException, "Requested time is after recorded history: ending #{timevec.last}" if adj_time > timevec.last
       until time_map.include?(adj_time) || adj_time > timevec.last
-        adj_time += sample_period.first
+        adj_time += resolution
+      end
+    end
+    raise TimeseriesException.new, "#{time} is not contained within the DB" if time_map[adj_time].nil?
+    return time_map[adj_time]
+  end
+
+  def time2index_time(time, direction, raise_on_range_error=true)
+    adj_time = time + 14.5.hours.to_i if time.at_midnight
+    debugger
+    if direction == -1
+      raise TimeseriesException, "#{symbol}: requested time is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
+      until time_map.include?(adj_time) || adj_time < timevec.first
+        adj_time -= resolution
+      end
+      raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
+      time_map[adj_time]
+    else # this is split into two loop to simplify the boundry test
+      raise TimeseriesException, "Requested time is after recorded history: ending #{timevec.last}" if adj_time > timevec.last
+      until time_map.include?(adj_time) || adj_time > timevec.last
+        adj_time += resolution
       end
     end
     raise TimeseriesException.new, "#{time} is not contained within the DB" if time_map[adj_time].nil?
@@ -239,7 +284,7 @@ class Timeseries
 
   def index2time(index, offset=0)
     return nil if index >= timevec.length
-    timevec[index+offset] ? timevec[index+offset].send(source_model.time_convert) : nil
+    timevec[index+offset] ? timevec[index+offset].send(model.time_convert) : nil
   end
 
   def length
@@ -250,10 +295,14 @@ class Timeseries
     derived_values.last
   end
 
+  def extended_range?
+    true
+  end
+
   def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)
     status = results.shift
     outidx = results.shift
-    pb = ParamBlock.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
+    pb = AnalResults.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
     self.derived_values << pb
 
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
@@ -269,8 +318,6 @@ class Timeseries
     when :keys  : pb.keys
     when :memo  : pb
     when :raw   : results
-    when :filer  : IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{fcn.to_s}.csv"), "w"), "w") { |io| io.puts(results.first.to_a.join(', ')) }
-    when :filec  : IO.open(IO.sysopen(File.join(RAILS_ROOT, 'tmp', "#{fcn.to_s}.csv"), "w"), "w") { |io| io.puts(results.first.to_a.join("\n")) }
     else        nil
     end
   end
@@ -296,96 +343,18 @@ class Timeseries
   end
 
 #  def method_missing(meth, *args)
-#    source_model.content_columns.map(&:name).include? meth
+#    model.content_columns.map(&:name).include? meth
 #  end
 
   def initialize_state
     self.value_hash, self.time_map = {}, {}
     self.derived_values,  self.attrs = [], []
     self.timevec = []
-    self.num_points, self.sample_period = 0, []
     self.utc_offset = Time.now.utc_offset
-    self.enum_attrs = self.attrs
     self.enum_index = 0
   end
 end
 
-class ParamBlock
-
-  include ResultAnalysis
-  include Enumerable
-
-  attr_accessor :timeseries
-  attr_accessor :function
-  attr_accessor :time_range
-  attr_accessor :index_range
-  attr_accessor :options
-  attr_accessor :outidx
-  attr_accessor :vectors
-  attr_accessor :graph_type
-  attr_accessor :names
-  attr_accessor :result_hash
-
-  def initialize(ts, fcn, time_range, index_range, options, outidx, graph_type, results)
-    self.function = fcn
-    self.time_range = time_range
-    self.index_range = index_range
-    self.options = options
-    self.outidx = outidx
-    self.vectors = results
-    self.graph_type = graph_type
-    self.names = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names
-    self.timeseries = ts
-    self.result_hash = {}
-
-    raise ArgumentError, "Output Index is not same as Index Rage, increase pre-buffer" if outidx != index_range.begin
-
-    self.names.each_with_index { |name, idx| self.result_hash[name.to_sym] = vectors[idx] }
-  end
-
-  def result_for(index, vector_idx=0)
-    raise ArgumentError, "Seoncd arg can only be the index of the output vector" unless vector_idx.class == Fixnum
-    vectors[vector_idx][index-outidx]
-  end
-
-  def vector_for(sym)
-    case
-    when result_hash.has_key?(sym)                : result_hash[sym]
-    when timeseries.value_hash.has_key?(sym)      : timeseries.value_hash[sym][index_range].to_gv
-    when timeseries.methods.include?(sym.to_s)    : timeseries.send(sym)[index_range].to_gv
-    else
-      raise ArgumentError, "#{function}.#{sym} is not available"
-    end
-  end
-
-  # FIXME this only fetches the first result of a possilby multi-result indicator
-  # FIXME I'm not sure how to get around this as you cannot pass parameters to each (I don't think)
-  def each
-    i = -1
-    vectors.first.each { |e| i+=1; yield [e, timeseries.index2time(i, outidx)] }
-  end
-
-  def match(fcn, options={})
-    opts = self.options.dup
-    opts.delete(:noplot)
-    opts.delete(:input)
-    return self if function == fcn && opts == options
-  end
-
-  def keys
-    result_hash.keys
-  end
-
-  def to_ts
-    timeseries
-  end
-
-  def decode(*syms)
-    syms.collect do |sym|
-      self.send(sym)
-    end
-  end
-end
 
 def ts(symbol, local_range, seconds, options={})
   options.reverse_merge! :populate => true

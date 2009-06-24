@@ -25,6 +25,11 @@ module TradingCalendar
     @holidays
   end
 
+  def trading_day?(date)
+    wday = date.to_time.wday
+    wday != 0 && wday != 6 && !holidays[date]
+  end
+
   def trading_days(date_range)
     date_range.to_a.select do |date|
       wday = date.to_time.wday

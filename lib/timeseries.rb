@@ -23,11 +23,11 @@ class Timeseries
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 120
 
-  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ]  },
-                      IntraDayBar => { :sample_resolution => [ 30.minutes ]  } }
+  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ], :bars_per_day => 1  },
+                      IntraDayBar => { :sample_resolution => [ 30.minutes ],  :bars_per_day => 13 } }
 
-  attr_accessor :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs
-  attr_accessor :start_time, :end_time, :utc_offset, :resolution
+  attr_accessor :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
+  attr_accessor :begin_time, :end_time, :utc_offset, :resolution
   attr_accessor :attrs, :derived_values, :output_offset, :plot_results, :stride
   attr_accessor :timevec, :time_map, :local_range, :price, :index_range
 
@@ -37,16 +37,34 @@ class Timeseries
     @ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     @symbol = Ticker.find(ticker_id).symbol
-    @model = select_by_resolution(time_resolution)
+    if local_range.is_a? Range
+      if local_range.begin.is_a?(Date) && local_range.end.is_a?(Date)
+        @local_range = local_range.begin.to_time.utc.midnight..local_range.end.to_time.utc.midnight
+      elsif local_range.begin.is_a?(Time) && local_range.end.is_a?(Time)
+        @local_range = local_range.begin.utc..local_range.end.utc
+      else
+        raise ArgumentError, "local_range must be a Date, a Range of Dates or Times, or String"
+      end
+    else
+      if local_range.is_a?(Date)
+        @local_range = local_range.to_time.utc.midnight..(local_range.to_time.utc.midnight + 1.day)
+      elsif local_range.is_a?(String)
+        @local_range = parse_local_string(local_range)
+      else
+        raise ArgumentError, "local_range must be a Date, a Range of Dates or Times, or String"
+      end
+    end
+    @model, @model_attrs = select_by_resolution(time_resolution)
     @resolution = time_resolution
-    @local_range = local_range.begin.to_time..local_range.end.to_time
+    @bars_per_day = model_attrs[:bars_per_day]
     @attrs = model.content_columns.map { |c| c.name.to_sym }
     set_enum_attrs(attrs)
     @stride = options[:stride].nil? ? 1 : options[:stride]
     pre_offset = options[:pre_buffer] == true ? 120 : options[:pre_buffer].is_a?(Fixnum) ? options[:pre_buffer] : 0
     post_offset = options[:post_buffer] == true ? 120 : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
-    @start_time = (@local_range.begin - pre_offset * resolution)
-    @end_time = (@local_range.end + post_offset * resolution) > Time.now ? Time.now : (@local_range.end + post_offset * resolution)
+    debugger
+    @begin_time = offset_date(@local_range.begin, pre_offset, -1)
+    @end_time = (od = offset_date(@local_range.end, post_offset, 1)) > Time.now ? Time.now : od
     @plot_results = options[:plot_results]
     options.reverse_merge!(DEFAULT_OPTIONS[model])
     options[:populate] ? repopulate({}) : init_timevec
@@ -58,9 +76,9 @@ class Timeseries
   # Parse a date/time string with the nominal format (see 2nd arg to strptime)
   # returning a time have the local timezone
   #
-  def parse_time(date_time_str)
+  def self.parse_time(date_time_str)
     d = Date._strptime(date_time_str, "%m-%d-%Y %H:%M")
-    Time.local(d[:year], d[:mon], d[:mday], d[:hour], d[:min],
+    Time.utc(d[:year], d[:mon], d[:mday], d[:hour], d[:min],
                d[:sec], d[:sec_fraction], d[:zone])
   end
 
@@ -178,19 +196,24 @@ class Timeseries
 
   def select_by_resolution(resolution)
     DEFAULT_OPTIONS.each_pair do |key, value|
-      return key if value[:sample_resolution].include? resolution
+      return key, value if value[:sample_resolution].include? resolution
     end
     raise ArgumentError, "A sampling resolution of #{resolution} is not available"
   end
 
+  def offset_date(ref_date, pre_offset, dir)
+    trading_days = ((1.day / bars_per_day ) * pre_offset) /1.day
+    trading_days_from(ref_date, trading_days, dir).last.to_time.utc.midnight
+  end
+
   def init_timevec
-    value_hash[model.time_col.to_sym] = model.time_vector(symbol, start_time, end_time)
+    value_hash[model.time_col.to_sym] = model.time_vector(symbol, begin_time, end_time)
     compute_timestamps
   end
 
   def repopulate(options)
-    @value_hash = model.general_vectors(symbol, attrs, start_time, end_time)
-    raise Exception, "No values where return from #{model.to_s.tableize} for #{symbol} #{start_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
+    @value_hash = model.general_vectors(symbol, attrs, begin_time, end_time)
+    raise Exception, "No values where return from #{model.to_s.tableize} for #{symbol} #{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
     compute_timestamps
   end
 
@@ -218,8 +241,8 @@ class Timeseries
   # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
 
   def calc_indexes(loopback_fun, *args)
-    begin_time = local_range.begin
-    end_time = local_range.end
+    begin_time = local_range.begin.utc.midnight
+    end_time = local_range.end.utc.midnight
     begin_index = time2index(begin_time, 1)
     end_index = time2index(end_time, 1)
     self.output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
@@ -255,8 +278,7 @@ class Timeseries
   end
 
   def time2index_time(time, direction, raise_on_range_error=true)
-    adj_time = time + 14.5.hours.to_i if time.at_midnight
-    debugger
+    adj_time = time + 9.5.hours.to_i if time.at_midnight
     if direction == -1
       raise TimeseriesException, "#{symbol}: requested time is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
       until time_map.include?(adj_time) || adj_time < timevec.first

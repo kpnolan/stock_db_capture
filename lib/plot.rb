@@ -148,9 +148,9 @@ module Plot
 #      timevec.map { |t| '"'+t.strftime('%Y-%m-%d')+'"' }
     elsif time_class == Time || time_class == DateTime
       plot.xdata "time"
-      plot.timefmt '"%Y-%m-%d@%H:%M"'
+      plot.timefmt '"%Y-%m-%d %H:%M"'
       plot.format 'x "%m-%d\n%H:%M"'
-      timevec.map { |t| '"'+time.strftime('%Y-%m-%d@%H:%M')+'"' }
+      tv = timevec.map { |t| t.strftime('%Y-%m-%d %H:%M') }
     end
   end
 

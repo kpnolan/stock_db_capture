@@ -43,21 +43,24 @@ module Population
       @descriptions << string
     end
 
+    def prepare_attributes(options)
+      cols = Scan.content_columns.map { |c| c.name.to_sym }
+      options[:start_date] = options[:start_date].is_a?(Date) ? options[:start_date] : Date.parse(options[:start_date])
+      options[:end_date] = options[:end_date].is_a?(Date) ? options[:end_date] : Date.parse(options[:end_date])
+      options[:description] = @descriptions.shift
+      options.reject { |key, value| ! cols.include? key }
+    end
+
     def scan(name, options={})
+      options.reverse_merge! :table_name => 'daily_bars'
       begin
         name = name.to_s.downcase
         if (scan = Scan.find_by_name(name))
-          options[:start_date] = Date.parse(options[:start_date])
-          options[:end_date] = Date.parse(options[:end_date])
-          options[:description] = @descriptions.shift
-          options.reject { |key, value| [:start_date, :end_date, :description, :conditions, :join].include? key }
-          scan.update_attributes!(options)
+          attrs = prepare_attributes(options)
+          scan.update_attributes!(attrs)
           @scans << scan
         else
-          options[:start_date] = Date.parse(options[:start_date])
-          options[:end_date] = Date.parse(options[:end_date])
-          options[:description] = @descriptions.shift
-          options.reject { |key, value| [:start_date, :end_date, :description, :conditions, :join].include? key }
+          attrs = prepare_attributes(options)
           scan = Scan.create!({:name => name}.merge(options))
           @scans << scan
         end

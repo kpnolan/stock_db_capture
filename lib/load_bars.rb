@@ -33,14 +33,9 @@ module LoadBars
   end
 
   def tickers_with_lagging_intraday
-    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id order by symbol"
+    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on ticker_id = tickers.id where active = 1 group by ticker_id having max(date(start_time)) < #{latest_date} order by symbol"
     DailyBar.connection.select_rows(sql)
   end
-
- #    def tickers_with_lagging_history
- #   sql = "select symbol, max(date) from intrday_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
- #   DailyBar.connection.select_rows(sql)
- # end
 
   def tickers_with_bad_symbols
     sql = "select symbol,min(date),max(date) from daily_closes left outer join tickers on ticker_id = tickers.id where symbol regexp '^[A-Z]*-P[A-Z]+$' group by ticker_id order by symbol"
@@ -56,15 +51,16 @@ module LoadBars
     IntraDayBar.connection.select_values("select symbol from intra_day_bars right outer join tickers on ticker_id = tickers.id where ticker_id is null and active = 1 order by symbol #{dir}")
   end
 
-  def tickers_with_lagging_intrday
-    sql = "select symbol, max(date(start_time)) from intra_day_archive left outer join tickers on tickers.id = ticker_id where active = 1 group by ticker_id"
-    IntraDayBar.connections.select_rows(sql)
-  end
-
   def update_daily_history(logger)
     @logger = logger
     tuples = tickers_with_lagging_history()
     load_tda_dailys(tuples)
+  end
+
+  def update_intraday_history(logger)
+    @logger = logger
+    tuples = tickers_with_lagging_intraday()
+    load_tda_intraday(tuples)
   end
 
   def load_intraday_history(logger)
@@ -115,7 +111,8 @@ module LoadBars
     end_date = latest_date()
     for tuple in tuples
       symbol, max_date = tuple
-      start_date = Date.parse(max_date) + 1.day
+      max_date = Date.parse(max_date)
+      start_date = max_date + 1.day
       td = trading_days(start_date..end_date).length
       next if td - 1 == 0
       begin
@@ -136,17 +133,18 @@ module LoadBars
     end
   end
 
-  def load_tda_intraday(symbols)
+  def load_tda_intraday(tuples)
     count = 1
-    max = symbols.length
+    max = tuples.length
     end_date = latest_date()
-    for symbol in symbols
-      start_date = end_date - 6.months
+    for tuple in tuples
+      symbol, max_date = tuple
+      start_date = Date.parse(max_date) + 1.day
       td = trading_days(start_date..end_date).length
       next if td - 1 == 0
       begin
-        puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
-        logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
+        puts "updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
+        logger.info "updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         IntraDayBar.load_tda_history(symbol, start_date, end_date)
       rescue Net::HTTPServerException => e
         if e.to_s.split.first == '400'
@@ -155,12 +153,12 @@ module LoadBars
           ticker.toggle! :active if ticker.retry_count == 12
         end
       rescue ActiveRecord::StatementInvalid => e
-        puts "Duplicate symbol/time #{symbol} aborting..."
-        @logger.error("Duplicate symbol/time #{symbol} aborting...")
-        exit
+        puts "Duplicate symbol/time #{symbol} skipping..."
+        @logger.error("Duplicate symbol/time #{symbol} skipping...")
       rescue Exception => e
         puts "#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}"
         @logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
+        exit
       end
       count += 1
     end

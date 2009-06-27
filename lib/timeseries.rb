@@ -10,6 +10,13 @@
 
 require 'date'
 
+class Time
+  def bod?; hour == 9 && min == 30;end
+  def eod?; hour == 15 && min == 30; end
+  def in_trade?;
+  end
+end
+
 class Timeseries
 
   include Plot
@@ -23,13 +30,14 @@ class Timeseries
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 120
 
-  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ], :bars_per_day => 1  },
-                      IntraDayBar => { :sample_resolution => [ 30.minutes ],  :bars_per_day => 13 } }
+  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ]   },
+                      IntraDayBar => { :sample_resolution => [ 30.minutes ]  } }
 
-  attr_accessor :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
-  attr_accessor :begin_time, :end_time, :utc_offset, :resolution
-  attr_accessor :attrs, :derived_values, :output_offset, :plot_results, :stride
-  attr_accessor :timevec, :time_map, :local_range, :price, :index_range
+  attr_reader :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
+  attr_reader :begin_time, :end_time, :utc_offset, :resolution
+  attr_reader :attrs, :derived_values, :output_offset, :plot_results, :stride, :stride_offset, :only
+  attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
+  attr_reader :tday_count, :expected_bars
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true, :populate => true, :post_buffer => false
@@ -56,16 +64,19 @@ class Timeseries
     end
     @model, @model_attrs = select_by_resolution(time_resolution)
     @resolution = time_resolution
-    @bars_per_day = model_attrs[:bars_per_day]
+    @bars_per_day =  resolution == 1.day ? 1 : TRADING_PERIOD / resolution
     @attrs = model.content_columns.map { |c| c.name.to_sym }
     set_enum_attrs(attrs)
-    @stride = options[:stride].nil? ? 1 : options[:stride]
-    pre_offset = options[:pre_buffer] == true ? 120 : options[:pre_buffer].is_a?(Fixnum) ? options[:pre_buffer] : 0
-    post_offset = options[:post_buffer] == true ? 120 : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
-    debugger
+    @stride = options[:stride].nil? ? 1 :  options[:stride]
+    @stride_offset = options[:stride_offset].nil? ? 0 : options[:stride_offset]
+    raise ArgumentError, "Stride offset with no stride makes no sense also stride_offset must be < stride" if stride && stride_offset >= stride
+    pre_offset = options[:pre_buffer] == true ? PRECALC_BARS : options[:pre_buffer].is_a?(Fixnum) ? options[:pre_buffer] : 0
+    post_offset = options[:post_buffer] == true ? PRECALC_BARS : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
     @begin_time = offset_date(@local_range.begin, pre_offset, -1)
     @end_time = (od = offset_date(@local_range.end, post_offset, 1)) > Time.now ? Time.now : od
     @plot_results = options[:plot_results]
+    @tday_count = trading_day_count(begin_time.to_date, end_time.to_date)
+    @expected_bars = tday_count * bars_per_day
     options.reverse_merge!(DEFAULT_OPTIONS[model])
     options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
@@ -77,7 +88,7 @@ class Timeseries
   # returning a time have the local timezone
   #
   def self.parse_time(date_time_str)
-    d = Date._strptime(date_time_str, "%m-%d-%Y %H:%M")
+    d = Date._strptime(date_time_str, "%m/%d/%Y %H:%M")
     Time.utc(d[:year], d[:mon], d[:mday], d[:hour], d[:min],
                d[:sec], d[:sec_fraction], d[:zone])
   end
@@ -95,7 +106,7 @@ class Timeseries
 
   #
   # Return the offset into the timeseries of the first result, whcih has to be the same
-  # as the beginning of the actual timeseries (minus any pre-buffering). We pre-buffer 120
+  # as the beginning of the actual timeseries (minus any pre-buffering). We pre-buffer PRECALC_BARS
   # elements by default so that any TA methods (EMAs, SMAs, etc) which require extra elements
   # to "warm up" the compuation have their needs meet by the pre-buffering. W/O pre-buffering
   # the the "warm up" elements would be taken out of the actually data series, causing the first
@@ -111,9 +122,9 @@ class Timeseries
   # and should be taken out. It was put in so that the "each" method (and therefore all Enumeration methods)
   # could be used on a timeseries.
   #
-  def set_enum_attrs(attrs)
-    raise ArgumentError, "attrs is not a proper subset of available values" unless attrs.all? { |attr|self.attrs.include? attr }
-    self.enum_attrs = attrs
+  def set_enum_attrs(subset)
+    raise ArgumentError, "attrs is not a proper subset of available values" unless subset.all? { |attr| attrs.include? attr }
+    @enum_attrs = subset
   end
 
   #
@@ -123,6 +134,18 @@ class Timeseries
     @timevec.each_with_index { |time,i | yield(values_at(i, enum_attrs)) }
   end
 
+  #
+  # yields a hash whose keys are *attrs* for every bar in the input time range
+  #
+  def local_each(attrs)
+    timevec[index_range].each_with_index { |time, i| yield hash_at(i, attrs).merge({ :time => time}) }
+  end
+  #
+  # returns a *hash* of values the keys of which are *attrs* for the index specified
+  #
+  def hash_at(i, attrs)
+    attrs.inject({}) { |a, h| h[a] = value_hash[a][i]; h}
+  end
   #
   # Convenience methods that runs all the specified technical analysis function in one line, i.e:
   #    $ts.all :rsi, :rvi, :ema, :lr
@@ -140,34 +163,46 @@ class Timeseries
   end
 
   #
-  # This is like all() only it allows for the specification of parameters
+  # This is like all() only it allows for the specification of parameters that apply to all of the functions
   #
   def multi_calc(fcn_vec, options={})
     return nil if fcn_vec.empty?
-    fcn_vec.each { |function| self.send(function, options.merge(:noplot => true)) }
+    fcn_vec.each { |function| send(function, options.merge(:noplot => true)) }
     aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
     clear_results
   end
 
 
+  #
+  # Like multi_calc but take a vector of function, paramater paris
+  #
   def multi_fopt(fopt_vec, options={})
     fopt_vec.each do |ary|
       raise ArgumentError, "Expecting an Array of [:function, {options}]" unless ary.is_a? Array
-      self.send(ary.first, ary.last.merge(:noplot => true))
+      send(ary.first, ary.last.merge(:noplot => true))
     end
     aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
     clear_results
   end
 
+  #
+  # Find the first result returned by a saved fucnction, most function have only one vector of outputs
+  #
   def find_result(fcn, options={})
     values = derived_values.reverse.select { |pb| pb.match(fcn, options) }
     return values.first unless values.empty?
   end
 
+  #
+  # Clears the objects retaining the results of prior TA calles
+  #
   def clear_results
-    self.derived_values = []
+    @derived_values = []
   end
 
+  #
+  # Returns the results of a prior TA call, takes a symbol or pair [ :fcn, :result_name ]
+  #
   def vector_for(sym_or_pair)
     derived_values.each do |memo|
       case
@@ -184,16 +219,23 @@ class Timeseries
     end
   end
 
+  #
+  # Sets the vector, either directly or by computing it, of the vector known as price with most TALIB
+  # function use as their source vector
+  #
   def set_price(expression = :default)
-    self.price = case
-                 when expression == :default      : close
-                 when expression == :average      : (high+low).scale(0.5)
-                 when expression == :all          : (open+close+high+low).scale(0.25)
-                 when expression.is_a?(Symbol)    : send(expression)
-                 when expression.is_a?(String)    : instance_eval(expression)
-                 end
+    @price = case
+             when expression == :default      : close
+             when expression == :average      : (high+low).scale(0.5)
+             when expression == :all          : (open+close+high+low).scale(0.25)
+             when expression.is_a?(Symbol)    : send(expression)
+             when expression.is_a?(String)    : instance_eval(expression)
+             end
   end
 
+  #
+  # Selects the DB model containing the resolution (1.day, 30.minutes, 5.minute) of the bars
+  #
   def select_by_resolution(resolution)
     DEFAULT_OPTIONS.each_pair do |key, value|
       return key, value if value[:sample_resolution].include? resolution
@@ -201,39 +243,74 @@ class Timeseries
     raise ArgumentError, "A sampling resolution of #{resolution} is not available"
   end
 
+  #
+  # Compute the calendar date to be given to the DB to grab the selected data range plus any pre-buffering
+  #
   def offset_date(ref_date, pre_offset, dir)
     trading_days = ((1.day / bars_per_day ) * pre_offset) /1.day
-    trading_days_from(ref_date, trading_days, dir).last.to_time.utc.midnight
+    tdf = trading_days_from(ref_date, trading_days, dir).last.to_time.utc.midnight
   end
 
+  #
+  # initializes the time vector for this time series
+  #
   def init_timevec
     value_hash[model.time_col.to_sym] = model.time_vector(symbol, begin_time, end_time)
     compute_timestamps
   end
 
+  #
+  # Populates the timeseries with the results stored in the DB. This is resolution agnostic.
+  #
   def repopulate(options)
     @value_hash = model.general_vectors(symbol, attrs, begin_time, end_time)
-    raise Exception, "No values where return from #{model.to_s.tableize} for #{symbol} #{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
+    missing_bars = expected_bars - value_hash[:close].length
+    raise TimeseriesException, "No values where return from #{model.to_s.tableize} for #{symbol} " +
+      "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
+    raise TimeseriesException, "Missing #{missing_bars} for #{symbol}" if missing_bars > 0
+    if stride > 1
+      new_hash = { }
+      value_hash.each_pair do |k,v|
+        vec = []
+        v.each_with_index { |e,i| vec << e if i % stride == stride_offset }
+        new_hash[k] = vec
+      end
+      @value_hash = new_hash
+    end
     compute_timestamps
   end
 
 #  private
 
+  #
+  # sets a local variable to the options supplied with the function call.
+  #
   def apply_options(options)
     options.keys.each do |key|
-      self.send("#{key}=", options[key]) if respond_to? key
+      send("#{key}=", options[key]) if respond_to? key
     end
   end
 
+  #
+  # Central routine handlling the normalization a storage of the time values returned from the database
+  #
   def compute_timestamps
     if model.time_class == Date
-      self.timevec = value_hash[model.time_col.to_sym].collect { |dt| dt.to_time.utc.to_time.midnight }
+      @timevec = value_hash[model.time_col.to_sym].collect { |dt| dt.to_time.utc.midnight }
     else
-      self.timevec = value_hash[model.time_col.to_sym].collect { |twz| twz.time }
+      @timevec = value_hash[model.time_col.to_sym].collect { |twz| twz.time }
     end
-    self.timevec.each_with_index { |time, idx| self.time_map[time] = idx }
+    timevec.each_with_index { |time, idx| @time_map[time] = idx }
+    @begin_index = time2index(local_range.begin, 1)
+    @end_index = time2index(local_range.end, -1)
+    @index_range = begin_index..end_index
   end
 
+  #
+  # Retuns the minimal number of samples a TA function needs. The value will be then used
+  # to check if we have buffered enough samples before the begining of the real data so that
+  # we get a full vector of results
+  #
   def minimal_samples(lookback_fun, *args)
     lookback_fun ? Talib.send(lookback_fun, *args) : args.sum
   end
@@ -241,15 +318,14 @@ class Timeseries
   # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
 
   def calc_indexes(loopback_fun, *args)
-    begin_time = local_range.begin.utc.midnight
-    end_time = local_range.end.utc.midnight
-    begin_index = time2index(begin_time, 1)
-    end_index = time2index(end_time, 1)
-    self.output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
+    @output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
     raise ArgumentError, "Only subset of Date Range available, pre-buffer at least #{output_offset} more trading days" if output_offset > 0
-    @index_range = begin_index..end_index
+    index_range
   end
 
+  #
+  # Maps the time or data to the specific index in the vector for the sample associated with that date/time
+  #
   def time2index(time, direction, raise_on_range_error=true)
     case
     when model.time_class == Date : time2index_days(time, direction, raise_on_range_error=true)
@@ -258,17 +334,20 @@ class Timeseries
     end
   end
 
+  #
+  # Handles dates only, delegated to from time2index
+  #
   def time2index_days(time, direction, raise_on_range_error)
     adj_time = time.to_time.utc.midnight
     if direction == -1
-      raise TimeseriesException, "#{symbol}: requested time is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
+      raise TimeseriesException, "#{symbol}: requested time: #{adj_time} is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
       until time_map.include?(adj_time) || adj_time < timevec.first
         adj_time -= resolution
       end
       raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
       time_map[adj_time]
     else # this is split into two loop to simplify the boundry test
-      raise TimeseriesException, "Requested time is after recorded history: ending #{timevec.last}" if adj_time > timevec.last
+      raise TimeseriesException, "Requested time: #{adj_time} is after recorded history: ending #{timevec.last}" if adj_time > timevec.last
       until time_map.include?(adj_time) || adj_time > timevec.last
         adj_time += resolution
       end
@@ -277,6 +356,9 @@ class Timeseries
     return time_map[adj_time]
   end
 
+  #
+  # Handles times only, delegated to from time2index
+  #
   def time2index_time(time, direction, raise_on_range_error=true)
     adj_time = time + 9.5.hours.to_i if time.at_midnight
     if direction == -1
@@ -296,36 +378,56 @@ class Timeseries
     return time_map[adj_time]
   end
 
+  #
+  # Returns a the value at an index location of a bar or result #FIXME this function is duplicated elswhere
+  #
   def value_at(index, slot)
     send(slot)[index]
   end
 
+  #
+  # Returns the time for a vector of index
+  #
   def times_for(indexes)
     indexes.map { |index| index2time(index) }
   end
 
+  #
+  # returns the time for a specific index
+  #
   def index2time(index, offset=0)
     return nil if index >= timevec.length
     timevec[index+offset] ? timevec[index+offset].send(model.time_convert) : nil
   end
 
+  #
+  # returns the length of this timeseries. Note that this is the "gross" length, taking into account
+  # any pre or post bufferes
+  #
   def length
     timevec.length
   end
 
+  #
+  # Returns he object that stored the last TA result set
+  #
   def memo
     derived_values.last
   end
 
+  # FiXME don't know why this is here!!!!
   def extended_range?
     true
   end
 
+  #
+  # When a TA method is applied to a timeseries, we keep the results around for later, plus any meta-data
+  #
   def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)
     status = results.shift
     outidx = results.shift
     pb = AnalResults.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
-    self.derived_values << pb
+    @derived_values << pb
 
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
@@ -344,10 +446,16 @@ class Timeseries
     end
   end
 
+  #
+  # One of the ways of computing price
+  #
   def avg_price
     (open+close+high+low).scale(0.25)
   end
 
+  #
+  # Find a previous result set by its name and meta-data
+  #
   def find_memo(fcn_symbol, time_range=nil, options={})
     fcn = fcn_symbol.to_sym
     derived_values.reverse.find do |pb|
@@ -359,8 +467,8 @@ class Timeseries
 
   def add_methods_for_attributes(attrs)
     attrs.each do |attr|
-      instance_eval("def #{attr}(); self.value_hash['#{attr}'.to_sym].to_gv; end")
-      instance_eval("def #{attr}_before_cast(); self.value_hash['#{attr}'.to_sym]; end")
+      instance_eval("def #{attr}(); @value_hash['#{attr}'.to_sym].to_gv; end")
+      instance_eval("def #{attr}_before_cast(); @value_hash['#{attr}'.to_sym]; end")
     end
   end
 
@@ -369,11 +477,11 @@ class Timeseries
 #  end
 
   def initialize_state
-    self.value_hash, self.time_map = {}, {}
-    self.derived_values,  self.attrs = [], []
-    self.timevec = []
-    self.utc_offset = Time.now.utc_offset
-    self.enum_index = 0
+    @value_hash, @time_map = {}, {}
+    @derived_values,  @attrs = [], []
+    @timevec = []
+    @utc_offset = Time.now.utc_offset
+    @enum_index = 0
   end
 end
 

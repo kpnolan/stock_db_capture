@@ -15,13 +15,13 @@ module AnalyzeReturns
       max = avg + sigma*stddev
       #max = Position.maximum(:nreturn, :conditions => 'nreturn is not null')
       #min = Position.minimum(:nreturn, :conditions => 'nreturn is not null')
-      hist = GSL::Histogram.alloc(1000, min, max)
+      hist = GSL::Histogram.alloc(100, min, max)
 
       nreturns = do_query(strategy, 'nreturn').map! { |str| str.to_f }
       nreturns.each { |r| hist.accumulate(r) }
 
       hist.graph('-C')
-#      hist.graph('-T gif -C')
+      hist.graph('-T gif -C')
     end
 
     def do_query(strategy, value)

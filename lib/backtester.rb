@@ -18,14 +18,16 @@ class BacktestException < Exception
 end
 
 class Backtester
+
   attr_accessor :tid_array, :ticker, :date_range, :ts, :result_hash, :meta_data_hash, :strategy, :opening, :closing, :scan
-  attr_reader :pnames, :sname, :desc, :options, :post_process
+  attr_reader :pnames, :sname, :desc, :options, :post_process, :close_buffer
 
   def initialize(strategy_name, population_names, description, options, &block)
     @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false
     @sname = strategy_name
     @pnames = population_names
     @desc = description
+    @close_buffer = options[:close_buffer]
     @positions = []
     @post_process = block
 
@@ -70,7 +72,13 @@ class Backtester
         # and run the analysis given with the strategy on said timeseries
         for tid in tid_array
           self.ticker = Ticker.find tid
-          ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options.merge(:post_buffer => post_buffer))
+          begin
+            ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options.merge(:post_buffer => post_buffer))
+          rescue TimeseriesException => e
+            logger.error("#{ticker.symbol} has missing dates, skipping...")
+            logger.error("Error: #{e.to_s}")
+            next
+          end
           open_positions(ts, opening.params)
         end
         strategy.scans << scan
@@ -93,7 +101,7 @@ class Backtester
         for position in strategy.positions
           p = close_position(position)
           if p.exit_price.nil?
-            logger.info "Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t>120\t#{p.entry_price}\t***.**\t0.000000"
+            logger.info "Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t>1#{close_buffer}\t#{p.entry_price}\t***.**\t0.000000"
           else
             logger.info "Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t#{p.days_held}\t#{p.entry_price}\t#{p.exit_price}\t#{p.nreturn*100.0}"
           end
@@ -133,15 +141,17 @@ class Backtester
     rescue NoMethodError => e
       $logger.info e.message unless e.message =~ /to_v/ or $logger.nil?
     rescue TimeseriesException => e
-      $logger.info e.messge unless e.message =~ /recorded history/ or $logger.nil?
+      $logger.info e.message unless e.message =~ /recorded history/ or $logger.nil?
+    rescue Exception => e
+      $logger.info e.message
     end
   end
 
   # Close a position opened during the first phase of the backtest
   def close_position(p)
     begin
-      ts = Timeseries.new(p.ticker_id, p.entry_date..(p.entry_date+4.months), 1.day,
-                          :pre_buffer => 30, :post_buffer => 7)
+      ts = Timeseries.new(p.ticker_id, p.entry_date..(p.entry_date+20.days), 1.day,
+                          :pre_buffer => 30, :post_buffer => close_buffer)
       index = closing.block.call(ts, closing.params)
       if index.nil?
         p.update_attributes!(:exit_price => nil, :exit_date => nil,
@@ -160,6 +170,12 @@ class Backtester
                              :days_held => days_held, :nreturn => nreturn,
                              :risk_factor => nil, :exit_trigger => exit_trigger)
       end
+    rescue TimeseriesException => e
+      if e.message =~ /recorded history/
+        p.strategies.delete_all
+        p.distroy
+      end
+      p = nil
     rescue Exception => e
       $logger.error "Exception Raised: #{e.to_s} skipping closure}" if $logger
       $logger.error p.inspect if $logger
@@ -167,4 +183,3 @@ class Backtester
     p
   end
 end
-

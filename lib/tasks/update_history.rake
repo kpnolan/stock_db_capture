@@ -19,6 +19,12 @@ namespace :active_trader do
     update_daily_history(@logger)
   end
 
+  desc "Update IntrDayBar table with new history"
+  task :update_intraday_history => :environment do
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_intrday_history.log'))
+    update_intraday_history(@logger)
+  end
+
   desc "Load all Daily Close with logr values"
   task :load_logr => :environment do
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'init_logr.log'))

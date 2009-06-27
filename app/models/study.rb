@@ -42,8 +42,8 @@ class Study < ActiveRecord::Base
         study
       when options[:increment] == :retain
         study
-      when options[:increment] == :none then
-        raise ArgumentError, ":increment => :none given when Study already exists, use :redo or :version" if study
+      when options[:increment] == :init then
+        raise ArgumentError, ":increment => :init given when Study already exists, use :redo or :version" if study
         options[:version] = 1
         options[:sub_version] = 0
         options[:iteration] = 0
@@ -53,7 +53,7 @@ class Study < ActiveRecord::Base
         options[:sub_version] = study.sub_version
         options[:iteration] = study.iteration + 1
         create!(build_attrs(name, options))
-      when options[:increment] = :sub_version
+      when options[:increment] == :sub_version
         options[:version] = study.version
         options[:sub_version] = study.sub_version + 1
         options[:iteration] = 0

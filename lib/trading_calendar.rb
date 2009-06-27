@@ -53,10 +53,9 @@ module TradingCalendar
 
   def trading_days_from(date, number, dir=1)
     date = date.to_date
-    return [ date ] if number.zero?
     trading_days = [ ]
     calendar_days = dir
-    while trading_days.length < number
+    while trading_days.empty? || trading_days.length < number
       next_date = date + calendar_days
       case
       when [0,6].include?(next_date.to_time.wday) : calendar_days += dir
@@ -67,6 +66,10 @@ module TradingCalendar
       end
     end
     return trading_days
+  end
+
+  def total_bars(date1, date2, bars_per_day)
+    trading_day_count(date1, date2) * bars_per_day
   end
 
   def trading_day_count(date1, date2)

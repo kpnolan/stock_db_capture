@@ -39,13 +39,22 @@ class Scan < ActiveRecord::Base
   def tickers_ids(repopulate=false)
     join = self.join ? self.join : ''
     having = conditions ? "HAVING #{conditions}" : ''
-    sql = "SELECT daily_bars.ticker_id FROM daily_bars #{join} WHERE " +
+    sql1 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
           "date >= '#{start_date.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
+          "GROUP BY ticker_id " + having
+    sql2 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
+          "date(start_time) >= '#{start_date.to_s(:db)}' AND date(start_time) <= '#{(end_date+1).to_s(:db)}' " +
           "GROUP BY ticker_id " + having
     if repopulate || tickers.empty?
       $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger
       tickers.clear
-      @population_ids = Scan.connection.select_values(sql)
+      if table_name == 'daily_bars'
+        @population_ids = Scan.connection.select_values(sql1)
+      elsif table_name == 'intra_day_bars'
+        @population_ids = Scan.connection.select_values(sql2)
+      else
+        raise ArgumentError, 'table_name must be "daily_bar" or "intra_day_bars"'
+      end
       self.ticker_ids = @population_ids
       ticker_ids
     else

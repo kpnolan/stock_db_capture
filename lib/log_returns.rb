@@ -7,7 +7,8 @@ require 'retired_symbol_exception'
 
 module LogReturns
 
-  attr_accessor :logger, :counter, :count
+  attr_reader :logger, :year, :last_date
+  attr_accessor :count, :counter
 
   Infinity = 1.0/0.0
   MinusInfinity = -1.0/0.0
@@ -27,11 +28,11 @@ module LogReturns
   # This method computes the return, log return, and anunalized_returns for all returns for a given
   # ticker at once using vector math, so it's very fast
   def initialize_returns(logger)
-    year = ENV['YEAR']
-    year = year.to_i if year
-    self.logger = logger
-    self.counter = 1
-    self.count = ticker_ids(year).length
+    year_env = ENV['YEAR']
+    @year = year_env.to_i if year_env
+    @logger = logger
+    @counter = 1
+    @count = ticker_ids(year).length
     for ticker_id in ticker_ids()
         ticker = Ticker.transaction do
           ticker = Ticker.find_by_id(ticker_id, :lock => true)

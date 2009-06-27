@@ -10,10 +10,10 @@ require 'statistics/base'
 module Statistics
   module Experiment
     class Test
-      attr_reader :study, :scan, :ticker, :date_range, :ts, :ticker_id, :block, :options, :ticker_ids
+      attr_reader :study, :scan, :ticker, :date_range, :ts, :ticker_id, :block, :options, :ticker_ids, :timeseries, :ts_hash, :limit
 
       def initialize(study_name, options, &block)
-        @options = options.reverse_merge :resolution => 1.day
+        @options = options.reverse_merge :timeseries => [ { :resolution => 1.day } ]
         raise ArgumentError, "option must include a :with which defines what population this experiment is operating on" if options[:with].nil?
         @scan = Scan.find_by_name(options[:with])
         @study = $study if options[:version] == :memory
@@ -23,6 +23,8 @@ module Statistics
         @block = block
         study.import_dates(scan)
         @date_range = study.start_date..study.end_date
+        @timeseries = options[:timeseries]
+        @limit = options[:limit]
       end
 
       def run()
@@ -30,26 +32,42 @@ module Statistics
           instance_eval(&block)
           return
         end
+        count = 0
         for tid in (@ticker_ids = scan.population_ids)
-          @ticker = Ticker.find tid
-          puts "Computing results for #{ticker.symbol}"
-          @ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options)
-          prior_name = nil
-          for factor in study.factors.find(:all, :order => 'indicator_id, result')
-            memo = ts.send(factor.name, factor.params.merge(:noplot => true, :result => :memo)) unless factor.name == prior_name
-            prior_name = factor.name
-            memo.each_from_result(factor.result) do |pair|
-              value, date = pair
-              begin
-                StudyResult.create!(:factor_id => factor.id, :ticker_id => ticker.id, :date => date, :value => value)
-              rescue Exception => e
-                puts "Problem with #{factor.name}:#{factor.result}"
+          begin
+            @ticker = Ticker.find tid
+            puts "Computing results for #{ticker.symbol}"
+            @ts_hash = {}
+            timeseries.each do |params|
+              ts_hash[timeseries_params_key(params)] = Timeseries.new(ticker.symbol, date_range, params[:resolution], params)
+
+            end
+            for factor in study.factors.find(:all, :order => 'indicator_id, result')
+              params = factor.params
+              memo = ts_hash[timeseries_params_key(params)].send(factor.name, factor.params.merge(:noplot => true, :result => :memo))
+              actual_result = factor.name == 'extract' ? 'value' : factor.result
+              memo.each_from_result(actual_result) do |pair|
+                value, date = pair
+                begin
+                  StudyResult.create!(:factor_id => factor.id, :ticker_id => ticker.id, :date => date, :value => value)
+                rescue Exception => e
+                  puts "Problem with #{factor.name}:#{factor.result}"
+                end
               end
             end
+          rescue TimeseriesException => e
+            puts e.to_s
+            next
           end
+          count += 1
+          break if limit && count == limit
         end
         instance_eval(&block)
       end
+    end
+
+    def timeseries_params_key(hash)
+      "res:#{hash[:resolution]},stride:#{hash[:stride]},stride_offset:#{hash[:stride_offset]}"
     end
 
     def make_csv()

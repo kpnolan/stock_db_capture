@@ -1,8 +1,8 @@
 --- #YAML:1.0
 FinancialFunctions:
   FinancialFunction:
-    - Abbreviation: barval
-      CamelCaseName: barval
+    - Abbreviation: extract
+      CamelCaseName: extract
       Flags:
         Flag: Overlap
       GroupId: Primitive Functions
@@ -16,7 +16,7 @@ FinancialFunctions:
         RequiredInputArgument:
           Name: Close
           Type: Close
-      ShortDescription: Returns one of OHLCV
+      ShortDescription: Returns one of OHLCV(delta, accum_volume)
     - Abbreviation: calculate
       CamelCaseName: calculate
       Flags:

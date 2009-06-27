@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090621183035) do
+ActiveRecord::Schema.define(:version => 20090625210728) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -100,7 +100,7 @@ ActiveRecord::Schema.define(:version => 20090621183035) do
     t.string  "result"
   end
 
-  add_index "factors", ["study_id"], :name => "study_id"
+  add_index "factors", ["study_id", "indicator_id", "result"], :name => "myfields_idx", :unique => true
   add_index "factors", ["indicator_id"], :name => "indicator_id"
 
   create_table "historical_attributes", :force => true do |t|
@@ -228,6 +228,7 @@ ActiveRecord::Schema.define(:version => 20090621183035) do
     t.text   "conditions"
     t.string "description"
     t.string "join"
+    t.string "table_name"
   end
 
   create_table "scans_strategies", :id => false, :force => true do |t|

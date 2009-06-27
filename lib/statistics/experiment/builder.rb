@@ -16,7 +16,7 @@ module Statistics
       end
 
       def run(study_name, options, &block)
-        @experiments << Statistics::Experiment::Test.new(study_name, options, &block)
+        @experiments << Statistics::Experiment::Test.new(study_name, options.merge(self.options), &block)
       end
 
       def execute(logger)

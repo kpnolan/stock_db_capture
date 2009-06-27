@@ -26,7 +26,7 @@ class AnalResults
     self.timeseries = ts
     self.result_hash = {}
 
-    raise ArgumentError, "Output Index is not same as Index Rage, increase pre-buffer" if outidx != index_range.begin
+    raise ArgumentError, "Output Index is not same as Index Rage, increase pre-buffer" if outidx != index_range.begin && outidx != 0
 
     self.names.each_with_index { |name, idx| self.result_hash[name.to_sym] = vectors[idx] }
   end

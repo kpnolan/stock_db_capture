@@ -96,7 +96,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
   #ts(:rri, Date.civil(2008, 7, 15)..Date.civil(2008,12, 15), 1.day)
 
-  ts(:msft, Date.parse('03/02/2009')..Date.parse('3/31/2009'), 1.day, :populate => true)
+  #ts(:msft, Date.parse('03/02/2009')..Date.parse('3/31/2009'), 30.minutes, :pre_buffer => 0, :post_buffer => 0, :populate => true)
 
   def lookup(symbol, start_date, end_date=nil, options={})
     options.reverse_merge! :interval => 1.day.seconds

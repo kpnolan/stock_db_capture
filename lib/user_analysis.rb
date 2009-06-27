@@ -188,12 +188,12 @@ module UserAnalysis
     memoize_result(self, :nreturn, index_range, options, result, :financebars)
   end
 
-  def barval(options={})
-    options.reverse_merge! :slot => :close
+  def extract(options={})
+    raise ArgumentError, "no :slot option given to extract" unless options.has_key? :slot
     idx_range = calc_indexes(nil)
-    vec = send(options[:slot])[idx_range]
-    result = [0, idx_range.begin, vec]
-    memoize_result(self, :barval, idx_range, options, result, :financebars)
+    vec = value_hash[options[:slot]][idx_range]
+    result = [0, 0, vec]
+    memoize_result(self, :extract, idx_range, options, result, :financebars)
   end
 
   def calculate(options={})

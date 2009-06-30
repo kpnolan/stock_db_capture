@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090621183035
+# Schema version: 20090630195749
 #
 # Table name: factors
 #
@@ -56,6 +56,7 @@ class Factor < ActiveRecord::Base
   class << self
 
     def create_from_args(study, fcn, params={})
+      params.reverse_merge! :resolution => 1.day
       results = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names.map { |n| n.downcase }
       if params[:result]
         selected = params[:result].is_a?(Array) ? params[:result] : [ params[:result] ]

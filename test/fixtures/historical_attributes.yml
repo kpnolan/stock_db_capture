@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090621183035
+# Schema version: 20090630195749
 #
 # Table name: historical_attributes
 #

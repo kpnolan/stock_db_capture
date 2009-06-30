@@ -41,9 +41,7 @@ config/rsi_ema.rb,0
 config/rfamily.rb,0
 
 config/environment.rb,75
-  def lookup(symbol, start_date, end_date=nil, options={})lookup101,4722
-
-config/intra.rb,0
+  def lookup(symbol, start_date, end_date=nil, options={})lookup101,4802
 
 config/deploy.rb,0
 
@@ -60,6 +58,8 @@ config/decade.rb,0
 config/2000_2008.rb,0
 
 config/kevin.rb,0
+
+config/kevin_2008.rb,0
 
 test/functional/indicators_controller_test.rb,652
 class IndicatorsController; def rescue_action(e) raise e end; endIndicatorsController5,128
@@ -590,52 +590,52 @@ lib/plot_aux_info.rb,92
 module PlotAuxInfoPlotAuxInfo1,0
   def plot_commands_for(function)plot_commands_for2,19
 
-lib/timeseries.rb,2374
+lib/timeseries.rb,2405
 class TimeTime13,445
   def bod?; hour == 9 && min == 30;endbod?14,456
   def eod?; hour == 15 && min == 30; endeod?15,495
-  def in_trade?;in_trade?16,536
-class TimeseriesTimeseries20,564
-  def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})initialize41,1331
-  def self.parse_time(date_time_str)parse_time87,3988
-  def to_sto_s96,4273
-  def inspectinspect100,4377
-  def outidxoutidx112,4955
-  def set_enum_attrs(subset)set_enum_attrs122,5360
-  def eacheach130,5652
-  def local_each(attrs)local_each137,5832
-  def hash_at(i, attrs)hash_at144,6059
-  def all(*args)all152,6347
-  def values_at(index, vals)values_at159,6533
-  def multi_calc(fcn_vec, options={})multi_calc166,6728
-  def multi_fopt(fopt_vec, options={})multi_fopt177,7064
-  def find_result(fcn, options={})find_result189,7511
-  def clear_resultsclear_results197,7745
-  def vector_for(sym_or_pair)vector_for204,7895
-  def set_price(expression = :default)set_price224,8677
-  def select_by_resolution(resolution)select_by_resolution237,9204
-  def offset_date(ref_date, pre_offset, dir)offset_date247,9575
-  def init_timevecinit_timevec255,9836
-  def repopulate(options)repopulate263,10074
-  def apply_options(options)apply_options284,10732
-  def compute_timestampscompute_timestamps293,10974
-  def minimal_samples(lookback_fun, *args)minimal_samples310,11660
-  def calc_indexes(loopback_fun, *args)calc_indexes316,11872
-  def time2index(time, direction, raise_on_range_error=true)time2index325,12294
-  def time2index_days(time, direction, raise_on_range_error)time2index_days336,12650
-  def time2index_time(time, direction, raise_on_range_error=true)time2index_time358,13691
-  def value_at(index, slot)value_at380,14782
-  def times_for(indexes)times_for387,14890
-  def index2time(index, offset=0)index2time394,15018
-  def lengthlength403,15320
-  def memomemo410,15424
-  def extended_range?extended_range?415,15508
-  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result422,15660
-  def avg_priceavg_price448,16465
-  def find_memo(fcn_symbol, time_range=nil, options={})find_memo455,16591
-  def add_methods_for_attributes(attrs)add_methods_for_attributes464,16875
-  def initialize_stateinitialize_state475,17215
-def ts(symbol, local_range, seconds, options={})ts485,17400
+  def in_trade?; hour >= 9 && hour <= 15; endin_trade?16,536
+class TimeseriesTimeseries19,587
+  def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})initialize41,1395
+  def self.parse_time(date_time_str)parse_time91,4175
+  def to_sto_s100,4462
+  def inspectinspect104,4566
+  def outidxoutidx116,5144
+  def set_enum_attrs(subset)set_enum_attrs126,5549
+  def eacheach134,5841
+  def local_each(attrs)local_each142,6111
+  def hash_at(i, attrs)hash_at148,6337
+  def all(*args)all156,6625
+  def values_at(index, vals)values_at163,6811
+  def multi_calc(fcn_vec, options={})multi_calc170,7013
+  def multi_fopt(fopt_vec, options={})multi_fopt181,7349
+  def find_result(fcn, options={})find_result193,7796
+  def clear_resultsclear_results201,8030
+  def vector_for(sym_or_pair)vector_for208,8180
+  def set_price(expression = :default)set_price228,8962
+  def select_by_resolution(resolution)select_by_resolution241,9489
+  def offset_date(ref_date, pre_offset, dir)offset_date251,9860
+  def init_timevecinit_timevec259,10121
+  def repopulate(options)repopulate269,10502
+  def apply_options(options)apply_options292,11311
+  def compute_timestampscompute_timestamps301,11553
+  def minimal_samples(lookback_fun, *args)minimal_samples318,12240
+  def calc_indexes(loopback_fun, *args)calc_indexes324,12452
+  def time2index(time, direction, raise_on_range_error=true)time2index333,12874
+  def time2index_days(time, direction, raise_on_range_error)time2index_days344,13230
+  def time2index_time(time, direction, raise_on_range_error=true)time2index_time366,14271
+  def value_at(index, slot)value_at388,15362
+  def times_for(indexes)times_for395,15470
+  def index2time(index, offset=0)index2time402,15598
+  def lengthlength411,15900
+  def memomemo418,16004
+  def extended_range?extended_range?423,16088
+  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result430,16240
+  def avg_priceavg_price456,17045
+  def find_memo(fcn_symbol, time_range=nil, options={})find_memo463,17171
+  def add_methods_for_attributes(attrs)add_methods_for_attributes472,17455
+  def initialize_stateinitialize_state483,17795
+def ts(symbol, local_range, seconds, options={})ts493,17980
 
 lib/csv_dumper.rb,164
 module CsvDumperCsvDumper7,114
@@ -652,14 +652,15 @@ module ScansScans5,73
   def initinit45,1389
   def kirk_ratiokirk_ratio49,1503
 
-lib/backtester.rb,369
+lib/backtester.rb,442
 class BacktestException < ExceptionBacktestException14,276
   def initialize(msg)initialize15,312
 class BacktesterBacktester20,360
-  def initialize(strategy_name, population_names, description, options, &block)initialize25,579
-  def run(logger)run41,1189
-  def open_positions(ts, params)open_positions123,5076
-  def close_position(p)close_position151,6065
+  def initialize(strategy_name, population_names, description, options, &block)initialize25,604
+  def run(logger)run43,1281
+  def open_positions(ts, params, pass)open_positions136,5483
+  def tstop(p, threshold_percent, options={})tstop167,6621
+  def close_position(p, pass)close_position200,8006
 
 lib/retired_symbol_exception.rb,108
 class RetiredSymbolException < ExceptionRetiredSymbolException3,57
@@ -949,7 +950,7 @@ module VisualizeEntryVisualizeEntry3,57
   def graph_entrygraph_entry4,79
   def quit?(p)quit?35,1438
 
-lib/trading_calendar.rb,591
+lib/trading_calendar.rb,711
 module TradingCalendarTradingCalendar3,57
   def holidays()holidays16,1216
   def trading_day?(date)trading_day?28,1453
@@ -957,9 +958,11 @@ module TradingCalendarTradingCalendar3,57
   def trading_count_for_year(year)trading_count_for_year40,1722
   def trading_days_for_year(year)trading_days_for_year47,1926
   def trading_days_from(date, number, dir=1)trading_days_from54,2124
-  def trading_day_count(date1, date2)trading_day_count72,2615
-  def format_dates_where_clause(dates)format_dates_where_clause76,2698
-  def trading_to_calendar(start_date, day_count)trading_to_calendar80,2781
+  def total_bars(date1, date2, bars_per_day)total_bars71,2602
+  def trading_day_count(date1, date2)trading_day_count75,2705
+  def format_dates_where_clause(dates)format_dates_where_clause79,2788
+  def trading_to_calendar(start_date, day_count)trading_to_calendar83,2871
+  def ttime2index(time, resolution)ttime2index87,2977
 
 lib/statistics/experiment/maker.rb,209
 module StatisticsStatistics1,0
@@ -974,11 +977,11 @@ module StatisticsStatistics10,261
     class TestTest12,299
       def initialize(study_name, options, &block)initialize15,448
       def run()run30,1308
-    def timeseries_params_key(hash)timeseries_params_key69,2766
-    def make_csv()make_csv73,2906
-    def gather_factor_data(study, tid)gather_factor_data94,3666
-    def format_filename(study, symbol)format_filename106,4143
-    def header_row(study)header_row111,4341
+    def timeseries_params_key(hash)timeseries_params_key70,2767
+    def make_csv()make_csv74,2907
+    def gather_factor_data(study, tid)gather_factor_data95,3667
+    def format_filename(study, symbol)format_filename107,4144
+    def header_row(study)header_row112,4342
 
 lib/statistics/experiment/builder.rb,354
 module StatisticsStatistics1,0
@@ -987,8 +990,8 @@ module StatisticsStatistics1,0
       def initialize(name)initialize4,80
     class BuilderBuilder9,181
       def initialize(options)initialize13,256
-      def run(study_name, options, &block)run18,350
-      def execute(logger)execute22,510
+      def run(study_name, options, &block)run18,385
+      def execute(logger)execute22,545
 
 lib/statistics/study_components/maker.rb,211
 module StatisticsStatistics1,0
@@ -1004,8 +1007,8 @@ module StatisticsStatistics4,34
       def initialize(name)initialize7,116
     class BuilderBuilder12,217
       def initialize(name, options)initialize16,286
-      def factor(name, params={})factor20,400
-      def desc(string)desc24,499
+      def factor(name, params={})factor21,451
+      def desc(string)desc25,550
 
 lib/statistics/base.rb,0
 
@@ -2418,12 +2421,9 @@ app/models/current_listing.rb,101
 class CurrentListing < ActiveRecord::BaseCurrentListing41,1780
   def symbol=(name)symbol=44,1844
 
-app/models/position.rb,308
-class Position < ActiveRecord::BasePosition28,613
-  def self.open(population, strategy, ticker, entry_date, entry_price, entry_trigger, short=false)open35,736
-  def close_at_max(options={})close_at_max41,1083
-  def crosses_under(options)crosses_under70,2441
-  def close_at(options)close_at102,3854
+app/models/position.rb,171
+class Position < ActiveRecord::BasePosition29,647
+  def self.open(population, strategy, ticker, entry_date, entry_price, entry_trigger, short=false, pass=0)open36,770
 
 app/models/scans_tickers.rb,60
 class ScansTickers < ActiveRecord::BaseScansTickers10,142
@@ -2451,8 +2451,8 @@ class Factor < ActiveRecord::BaseFactor14,256
   def to_s(format)to_s41,943
   def paramsparams52,1366
     def create_from_args(study, fcn, params={})create_from_args58,1438
-    def find_by_name_and_params(study, name, params, result)find_by_name_and_params80,2517
-    def format_paramsformat_params84,2704
+    def find_by_name_and_params(study, name, params, result)find_by_name_and_params81,2566
+    def format_paramsformat_params85,2753
 
 app/models/study.rb,343
 class Study < ActiveRecord::BaseStudy16,319
@@ -2476,11 +2476,11 @@ class IntraDayArchive < ActiveRecord::BaseIntraDayArchive18,350
     def prior_close(ticker_id, cur_date)prior_close81,2384
 
 app/models/scan.rb,292
-class Scan < ActiveRecord::BaseScan15,285
-  def self.find_by_name(keyword_or_string)find_by_name25,523
-  def clear_associations_if_dirtyclear_associations_if_dirty29,643
-  def population_ids(repopulate=false)population_ids34,747
-  def tickers_ids(repopulate=false)tickers_ids39,865
+class Scan < ActiveRecord::BaseScan16,313
+  def self.find_by_name(keyword_or_string)find_by_name26,551
+  def clear_associations_if_dirtyclear_associations_if_dirty30,671
+  def population_ids(repopulate=false)population_ids35,775
+  def tickers_ids(repopulate=false)tickers_ids40,893
 
 app/controllers/derived_value_types_controller.rb,90
 class DerivedValueTypesController < ApplicationControllerDerivedValueTypesController1,0
@@ -2782,6 +2782,11 @@ class CreatePositionsStrategies < ActiveRecord::MigrationCreatePositionsStrateg
   def self.upup2,58
   def self.downdown9,205
 
+db/migrate/20090630053955_rename_risk_factor.rb,119
+class RenameRiskFactor < ActiveRecord::MigrationRenameRiskFactor1,0
+  def self.upup2,49
+  def self.downdown7,162
+
 db/migrate/20090612171721_recover_intraday.rb,118
 class RecoverIntraday < ActiveRecord::MigrationRecoverIntraday1,0
   def self.upup2,48
@@ -3031,6 +3036,11 @@ db/migrate/20090307022324_create_derived_values.rb,126
 class CreateDerivedValues < ActiveRecord::MigrationCreateDerivedValues1,0
   def self.upup2,52
   def self.downdown14,270
+
+db/migrate/20090628162602_add_pass_to_position.rb,121
+class AddPassToPosition < ActiveRecord::MigrationAddPassToPosition1,0
+  def self.upup2,50
+  def self.downdown6,114
 
 db/migrate/20090528233546_create_sectors.rb,113
 class CreateSectors < ActiveRecord::MigrationCreateSectors1,0

@@ -17,7 +17,7 @@ analytics do
     r60 = rvi.under_threshold(60, :rvi).first
     case
       when r70.nil? && r60 : r60
-      when r70 && r60 : min(r70, r60)
+      when r70 && r60 : max(r70, r60)
       when r60.nil? : nil
       when r60 : r60
     end
@@ -26,15 +26,15 @@ end
 
 populations do
   name = "liquid_2009"
-  start_date = Date.parse('1/2/2009')
-  end_date = Date.parse('4/30/2009')
+  start_date = Date.parse('1/2/2008')
+  end_date = Date.parse('12/31/2008')
   liquid = "min(volume) > 100000 and count(*) = #{trading_day_count(start_date, end_date)}"
 
   desc "Population of all stocks with a minimum valume of 100000 and have#{trading_day_count(start_date, end_date)} days traded in 2009"
   scan name, :start_date => start_date, :end_date => end_date
 end
 
-backtests(:price => :close, :close_buffer => 20) do
+backtests(:price => :close, :close_buffer => 30) do
   apply(:rsi_rvi, :liquid_2009) do
 #    make_test()
   end

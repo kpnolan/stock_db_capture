@@ -42,22 +42,35 @@
 
 analytics do
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :rsi_oversold, :threshold => 30, :time_period => 5 do |ts, params|
+  open_position :rsi_rvi, :time_period => 14 do |ts, params, pass|
     rsi5_30 = ts.rsi params.merge(:noplot => true, :result => :memo)
-    indexes = rsi5_30.under_threshold(params[:threshold], :rsi)
+    indexes = rsi5_30.under_threshold(20+pass*5, :rsi)
+    indexes.map do |start_index|
+      slope = ts.linreg(start_index, :time_period => 10, :noplot => true)
+      slope > 0.02 ? start_index : nil
+    end
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  close_position :rsi_oversold, :threshold => 70, :time_period => 5 do |ts, params|
-    rsi5_70 = ts.rsi params.merge(:noplot => true, :result => :memo)
-    rsi5_30 = ts.rsi :time_period => 14, :noplot => true, :result => :memo
-    r70 = rsi5_70.under_threshold(70, :rsi).first
+  close_position :rsi_rvi, :time_period => 14 do |ts, params, pass|
+    params.reverse_merge! :noplot => true, :result => :memo
+    rsi = ts.rsi params
+    rvi = ts.rvi params
+    rsi_idx = rsi.under_threshold(60-pass*5, :rsi).first
+    rvi_idx = rvi.under_threshold(50-pass*5, :rvi).first
+    case
+    when rsi_idx.nil? && rvi_idx : rvi_idx
+    when rsi_idx && rvi_idx : min(rsi_idx, rvi_idx)
+    when rvi_idx.nil? : nil
+    when rvi_idx : rvi_idx
+    when rsi_idx : rsi_idx
+    end
   end
 end
 
 populations do
   $names = []
-  for year in 2000..2008
+  for year in [ 2008 ]
     name = "liquid_#{year}"
     liquid = "min(volume) > 100000 and count(*) = #{trading_count_for_year(year)}"
     desc "Population of all stocks with a minimum valume of 100000 and have #{trading_count_for_year(year)} days traded in #{year}"
@@ -67,7 +80,7 @@ populations do
 end
 
 backtests(:price => :close) do
-  apply(:rsi_oversold, :liquid_2008) do
+  apply(:rsi_rvi, :liquid_2008) do
 #    make_test()
   end
 end

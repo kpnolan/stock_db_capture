@@ -32,6 +32,7 @@ module Statistics
           instance_eval(&block)
           return
         end
+
         count = 0
         for tid in (@ticker_ids = scan.population_ids)
           begin

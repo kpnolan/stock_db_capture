@@ -83,4 +83,12 @@ module TradingCalendar
   def trading_to_calendar(start_date, day_count)
     trading_days_from(start_date, day_count).last
   end
+
+  def ttime2index(time, resolution)
+    tstr = time.strftime("%m/%d/%Y %H:%M")
+    d = Date._strptime(tstr, "%m/%d/%Y %H:%M")
+    t = Time.local(d[:year], d[:mon], d[:mday], 9, 30, 0, 0, d[:zone])
+    delta = time - t
+    index = (delta / resolution).to_i
+  end
 end

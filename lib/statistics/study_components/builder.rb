@@ -14,6 +14,7 @@ module Statistics
       attr_reader :study, :factors, :description
 
       def initialize(name, options)
+        options.reverse_merge :resolution => 1.day
         $study = @study = Study.create_with_version(name, options)
       end
 

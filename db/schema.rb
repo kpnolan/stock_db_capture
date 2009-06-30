@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090625210728) do
+ActiveRecord::Schema.define(:version => 20090630195749) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -197,14 +197,16 @@ ActiveRecord::Schema.define(:version => 20090625210728) do
     t.integer  "strategy_id"
     t.integer  "days_held"
     t.float    "nreturn"
-    t.float    "risk_factor"
     t.integer  "scan_id"
     t.float    "entry_trigger"
     t.float    "exit_trigger"
     t.float    "logr"
     t.boolean  "short"
+    t.integer  "pass"
+    t.integer  "entry_pass"
   end
 
+  add_index "positions", ["ticker_id", "entry_date"], :name => "pass_index", :unique => true
   add_index "positions", ["strategy_id"], :name => "strategy_id"
   add_index "positions", ["ticker_id"], :name => "index_positions_on_portfolio_id_and_ticker_id"
   add_index "positions", ["scan_id"], :name => "scan_id"
@@ -216,6 +218,26 @@ ActiveRecord::Schema.define(:version => 20090625210728) do
 
   add_index "positions_strategies", ["strategy_id"], :name => "strategy_id"
   add_index "positions_strategies", ["position_id"], :name => "position_id"
+
+  create_table "ref_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.integer  "num_shares"
+    t.string   "stop_loss"
+    t.integer  "strategy_id"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.integer  "scan_id"
+    t.float    "entry_trigger"
+    t.float    "exit_trigger"
+    t.float    "logr"
+    t.boolean  "short"
+    t.integer  "pass"
+    t.integer  "entry_pass"
+  end
 
   create_table "samples", :id => false, :force => true do |t|
     t.integer "ticker_id"
@@ -229,6 +251,7 @@ ActiveRecord::Schema.define(:version => 20090625210728) do
     t.string "description"
     t.string "join"
     t.string "table_name"
+    t.string "order_by"
   end
 
   create_table "scans_strategies", :id => false, :force => true do |t|

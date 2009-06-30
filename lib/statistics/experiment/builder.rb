@@ -11,7 +11,7 @@ module Statistics
       attr_reader :options, :description, :experiments
 
       def initialize(options)
-        @options = options
+        @options = options.reverse_merge :resolution => 1.day
         @experiments = []
       end
 

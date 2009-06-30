@@ -94,7 +94,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   USER_META_INFO_HASH.underscore_keys!
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
-  #ts(:rri, Date.civil(2008, 7, 15)..Date.civil(2008,12, 15), 1.day)
+  ts(:mmm, Date.civil(2008, 1, 2)..Date.civil(2008, 12, 31), 1.day, :pre_buffer => 60, :post_buffer => 0)
 
   #ts(:msft, Date.parse('03/02/2009')..Date.parse('3/31/2009'), 30.minutes, :pre_buffer => 0, :post_buffer => 0, :populate => true)
 

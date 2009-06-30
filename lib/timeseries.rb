@@ -13,8 +13,7 @@ require 'date'
 class Time
   def bod?; hour == 9 && min == 30;end
   def eod?; hour == 15 && min == 30; end
-  def in_trade?;
-  end
+  def in_trade?; hour >= 9 && hour <= 15; end
 end
 
 class Timeseries
@@ -28,7 +27,7 @@ class Timeseries
   include Enumerable
 
   TRADING_PERIOD = 6.hours + 30.minutes
-  PRECALC_BARS = 120
+  PRECALC_BARS = 50
 
   DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ]   },
                       IntraDayBar => { :sample_resolution => [ 30.minutes ]  } }
@@ -45,6 +44,7 @@ class Timeseries
     @ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     @symbol = Ticker.find(ticker_id).symbol
+
     if local_range.is_a? Range
       if local_range.begin.is_a?(Date) && local_range.end.is_a?(Date)
         @local_range = local_range.begin.to_time.utc.midnight..local_range.end.to_time.utc.midnight
@@ -62,6 +62,7 @@ class Timeseries
         raise ArgumentError, "local_range must be a Date, a Range of Dates or Times, or String"
       end
     end
+
     @model, @model_attrs = select_by_resolution(time_resolution)
     @resolution = time_resolution
     @bars_per_day =  resolution == 1.day ? 1 : TRADING_PERIOD / resolution
@@ -89,7 +90,7 @@ class Timeseries
   #
   def self.parse_time(date_time_str)
     d = Date._strptime(date_time_str, "%m/%d/%Y %H:%M")
-    Time.utc(d[:year], d[:mon], d[:mday], d[:hour], d[:min],
+    Time.local(d[:year], d[:mon], d[:mday], d[:hour], d[:min],
                d[:sec], d[:sec_fraction], d[:zone])
   end
 
@@ -131,7 +132,8 @@ class Timeseries
   # The is the "each" mentioned above. Notice that it only yields the preselected enum variables
   #
   def each
-    @timevec.each_with_index { |time,i | yield(values_at(i, enum_attrs)) }
+#    @timevec.each_with_index { |time,i | yield(values_at(i, enum_attrs)) }
+    @timevec.each_with_index { |time,i | v = values_at(i, enum_attrs); puts v; yield v }
   end
 
   #
@@ -159,7 +161,7 @@ class Timeseries
   # Return all values (OHLC...) for a given Timeseries index. This really should be superceeded with
   # a non-hacked iterator like each
   def values_at(index, vals)
-    vals.map { |v| value_hash[v][index] }
+    vals = vals.map { |v| value_hash[v][index] }
   end
 
   #
@@ -261,13 +263,15 @@ class Timeseries
 
   #
   # Populates the timeseries with the results stored in the DB. This is resolution agnostic.
+  # If the Timeseries whas specified with a stride, repopulated Timeseries with just the values
+  # according to the stride and stride offset.
   #
   def repopulate(options)
     @value_hash = model.general_vectors(symbol, attrs, begin_time, end_time)
     missing_bars = expected_bars - value_hash[:close].length
     raise TimeseriesException, "No values where return from #{model.to_s.tableize} for #{symbol} " +
       "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
-    raise TimeseriesException, "Missing #{missing_bars} for #{symbol}" if missing_bars > 0
+    raise TimeseriesException, "Missing #{missing_bars} bars for #{symbol}" if missing_bars > 0
     if stride > 1
       new_hash = { }
       value_hash.each_pair do |k,v|

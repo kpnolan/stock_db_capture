@@ -84,7 +84,7 @@ module TdAmeritrade
       @access_level = si['access-level'].first
       @app_id = si['app-id'].first
       @acl = si['acl'].first
-      @streamer_url = ['streamer-url'].first
+      @streamer_url = si['streamer-url'].first
     end
 
     def dailys_for(symbol, start_date, end_date, options={})

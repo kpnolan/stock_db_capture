@@ -3065,7 +3065,7 @@ FinancialFunctions:
         OutputArgument:
           Flags:
             Flag: Line
-          Name: outReal
+          Name: outMom
           Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:

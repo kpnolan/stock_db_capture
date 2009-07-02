@@ -46,7 +46,7 @@ class Scan < ActiveRecord::Base
           "date >= '#{start_date.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     sql2 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date(start_time) >= '#{start_date.to_s(:db)}' AND date(start_time) <= '#{(end_date+1).to_s(:db)}' " +
+          "date(start_time) >= '#{start_date.to_s(:db)}' AND date(start_time) <= '#{(end_date).to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     if repopulate || tickers.empty?
       $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger

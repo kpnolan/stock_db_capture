@@ -1,5 +1,6 @@
 require "uri"
 require "net/https"
+require 'xmlsimple'
 
 require 'tda2ruby'
 require 'rubygems'
@@ -10,6 +11,11 @@ module TdAmeritrade
   MINUTE = 1
   DAY = 2
   URL = 'https://apis.tdameritrade.com/apps/100/PriceHistory'
+  LOGIN_URL = 'https://apis.tdameritrade.com/apps/100/LogIn'
+  LOGOUT_URL = 'https://apis.tdameritrade.com/apps/100/LogOut'
+  STREAMER_INFO = 'https://apis.tdameritrade.com/apps/100/StreamerInfo'
+  LOGIN = 'lewissternberg'
+  PASSWORD = 'Troika3'
   MINUTES_PER_DAY = 390
 
   #
@@ -31,7 +37,8 @@ module TdAmeritrade
     include Net
 
     attr_reader :ioptions, :bars, :interval_type, :frequency
-    attr_reader :response, :body
+    attr_reader :response, :body, :login_xml, :cdi, :company, :segment, :account_id, :cookies, :token, :acl
+    attr_reader :access_level, :app_id, :streamer_url
 
     def initialize(options={})
       options.reverse_merge! :login => 'LWSG'
@@ -42,11 +49,42 @@ module TdAmeritrade
     end
 
     def test
-      bars = intraday_for('JAVA', Date.parse('01/03/2009'), Date.parse("01/05/2009"), 5)
-      for bar in bars
-        puts %Q(#{bar.join("\t")})
-      end
+      bars = intraday_for('JAVA', Date.parse('01/03/2009'), Date.parse("01/05/2009"), 30, :debug => true)
+#      for bar in bars
+#        puts %Q(#{bar.join("\t")})
+#      end
       nil
+    end
+
+    def attach_to_streamer
+      buff = login(:debug => true)
+      credentials = XmlSimple.xml_in(buff)
+      @login_xml = credentials['xml-log-in'].first
+      parse_login_xml(login_xml)
+      streamer_xml = streamer_info()
+      parse_streamer_info(streamer_xml)
+      debugger
+      a = 1
+    end
+
+    def parse_login_xml(h)
+      @cdi = h['cdi'].first
+      @userid = h['user-id'].first
+      @session_id = h['session-id'].first
+      act = h['accounts'].first['account'].first
+      @company = act['company'].first
+      @segment = act['segment'].first
+      @account_id = act['account-id'].first
+    end
+
+    def parse_streamer_info(xml)
+      h = XmlSimple.xml_in(xml)
+      si = h['streamer-info'].first
+      @token = si['token'].first
+      @access_level = si['access-level'].first
+      @app_id = si['app-id'].first
+      @acl = si['acl'].first
+      @streamer_url = ['streamer-url'].first
     end
 
     def dailys_for(symbol, start_date, end_date, options={})
@@ -78,16 +116,33 @@ module TdAmeritrade
 
     def quote_for(symbol, start_date, end_date, period, resolution, options={})
       validate_resolution(period, resolution)
-      submit_request(symbol, start_date, end_date, options)
+      submit_quote_request(symbol, start_date, end_date, options)
     end
 
-    def submit_request(symbol, start_date, end_date, options)
-      url = URI.parse(TdAmeritrade::URL)
+    def login(options={})
+      url = URI.parse(TdAmeritrade::LOGIN_URL)
       req = HTTP::Post.new(url.path)
-      form_data = { 'source' => ioptions[:login], 'requestvalue' => symbol, 'requestidentifiertype' => 'SYMBOL',
-        'intervaltype' => interval_type, 'intervalduration' => frequency,
-        'startdate' => start_date.to_s(:db).delete("-"), 'enddate' => end_date.to_s(:db).delete("-") }
-      form_data['extended'] = 'true' if options[:extended]
+      form_data = { 'source' => ioptions[:login], 'userid' => TdAmeritrade::LOGIN, 'password' => TdAmeritrade::PASSWORD, 'version' => '1.0'}
+      submit_request(TdAmeritrade::LOGIN_URL, form_data, options)
+    end
+
+    def streamer_info(options={})
+      url = URI.parse(TdAmeritrade::STREAMER_INFO)
+      form_data = { 'source' => ioptions[:login], 'accountid' => account_id }
+      submit_request(TdAmeritrade::STREAMER_INFO, form_data, :debug => true)
+    end
+
+    def logout(options={})
+      url = URI.parse(TdAmeritrade::LOGOUT_URL)
+      req = HTTP::Post.new(url.path)
+      form_data = { 'source' => ioptions[:login] }
+      submit_request(TdAmeritrade::LOGOUT_URL, form_data, options)
+    end
+
+    def submit_request(uri, form_data, options)
+      url = URI.parse(uri)
+      req = HTTP::Post.new(url.path)
+      req.add_field('Cookie', cookies)
       req.set_form_data(form_data)
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true
@@ -96,10 +151,23 @@ module TdAmeritrade
 
       case res
       when Net::HTTPSuccess, Net::HTTPRedirection
+        @cookies = res['Set-Cookie']
         return res.body
       else
         res.error!
       end
+    end
+
+    def submit_quote_request(symbol, start_date, end_date, options={})
+      form_data = { 'source' => ioptions[:login], 'requestvalue' => symbol, 'requestidentifiertype' => 'SYMBOL',
+        'intervaltype' => interval_type, 'intervalduration' => frequency,
+        'startdate' => start_date.to_s(:db).delete("-"), 'enddate' => end_date.to_s(:db).delete("-") }
+      form_data['extended'] = 'true' if options[:extended]
+      response = submit_request(TdAmeritrade::URL, form_data, options)
+    end
+
+    def submit_snapshot(symbol_list)
+
     end
 
     def validate_resolution(period, resolution)

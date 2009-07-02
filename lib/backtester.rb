@@ -19,15 +19,16 @@ end
 
 class Backtester
 
-  attr_accessor :tid_array, :ticker, :date_range, :ts, :result_hash, :meta_data_hash, :strategy, :opening, :closing, :scan
+  attr_accessor :ticker, :ts, :result_hash, :meta_data_hash
   attr_reader :pnames, :sname, :desc, :options, :post_process, :close_buffer, :entry_cache, :ts_cache
+  attr_reader :strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
 
   def initialize(strategy_name, population_names, description, options, &block)
     @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :close_buffer => 30
     @sname = strategy_name
     @pnames = population_names
     @desc = description
-    @close_buffer = self.options[:close_buffer]
+    @close_buffer = @options[:close_buffer]
     @positions = []
     @post_process = block
     @entry_cache = {}
@@ -43,13 +44,14 @@ class Backtester
   def run(logger)
     $logger = logger
     logger.info "Processing backtest of #{sname} against #{pnames.join(', ')}"
-    self.strategy = Strategy.find_by_name(sname)
-    self.opening = $analytics.find_opening(sname)
-    self.closing = $analytics.find_closing(sname)
+    @strategy = Strategy.find_by_name(sname)
+    @opening = $analytics.find_opening(sname)
+    @closing = $analytics.find_closing(sname)
+    @stop_loss = $analytics.find_stop_loss
     # Loop through all of the populations given for this backtest
     startt = Time.now
     for scan_name in pnames
-      self.scan = Scan.find_by_name(scan_name)
+      @scan = Scan.find_by_name(scan_name)
       # FIXME when a backtest specifies a different set of options, e.g. (:price => :close) we should
       # FIXME invalidate any cached posistions (including and exspecially scans_strategies because the positions will have
       # FIXME totally different values
@@ -60,24 +62,19 @@ class Backtester
       else
         logger.info "Recomputing Positions"
       end
-      self.tid_array = scan.tickers_ids
+      @tid_array = scan.tickers_ids
       sdate = scan.start_date
       edate = scan.end_date
-      self.date_range = sdate..edate
-      unless opening.params[:time_period].nil?
-        post_buffer = opening.params[:time_period]
-      else
-        post_buffer = 10
-      end
+      @date_range = sdate..edate
       # Foreach ticker in the population, create a timeseries for the date range given with the population
       # and run the analysis given with the strategy on said timeseries
       for pass in 0..2
         pass_count = 0
         for tid in tid_array
-          self.ticker = Ticker.find tid
+          @ticker = Ticker.find tid
           begin
             if ts_cache[tid].nil?
-              ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options.merge(:post_buffer => post_buffer))
+              ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options)
               ts_cache[tid] = ts
             elsif ts_cache[tid]
               ts = ts_cache[tid]
@@ -88,10 +85,10 @@ class Backtester
             ts_cache[tid] = false
             next
           end
-          self.entry_cache[tid] ||= []
+          @entry_cache[tid] ||= []
           pass_count += open_positions(ts, opening.params, pass)
         end
-        $logger.info ">>>>> Entries for pass #{pass}: #{pass_count} <<<<<<<<<<<<<<<<"
+        $logger.info(">>>>> Entries for pass #{pass}: #{pass_count} <<<<<<<<<<<<<<<<")
       end
       strategy.scans << scan
     end
@@ -99,6 +96,22 @@ class Backtester
     delta = endt - startt
     deltam = delta/60.0
     logger.info "Open position elapsed time: #{deltam} minutes"
+    #
+    # Perform stop loss analysis if it was specified in the analytics section of the backtest config
+    #
+    unless stop_loss.nil?
+      logger.info "Beginning close stop loss analysis..."
+      startt = Time.now
+      open_positions = strategy.positions.find(:all, :conditions => 'nreturn is null')
+      open_positions.each do |p|
+        tstop(p, stop_loss.threshold, stop_loss.options)
+      end
+    end
+    endt = Time.now
+    delta = endt - startt
+    deltam = delta/60.0
+    logger.info "Backtest (stop loss analysys) elapsed time: #{deltam} minutes"
+
     # Now closes the posisitons that we just openned by running the block associated with the backtest
     # The purpose for "apply" kind of backtest is to open positions based upon the criterion given
     # in the "analytics" section and then close them be evaluating the block associated with the "apply"
@@ -138,7 +151,7 @@ class Backtester
       begin
         open_indexes = opening.block.call(ts, params, pass)
         for index in open_indexes
-          next if index.nil? || self.entry_cache[ts.ticker_id].include?(index)
+          next if index.nil? || @entry_cache[ts.ticker_id].include?(index)
           begin
             price = ts.value_at(index, :close)
             date = ts.index2time(index)
@@ -178,7 +191,7 @@ class Backtester
       edate = p.entry_date.to_date
     else
       sindex = 0
-      edate = trading_days_from(edate, 1).last
+      edate = trading_days_from(etime.to_date, 1).last
     end
     max_date = trading_days_from(edate, trailing_days).last
     # grab a timeseries at the given resolution from the entry date (or following day)
@@ -188,9 +201,21 @@ class Backtester
     max_high = -1.0
     while sindex < ts.length
       max_high = -1.0 if sindex % bpd == 0
-      high, low = ts.value_at(sindex, [:high, :low])
+      high, low = ts.value_at(sindex, :high, :low)
       max_high = max_high > high ? max_high : high
-      return [ ts.index2time(sindex), low, rratio ] if (rratio = (max_high - low) / max_high) > tratio
+      if (rratio = (max_high - low) / max_high) > tratio
+        xtime = ts.index2time(sindex)
+        xdate = xtime.to_date
+        edate = p.entry_date.to_date
+        days_held = Position.trading_day_count(edate, xdate)
+        nreturn = days_held.zero? ? 0.0 : ((low - p.entry_price) / p.entry_price) / days_held
+        nreturn *= -1.0 if p.short and nreturn != 0.0
+        p.update_attributes!(:exit_price => low, :exit_date => xtime,
+                             :days_held => days_held, :nreturn => nreturn,
+                             :exit_trigger => rratio, :pass => -1)
+
+        break;
+      end
       sindex += 1
     end
     nil

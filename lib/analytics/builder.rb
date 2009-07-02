@@ -25,13 +25,17 @@ module Analytics
   end
 
   class Builder
+
     def initialize(options)
       @options = options
       @openings = []
       @closings = []
       @openings = []
+      @stop_loss = nil
       @descriptions = []
     end
+
+    def find_stop_loss(); @stop_loss; end
 
     def find_opening(name)
       @openings.find { |o| o.name == name }
@@ -53,6 +57,14 @@ module Analytics
       opening.params = params
       opening.block = block
       @openings << opening
+    end
+
+    def stop_loss(threshold, options={})
+      raise ArgumentError, "Threshdold must a percentage between between 0 and 100" unless (0.0..100.0).include? threshold.to_f
+      sloss = OpenStruct.new
+      sloss.threshold = threshold.to_f
+      sloss.options = options
+      @stop_loss = sloss
     end
 
     def close_position(name, params={}, &block)

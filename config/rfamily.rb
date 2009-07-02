@@ -2,6 +2,7 @@ study(:rfamily, :increment => :redo) do
   desc "Study the relationships between the favorite 'r' indicators and nreturn and close"
   factor :rsi, :time_period => 14
   factor :rvi, :time_period => 14
+  factor :mom, :timer_period => 14
   factor :extract, :slot => :close
 end
 

@@ -385,8 +385,8 @@ class Timeseries
   #
   # Returns a the value at an index location of a bar or result #FIXME this function is duplicated elswhere
   #
-  def value_at(index, slot)
-    send(slot)[index]
+  def value_at(index, *slots)
+    slots.map { |s| value_hash[s][index]}
   end
 
   #

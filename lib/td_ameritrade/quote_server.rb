@@ -15,8 +15,12 @@ module TdAmeritrade
   LOGOUT_URL = 'https://apis.tdameritrade.com/apps/100/LogOut'
   STREAMER_INFO = 'https://apis.tdameritrade.com/apps/100/StreamerInfo'
   LOGIN = 'lewissternberg'
+  ACCOUNT = 781467570
   PASSWORD = 'Troika3'
   MINUTES_PER_DAY = 390
+  STREAMER_ORDER = [ :U, :W, :A, :token, :company, :segment, :cddomain, :usergroup, :accesslevel, :authorized, :acl, :timestamp, :appid ]
+
+  #U=781467570&W=c95e834acfd31ec4655197d262c6b133bd3dcbef&A=userid=781467570&token=c95e834acfd31ec4655197d262c6b133bd3dcbef&company=AMER&segment=AMER&acddomain=A000000011276183&usergroup=ACCT&accesslevel=ACCT&authorized=Y&acl=ADAQDRESGKMAPNQ2QSRFSPTETFTOTTUAURWSQ2NS&timestamp=1246573874&appid=sdc|S=NASDAQ_CHART&C=GET&P=DELL,0,29,1d,1m/n/n
 
   #
   # Responsible for getting quotes from the TDAmeritrade PriceHistory server
@@ -37,8 +41,8 @@ module TdAmeritrade
     include Net
 
     attr_reader :ioptions, :bars, :interval_type, :frequency
-    attr_reader :response, :body, :login_xml, :cdi, :company, :segment, :account_id, :cookies, :token, :acl
-    attr_reader :access_level, :app_id, :streamer_url
+    attr_reader :response, :body, :login_xml, :cdi, :company, :segment, :account_id, :cookies, :token, :acl, :cddomain
+    attr_reader :accesslevel, :appid, :streamer_url, :userid, :usergroup, :w, :a, :u, :authorized, :timestamp
 
     def initialize(options={})
       options.reverse_merge! :login => 'LWSG'
@@ -46,6 +50,33 @@ module TdAmeritrade
       @bars = []
       @interval_type = nil
       @frequency = nil
+    end
+
+    def parse_login_xml(h)
+      @cddomain = h['cdi'].first
+      @userid = h['user-id'].first
+      @session_id = h['session-id'].first
+      act = h['accounts'].first['account'].first
+      @company = act['company'].first
+      @segment = act['segment'].first
+      @usergroup = @segment
+      @account_id = act['account-id'].first
+    end
+
+    def parse_streamer_info(xml)
+      h = XmlSimple.xml_in(xml)
+      si = h['streamer-info'].first
+      @token = si['token'].first
+      @w = @token
+      @u = ACCOUNT
+      @a = "userid=#{@u}"
+      @accesslevel = si['access-level'].first
+      @app_id = si['app-id'].first
+      @acl = si['acl'].first
+      @streamer_url = si['streamer-url'].first
+      @authorized = 'Y'
+      @timestamp = Time.now.to_i
+      @appid = 'SDcapture'
     end
 
     def test
@@ -57,35 +88,15 @@ module TdAmeritrade
     end
 
     def attach_to_streamer
-      buff = login(:debug => true)
+      buff = login()
       credentials = XmlSimple.xml_in(buff)
       @login_xml = credentials['xml-log-in'].first
       parse_login_xml(login_xml)
       streamer_xml = streamer_info()
       parse_streamer_info(streamer_xml)
-      debugger
-      a = 1
+      true
     end
 
-    def parse_login_xml(h)
-      @cdi = h['cdi'].first
-      @userid = h['user-id'].first
-      @session_id = h['session-id'].first
-      act = h['accounts'].first['account'].first
-      @company = act['company'].first
-      @segment = act['segment'].first
-      @account_id = act['account-id'].first
-    end
-
-    def parse_streamer_info(xml)
-      h = XmlSimple.xml_in(xml)
-      si = h['streamer-info'].first
-      @token = si['token'].first
-      @access_level = si['access-level'].first
-      @app_id = si['app-id'].first
-      @acl = si['acl'].first
-      @streamer_url = si['streamer-url'].first
-    end
 
     def dailys_for(symbol, start_date, end_date, options={})
       buff = quote_for(symbol, start_date, end_date, TdAmeritrade::DAY, 1, options)
@@ -126,10 +137,14 @@ module TdAmeritrade
       submit_request(TdAmeritrade::LOGIN_URL, form_data, options)
     end
 
+    def streamer_uri
+      "http://#{streamer_url}/"
+    end
+
     def streamer_info(options={})
       url = URI.parse(TdAmeritrade::STREAMER_INFO)
       form_data = { 'source' => ioptions[:login], 'accountid' => account_id }
-      submit_request(TdAmeritrade::STREAMER_INFO, form_data, :debug => true)
+      submit_request(TdAmeritrade::STREAMER_INFO, form_data, options)
     end
 
     def logout(options={})
@@ -158,6 +173,28 @@ module TdAmeritrade
       end
     end
 
+    def build_param_str()
+      STREAMER_ORDER.map do |field|
+        val = send(field.to_s.downcase)
+        "#{field.to_s}=#{val}"
+      end.join('&')
+    end
+
+    def submit_request1(uri, req, options)
+      url = URI.parse(uri)
+      http = Net::HTTP.new(url.host, url.port)
+      http.use_ssl = true if options[:use_ssl]
+      http.set_debug_output($stderr) if options[:debug]
+      res = http.start { http.request(req) }
+
+      case res
+      when Net::HTTPSuccess, Net::HTTPRedirection
+        return res.body
+      else
+        res.error!
+      end
+    end
+
     def submit_quote_request(symbol, start_date, end_date, options={})
       form_data = { 'source' => ioptions[:login], 'requestvalue' => symbol, 'requestidentifiertype' => 'SYMBOL',
         'intervaltype' => interval_type, 'intervalduration' => frequency,
@@ -166,8 +203,58 @@ module TdAmeritrade
       response = submit_request(TdAmeritrade::URL, form_data, options)
     end
 
-    def submit_snapshot(symbol_list)
+    def urlencode(str)
+      ERB::Util.url_encode(str)
+    end
 
+    def group_symbols(symbols)
+      ehash = { :nasdaq => [], :nyse => [], nil => [] }
+      symbols.each { |symbol| ehash[Ticker.exchange(symbol)] << symbol }
+      ehash.delete(nil)
+      ehash.each { |k,v| ehash[k] = urlencode(ehash[k].join('+')) }
+      ehash
+    end
+
+    def submit_backfill(symbols)
+      req = build_request(streamer_uri, {})
+      req.body = '!' + build_param_str()
+      suffix = ''
+      bar = urlencode('|')
+      shash = { :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
+      ehash = group_symbols(symbols)
+      field_str = urlencode((0..7).to_a.map { |i| i.to_s }.join('+'))
+      ehash.each do |k,v|
+        suffix << bar+'S='+shash[k]+'&C='+'SUBS'+'&P='+ehash[k]+'&T='+field_str
+      end
+      req.body << suffix << "\n\n"
+      submit_request1(streamer_uri, req, :debug => true)
+    end
+
+    def submit_snapshot(symbol)
+      req = build_request(streamer_uri, {})
+      req.body = '!' + build_param_str()
+      suffix = ''
+      bar = urlencode('|')
+      shash = { :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
+      ehash = group_symbols([symbol])
+      field_str = urlencode((0..7).to_a.map { |i| i.to_s }.join('+'))
+#      ehash.each do |k,v|
+#        suffix << bar+'S'+eq+shash[k]+'&C'+eq+'GET'+'&P'+eq+ehash[k]+'0,610,5d,1m'
+#      end
+      req.body << bar+'S'+eq+'NASDAQ_CHART'+'&C'+eq+'GET'+'&P'+eq+'DELL'+',89,119,5d,1m'
+      req.body << "\n\n"
+      submit_request1(streamer_uri, req, :debug => true)
+    end
+
+    def build_request(uri, form_data)
+      url = URI.parse(uri)
+      req = HTTP::Post.new(url.path)
+      req.set_form_data(form_data)
+      req
+    end
+
+    def append_form_data(req, params, sep='&')
+      req.body << sep << params.map {|k,v| "#{urlencode(k.to_s)}=#{urlencode(v.to_s)}" }.join(sep)
     end
 
     def validate_resolution(period, resolution)

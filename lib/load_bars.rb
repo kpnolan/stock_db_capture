@@ -15,7 +15,7 @@ module LoadBars
 
   def latest_date
     time = Time.now.getlocal
-    if time.hour >= 20
+    if time.hour >= 23
       @cur_date ||= time.to_date
     else
       @cur_date ||= time.to_date - 1.day
@@ -33,7 +33,7 @@ module LoadBars
   end
 
   def tickers_with_lagging_intraday
-    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on ticker_id = tickers.id where active = 1 group by ticker_id having max(date(start_time)) < #{latest_date} order by symbol"
+    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on ticker_id = tickers.id where active = 1 group by ticker_id having max(date(start_time)) < '#{latest_date.to_s(:db)}' order by symbol"
     DailyBar.connection.select_rows(sql)
   end
 

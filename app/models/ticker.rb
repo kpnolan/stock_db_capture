@@ -34,37 +34,57 @@ class Ticker < ActiveRecord::Base
     current_listing
   end
 
-  def self.lookup(symbol)
-    find(:first, :conditions => { :symbol => symbol.to_s.upcase })
-  end
+  class << self
 
-  def self.listing_name(symbol)
-    (ticker = find_by_symbol(symbol.to_s.upcase)) && ticker.name
-  end
+    def exchange(symbol_or_id)
+      if symbol_or_id.is_a?(Fixnum)
+        ticker = find symbol_or_id
+      else
+        ticker = lookup(symbol_or_id)
+      end
+      if ticker.exchange.nil?
+        nil
+      elsif ['NCM', 'NGM', 'NasdaqNM'].include? ticker.exchange.symbol
+        :nasdaq
+      elsif ticker.exchange.symbol == 'NYSE'
+        :nyse
+      else
+        nil
+      end
+    end
 
-  def self.symbols
-    self.connection.select_values('SELECT symbol FROM tickers ORDER BY symbol')
-  end
+    def lookup(symbol)
+      find(:first, :conditions => { :symbol => symbol.to_s.upcase })
+    end
 
-  def self.active_symbols
-    self.connection.select_values('SELECT symbol FROM tickers WHERE active = 1 ORDER BY symbol')
-  end
+    def listing_name(symbol)
+      (ticker = find_by_symbol(symbol.to_s.upcase)) && ticker.name
+    end
 
-  def self.active_ids
-    self.connection.select_values('SELECT id FROM tickers WHERE active = 1 ORDER BY symbol')
-  end
+    def symbols
+      connection.select_values('SELECT symbol FROM tickers ORDER BY symbol')
+    end
 
-  def self.ids
-    self.connection.select_values('SELECT symbol FROM tickers order by id').collect!(&:to_i)
-  end
+    def active_symbols
+      connection.select_values('SELECT symbol FROM tickers WHERE active = 1 ORDER BY symbol')
+    end
 
-  def self.id_groups(count)
-    ids = Ticker.connection.select_values('select id from tickers order by id').collect!(&:to_i)
-    ids.in_groups_of(ids.length/count)
-  end
+    def active_ids
+      connection.select_values('SELECT id FROM tickers WHERE active = 1 ORDER BY symbol')
+    end
 
-  def self.lname(symbol)
-    t = find_by_symbol(symbol.to_s.upcase)
-    t.current_listing.name.split(' ').collect(&:capitalize).join(' ') if t && t.current_listing
+    def ids
+      connection.select_values('SELECT symbol FROM tickers order by id').collect!(&:to_i)
+    end
+
+    def id_groups(count)
+      ids = Ticker.connection.select_values('select id from tickers order by id').collect!(&:to_i)
+      ids.in_groups_of(ids.length/count)
+    end
+
+    def lname(symbol)
+      t = find_by_symbol(symbol.to_s.upcase)
+      t.current_listing.name.split(' ').collect(&:capitalize).join(' ') if t && t.current_listing
+    end
   end
 end

@@ -17,6 +17,7 @@ void Init_tda2ruby();
 // Prototype for our method 'test1' - methods are prefixed by 'method_' here
 VALUE method_parse_header(VALUE self, VALUE buff);
 VALUE method_parse_bar(VALUE self, VALUE buff);
+VALUE method_parse_bar_stream(VALUE self, VALUE buff);
 
 // The initialization method for this module
 void Init_tda2ruby() {
@@ -24,6 +25,7 @@ void Init_tda2ruby() {
   rb_define_readonly_variable("tda_buff_index", &tda_buff_index);
   rb_define_method(Tda2Ruby, "parse_header", method_parse_header, 1);
   rb_define_method(Tda2Ruby, "parse_bar", method_parse_bar, 1);
+  rb_define_method(Tda2Ruby, "parse_bar_stream", method_parse_bar_stream, 1);
   time_klass = rb_const_get(rb_cObject, rb_intern("Time"));
 }
 
@@ -49,7 +51,7 @@ inline VALUE uint2rb(unsigned char* str) {
   return UINT2NUM(tmp);
 }
 
-inline VALUE ushort(unsigned char* str) {
+inline VALUE ushort2rb(unsigned char* str) {
   //
   // revere the byte order and convert to ruby
   //
@@ -121,7 +123,7 @@ VALUE method_parse_header(VALUE self, VALUE buff) {
   //
   // Same with the 2 byte symbol length
   //
-  symbol_length = ushort(&str[i]);
+  symbol_length = ushort2rb(&str[i]);
   i += 2;
   //
   // grab the symbol (stored on the stack)
@@ -138,7 +140,7 @@ VALUE method_parse_header(VALUE self, VALUE buff) {
   // if is non-zero (1) it means we have an error, so we have to grab the variable
   // length error message and store on the heap (it will be converted to a ruby string and freed later on)
   if ( error_code > 0 ) {
-    error_length = ushort(&str[i]);
+    error_length = ushort2rb(&str[i]);
     i += 2;
 
     error_text = malloc(error_length+1);
@@ -204,6 +206,70 @@ VALUE method_parse_bar(VALUE self, VALUE buff) {
   tda_buff_index = UINT2NUM(i);
   return bar_ary;
 }
+
+VALUE method_parse_bar_stream(VALUE self, VALUE buff) {
+  int i = 0;
+  bar_ary = rb_ary_new();
+  char* str = StringValuePtr(buff);
+  if (str[i] != 'S')
+    rb_warn("First byte of message not S");
+  i += sizeof(char);
+  int msg_len = *(short*)&str[i];
+  i += sizeof(short);
+  i += sizeof(short);                               // skip SSID
+
+  int symlen = *(short*)&str[i];
+  i += sizeof(short);
+
+  rp_ary_push(bar_ary, rb_str_new(&str[i], (long)symlen);  // symbol
+  i += symlen;
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // sequence
+  i += sizeof(int);
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // open
+  i += sizeof(float);
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // high
+  i += sizeof(float);
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // low
+  i += sizeof(float);
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // close
+  i += sizeof(float);
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // volume
+  i += sizeof(float);
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // seconds since midnight
+  i += sizeof(int);
+  i += sizeof(char);                                // skip id
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // seconds since epoch
+  i += sizeof(int);
+  i += sizeof(char);                                // skip id
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 VALUE next_ts(unsigned char* str) {
   //

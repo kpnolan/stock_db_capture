@@ -18,6 +18,8 @@ void Init_tda2ruby();
 VALUE method_parse_header(VALUE self, VALUE buff);
 VALUE method_parse_bar(VALUE self, VALUE buff);
 VALUE method_parse_bar_stream(VALUE self, VALUE buff);
+VALUE method_parse_snapshot(VALUE self, VALUE buff);
+VALUE method_parse_snapshot_bar(VALUE self, VALUE buff);
 
 // The initialization method for this module
 void Init_tda2ruby() {
@@ -26,6 +28,8 @@ void Init_tda2ruby() {
   rb_define_method(Tda2Ruby, "parse_header", method_parse_header, 1);
   rb_define_method(Tda2Ruby, "parse_bar", method_parse_bar, 1);
   rb_define_method(Tda2Ruby, "parse_bar_stream", method_parse_bar_stream, 1);
+  rb_define_method(Tda2Ruby, "parse_snapshot", method_parse_snapshot, 1);
+  rb_define_method(Tda2Ruby, "parse_snapshot_bar", method_parse_snapshot_bar, 1);
   time_klass = rb_const_get(rb_cObject, rb_intern("Time"));
 }
 
@@ -209,19 +213,19 @@ VALUE method_parse_bar(VALUE self, VALUE buff) {
 
 VALUE method_parse_bar_stream(VALUE self, VALUE buff) {
   int i = 0;
-  bar_ary = rb_ary_new();
+  VALUE bar_ary = rb_ary_new();
   char* str = StringValuePtr(buff);
   if (str[i] != 'S')
     rb_warn("First byte of message not S");
   i += sizeof(char);
-  int msg_len = *(short*)&str[i];
+  int msg_len = ushort2rb(&str[i]);
   i += sizeof(short);
   i += sizeof(short);                               // skip SSID
 
-  int symlen = *(short*)&str[i];
+  int symlen = ushort2rb(&str[i]);
   i += sizeof(short);
 
-  rp_ary_push(bar_ary, rb_str_new(&str[i], (long)symlen);  // symbol
+  rb_ary_push(bar_ary, rb_str_new(&str[i], (long)symlen));  // symbol
   i += symlen;
   i += sizeof(char);                                // skip id
 
@@ -253,22 +257,130 @@ VALUE method_parse_bar_stream(VALUE self, VALUE buff) {
   i += sizeof(int);
   i += sizeof(char);                                // skip id
 
-  rb_ary_push(bar_ary, uint2rb(&str[i]));           // seconds since epoch
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // days since epoch
   i += sizeof(int);
   i += sizeof(char);                                // skip id
 }
 
+VALUE method_parse_snapshot(VALUE self, VALUE buff) {
+  VALUE header_ary = rb_ary_new();
+  VALUE rsymbol;
+  VALUE rstatus;
+  VALUE rpayload;
+  char* str = StringValuePtr(buff);
+  unsigned int i = 0;
+  unsigned short status;
 
+  char symbol[10+1];
+  short symbol_length = 0;
+  short msglen = 0;
+  unsigned int rpayld_len = 0;
+  char* payld_ptr = 0;
 
+  if (str[i] != 'N')
+    rb_warn("First byte of message not N");
+  i += sizeof(char);
+  i += sizeof(short);                              // skit snapshot ID len
+  i += sizeof(short);                              // skip snapshot ID
+  msglen = uint2rb(&str[i]);                       // get entire msg len
+  i += sizeof(int);
+  i += sizeof(short);                              // skip SID
+  //
+  // grab the symbol (stored on the stack)
+  //
+  symbol_length = ushort2rb(&str[i]);
+  i += sizeof(short);
+  int j;
+  for (j = 0; j < symbol_length; j++)
+    symbol[j] = str[i++];
+  rsymbol = rb_str_new(symbol, (long)symbol_length);      // make rb str
 
+  status = *(unsigned short*)&str[i];
+  if ( status != 0 )
+    rb_warn("status is not zero");
 
+  rstatus = ushort2rb(&str[i]);
+  i += sizeof(short);
 
+  rpayld_len = uint2rb(&str[i]);                   // payload len. we use this to know when we're done
+  i += sizeof(int);
+  payld_ptr = &str[i];
 
+  rpayload = rb_str_new(payld_ptr, rpayld_len);
+  rb_ary_push(header_ary, rsymbol);
+  rb_ary_push(header_ary, rstatus);
+  rb_ary_push(header_ary, rpayload);
 
+  return ( header_ary );
+}
 
+//
+// If a bar has data, parse if and append the data to the ruby array.
+// If the bar has no data, the first char will be a semi-colon.
+//
+VALUE method_parse_snapshot_bar(VALUE self, VALUE buff) {
+  unsigned int i = FIX2INT(tda_buff_index);
+  long len;
+  char* str = rb_str2cstr(buff, &len);
+  VALUE rsymbol, bar_ary;
+  char symbol[10], c;
 
+  if ( i >= len )
+    return ( Qtrue );
 
+  if ( *str == ';' ) {                              // means the bar is empty
+    tda_buff_index = UINT2NUM(++i);                 // remember position in buffer
+    return ( Qnil );                                // return nil for empty bar
+  }
 
+  bar_ary = rb_ary_new();                           // allocate bar array
+
+  char* symptr = symbol;
+  while ( (c = str[i++]) != ',' )                  // unknown symbol len -- delim by comma
+    *symptr++ = c;
+  symptr[-1] = '\0';                                // terminate symbol
+  rsymbol = rb_str_new2(symbol);
+  rb_ary_push(bar_ary, rsymbol);                    // becomes first elem of array
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // sequence number
+  i += sizeof(int);
+  i += sizeof(char);                                // skip comma
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // open
+  i += sizeof(float);
+  i += sizeof(char);                                // skip comma
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // high
+  i += sizeof(float);
+  i += sizeof(char);                                // skip comma
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // low
+  i += sizeof(float);
+  i += sizeof(char);                                // skip comma
+
+  rb_ary_push(bar_ary, float2rb(&str[i], 1.0));     // close
+  i += sizeof(float);
+  i += sizeof(char);                                // skip comma
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // volume
+  i += sizeof(float);
+  i += sizeof(char);                                // skip comma
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // seconds since midnight
+  i += sizeof(int);
+  i += sizeof(char);                                // skip comma
+
+  rb_ary_push(bar_ary, uint2rb(&str[i]));           // days since epoch
+  i += sizeof(int);
+
+  if ( str[i] != ';' )
+    rb_warn("End of bar not ';'");
+  i += sizeof(char);                                // skip id
+
+  tda_buff_index = UINT2NUM(i);                     // remember position in buffer
+
+  return ( bar_ary );                              // return bar_ary
+}
 
 
 VALUE next_ts(unsigned char* str) {

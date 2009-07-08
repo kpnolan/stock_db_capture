@@ -1,11 +1,11 @@
 # == Schema Information
-# Schema version: 20090630195749
+# Schema version: 20090707232154
 #
 # Table name: tickers
 #
 #  id          :integer(4)      not null, primary key
 #  symbol      :string(8)
-#  exchange_id :string(255)
+#  exchange_id :integer(4)
 #  active      :boolean(1)
 #  retry_count :integer(4)      default(0)
 #  name        :string(255)
@@ -42,8 +42,8 @@ class Ticker < ActiveRecord::Base
       else
         ticker = lookup(symbol_or_id)
       end
-      if ticker.exchange.nil?
-        nil
+      if ticker.exchange == 'AMEX'
+        :nyse
       elsif ['NCM', 'NGM', 'NasdaqNM'].include? ticker.exchange.symbol
         :nasdaq
       elsif ticker.exchange.symbol == 'NYSE'

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090630195749) do
+ActiveRecord::Schema.define(:version => 20090707232154) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -165,6 +165,10 @@ ActiveRecord::Schema.define(:version => 20090630195749) do
     t.integer "listing_category_id"
   end
 
+  create_table "nasdaq", :id => false, :force => true do |t|
+    t.string "symbol", :limit => 8
+  end
+
   create_table "plot_attributes", :force => true do |t|
     t.string   "name"
     t.integer  "ticker_id"
@@ -276,6 +280,21 @@ ActiveRecord::Schema.define(:version => 20090630195749) do
     t.string "name"
   end
 
+  create_table "snapshots", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "snaptime"
+    t.integer  "seq"
+    t.float    "open"
+    t.float    "high"
+    t.float    "low"
+    t.float    "close"
+    t.integer  "volume"
+    t.integer  "accum_volume"
+    t.integer  "secmid"
+  end
+
+  add_index "snapshots", ["ticker_id"], :name => "ticker_id"
+
   create_table "strategies", :force => true do |t|
     t.string "name"
     t.string "open_description"
@@ -308,9 +327,14 @@ ActiveRecord::Schema.define(:version => 20090630195749) do
   add_index "study_results", ["factor_id"], :name => "factor_id"
   add_index "study_results", ["ticker_id"], :name => "ticker_id"
 
+  create_table "symex", :id => false, :force => true do |t|
+    t.string "symbol",      :limit => 8
+    t.string "exchange_id"
+  end
+
   create_table "tickers", :force => true do |t|
     t.string  "symbol",      :limit => 8
-    t.string  "exchange_id"
+    t.integer "exchange_id"
     t.boolean "active"
     t.integer "retry_count",              :default => 0
     t.string  "name"
@@ -325,6 +349,7 @@ ActiveRecord::Schema.define(:version => 20090630195749) do
   add_index "tickers", ["sector_id"], :name => "sector_id"
   add_index "tickers", ["industry_id"], :name => "industry_id"
   add_index "tickers", ["name"], :name => "ticker_name_index"
+  add_index "tickers", ["exchange_id"], :name => "exchange_id"
 
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
@@ -349,6 +374,9 @@ ActiveRecord::Schema.define(:version => 20090630195749) do
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
 
+  add_foreign_key "snapshots", ["ticker_id"], "tickers", ["id"], :name => "snapshots_ibfk_1"
+
+  add_foreign_key "tickers", ["exchange_id"], "exchanges", ["id"], :name => "tickers_ibfk_3"
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"
 

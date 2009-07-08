@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :snapshots
+
   map.resources :studies
 
   map.resources :indicators

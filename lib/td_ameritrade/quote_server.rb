@@ -1,6 +1,7 @@
 require "uri"
 require "net/https"
 require 'xmlsimple'
+require 'zlib'
 
 require 'tda2ruby'
 require 'rubygems'
@@ -16,6 +17,7 @@ module TdAmeritrade
   STREAMER_INFO = 'https://apis.tdameritrade.com/apps/100/StreamerInfo'
   LOGIN = 'lewissternberg'
   ACCOUNT = 781467570
+  DAY2SEC = 24*60*60
   PASSWORD = 'Troika3'
   MINUTES_PER_DAY = 390
   STREAMER_ORDER = [ :U, :W, :A, :token, :company, :segment, :cddomain, :usergroup, :accesslevel, :authorized, :acl, :timestamp, :appid ]
@@ -39,10 +41,11 @@ module TdAmeritrade
 
     include Tda2Ruby
     include Net
+    include CacheProc
 
     attr_reader :ioptions, :bars, :interval_type, :frequency
     attr_reader :response, :body, :login_xml, :cdi, :company, :segment, :account_id, :cookies, :token, :acl, :cddomain
-    attr_reader :accesslevel, :appid, :streamer_url, :userid, :usergroup, :w, :a, :u, :authorized, :timestamp
+    attr_reader :accesslevel, :appid, :streamer_url, :userid, :usergroup, :w, :a, :u, :authorized, :timestamp, :tcache
 
     def initialize(options={})
       options.reverse_merge! :login => 'LWSG'
@@ -50,16 +53,15 @@ module TdAmeritrade
       @bars = []
       @interval_type = nil
       @frequency = nil
+      @tcache = { }
     end
 
     def parse_login_xml(h)
-      @cddomain = h['cdi'].first
       @userid = h['user-id'].first
       @session_id = h['session-id'].first
       act = h['accounts'].first['account'].first
       @company = act['company'].first
       @segment = act['segment'].first
-      @usergroup = @segment
       @account_id = act['account-id'].first
     end
 
@@ -70,12 +72,14 @@ module TdAmeritrade
       @w = @token
       @u = ACCOUNT
       @a = "userid=#{@u}"
+      @timestamp = si['timestamp'].first
+      @cddomain = si['cd-domain-id'].first
       @accesslevel = si['access-level'].first
+      @usergroup = si['usergroup'].first
       @app_id = si['app-id'].first
       @acl = si['acl'].first
       @streamer_url = si['streamer-url'].first
       @authorized = 'Y'
-      @timestamp = Time.now.to_i
       @appid = 'SDcapture'
     end
 
@@ -154,7 +158,7 @@ module TdAmeritrade
       submit_request(TdAmeritrade::LOGOUT_URL, form_data, options)
     end
 
-    def submit_request(uri, form_data, options)
+    def submit_request(uri, form_data, options={})
       url = URI.parse(uri)
       req = HTTP::Post.new(url.path)
       req.add_field('Cookie', cookies)
@@ -180,7 +184,7 @@ module TdAmeritrade
       end.join('&')
     end
 
-    def submit_request1(uri, req, options)
+    def submit_request1(uri, req, options={})
       url = URI.parse(uri)
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true if options[:use_ssl]
@@ -192,6 +196,31 @@ module TdAmeritrade
         return res.body
       else
         res.error!
+      end
+    end
+
+    def submit_request_stream(uri, req, options={})
+      url = URI.parse(uri)
+      http = Net::HTTP.new(url.host, url.port)
+      http.use_ssl = true if options[:use_ssl]
+      http.set_debug_output($stderr) if options[:debug]
+      http.start do
+        http.request(req) do |res|
+          case res
+          when Net::HTTPSuccess, Net::HTTPRedirection
+            res.read_body do |segment|
+              case segment.length
+              when 2: puts segment[0..1]
+              when 8: puts "timestamp"
+              when 10: puts segment[0..1]+' timestamp'
+              else
+                puts "quote packet of #{segment.length} starting with #{segment[0..0]}"
+              end
+            end
+          else
+            res.error!
+          end
+        end
       end
     end
 
@@ -209,13 +238,14 @@ module TdAmeritrade
 
     def group_symbols(symbols)
       ehash = { :nasdaq => [], :nyse => [], nil => [] }
+      symbols.each { |s| puts "#{s} #{Ticker.exchange(s)}" }
       symbols.each { |symbol| ehash[Ticker.exchange(symbol)] << symbol }
       ehash.delete(nil)
       ehash.each { |k,v| ehash[k] = urlencode(ehash[k].join('+')) }
       ehash
     end
 
-    def submit_backfill(symbols)
+    def stream(symbols)
       req = build_request(streamer_uri, {})
       req.body = '!' + build_param_str()
       suffix = ''
@@ -227,23 +257,24 @@ module TdAmeritrade
         suffix << bar+'S='+shash[k]+'&C='+'SUBS'+'&P='+ehash[k]+'&T='+field_str
       end
       req.body << suffix << "\n\n"
-      submit_request1(streamer_uri, req, :debug => true)
+      submit_request_stream(streamer_uri, req)
     end
 
-    def submit_snapshot(symbol)
+    def snapshot(symbol)
       req = build_request(streamer_uri, {})
       req.body = '!' + build_param_str()
       suffix = ''
       bar = urlencode('|')
-      shash = { :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
-      ehash = group_symbols([symbol])
-      field_str = urlencode((0..7).to_a.map { |i| i.to_s }.join('+'))
-#      ehash.each do |k,v|
-#        suffix << bar+'S'+eq+shash[k]+'&C'+eq+'GET'+'&P'+eq+ehash[k]+'0,610,5d,1m'
-#      end
-      req.body << bar+'S'+eq+'NASDAQ_CHART'+'&C'+eq+'GET'+'&P'+eq+'DELL'+',89,119,5d,1m'
+      eq = '='
+      ehash = { :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
+      exch = ehash[Ticker.exchange(symbol)]
+      seq = Snapshot.last_seq(symbol, Date.today)+1
+      req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',610,1d,1m'
       req.body << "\n\n"
-      submit_request1(streamer_uri, req, :debug => true)
+      buff = submit_request1(streamer_uri, req)
+      symbol, status, compressed_bars = parse_snapshot(buff)
+      buffer = Zlib::Inflate.inflate(compressed_bars)
+      Snapshot.populate(process_snapshot(buffer))
     end
 
     def build_request(uri, form_data)
@@ -273,20 +304,19 @@ module TdAmeritrade
       end
     end
 
+    def process_snapshot(buffer)
+      cleaned = buffer.split(';').delete_if { |s| s.empty? }.map { |e| e.split(',').map { |s| s.gsub(/^0+/,'') } }.compact
+      cleaned.pop
+      float_proc = proc { |str| str.to_f }
+      time_proc = proc { |arg| Time.at(arg*DAY2SEC).utc.to_date }
+      cleaned.map do |bar|
+        norm = ([] << bar[0].to_sym << bar[1].to_i << bar[2..5].map { |str| cache_proc(str, float_proc) } << bar[6..7].map(&:to_i) << cache_proc(bar.last.to_i, time_proc )).flatten
+      end
+    end
+
     def retrieve_quotes_from_file()
-      GC.disable
-      buff = IO.read(File.join(options[:dir], options[:filename]))
-      symbol_count, symbol, bar_count = parse_header(buff)
-      bar_count.times do
-        bar_ary = parse_bar(buff)
-        bars.push(bar_ary)
-      end
-      GC.start
-      for bar in bars
-        puts %Q(#{bar.join("\t")})
-      end
-      debugger
-      nil
+      barbuff = IO.read(File.join(RAILS_ROOT, 'tmp', 'barbuf.bin'))
+      process_snapshot(barbuff)
     end
   end
 end

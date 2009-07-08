@@ -1,0 +1,27 @@
+%tr[snapshot]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.ticker_id
+    = lkup snapshot.ticker
+  %td.snaptime
+    = h snapshot.snaptime
+  %td.seq
+    = h snapshot.seq
+  %td.open
+    = h snapshot.open
+  %td.high
+    = h snapshot.high
+  %td.low
+    = h snapshot.low
+  %td.close
+    = h snapshot.close
+  %td.volume
+    = h snapshot.volume
+  %td.accum_volume
+    = h snapshot.accum_volume
+  %td.secmid
+    = h snapshot.secmid
+  %td.show
+    = link_to 'Show', object_path(snapshot)
+  %td.edit
+    = link_to 'Edit', edit_object_path(snapshot)
+  %td.destroy
+    = link_to 'Destroy', object_path(snapshot), :confirm => 'Really destroy snapshot?', :method => :delete

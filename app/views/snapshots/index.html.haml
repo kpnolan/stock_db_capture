@@ -1,0 +1,17 @@
+%h1 Listing snapshots
+%table
+  %tr.heading
+    %th Ticker
+    %th Snaptime
+    %th Seq
+    %th Open
+    %th High
+    %th Low
+    %th Close
+    %th Volume
+    %th Accum Volume
+    %th Secmid
+
+  = render :partial => 'snapshot', :collection => current_objects
+
+= link_to 'New snapshot', new_object_path 

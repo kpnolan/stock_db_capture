@@ -261,6 +261,7 @@ module TdAmeritrade
     end
 
     def snapshot(symbol)
+      symbol = symbol.to_s.upcase
       req = build_request(streamer_uri, {})
       req.body = '!' + build_param_str()
       suffix = ''
@@ -268,7 +269,7 @@ module TdAmeritrade
       eq = '='
       ehash = { :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
       exch = ehash[Ticker.exchange(symbol)]
-      seq = Snapshot.last_seq(symbol, Date.today)+1
+      seq = max(Snapshot.last_seq(symbol, Date.today)+1, 90)
       req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',610,1d,1m'
       req.body << "\n\n"
       buff = submit_request1(streamer_uri, req)

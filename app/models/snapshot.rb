@@ -59,9 +59,11 @@ class Snapshot < ActiveRecord::Base
       end
       snapshot.length
     end
-
+    #
+    # Calculate the time from the current date and the minute sequence number as ET
+    #
     def calc_time(seq, date)
-      date.to_time.midnight + 8.hours + seq.minutes
+      date.to_time.midnight + 5.hours + seq.minutes
     end
   end
 end

@@ -16,38 +16,33 @@ module ResultAnalysis
 
   attr_accessor :mode                                         # this will be used to optimize the where into first or something
 
-  def over_threshold(threshold, sym)
-    unless (indexes = threshold_crossing(threshold, sym, :gt)).nil?
+  def over_threshold(threshold, vec)
+    unless (indexes = threshold_crossing(threshold, vec, :gt)).nil?
       indexes.to_v.to_i.add_constant!(outidx).to_a
     else
       []
     end
   end
 
-  def under_threshold(threshold, sym)
-    unless (indexes = threshold_crossing(threshold, sym, :lt)).nil?
+  def under_threshold(threshold, vec)
+    unless (indexes = threshold_crossing(threshold, vec, :lt)).nil?
       indexes.to_v.to_i.add_constant!(outidx).to_a
     else
       []
     end
   end
 
-  def threshold_crossing(threshold, sym, op)
+  def threshold_crossing(threshold, vec, op)
     raise ArgumentError, "#{op} not one of #{VALID_OPS.join(', ')}" unless VALID_OPS.include? op
-    vec = vector_for(sym)
     tvec = GSL::Vector.alloc(vec.len).set_all(threshold)
     crossing(op, vec, tvec)
   end
 
-  def crosses_over(sym1 ,sym2)
-    a_vec = vector_for(sym1)
-    b_vec = vector_for(sym2)
+  def crosses_over(a_vec ,b_vec)
     crossing(:gt, a_vec, b_vec).to_v.to_i.add_constant!(outidx).to_a
   end
 
-  def crosses_under(sym1, sym2)
-    a_vec = vector_for(sym1)
-    b_vec = vector_for(sym2)
+  def crosses_under(a_vec, b_vec)
     crossing(:lt, a_vec, b_vec).to_v.to_i.add_constant!(outidx).to_a
   end
 

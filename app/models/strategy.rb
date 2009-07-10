@@ -10,6 +10,7 @@
 #  close_params_yaml :string(255)
 #  close_description :string(255)
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'yaml'
 

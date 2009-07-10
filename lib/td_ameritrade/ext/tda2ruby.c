@@ -1,3 +1,4 @@
+// Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 // Include the Ruby headers and goodies
 #include "ruby.h"
 #include <stdio.h>

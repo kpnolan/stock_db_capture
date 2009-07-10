@@ -13,6 +13,7 @@
 #  table_name  :string(255)
 #  order_by    :string(255)
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Scan < ActiveRecord::Base
 

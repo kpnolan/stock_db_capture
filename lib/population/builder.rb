@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'yaml'
 
 module Population
@@ -48,6 +50,7 @@ module Population
       options[:start_date] = options[:start_date].is_a?(Date) ? options[:start_date] : Date.parse(options[:start_date])
       options[:end_date] = options[:end_date].is_a?(Date) ? options[:end_date] : Date.parse(options[:end_date])
       options[:description] = @descriptions.shift
+      options[:table_name] = 'daily_bars' if options[:table_name].nil?
       options.reject { |key, value| ! cols.include? key }
     end
 

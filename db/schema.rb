@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090707232154) do
+ActiveRecord::Schema.define(:version => 20090709170347) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -139,6 +139,7 @@ ActiveRecord::Schema.define(:version => 20090707232154) do
     t.integer  "volume"
     t.integer  "accum_volume"
     t.float    "delta"
+    t.integer  "seq"
   end
 
   add_index "intra_day_bars", ["ticker_id", "start_time"], :name => "ticker_id_and_start_time", :unique => true
@@ -293,8 +294,6 @@ ActiveRecord::Schema.define(:version => 20090707232154) do
     t.integer  "secmid"
   end
 
-  add_index "snapshots", ["ticker_id"], :name => "ticker_id"
-
   create_table "strategies", :force => true do |t|
     t.string "name"
     t.string "open_description"
@@ -374,10 +373,8 @@ ActiveRecord::Schema.define(:version => 20090707232154) do
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
 
-  add_foreign_key "snapshots", ["ticker_id"], "tickers", ["id"], :name => "snapshots_ibfk_1"
-
-  add_foreign_key "tickers", ["exchange_id"], "exchanges", ["id"], :name => "tickers_ibfk_3"
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"
+  add_foreign_key "tickers", ["exchange_id"], "exchanges", ["id"], :name => "tickers_ibfk_3"
 
 end

@@ -78,6 +78,12 @@ require 'excel_simulation_dumper'
 require 'visualize_entry'
 require 'ruby-debug'
 
+class String
+  def to_date()
+    Date.parse(self)
+  end
+end
+
 include TradingCalendar
 include ExcelSimulationDumper
 include VisualizeEntry
@@ -96,7 +102,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
   #ts(:mmm, Date.civil(2008, 1, 2)..Date.civil(2008, 12, 31), 1.day, :pre_buffer => 60, :post_buffer => 0)
 
-  #ts(:msft, Date.parse('03/02/2009')..Date.parse('3/31/2009'), 30.minutes, :pre_buffer => 0, :post_buffer => 0, :populate => true)
+  ts(:msft, Date.parse('01/02/2008')..Date.parse('12/31/2008'), 1.day)
 
   $qt = TdAmeritrade::QuoteServer.new
   $qt.attach_to_streamer()

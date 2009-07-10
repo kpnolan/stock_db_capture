@@ -8,6 +8,7 @@
 #  created_at :datetime
 #  updated_at :datetime
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class ContractType < ActiveRecord::Base
 end

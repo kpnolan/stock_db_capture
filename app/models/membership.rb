@@ -7,6 +7,7 @@
 #  ticker_id           :integer(4)
 #  listing_category_id :integer(4)
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Membership < ActiveRecord::Base
 end

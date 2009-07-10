@@ -73,7 +73,7 @@ module TradingCalendar
   end
 
   def trading_day_count(date1, date2)
-    trading_days(date1..date2).length
+    trading_days(date1.to_date..date2.to_date).length
   end
 
   def format_dates_where_clause(dates)

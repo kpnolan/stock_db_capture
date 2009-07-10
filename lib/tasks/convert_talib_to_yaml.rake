@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 namespace :active_trader do
   desc "convert talib xml to yaml"
   task :convert_talib_to_yaml do

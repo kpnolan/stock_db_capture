@@ -13,6 +13,7 @@
 #  low       :float
 #  volume    :integer(4)
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class IntraSnapshot < ActiveRecord::Base
   COLUMN_ORDER = [:close, :high, :low, :open, :volume, :start_time]

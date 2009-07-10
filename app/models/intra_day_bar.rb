@@ -15,6 +15,7 @@
 #  accum_volume :integer(4)
 #  delta        :float
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class IntraDayBar < ActiveRecord::Base
 
@@ -47,6 +48,7 @@ class IntraDayBar < ActiveRecord::Base
       @accum_volume = 0
       @last_date = nil
       @last_close = 0.0
+      @seq = 0
       bars = @@qs.intraday_for(symbol, start_date, end_date, resolution)
       bars.each { |bar| create_bar(symbol, bar) }
     end
@@ -63,6 +65,7 @@ class IntraDayBar < ActiveRecord::Base
         attrs[:delta] = attrs[:close] - @last_close
         attrs[:accum_volume] = @accum_volume
       else
+        @seq = 0
         @last_date= attrs[:start_time].to_date
         @last_close = prior_close(ticker_id, @last_date)
         @accum_volume = attrs[:volume]
@@ -70,6 +73,8 @@ class IntraDayBar < ActiveRecord::Base
         attrs[:delta] = @last_close.nil? ? nil : attrs[:close] - @last_close
         @last_close = attrs[:close]
       end
+      attrs[:seq] = @seq
+      @seq += 1
       begin
         create! attrs
       rescue ActiveRecord::StatementInvalid => e

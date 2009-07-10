@@ -2,6 +2,7 @@
 /* File : ta_libc.swg
  * This is the main SWIG file for the TA-Lib wrapper.
  * It includes other swg files, if needed.
+ * Copyright © Kevin P. Nolan 2009 All Rights Reserved.
  */
 
 %module(docstring="Technical Analysis Library") talib

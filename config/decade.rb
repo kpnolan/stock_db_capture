@@ -42,25 +42,26 @@
 
 analytics do
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :rsi_rvi, :time_period => 14 do |ts, params, pass|
-    rsi5_30 = ts.rsi params.merge(:noplot => true, :result => :memo)
-    indexes = rsi5_30.under_threshold(20+pass*5, :rsi)
+  open_position :rsi_rvi, :time_period => 14 do |params, pass|
+    rsi_ary = rsi(params.merge(:noplot => true, :result => :raw)).first
+    indexes = under_threshold(20+pass*5, rsi_ary)
     indexes.map do |start_index|
-      slope = ts.linreg(start_index, :time_period => 10, :noplot => true)
+      slope = linreg(start_index, :time_period => 10, :noplot => true)
       slope > 0.02 ? start_index : nil
     end
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  close_position :rsi_rvi, :time_period => 14 do |ts, params, pass|
-    params.reverse_merge! :noplot => true, :result => :memo
-    rsi = ts.rsi params
-    rvi = ts.rvi params
-    rsi_idx = rsi.under_threshold(60-pass*5, :rsi).first
-    rvi_idx = rvi.under_threshold(50-pass*5, :rvi).first
+  close_position :rsi_rvi, :time_period => 14 do |params, pass|
+    params.reverse_merge! :noplot => true, :result => :raw
+    rsi_ary = rsi(params).first
+    rvi_ary = rvi(params).first
+    rsi_idx = under_threshold(60-pass*5, rsi_ary).first
+    rvi_idx = under_threshold(50-pass*5, rvi_ary).first
+
     case
     when rsi_idx.nil? && rvi_idx : rvi_idx
-    when rsi_idx && rvi_idx : min(rsi_idx, rvi_idx)
+    when rsi_idx && rvi_idx : rsi_idx < rvi_idx ? rsi_idx : rvi_idx
     when rvi_idx.nil? : nil
     when rvi_idx : rvi_idx
     when rsi_idx : rsi_idx

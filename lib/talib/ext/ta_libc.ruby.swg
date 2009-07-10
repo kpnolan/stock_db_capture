@@ -1,5 +1,6 @@
 /****************************************************************************/
 /* File : ta_libc.ruby.swg
+ * Copyright © Kevin P. Nolan 2009 All Rights Reserved.
  * Ruby typemaps for all TA interfaces
  */
 /* Adittional typemap not found in the standard set *************************/

@@ -2,6 +2,7 @@
 # these methods are for sending data to a gnuplot process, not for reading from
 # it.  Most of the methods are implemented as added methods to the built in
 # classes.
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'matrix'
 

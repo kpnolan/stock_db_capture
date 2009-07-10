@@ -133,6 +133,22 @@ module LoadBars
     end
   end
 
+  def backfill_seq()
+    sql = "select id, start_time from intra_day_bars where seq is null"
+    rows = IntraDayBar.connection.select_rows(sql)
+    basis = 52200
+    count = 0
+    rows.each do |row|
+      id, time = row.first.to_i, Timeseries.parse_time(row.last, "%Y-%m-%d %H:%M:%S" )
+      d = (time - time.midnight).to_i
+      d = d - basis
+      seq = d / (30*60)
+      IntraDayBar.connection.execute("update intra_day_bars set seq  = #{seq} where id = #{id}")
+      count += 1
+    end
+    count
+  end
+
   def load_tda_intraday(tuples)
     count = 1
     max = tuples.length

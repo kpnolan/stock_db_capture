@@ -88,8 +88,8 @@ class Timeseries
   # Parse a date/time string with the nominal format (see 2nd arg to strptime)
   # returning a time have the local timezone
   #
-  def self.parse_time(date_time_str)
-    d = Date._strptime(date_time_str, "%m/%d/%Y %H:%M")
+  def self.parse_time(date_time_str, fmt="%m/%d/%Y %H:%M")
+    d = Date._strptime(date_time_str, fmt)
     Time.local(d[:year], d[:mon], d[:mday], d[:hour], d[:min],
                d[:sec], d[:sec_fraction], d[:zone])
   end
@@ -385,10 +385,13 @@ class Timeseries
   #
   # Returns a the value at an index location of a bar or result #FIXME this function is duplicated elswhere
   #
-  def value_at(index, *slots)
+  def values_at(index, *slots)
     slots.map { |s| value_hash[s][index]}
   end
 
+  def value_at(index, slot)
+    value_hash[slot][index]
+  end
   #
   # Returns the time for a vector of index
   #

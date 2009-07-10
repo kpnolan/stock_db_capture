@@ -14,6 +14,7 @@
 #  accum_volume :integer(4)
 #  delta        :float
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class IntraDayArchive < ActiveRecord::Base
 

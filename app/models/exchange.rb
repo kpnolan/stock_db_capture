@@ -10,6 +10,7 @@
 #  currency :string(255)
 #  timezone :string(255)
 #
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Exchange < ActiveRecord::Base
 end

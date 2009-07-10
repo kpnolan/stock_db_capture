@@ -149,7 +149,7 @@ class Backtester
   def open_positions(ts, params, pass)
       pass_count = 0
       begin
-        open_indexes = opening.block.call(ts, params, pass)
+        open_indexes = ts.instance_exec(params, pass, &opening.block)
         for index in open_indexes
           next if index.nil? || @entry_cache[ts.ticker_id].include?(index)
           begin
@@ -157,7 +157,8 @@ class Backtester
             date = ts.index2time(index)
             debugger if date.nil?
             entry_trigger = ts.memo.result_for(index)
-          rescue
+          rescue Exception => e
+            puts e.to_s
             next
           end
           #TODO wipe all positions associated with the strategy if the strategy changes
@@ -227,7 +228,9 @@ class Backtester
       end_date = trading_days_from(p.entry_date, close_buffer).last
       ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, 1.day,
                           :pre_buffer => 30, :post_buffer => 0)
-      index = closing.block.call(ts, closing.params, pass)
+
+      index = ts.instance_exec(closing.params, pass, &closing.block)
+
       if index.nil?
         p.update_attributes!(:exit_price => nil, :exit_date => nil,
                              :days_held => nil, :nreturn => nil)
@@ -244,12 +247,12 @@ class Backtester
                              :days_held => days_held, :nreturn => nreturn,
                              :exit_trigger => exit_trigger, :pass => pass)
       end
-    rescue TimeseriesException => e
-      if e.message =~ /recorded history/
-        p.strategies.delete_all
-        p.distroy
-      end
-      p = nil
+    #rescue TimeseriesException => e
+    #  if e.message =~ /recorded history/
+    #    p.strategies.delete_all
+    #    p.distroy
+    #  end
+    #  p = nil
     rescue Exception => e
       $logger.error "Exception Raised: #{e.to_s} skipping closure}" if $logger
       $logger.error p.inspect if $logger

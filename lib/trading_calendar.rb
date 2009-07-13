@@ -53,6 +53,7 @@ module TradingCalendar
 
   def trading_days_from(date, number, dir=1)
     date = date.to_date
+    return [ date ] if number == 0
     trading_days = [ ]
     calendar_days = dir
     while trading_days.empty? || trading_days.length < number
@@ -85,9 +86,9 @@ module TradingCalendar
   end
 
   def ttime2index(time, resolution)
-    tstr = time.strftime("%m/%d/%Y %H:%M")
+    tstr = time.strftime("%m/%d/%Y %H:%M %z")
     d = Date._strptime(tstr, "%m/%d/%Y %H:%M")
-    t = Time.local(d[:year], d[:mon], d[:mday], 9, 30, 0, 0, d[:zone])
+    t = Time.local(d[:year], d[:mon], d[:mday], 6, 30, 0, 0)
     delta = time - t
     index = (delta / resolution).to_i
   end

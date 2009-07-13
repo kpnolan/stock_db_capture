@@ -1,0 +1,11 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  position_id: 1
+  name: MyString
+  value: 1.5
+
+two:
+  position_id: 1
+  name: MyString
+  value: 1.5

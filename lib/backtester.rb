@@ -80,7 +80,7 @@ class Backtester
               ts = ts_cache[tid]
             end
           rescue TimeseriesException => e
-            logger.error("#{ticker.symbol} has missing dates, skipping...")
+            logger.error("#{ticker.symbol} has missing dates beteen #{ts.begin_time} and #{ts.end_time}, skipping...")
             logger.error("Error: #{e.to_s}")
             ts_cache[tid] = false
             next
@@ -102,7 +102,7 @@ class Backtester
     unless stop_loss.nil?
       logger.info "Beginning close stop loss analysis..."
       startt = Time.now
-      open_positions = strategy.positions.find(:all, :conditions => 'nreturn is null')
+      open_positions = strategy.positions.find(:all, :conditions => 'pass <> -1')
       open_positions.each do |p|
         tstop(p, stop_loss.threshold, stop_loss.options)
       end
@@ -121,7 +121,7 @@ class Backtester
     startt = Time.now
     pass = 0
     for pass in 0..5
-      open_positions = strategy.positions.find(:all, :conditions => 'nreturn is null')
+      open_positions = strategy.positions.find(:all, :conditions => 'nreturn is null and pass != -1')
       pos_count = open_positions.length
       break if pos_count == 0
       counter = 1
@@ -150,19 +150,24 @@ class Backtester
       pass_count = 0
       begin
         open_indexes = ts.instance_exec(params, pass, &opening.block)
-        for index in open_indexes
+        for idx in open_indexes
+          aux = { }
+          index = case idx
+                  when Numeric : idx
+                  when Hash : aux = idx; idx[:index]
+                  end
           next if index.nil? || @entry_cache[ts.ticker_id].include?(index)
           begin
             price = ts.value_at(index, :close)
-            date = ts.index2time(index)
-            debugger if date.nil?
+            time = ts.index2time(index)
+            debugger if time.nil?
             entry_trigger = ts.memo.result_for(index)
           rescue Exception => e
             puts e.to_s
             next
           end
           #TODO wipe all positions associated with the strategy if the strategy changes
-          position = Position.open(scan, strategy, ticker, date, price, entry_trigger, params[:short], pass)
+          position = Position.open(scan, strategy, ticker, time, price, entry_trigger, params[:short], pass, aux)
           entry_cache[ts.ticker_id] << index
           strategy.positions << position
           pass_count += 1
@@ -197,27 +202,34 @@ class Backtester
     max_date = trading_days_from(edate, trailing_days).last
     # grab a timeseries at the given resolution from the entry date (or following day)
     # through the number of specified trailing days
-    ts = Timeseries.new(p.ticker_id, edate..max_date, res, :pre_buffer => 0, :post_buffer => 0)
-    bpd = ts.bars_per_day
-    max_high = -1.0
-    while sindex < ts.length
-      max_high = -1.0 if sindex % bpd == 0
-      high, low = ts.value_at(sindex, :high, :low)
-      max_high = max_high > high ? max_high : high
-      if (rratio = (max_high - low) / max_high) > tratio
-        xtime = ts.index2time(sindex)
-        xdate = xtime.to_date
-        edate = p.entry_date.to_date
-        days_held = Position.trading_day_count(edate, xdate)
-        nreturn = days_held.zero? ? 0.0 : ((low - p.entry_price) / p.entry_price) / days_held
-        nreturn *= -1.0 if p.short and nreturn != 0.0
-        p.update_attributes!(:exit_price => low, :exit_date => xtime,
-                             :days_held => days_held, :nreturn => nreturn,
-                             :exit_trigger => rratio, :pass => -1)
+    begin
+      ts = Timeseries.new(p.ticker_id, edate..max_date, res, :pre_buffer => 0, :post_buffer => 0)
+      bpd = ts.bars_per_day
+      max_high = -1.0
+      while sindex < ts.length
+        max_high = -1.0 if sindex % bpd == 0
+        high, low = ts.values_at(sindex, :high, :low)
+        max_high = max_high > high ? max_high : high
+        if (rratio = (max_high - low) / max_high) > tratio
+          xtime = ts.index2time(sindex)
+          xdate = xtime.to_date
+          edate = p.entry_date.to_date
+          days_held = Position.trading_day_count(edate, xdate)
+          nreturn = ((low - p.entry_price) / p.entry_price) if days_held.zero?
+          nreturn = ((low - p.entry_price) / p.entry_price) / days_held if days_held > 0
+          nreturn *= -1.0 if p.short and nreturn != 0.0
+          p.update_attributes!(:exit_price => low, :exit_date => xtime,
+                               :days_held => days_held, :nreturn => nreturn,
+                               :exit_trigger => rratio, :pass => -1)
 
-        break;
+          break;
+        end
+        sindex += 1
       end
-      sindex += 1
+    rescue TimeseriesException => e
+      $logger.info e.to_s
+    rescue Exception => e
+      $logger.info e.to_s
     end
     nil
   end

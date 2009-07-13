@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090709170347) do
+ActiveRecord::Schema.define(:version => 20090711171320) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -17,9 +17,7 @@ ActiveRecord::Schema.define(:version => 20090709170347) do
   add_index "bar_lookup", ["id"], :name => "id"
 
   create_table "contract_types", :force => true do |t|
-    t.string   "name"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.string "name"
   end
 
   create_table "current_listings", :force => true do |t|
@@ -191,6 +189,14 @@ ActiveRecord::Schema.define(:version => 20090709170347) do
     t.integer "num_outputs"
   end
 
+  create_table "position_stats", :force => true do |t|
+    t.integer "position_id"
+    t.string  "name"
+    t.float   "value"
+  end
+
+  add_index "position_stats", ["position_id"], :name => "position_id"
+
   create_table "positions", :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "entry_date"
@@ -215,6 +221,26 @@ ActiveRecord::Schema.define(:version => 20090709170347) do
   add_index "positions", ["strategy_id"], :name => "strategy_id"
   add_index "positions", ["ticker_id"], :name => "index_positions_on_portfolio_id_and_ticker_id"
   add_index "positions", ["scan_id"], :name => "scan_id"
+
+  create_table "positions08", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.integer  "num_shares"
+    t.string   "stop_loss"
+    t.integer  "strategy_id"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.integer  "scan_id"
+    t.float    "entry_trigger"
+    t.float    "exit_trigger"
+    t.float    "logr"
+    t.boolean  "short"
+    t.integer  "pass"
+    t.integer  "entry_pass"
+  end
 
   create_table "positions_strategies", :id => false, :force => true do |t|
     t.integer "strategy_id"
@@ -260,10 +286,8 @@ ActiveRecord::Schema.define(:version => 20090709170347) do
   end
 
   create_table "scans_strategies", :id => false, :force => true do |t|
-    t.integer  "scan_id"
-    t.integer  "strategy_id"
-    t.datetime "created_at"
-    t.datetime "updated_at"
+    t.integer "scan_id"
+    t.integer "strategy_id"
   end
 
   add_index "scans_strategies", ["scan_id"], :name => "scan_id"
@@ -359,6 +383,8 @@ ActiveRecord::Schema.define(:version => 20090709170347) do
   add_foreign_key "intra_snapshots", ["ticker_id"], "tickers", ["id"], :name => "intra_snapshots_ibfk_1"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
+
+  add_foreign_key "position_stats", ["position_id"], "positions", ["id"], :name => "position_stats_ibfk_1"
 
   add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_2"
   add_foreign_key "positions", ["strategy_id"], "strategies", ["id"], :name => "positions_ibfk_3"

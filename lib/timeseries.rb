@@ -44,7 +44,6 @@ class Timeseries
     @ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     @symbol = Ticker.find(ticker_id).symbol
-
     if local_range.is_a? Range
       if local_range.begin.is_a?(Date) && local_range.end.is_a?(Date)
         @local_range = local_range.begin.to_time.utc.midnight..local_range.end.to_time.utc.midnight
@@ -248,8 +247,8 @@ class Timeseries
   #
   # Compute the calendar date to be given to the DB to grab the selected data range plus any pre-buffering
   #
-  def offset_date(ref_date, pre_offset, dir)
-    trading_days = ((1.day / bars_per_day ) * pre_offset) /1.day
+  def offset_date(ref_date, offset, dir)
+    trading_days = ((1.day / bars_per_day ) * offset) /1.day
     tdf = trading_days_from(ref_date, trading_days, dir).last.to_time.utc.midnight
   end
 
@@ -257,7 +256,7 @@ class Timeseries
   # initializes the time vector for this time series
   #
   def init_timevec
-    value_hash[model.time_col.to_sym] = model.time_vector(symbol, begin_time, end_time)
+    value_hash[model.time_col.to_sym] ||= model.time_vector(symbol, begin_time, end_time)
     compute_timestamps
   end
 
@@ -269,7 +268,7 @@ class Timeseries
   def repopulate(options)
     @value_hash = model.general_vectors(symbol, attrs, begin_time, end_time)
     missing_bars = expected_bars - value_hash[:close].length
-    raise TimeseriesException, "No values where return from #{model.to_s.tableize} for #{symbol} " +
+    raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
       "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
     raise TimeseriesException, "Missing #{missing_bars} bars for #{symbol}" if missing_bars > 0
     if stride > 1
@@ -302,7 +301,7 @@ class Timeseries
     if model.time_class == Date
       @timevec = value_hash[model.time_col.to_sym].collect { |dt| dt.to_time.utc.midnight }
     else
-      @timevec = value_hash[model.time_col.to_sym].collect { |twz| twz.time }
+      @timevec = value_hash[model.time_col.to_sym]
     end
     timevec.each_with_index { |time, idx| @time_map[time] = idx }
     @begin_index = time2index(local_range.begin, 1)
@@ -323,7 +322,7 @@ class Timeseries
 
   def calc_indexes(loopback_fun, *args)
     @output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
-    raise ArgumentError, "Only subset of Date Range available, pre-buffer at least #{output_offset} more trading days" if output_offset > 0
+    raise ArgumentError, "Only subset of Date Range available, pre-buffer at least #{output_offset} more bars" if output_offset > 0
     index_range
   end
 
@@ -364,7 +363,7 @@ class Timeseries
   # Handles times only, delegated to from time2index
   #
   def time2index_time(time, direction, raise_on_range_error=true)
-    adj_time = time + 9.5.hours.to_i if time.at_midnight
+    adj_time = time.at_midnight ? ETZ.local(time.year, time.month, time.day, 9, 30, 0) : time
     if direction == -1
       raise TimeseriesException, "#{symbol}: requested time is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
       until time_map.include?(adj_time) || adj_time < timevec.first
@@ -378,7 +377,7 @@ class Timeseries
         adj_time += resolution
       end
     end
-    raise TimeseriesException.new, "#{time} is not contained within the DB" if time_map[adj_time].nil?
+    raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
     return time_map[adj_time]
   end
 

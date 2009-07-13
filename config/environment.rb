@@ -84,6 +84,7 @@ class String
   end
 end
 
+ETZ = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
 include TradingCalendar
 include ExcelSimulationDumper
 include VisualizeEntry
@@ -102,10 +103,10 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
   #ts(:mmm, Date.civil(2008, 1, 2)..Date.civil(2008, 12, 31), 1.day, :pre_buffer => 60, :post_buffer => 0)
 
-  ts(:msft, Date.parse('01/02/2008')..Date.parse('12/31/2008'), 1.day)
+  #ts(:msft, Date.parse('01/02/2008')..Date.parse('12/31/2008'), 1.day)
 
-  $qt = TdAmeritrade::QuoteServer.new
-  $qt.attach_to_streamer()
+#  $qt = TdAmeritrade::QuoteServer.new
+#  $qt.attach_to_streamer()
 
   def lookup(symbol, start_date, end_date=nil, options={})
     options.reverse_merge! :interval => 1.day.seconds

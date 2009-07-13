@@ -45,9 +45,11 @@ analytics do
   open_position :rsi_rvi, :time_period => 14 do |params, pass|
     rsi_ary = rsi(params.merge(:noplot => true, :result => :raw)).first
     indexes = under_threshold(20+pass*5, rsi_ary)
-    indexes.map do |start_index|
-      slope = linreg(start_index, :time_period => 10, :noplot => true)
-      slope > 0.02 ? start_index : nil
+    indexes.map do |index|
+      pslope = linreg(index-7, :time_period => 7, :noplot => true)
+      eslope = linreg(index, :time_period => 10, :noplot => true)
+      idx = eslope > 0.02 ? index : nil
+      { :index => idx, :pslope => pslope, :eslope => eslope }
     end
   end
 

@@ -1,41 +1,49 @@
 analytics do
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :rsi_rvi_stop, :time_period => 14 do |ts, params|
-    params.reverse_merge!(:noplot => true, :result => :memo)
-    rsi = ts.rsi params
-    indexes = rsi.under_threshold(30, :rsi)
+  open_position :intra_rsi_rvi, :time_period => 14 do |params, pass|
+    rsi_ary = rsi(params.merge(:noplot => true, :result => :raw)).first
+    indexes = under_threshold(20+pass*5, rsi_ary)
+    puts indexes.join(', ') unless indexes.empty?
+    #indexes.map do |start_index|
+    #  slope = linreg(start_index, :time_period => 10*13, :noplot => true)
+    #  slope > 0.02 ? start_index : nil
+    #end
+    indexes
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  close_position :rsi_rvi_stop, :time_period => 14 do |ts, params|
-    params.reverse_merge! :noplot => true, :result => :memo
-    rsi = ts.rsi params
-    rvi = ts.rvi params
-    r70 = rsi.under_threshold(60, :rsi).first
-    r60 = rvi.under_threshold(50, :rvi).first
+  close_position :intra_rsi_rvi, :time_period => 14 do |params, pass|
+    params.reverse_merge! :noplot => true, :result => :raw
+    rsi_ary = rsi(params).first
+    rvi_ary = rvi(params).first
+    rsi_idx = under_threshold(60-pass*5, rsi_ary).first
+    rvi_idx = under_threshold(50-pass*5, rvi_ary).first
+
     case
-      when r70.nil? && r60 : r60
-      when r70 && r60 : min(r70, r60)
-      when r60.nil? : nil
-      when r60 : r60
+    when rsi_idx.nil? && rvi_idx : rvi_idx
+    when rsi_idx && rvi_idx : rsi_idx < rvi_idx ? rsi_idx : rvi_idx
+    when rvi_idx.nil? : nil
+    when rvi_idx : rvi_idx
+    when rsi_idx : rsi_idx
     end
   end
 
   desc "Close the position if the stop loss is 1% or greater"
-  stop_loss(1.0)
+  stop_loss(25.0)
+
 end
 
 populations do
   name = "intraday_2009"
-  start_date = Date.parse('1/2/2009')
-  end_date = Date.parse('4/30/2009')
+  start_date = Date.parse('2/2/2009')
+  end_date = Date.parse('5/30/2009')
   liquid = "min(accum_volume) > 100000 and count(*) = #{total_bars(start_date, end_date, 13)}"
   desc "Population of all stocks with a minimum valume of 100000 and have  #{total_bars(start_date, end_date, 13)} bars"
   scan name, :table_name => 'intra_day_bars', :start_date => start_date, :end_date => end_date, :conditions => liquid
 end
 
-backtests(:price => :close, :close_buffer => 20) do
-  apply(:rsi_rvi_stop, :intraday_2009) do
+backtests(:price => :close, :resolution => 30.minutes, :close_buffer => 30) do
+  apply(:intra_rsi_rvi, :intraday_2009) do
 #    make_test()
   end
 end

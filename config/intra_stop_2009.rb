@@ -3,7 +3,6 @@ analytics do
   open_position :intra_rsi_rvi, :time_period => 14 do |params, pass|
     rsi_ary = rsi(params.merge(:noplot => true, :result => :raw)).first
     indexes = under_threshold(20+pass*5, rsi_ary)
-    puts indexes.join(', ') unless indexes.empty?
     #indexes.map do |start_index|
     #  slope = linreg(start_index, :time_period => 10*13, :noplot => true)
     #  slope > 0.02 ? start_index : nil

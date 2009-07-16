@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: studies
 #
@@ -12,7 +12,6 @@
 #  sub_version :integer(4)
 #  iteration   :integer(4)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Study < ActiveRecord::Base
   has_many :factors, :dependent => :delete_all

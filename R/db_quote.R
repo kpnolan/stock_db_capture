@@ -2,6 +2,75 @@ require(RMySQL)
 require(tseries)
 
 
+get.id.quote <-
+function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
+          method = NULL, origin = "1899-12-30",
+          retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
+{
+  if (missing(start))
+    start <- "2000-01-02"
+  if (missing(end))
+    end <- format(Sys.Date() - 1, "%Y-%m-%d")
+  retclass <- match.arg(retclass)
+  start <- as.Date(start)
+  end <- as.Date(end)
+  con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+  sql <- paste("select start_time, open as Open, high as High, low as Low, close as Close from intra_day_bars left outer join tickers ",
+    " on tickers.id = ticker_id where symbol = '", instrument, "' and date(start_date) >= '", start, "' and date(start_date) <= '", end, "' order by start_time desc", sep="")
+  res = dbSendQuery(con, sql)
+  x = fetch(res, n = -1)
+  dbDisconnect(con)
+
+  nser <- pmatch(quote, names(x)[-1]) + 1
+  n <- nrow(x)
+
+  dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+  if (!quiet && dat[n] != start)
+    cat(format(dat[n], "time series starts %Y-%m-%d\n"))
+  if (!quiet && dat[1] != end)
+    cat(format(dat[1], "time series ends   %Y-%m-%d\n"))
+  if (retclass == "ts") {
+    jdat <- unclass(julian(dat, origin = as.Date(origin)))
+    ind <- jdat - jdat[n] + 1
+    y <- matrix(NA, nrow = max(ind), ncol = length(nser))
+    y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
+    colnames(y) <- names(x)[nser]
+    y <- y[, seq_along(nser), drop = drop]
+    return(ts(y, start = jdat[n], end = jdat[1]))
+  }
+  else {
+    x <- as.matrix(x[, nser, drop = FALSE])
+    rownames(x) <- NULL
+    y <- zoo(x, dat)
+    y <- y[, seq_along(nser), drop = drop]
+    if (retclass == "its") {
+      if ("package:its" %in% search() || require("its", quietly = TRUE)) {
+        index(y) <- as.POSIXct(index(y))
+        y <- its::as.its(y)
+      }
+      else {
+        warning("package its could not be loaded: zoo series returned")
+      }
+    }
+    return(y)
+  }
+}
+
+get.db.slope <-
+  function(pass) {
+  sql <- paste("select entry_pass,",
+               "sum(if(name='pslope', value, 0)) as pslope,",
+               "sum(if(name='eslope', value, 0)) as eslope,",
+               "sum(if(name='cslope', value, 0)) as cslope",
+               "from position_stats left outer join positions on positions.id = position_id",
+               "where entry_pass = ", pass, "group by position_id order by position_id")
+  con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+  res = dbSendQuery(con, sql)
+  x = fetch(res, n = -1)
+  dbDisconnect(con)
+  x
+}
+
 get.db.quote <-
 function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
           method = NULL, origin = "1899-12-30",
@@ -113,7 +182,7 @@ process.positions <-
 }
 
 
-get.rt.quote <-
+get.snap.quote <-
 function (instrument, date, drop=FALSE,  quote = c("Open", "High", "Low", "Close"))
 {
   if (missing(date))

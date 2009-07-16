@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: strategies
 #
@@ -10,7 +10,6 @@
 #  close_params_yaml :string(255)
 #  close_description :string(255)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'yaml'
 

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: study_results
 #
@@ -9,7 +9,6 @@
 #  value     :float
 #  ticker_id :integer(4)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class StudyResult < ActiveRecord::Base
   belongs_to :factor

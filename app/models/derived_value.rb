@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: derived_values
 #
@@ -10,7 +10,6 @@
 #  time                  :datetime
 #  value                 :float
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class DerivedValue < ActiveRecord::Base
   belongs_to :derived_value_type

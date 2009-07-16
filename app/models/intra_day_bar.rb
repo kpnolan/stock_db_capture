@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: intra_day_bars
 #
@@ -14,8 +14,8 @@
 #  volume       :integer(4)
 #  accum_volume :integer(4)
 #  delta        :float
+#  seq          :integer(4)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class IntraDayBar < ActiveRecord::Base
 
@@ -58,7 +58,7 @@ class IntraDayBar < ActiveRecord::Base
       ticker_id = Ticker.find_by_symbol(symbol).id
       attrs = COLUMN_ORDER.inject({}) { |h, col| h[col] = bar.shift; h }
       attrs[:ticker_id] = ticker_id
-      attrs[:volume] = attrs[:volume].to_i
+      attrs[:volume] = attrs[:volume].to_i * 100
       attrs[:period] = @period
       if attrs[:start_time].to_date == @last_date
         @accum_volume += attrs[:volume]

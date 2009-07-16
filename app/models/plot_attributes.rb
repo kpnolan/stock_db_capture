@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: plot_attributes
 #
@@ -11,7 +11,6 @@
 #  period      :integer(4)
 #  attributes  :string(255)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class PlotAttributes < ActiveRecord::Base
 end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: exchanges
 #
@@ -10,7 +10,6 @@
 #  currency :string(255)
 #  timezone :string(255)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Exchange < ActiveRecord::Base
 end

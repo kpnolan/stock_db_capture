@@ -46,10 +46,15 @@ analytics do
     rsi_ary = rsi(params.merge(:noplot => true, :result => :raw)).first
     indexes = under_threshold(20+pass*5, rsi_ary)
     indexes.map do |index|
-      pslope = linreg(index-7, :time_period => 7, :noplot => true)
-      eslope = linreg(index, :time_period => 10, :noplot => true)
+      #pslope = linreg(index-5, :time_period => 5, :noplot => true)
+      eslope = linreg(index, :time_period => 5, :noplot => true)
+      #cslope = case pass
+      #         when 0: pslope * -0.2419 + 0.1804
+      #         when 1: pslope * -0.4062 + 0.1060
+      #         when 2: pslope * -0.3369 + 0.2260
+      #         end
       idx = eslope > 0.02 ? index : nil
-      { :index => idx, :pslope => pslope, :eslope => eslope }
+      #{ :index => idx, :pslope => pslope, :eslope => eslope, :cslope => cslope }
     end
   end
 
@@ -69,6 +74,9 @@ analytics do
     when rsi_idx : rsi_idx
     end
   end
+
+  desc "Close the position if the stop loss is 1% or greater"
+  #stop_loss(5.0)
 end
 
 populations do
@@ -82,8 +90,8 @@ populations do
   end
 end
 
-backtests(:price => :close) do
+backtests(:price => :close, :epass => 0..2, :xpass => 0..0) do
   apply(:rsi_rvi, :liquid_2008) do
-#    make_test()
+#    make_sheet()
   end
 end

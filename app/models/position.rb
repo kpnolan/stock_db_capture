@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: positions
 #
@@ -10,7 +10,7 @@
 #  entry_price   :float
 #  exit_price    :float
 #  num_shares    :integer(4)
-#  stop_loss     :string(255)
+#  stop_loss     :boolean(1)
 #  strategy_id   :integer(4)
 #  days_held     :integer(4)
 #  nreturn       :float
@@ -19,10 +19,9 @@
 #  exit_trigger  :float
 #  logr          :float
 #  short         :boolean(1)
-#  pass          :integer(4)
+#  exit_pass     :integer(4)
 #  entry_pass    :integer(4)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 #require 'rubygems'
 #require 'ruby-debug'

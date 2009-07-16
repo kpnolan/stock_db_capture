@@ -131,8 +131,7 @@ class Timeseries
   # The is the "each" mentioned above. Notice that it only yields the preselected enum variables
   #
   def each
-#    @timevec.each_with_index { |time,i | yield(values_at(i, enum_attrs)) }
-    @timevec.each_with_index { |time,i | v = values_at(i, enum_attrs); puts v; yield v }
+    @timevec.each_with_index { |time,i | v = values_at(i, *enum_attrs);  yield v }
   end
 
   #
@@ -322,7 +321,8 @@ class Timeseries
 
   def calc_indexes(loopback_fun, *args)
     @output_offset = begin_index >= (ms = minimal_samples(loopback_fun, *args)) ? 0 : ms - begin_index
-    raise ArgumentError, "Only subset of Date Range available, pre-buffer at least #{output_offset} more bars" if output_offset > 0
+    debugger if output_offset > 0
+    #raise ArgumentError, "Only subset of Date Range available for #{symbol}, pre-buffer at least #{output_offset} more bars" if output_offset > 0
     index_range
   end
 

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: plot_types
 #
@@ -12,7 +12,6 @@
 #  inputs       :string(255)
 #  num_outputs  :integer(4)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class PlotType < ActiveRecord::Base
 end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: memberships
 #
@@ -7,7 +7,6 @@
 #  ticker_id           :integer(4)
 #  listing_category_id :integer(4)
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 class Membership < ActiveRecord::Base
 end

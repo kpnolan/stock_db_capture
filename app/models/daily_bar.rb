@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090707232154
+# Schema version: 20090711171320
 #
 # Table name: daily_bars
 #
@@ -13,7 +13,6 @@
 #  logr      :float
 #  low       :float
 #
-# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'date'
 
@@ -39,6 +38,12 @@ class DailyBar < ActiveRecord::Base
     def time_convert ; :to_date ;  end
     def time_class ; Date ;  end
     def time_res; 1.day; end
+
+    def find_loss(ticker_id, entry_date, exit_date, ratio)
+      sql = "select date, high, low from daily_bars where date between '#{entry_date.to_s(:db)}' and '#{exit_date.to_s(:db)}' "+
+            "and ticker_id = #{ticker_id} group by date having ((high - low) / high) > #{ratio} order by date"
+      rows = connection.select_rows(sql)
+    end
 
     def load_tda_history(symbol, start_date, end_date)
       start_date = start_date.class == String ? Date.parse(start_date) : start_date

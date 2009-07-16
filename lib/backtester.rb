@@ -25,7 +25,6 @@ class Backtester
 
   def initialize(strategy_name, population_names, description, options, &block)
     @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :close_buffer => 30, :epass => 0..2, :xpass => 0..0
-    debugger
     @sname = strategy_name
     @pnames = population_names
     @desc = description

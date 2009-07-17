@@ -69,7 +69,7 @@ analytics do
     case
     when rsi_idx.nil? && rvi_idx : rvi_idx
     when rsi_idx && rvi_idx : rsi_idx < rvi_idx ? rsi_idx : rvi_idx
-    when rvi_idx.nil? : nil
+    when rvi_idx.nil? && rsi_idx.nil? : nil
     when rvi_idx : rvi_idx
     when rsi_idx : rsi_idx
     end

@@ -171,13 +171,30 @@ get.positions <-
   }
 
 process.positions <-
-  function(x, index) {
+  function(x,  origin = "1899-12-30") {
     sym = factor(x$symbol)
     edates = tapply(x$edate , x$symbol, c)
     xdates = tapply(x$xdate , x$symbol, c)
-    eprice = tapply(x$eprice , x$symbol, c)
-    xprice = tapply(x$xprice , x$symbol, c)
-    for ( sym in sym ) {
+    eprices = tapply(x$eprice , x$symbol, c)
+    xprices = tapply(x$xprice , x$symbol, c)
+    for ( i in 1:length(sym) )  {
+      symbol = as.character(sym[i])
+      edate = as.Date(as.character(edates[i]))
+      edate7 = edate-7
+      xdate = as.Date(as.character(xdates[i]))
+      if ( is.na(xdate) ) {
+        xdate = xdate7 = edate+30
+      } else {
+        xdate7 = xdate + 7
+      }
+      eprice = eprices[i]
+      xprice = xprices[i]
+      q = get.db.quote(symbol, start=edate, end=xdate, retclass="ts", quiet=TRUE)
+      plotOHLC(x)
+      ejdat <- unclass(julian(edate, origin = as.Date(origin)))
+      xjdat <- unclass(julian(xdate, origin = as.Date(origin)))
+
+
     }
 }
 

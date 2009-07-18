@@ -1,5 +1,6 @@
 require(RMySQL)
 require(tseries)
+require(gtools)
 
 
 get.id.quote <-
@@ -126,34 +127,40 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   }
 }
 
-get.positions <-
-  function( origin = "1899-12-30", quote=c("entry_price", "exit_price")) {
-    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select symbol, date(entry_date) as entry_date, date(exit_date) as exit_date, entry_price, exit_price from positions left outer join tickers",
-                 "on tickers.id = ticker_id order by symbol, entry_date")
-    res = dbSendQuery(con, sql)
-    x = fetch(res, n = -1)
-    if ( nrow(x) == 0 ) {
-      cat("Positions table is empty")
-      return(FALSE);
-    }
-    nser <- pmatch(quote, names(x))
-    n <- nrow(x)
+## get.positions <-
+##   function( origin = "1899-12-30", quote=c("entry_price", "exit_price")) {
+##     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+##     sql <- paste("select symbol, date(entry_date) as entry_date, date(exit_date) as exit_date, entry_price, exit_price from positions left outer join tickers",
+##                  "on tickers.id = ticker_id order by symbol, entry_date")
+##     res = dbSendQuery(con, sql)
+##     x = fetch(res, n = -1)
+##     if ( nrow(x) == 0 ) {
+##       cat("Positions table is empty")
+##       return(FALSE);
+##     }
+##     nser <- pmatch(quote, names(x))
+##     n <- nrow(x)
 
-    edat <- as.Date(as.character(x[, 2]), "%Y-%m-%d")
-    xdat <- as.Date(as.character(x[, 3]), "%Y-%m-%d")
+##     edat <- as.Date(as.character(x[, 2]), "%Y-%m-%d")
+##     xdat <- as.Date(as.character(x[, 3]), "%Y-%m-%d")
 
-    ejdat <- unclass(julian(edat, origin = as.Date(origin)))
-    xjdat <- unclass(julian(xdat, origin = as.Date(origin)))
-    sdate <- ejdat - 7
-    endate <- xjdat + 7
-    ind
-    ind <- as.vector(c(sdate, endate))
-    y <- matrix(NA, nrow = max(ind), ncol = length(nser))
-    y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
-    colnames(y) <- names(x)[nser]
-    y <- y[, seq_along(nser), drop = drop]
-    return(ts(y, start = e, end = jdat[1]))
+##     ejdat <- unclass(julian(edat, origin = as.Date(origin)))
+##     xjdat <- unclass(julian(xdat, origin = as.Date(origin)))
+##     sdate <- ejdat - 7
+##     endate <- xjdat + 7
+##     ind
+##     ind <- as.vector(c(sdate, endate))
+##     y <- matrix(NA, nrow = max(ind), ncol = length(nser))
+##     y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
+##     colnames(y) <- names(x)[nser]
+##     y <- y[, seq_along(nser), drop = drop]
+##     return(ts(y, start = e, end = jdat[1]))
+##   }
+
+do.positions <-
+  function() {
+    pos = get.positions()
+    plot.positions(pos)
   }
 
 get.positions <-
@@ -170,31 +177,43 @@ get.positions <-
     x
   }
 
-process.positions <-
+plot.positions <-
   function(x,  origin = "1899-12-30") {
-    sym = factor(x$symbol)
+    syms = factor(x$symbol)
+    lvls = levels(syms)
     edates = tapply(x$edate , x$symbol, c)
     xdates = tapply(x$xdate , x$symbol, c)
     eprices = tapply(x$eprice , x$symbol, c)
     xprices = tapply(x$xprice , x$symbol, c)
-    for ( i in 1:length(sym) )  {
-      symbol = as.character(sym[i])
-      edate = as.Date(as.character(edates[i]))
-      edate7 = edate-7
-      xdate = as.Date(as.character(xdates[i]))
-      if ( is.na(xdate) ) {
-        xdate = xdate7 = edate+30
-      } else {
-        xdate7 = xdate + 7
+    for ( i in 1:length(lvls) )  {
+      symbol = as.character(lvls[i])
+      for ( j in 1:length(edates[[symbol]]) ) {
+        edate = as.Date(as.character(edates[[symbol]][j]))
+        edate7 = edate-7
+        xdate = as.Date(as.character(xdates[[symbol]][j]))
+        if ( is.na(xdate) ) {
+          xdate = xdate7 = edate+30
+        } else {
+          xdate7 = xdate + 7
+        }
+        eprice = eprices[[symbol]][j]
+        xprice = xprices[[symbol]][j]
+        q = get.db.quote(symbol, start=edate7, end=xdate7, retclass="ts", quiet=TRUE)
+        plotOHLC(q, ylab=symbol, main=paste(symbol, "entry:", edate, "exit:", xdate))
+        ejdate <- unclass(julian(edate, origin = as.Date(origin)))
+        xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
+        x0 = ejdate
+        y0 = eprice
+        x1 = ejdate
+        y1 = eprice+y0*0.05
+        arrows(x0, y0, x1, y1, col='green')
+        x0 = xjdate
+        y0 = xprice
+        x1 = xjdate
+        y1 = xprice-y0*0.05
+        arrows(x0, y0, x1, y1, col='red')
+        ask()
       }
-      eprice = eprices[i]
-      xprice = xprices[i]
-      q = get.db.quote(symbol, start=edate, end=xdate, retclass="ts", quiet=TRUE)
-      plotOHLC(x)
-      ejdat <- unclass(julian(edate, origin = as.Date(origin)))
-      xjdat <- unclass(julian(xdate, origin = as.Date(origin)))
-
-
     }
 }
 

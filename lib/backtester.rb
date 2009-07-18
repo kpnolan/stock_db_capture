@@ -106,16 +106,19 @@ class Backtester
     startt = Time.now
     pass = 0
     for pass in options[:xpass]
-      open_positions = strategy.positions.find(:all)
+      #open_positions = strategy.positions.find(:all)
+      open_positions = strategy.positions.find(:all, :conditions => 'exit_date is null')
       pos_count = open_positions.length
       break if pos_count == 0
       counter = 1
       for position in open_positions
         p = close_position(position, pass)
         if p.exit_price.nil?
-          logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t>#{close_buffer}\t#{p.entry_price}\t***.**\t0.000000"
+          logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
+#          logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t>#{close_buffer}\t#{p.entry_price}\t***.**\t0.000000"
         else
-          logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t#{p.days_held}\t#{p.entry_price}\t#{p.exit_price}\t#{p.nreturn*100.0}"
+          logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return)
+         # logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t#{p.days_held}\t#{p.entry_price}\t#{p.exit_price}\t#{p.nreturn*100.0}"
         end
         counter += 1
       end
@@ -203,13 +206,11 @@ class Backtester
       edate = trading_days_from(etime.to_date, 1).last
     end
     max_date = p.exit_date.nil? ? trading_days_from(edate, options[:max_days]).last : p.exit_date.to_date
-    tsdates = DailyBar.find_loss(p.ticker_id, edate, max_date, tratio).map(&:first)
-    return if tsdate.nil?
     etime = p.entry_date
     # grab a timeseries at the given resolution from the entry date (or following day)
     # through the number of specified trailing days
     begin
-      ts = Timeseries.new(p.ticker_id, edate..max_date, res, :pre_buffer => 0, :post_buffer => 0)
+      ts = Timeseries.new(p.ticker.symbol, edate..max_date, res, :pre_buffer => 0, :post_buffer => 0)
       max_high = p.entry_price
       while sindex < ts.length
         high, low = ts.values_at(sindex, :high, :low)
@@ -223,15 +224,15 @@ class Backtester
           nreturn = ((low - p.entry_price) / p.entry_price) / days_held if days_held > 0
           ret = ((low - p.entry_price) / p.entry_price)
           nreturn *= -1.0 if p.short and nreturn != 0.0
-          $logger.info(format("Trailing stop activated on %s\t drop: -%3.3f %%\t return: %3.3f %% on bar #{xtime}",
-                              ts.symbol, 100*rratio, ret*100.0))
+          $logger.info(format("%s\tentry: %3.2f max high: %3.2f low: %3.2f on drop: -%3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
+                              ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0))
           p.update_attributes!(:exit_price => low, :exit_date => xtime,
                                :days_held => days_held, :nreturn => nreturn,
                                :exit_trigger => rratio, :stop_loss => true)
 
           break;
-          sindex += 1
         end
+        sindex += 1
       end
     rescue TimeseriesException => e
       $logger.info e.to_s

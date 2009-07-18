@@ -63,8 +63,8 @@ analytics do
     params.reverse_merge! :noplot => true, :result => :raw
     rsi_ary = rsi(params).first
     rvi_ary = rvi(params).first
-    rsi_idx = under_threshold(60-pass*5, rsi_ary).first
-    rvi_idx = under_threshold(50-pass*5, rvi_ary).first
+    rsi_idx = under_threshold(50-pass*5, rsi_ary).first
+    rvi_idx = under_threshold(40-pass*5, rvi_ary).first
 
     case
     when rsi_idx.nil? && rvi_idx : rvi_idx
@@ -76,7 +76,7 @@ analytics do
   end
 
   desc "Close the position if the stop loss is 1% or greater"
-  #stop_loss(5.0)
+  #stop_loss(20.0) #don't have intraday!!!!
 end
 
 populations do

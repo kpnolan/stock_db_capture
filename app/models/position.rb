@@ -33,6 +33,14 @@ class Position < ActiveRecord::Base
   belongs_to :ticker
   has_and_belongs_to_many :strategies
 
+  def return()
+    unless exit_price.nil?
+      ((exit_price - entry_price) / entry_price)*100.0
+    else
+      '-999.99'
+    end
+  end
+
   def self.open(population, strategy, ticker, entry_time, entry_price, entry_trigger, short=false, pass=0, aux={})
     pos = create!(:scan_id => population.id, :strategy_id => strategy.id, :ticker_id => ticker.id,
             :entry_price => entry_price, :entry_date => entry_time, :num_shares => 1, :entry_trigger => entry_trigger,

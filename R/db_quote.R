@@ -217,6 +217,11 @@ plot.positions <-
       plotOHLC(q, ylab=symbol, xlab=xlabel, main=paste(symbol, "entry:", edate, "exit:", xdate))
       ejdate <- unclass(julian(edate, origin = as.Date(origin)))
       xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
+      days = xjdate-ejdate
+      if ( days > 1 ) {
+        fit = lsfit(seq(ejdate, xjdate, len=days), seq(eprice, xprice, len=days))
+        abline(fit, col='purple')
+      }
       x0 = ejdate
       y0 = eprice
       x1 = ejdate

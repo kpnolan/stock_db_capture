@@ -158,16 +158,26 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
 ##   }
 
 do.positions <-
-  function() {
-    pos = get.positions()
+  function(type="normal") {
+    if ( type == "normal" ) {
+      pos = get.positions()
+    } else if ( type == "losers" ) {
+      pos = get.positions(where="where exit_price is not null and nreturn < 0", order="order by ((exit_price - entry_price)/entry_price)")
+    } else if ( type == "winners" ) {
+      pos = get.positions(where="where exit_price is not null and nreturn > 0", order="order by ((exit_price - entry_price)/entry_price) desc")
+    } else if ( type == "non" ) {
+      pos = get.positions(where="where xprice is null")
+    } else {
+      print("invalid arg")
+    }
     plot.positions(pos)
   }
 
 get.positions <-
-  function( origin = "1899-12-30", quote=c("entry_price", "exit_price")) {
+  function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, entry_date", where="") {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
     sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice from positions left outer join tickers",
-                 "on tickers.id = ticker_id order by symbol, entry_date")
+                 "on tickers.id = ticker_id", where, order)
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
     if ( nrow(x) == 0 ) {
@@ -179,41 +189,45 @@ get.positions <-
 
 plot.positions <-
   function(x,  origin = "1899-12-30") {
-    syms = factor(x$symbol)
-    lvls = levels(syms)
-    edates = tapply(x$edate , x$symbol, c)
-    xdates = tapply(x$xdate , x$symbol, c)
-    eprices = tapply(x$eprice , x$symbol, c)
-    xprices = tapply(x$xprice , x$symbol, c)
-    for ( i in 1:length(lvls) )  {
-      symbol = as.character(lvls[i])
-      for ( j in 1:length(edates[[symbol]]) ) {
-        edate = as.Date(as.character(edates[[symbol]][j]))
-        edate7 = edate-7
-        xdate = as.Date(as.character(xdates[[symbol]][j]))
-        if ( is.na(xdate) ) {
-          xdate = xdate7 = edate+30
-        } else {
-          xdate7 = xdate + 7
-        }
-        eprice = eprices[[symbol]][j]
-        xprice = xprices[[symbol]][j]
-        q = get.db.quote(symbol, start=edate7, end=xdate7, retclass="ts", quiet=TRUE)
-        plotOHLC(q, ylab=symbol, main=paste(symbol, "entry:", edate, "exit:", xdate))
-        ejdate <- unclass(julian(edate, origin = as.Date(origin)))
-        xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
-        x0 = ejdate
-        y0 = eprice
-        x1 = ejdate
-        y1 = eprice+y0*0.05
-        arrows(x0, y0, x1, y1, col='green')
-        x0 = xjdate
-        y0 = xprice
-        x1 = xjdate
-        y1 = xprice-y0*0.05
-        arrows(x0, y0, x1, y1, col='red')
-        ask()
+    syms = x$symbol
+    edates = x$edate
+    xdates = x$xdate
+    eprices = x$eprice
+    xprices = x$xprice
+    for ( i in 1:length(syms) )  {
+      symbol = syms[i]
+      edate = as.Date(edates[i])
+      xdate = as.Date(xdates[i])
+      eprice = eprices[i]
+      xprice = xprices[i]
+      edate7 = edate-7
+      if ( is.na(xdate) ) {
+        xdate = xdate7 = edate+30
+      } else {
+        xdate7 = xdate + 7
       }
+      if ( is.na(xdate) ) {
+        xlabel = "Timem ret: ??.??"
+      } else {
+        ret = ((xprice - eprice)/eprice)*100.0
+        xlabel = paste("Time, ret:", format(ret, digits=5), "%")
+      }
+
+      q = get.db.quote(symbol, start=edate7, end=xdate7, retclass="ts", quiet=TRUE)
+      plotOHLC(q, ylab=symbol, xlab=xlabel, main=paste(symbol, "entry:", edate, "exit:", xdate))
+      ejdate <- unclass(julian(edate, origin = as.Date(origin)))
+      xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
+      x0 = ejdate
+      y0 = eprice
+      x1 = ejdate
+      y1 = eprice+.01
+      arrows(x0, y0, x1, y1, col='green')
+      x0 = xjdate
+      y0 = xprice
+      x1 = xjdate
+      y1 = xprice-.01
+      arrows(x0, y0, x1, y1, col='red')
+      ask()
     }
 }
 

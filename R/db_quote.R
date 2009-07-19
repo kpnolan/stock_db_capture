@@ -166,7 +166,7 @@ do.positions <-
     } else if ( type == "winners" ) {
       pos = get.positions(where="where exit_price is not null and nreturn > 0", order="order by ((exit_price - entry_price)/entry_price) desc")
     } else if ( type == "non" ) {
-      pos = get.positions(where="where xprice is null")
+      pos = get.positions(where="where exit_date is null")
     } else {
       print("invalid arg")
     }
@@ -194,6 +194,7 @@ plot.positions <-
     xdates = x$xdate
     eprices = x$eprice
     xprices = x$xprice
+    print(paste("There are", length(syms), "entries in this set"))
     for ( i in 1:length(syms) )  {
       symbol = syms[i]
       edate = as.Date(edates[i])
@@ -203,12 +204,9 @@ plot.positions <-
       edate7 = edate-7
       if ( is.na(xdate) ) {
         xdate = xdate7 = edate+30
-      } else {
-        xdate7 = xdate + 7
-      }
-      if ( is.na(xdate) ) {
         xlabel = "Timem ret: ??.??"
       } else {
+        xdate7 = xdate + 7
         ret = ((xprice - eprice)/eprice)*100.0
         xlabel = paste("Time, ret:", format(ret, digits=5), "%")
       }
@@ -218,7 +216,7 @@ plot.positions <-
       ejdate <- unclass(julian(edate, origin = as.Date(origin)))
       xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
       days = xjdate-ejdate
-      if ( days > 1 ) {
+      if ( days > 1 && !is.na(xprice) ) {
         fit = lsfit(seq(ejdate, xjdate, len=days), seq(eprice, xprice, len=days))
         abline(fit, col='purple')
       }
@@ -227,11 +225,13 @@ plot.positions <-
       x1 = ejdate
       y1 = eprice+.01
       arrows(x0, y0, x1, y1, col='green')
-      x0 = xjdate
-      y0 = xprice
-      x1 = xjdate
-      y1 = xprice-.01
-      arrows(x0, y0, x1, y1, col='red')
+      if ( !is.na(xprice) ) {
+        x0 = xjdate
+        y0 = xprice
+        x1 = xjdate
+        y1 = xprice-.01
+        arrows(x0, y0, x1, y1, col='red')
+      }
       ask()
     }
 }

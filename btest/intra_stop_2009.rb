@@ -30,7 +30,7 @@ analytics do
   end
 
   desc "Close the position if the stop loss is 15% or greater"
-  stop_loss(25.0)
+  #stop_loss(15.0)
 
 end
 
@@ -43,7 +43,7 @@ populations do
   scan name, :start_date => start_date, :end_date => end_date, :conditions => liquid
 end
 
-backtests(:price => :close) do
+backtests(:price => :close, :reset => true) do
   apply(:stop15_2009, :daily_2009) do
 #    make_test()
   end

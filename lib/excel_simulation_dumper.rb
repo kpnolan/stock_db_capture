@@ -11,7 +11,7 @@ module ExcelSimulationDumper
   OCHLV = [:date, :open, :high, :low, :close, :volume, :logr]
 
   def make_sheet(strategy=nil, options={})
-    options.reverse_merge! :values => [:high, :low, :volume], :pre_days => 0, :post_days => 30, :keep => false
+    options.reverse_merge! :values => [:high, :low], :pre_days => 0, :post_days => 30, :keep => false
     day_count = options[:pre_days] + options[:post_days] + 1
     if strategy
       strategy_id = Strategy.find_by_name(strategy)
@@ -36,7 +36,7 @@ module ExcelSimulationDumper
         row << entry_price
         row << exit_price
         row << days_held
-        row << pos.stop_loss == 1 ? 'YES' : 'NO'
+        row << pos.stop_loss == 1 ? 'TRUE' : 'FALSE'
         range_start = trading_days_from(entry_date, options[:pre_days], -1).last
         range_end = trading_days_from(pos.entry_date, options[:post_days]).last
         ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => false)

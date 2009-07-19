@@ -25,6 +25,7 @@ class Backtester
 
   def initialize(strategy_name, population_names, description, options, &block)
     @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :close_buffer => 30, :epass => 0..2, :xpass => 0..0
+    @options.reverse_merge! :reset => true
     @sname = strategy_name
     @pnames = population_names
     @desc = description
@@ -106,8 +107,11 @@ class Backtester
     startt = Time.now
     pass = 0
     for pass in options[:xpass]
-      #open_positions = strategy.positions.find(:all)
-      open_positions = strategy.positions.find(:all, :conditions => 'exit_date is null')
+      if options[:reset]
+        open_positions = strategy.positions.find(:all)
+      else
+        open_positions = strategy.positions.find(:all, :conditions => 'exit_date is null')
+      end
       pos_count = open_positions.length
       break if pos_count == 0
       counter = 1
@@ -224,7 +228,7 @@ class Backtester
           nreturn = ((low - p.entry_price) / p.entry_price) / days_held if days_held > 0
           ret = ((low - p.entry_price) / p.entry_price)
           nreturn *= -1.0 if p.short and nreturn != 0.0
-          $logger.info(format("%s\tentry: %3.2f max high: %3.2f low: %3.2f on drop: -%3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
+          $logger.info(format("%s\tentry: %3.2f max high: %3.2f low(exit): %3.2f on drop: %3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
                               ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0))
           p.update_attributes!(:exit_price => low, :exit_date => xtime,
                                :days_held => days_held, :nreturn => nreturn,

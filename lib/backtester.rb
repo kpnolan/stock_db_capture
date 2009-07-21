@@ -20,16 +20,16 @@ end
 class Backtester
 
   attr_accessor :ticker, :ts, :result_hash, :meta_data_hash
-  attr_reader :pnames, :sname, :desc, :options, :post_process, :close_buffer, :entry_cache, :ts_cache
+  attr_reader :pnames, :sname, :desc, :options, :post_process, :days_to_close, :entry_cache, :ts_cache
   attr_reader :strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
 
   def initialize(strategy_name, population_names, description, options, &block)
-    @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :close_buffer => 30, :epass => 0..2, :xpass => 0..0
+    @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :days_to_close => 30, :epass => 0..2, :xpass => 0..0
     @options.reverse_merge! :reset => true
     @sname = strategy_name
     @pnames = population_names
     @desc = description
-    @close_buffer = @options[:close_buffer]
+    @close_buffer = @options[:days_to_close]
     @positions = []
     @post_process = block
     @entry_cache = {}
@@ -106,7 +106,7 @@ class Backtester
     logger.info "Beginning close positions analysis..."
     startt = Time.now
     pass = 0
-    for pass in options[:xpass]
+    for pass in (days_to_close > 0 ? options[:xpass] : [])
       if options[:reset]
         open_positions = strategy.positions.find(:all)
       else
@@ -117,6 +117,7 @@ class Backtester
       counter = 1
       for position in open_positions
         p = close_position(position, pass)
+        next if p.nil?
         if p.exit_price.nil?
           logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
 #          logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t>#{close_buffer}\t#{p.entry_price}\t***.**\t0.000000"
@@ -134,7 +135,7 @@ class Backtester
     #
     # Perform stop loss analysis if it was specified in the analytics section of the backtest config
     #
-    unless stop_loss.nil?
+    unless stop_loss.nil? || stop_loss.to_f == 100.0
       logger.info "Beginning stop loss analysis..."
       startt = Time.now
       open_positions = strategy.positions.find(:all)
@@ -187,8 +188,8 @@ class Backtester
         $logger.info e.message unless e.message =~ /to_v/ or $logger.nil?
       rescue TimeseriesException => e
         $logger.info e.message unless e.message =~ /recorded history/ or $logger.nil?
-      rescue Exception => e
-        $logger.info e.message
+#      rescue Exception => e
+#        $logger.info e.message
 #        $logger.info e.backtrace
     end
     pass_count
@@ -251,7 +252,7 @@ class Backtester
     begin
       end_date = trading_days_from(p.entry_date, close_buffer).last
       ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, 1.day,
-                          :pre_buffer => 30, :post_buffer => 0)
+                          :pre_buffer => 30, :post_buffer => 0, :debug => true)
 
       index = ts.instance_exec(closing.params, pass, &closing.block)
 
@@ -278,8 +279,11 @@ class Backtester
     #  end
     #  p = nil
     rescue Exception => e
-      $logger.error "Exception Raised: #{e.to_s} skipping closure}" if $logger
+      $logger.error "#{e.to_s} deleting position}" if $logger
       $logger.error p.inspect if $logger
+      p.strategies.delete_all
+      p.delete
+      p = nil
     end
     p
   end

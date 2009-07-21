@@ -34,12 +34,12 @@ class Timeseries
 
   attr_reader :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
   attr_reader :begin_time, :end_time, :utc_offset, :resolution
-  attr_reader :attrs, :derived_values, :output_offset, :plot_results, :stride, :stride_offset, :only
+  attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset, :only
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
-  attr_reader :tday_count, :expected_bars
+  attr_reader :expected_bar_count, :expected_trading_days
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
-    options.reverse_merge! :price => :default, :plot_results => true, :pre_buffer => true, :populate => true, :post_buffer => false
+    options.reverse_merge! :price => :default, :pre_buffer => true, :populate => true, :post_buffer => false
     initialize_state()
     @ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
@@ -74,9 +74,8 @@ class Timeseries
     post_offset = options[:post_buffer] == true ? PRECALC_BARS : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
     @begin_time = offset_date(@local_range.begin, pre_offset, -1)
     @end_time = (od = offset_date(@local_range.end, post_offset, 1)) > Time.now ? Time.now : od
-    @plot_results = options[:plot_results]
-    @tday_count = trading_day_count(begin_time.to_date, end_time.to_date)
-    @expected_bars = tday_count * bars_per_day
+    @expected_trading_days = trading_days(begin_time.to_date..end_time.to_date)
+    @expected_bar_count =  expected_trading_days.length * bars_per_day
     options.reverse_merge!(DEFAULT_OPTIONS[model])
     options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
@@ -167,7 +166,7 @@ class Timeseries
   #
   def multi_calc(fcn_vec, options={})
     return nil if fcn_vec.empty?
-    fcn_vec.each { |function| send(function, options.merge(:noplot => true)) }
+    fcn_vec.each { |function| send(function, options.merge(:plot_results => true)) }
     aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
     clear_results
   end
@@ -179,7 +178,7 @@ class Timeseries
   def multi_fopt(fopt_vec, options={})
     fopt_vec.each do |ary|
       raise ArgumentError, "Expecting an Array of [:function, {options}]" unless ary.is_a? Array
-      send(ary.first, ary.last.merge(:noplot => true))
+      send(ary.first, ary.last.merge(:plot_results => true))
     end
     aggregate_all(symbol, options.merge(:multiplot => true, :with => 'financebars'))
     clear_results
@@ -190,7 +189,11 @@ class Timeseries
   #
   def find_result(fcn, options={})
     values = derived_values.reverse.select { |pb| pb.match(fcn, options) }
-    return values.first unless values.empty?
+    if options[:all]
+      values
+    else
+      return values.first unless values.empty?
+    end
   end
 
   #
@@ -266,10 +269,17 @@ class Timeseries
   #
   def repopulate(options)
     @value_hash = model.general_vectors(symbol, attrs, begin_time, end_time)
-    missing_bars = expected_bars - value_hash[:close].length
+    missing_bars = expected_bar_count - value_hash[:close].length
     raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
       "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
-    raise TimeseriesException, "Missing #{missing_bars} bars for #{symbol}" if missing_bars > 0
+    if missing_bars > 0 and model == DailyBar
+      @expected_timevec ||= expected_trading_days.map { |td| td.to_time.utc.midnight }
+      compute_timestamps()
+      rejects = @expected_timevec.reject { |t| time_map.include?(t) }
+      raise TimeseriesException, "Missing #{missing_bars} bars: #{rejects.join(', ')} for #{symbol}" if missing_bars > 0
+    elsif missing_bars > 0
+      raise TimeseriesException, "Missing #{missing_bars} bars for #{symbol}"
+    end
     if stride > 1
       new_hash = { }
       value_hash.each_pair do |k,v|
@@ -439,9 +449,9 @@ class Timeseries
     #FIXME whereas non-overlap should be plotted in separate graphs
 
     if graph_type == :overlap
-      aggregate(symbol, pb, options.merge(:with => 'financebars')) unless options[:noplot]
+      aggregate(symbol, pb, options.merge(:with => 'financebars')) if options[:plot_results]
     else
-      with_function fcn  unless options[:noplot]
+      with_function fcn  if options[:plot_results]
     end
     case options[:result]
     when nil    : nil

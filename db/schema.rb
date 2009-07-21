@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090711171320) do
+ActiveRecord::Schema.define(:version => 20090719170151) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -18,6 +18,13 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
+  end
+
+  create_table "cstats", :id => false, :force => true do |t|
+    t.integer "entry_pass"
+    t.float   "bslope"
+    t.float   "eslope"
+    t.float   "cslope"
   end
 
   create_table "current_listings", :force => true do |t|
@@ -189,14 +196,6 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
     t.integer "num_outputs"
   end
 
-  create_table "position_stats", :force => true do |t|
-    t.integer "position_id"
-    t.string  "name"
-    t.float   "value"
-  end
-
-  add_index "position_stats", ["position_id"], :name => "position_id"
-
   create_table "positions", :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "entry_date"
@@ -204,7 +203,7 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
     t.float    "entry_price"
     t.float    "exit_price"
     t.integer  "num_shares"
-    t.string   "stop_loss"
+    t.boolean  "stop_loss"
     t.integer  "strategy_id"
     t.integer  "days_held"
     t.float    "nreturn"
@@ -213,7 +212,7 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
     t.float    "exit_trigger"
     t.float    "logr"
     t.boolean  "short"
-    t.integer  "pass"
+    t.integer  "exit_pass"
     t.integer  "entry_pass"
   end
 
@@ -229,7 +228,7 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
     t.float    "entry_price"
     t.float    "exit_price"
     t.integer  "num_shares"
-    t.string   "stop_loss"
+    t.boolean  "stop_loss"
     t.integer  "strategy_id"
     t.integer  "days_held"
     t.float    "nreturn"
@@ -238,7 +237,7 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
     t.float    "exit_trigger"
     t.float    "logr"
     t.boolean  "short"
-    t.integer  "pass"
+    t.integer  "exit_pass"
     t.integer  "entry_pass"
   end
 
@@ -305,6 +304,11 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
     t.string "name"
   end
 
+  create_table "slopes", :id => false, :force => true do |t|
+    t.float "pslope"
+    t.float "eslope"
+  end
+
   create_table "snapshots", :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "snaptime"
@@ -355,6 +359,20 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
     t.string "exchange_id"
   end
 
+  create_table "ta_series", :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "ta_spec_id"
+    t.datetime "stime"
+    t.float    "value"
+  end
+
+  create_table "ta_specs", :force => true do |t|
+    t.integer "indicator_id"
+    t.integer "time_period"
+  end
+
+  add_index "ta_specs", ["indicator_id"], :name => "indicator_id"
+
   create_table "tickers", :force => true do |t|
     t.string  "symbol",      :limit => 8
     t.integer "exchange_id"
@@ -384,8 +402,6 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 
-  add_foreign_key "position_stats", ["position_id"], "positions", ["id"], :name => "position_stats_ibfk_1"
-
   add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_2"
   add_foreign_key "positions", ["strategy_id"], "strategies", ["id"], :name => "positions_ibfk_3"
   add_foreign_key "positions", ["scan_id"], "scans", ["id"], :name => "positions_ibfk_4"
@@ -398,6 +414,8 @@ ActiveRecord::Schema.define(:version => 20090711171320) do
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
+
+  add_foreign_key "ta_specs", ["indicator_id"], "indicators", ["id"], :name => "ta_specs_ibfk_1"
 
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"

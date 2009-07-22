@@ -112,9 +112,9 @@ module LoadBars
     for tuple in tuples
       symbol, max_date = tuple
       max_date = Date.parse(max_date)
-      start_date = max_date + 1.day
-      td = trading_day_count(start_date, end_date)
+      td = trading_day_count(max_date, end_date)
       next if td.zero?
+      start_date = max_date + 1.day
       begin
         puts "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         logger.info "loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
@@ -155,9 +155,9 @@ module LoadBars
     end_date = latest_date()
     for tuple in tuples
       symbol, max_date = tuple
-      start_date = Date.parse(max_date) + 1.day
-      td = trading_day_count(start_date, end_date)
+      td = trading_day_count(max_date, end_date)
       next if td.zero?
+      start_date = Date.parse(max_date) + 1.day
       begin
         puts "updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         logger.info "updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"

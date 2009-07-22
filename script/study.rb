@@ -1,6 +1,6 @@
 #!/usr/bin/env ./script/runner
 
-require 'statistics/base'
+require 'statistics/study_base'
 include Statistics::Experiment
 
 proc_count = 1

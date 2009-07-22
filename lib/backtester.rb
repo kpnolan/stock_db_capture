@@ -24,12 +24,11 @@ class Backtester
   attr_reader :strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
 
   def initialize(strategy_name, population_names, description, options, &block)
-    @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :days_to_close => 30, :epass => 0..2, :xpass => 0..0
-    @options.reverse_merge! :reset => true
+    @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :days_to_close => 30, :epass => 0..2, :xpass => 0..0, :reset => true
     @sname = strategy_name
     @pnames = population_names
     @desc = description
-    @close_buffer = @options[:days_to_close]
+    @days_to_close = @options[:days_to_close]
     @positions = []
     @post_process = block
     @entry_cache = {}
@@ -120,7 +119,7 @@ class Backtester
         next if p.nil?
         if p.exit_price.nil?
           logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
-#          logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t>#{close_buffer}\t#{p.entry_price}\t***.**\t0.000000"
+#          logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t>#{days_to_close}\t#{p.entry_price}\t***.**\t0.000000"
         else
           logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return)
          # logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t#{p.days_held}\t#{p.entry_price}\t#{p.exit_price}\t#{p.nreturn*100.0}"
@@ -135,7 +134,7 @@ class Backtester
     #
     # Perform stop loss analysis if it was specified in the analytics section of the backtest config
     #
-    unless stop_loss.nil? || stop_loss.to_f == 100.0
+    unless stop_loss.nil? || stop_loss.threshold.to_f == 100.0
       logger.info "Beginning stop loss analysis..."
       startt = Time.now
       open_positions = strategy.positions.find(:all)
@@ -250,7 +249,7 @@ class Backtester
   # Close a position opened during the first phase of the backtest
   def close_position(p, pass)
     begin
-      end_date = trading_days_from(p.entry_date, close_buffer).last
+      end_date = trading_days_from(p.entry_date, days_to_close).last
       ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, 1.day,
                           :pre_buffer => 30, :post_buffer => 0, :debug => true)
 

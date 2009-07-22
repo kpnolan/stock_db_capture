@@ -275,7 +275,7 @@ class Timeseries
     if missing_bars > 0 and model == DailyBar
       @expected_timevec ||= expected_trading_days.map { |td| td.to_time.utc.midnight }
       compute_timestamps()
-      rejects = @expected_timevec.reject { |t| time_map.include?(t) }
+      rejects = @expected_timevec.reject { |t| time_map.include?(t) }.map { |t| t.to_date.to_s(:db) }
       raise TimeseriesException, "Missing #{missing_bars} bars: #{rejects.join(', ')} for #{symbol}" if missing_bars > 0
     elsif missing_bars > 0
       raise TimeseriesException, "Missing #{missing_bars} bars for #{symbol}"
@@ -454,7 +454,7 @@ class Timeseries
       with_function fcn  if options[:plot_results]
     end
     case options[:result]
-    when nil    : nil
+    when nil    : raise ArgumentError, ':result of (:keys|:memo|:raw) required as an option'
     when :keys  : pb.keys
     when :memo  : pb
     when :raw   : results

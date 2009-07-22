@@ -1,7 +1,5 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'job'
-
 module Statistics
   module Evaluator
 
@@ -15,12 +13,12 @@ module Statistics
 
       attr_reader :options, :jobs
 
-      def initialize(options)
+      def initialize(options={})
         @options = options
         @jobs = []
       end
 
-      def apply(family, population, &block)
+      def apply(family, population, options={})
         @jobs << Statistics::Evaluator::Job.new(family, population, options)
       end
 

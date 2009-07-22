@@ -638,7 +638,6 @@ module TechnicalAnalysis
     idx_range = calc_indexes(:ta_ema_lookback, options[:time_period])
     result = Talib.ta_ema(idx_range.begin, idx_range.end, options[:input], options[:time_period])
     memoize_result(self, :ema, idx_range, options, result, :overlap)
-    nil
   end
 
   #Vector Arithmetic Exp

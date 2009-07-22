@@ -4,9 +4,8 @@ module Statistics
   module Evaluator
     module Maker
       def self.run(options, &block)
-        builder = Statistics::Evaluator::Builder.new(options)
+        $evaluator = builder = Statistics::Evaluator::Builder.new(options)
         builder.instance_eval(&block)
-        builder.run
       end
     end
   end

@@ -41,7 +41,7 @@ populations do
   scan name, :start_date => start_date, :end_date => end_date, :conditions => liquid
 end
 
-backtests(:price => :close, :days_to_close => 0) do
+backtests(:price => :close) do
   apply(:stop15_2009, :daily_2009) do
 #    make_sheet()
   end

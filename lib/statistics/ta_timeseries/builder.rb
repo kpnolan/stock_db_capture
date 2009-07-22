@@ -1,10 +1,8 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require ostruct
-
 module Statistics
   module TaTimeseries
-    class TaTimeserisException < Exception
+    class TitsException < Exception
       def initialize(msg)
         super(msg)
       end
@@ -21,9 +19,8 @@ module Statistics
       end
 
       def indicator(name, options)
-
-        raise TaTimeseriesExcpetion, '#{name} is not a support method of Timeseries' unless Timeseries.instance_methods.include? name
-        raise TaTimeseriesExcpetion, 'option :time_period missing' unless options.has_key? :time_period
+        raise TitsException, "#{name} is not a support method of Timeseries" unless Timeseries.instance_methods.include? name.to_s
+        raise TitsException, 'option :time_period missing' unless options.has_key? :time_period
 
         ind = TaSpec.create_spec(name, options[:time_period])
 

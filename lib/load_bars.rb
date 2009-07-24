@@ -29,11 +29,13 @@ module LoadBars
 
   def tickers_with_lagging_history
     sql = "select symbol, max(date) from daily_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
+    @logger.info("SQL: #{sql}")
     DailyBar.connection.select_rows(sql)
   end
 
   def tickers_with_lagging_intraday
     sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on ticker_id = tickers.id where active = 1 group by ticker_id having max(date(start_time)) < '#{latest_date.to_s(:db)}' order by symbol"
+    @logger.info("SQL: #{sql}")
     DailyBar.connection.select_rows(sql)
   end
 

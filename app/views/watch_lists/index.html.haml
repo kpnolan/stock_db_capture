@@ -1,0 +1,17 @@
+%h1 Listing watch_lists
+%table
+  %tr.heading
+    %th Ticker
+    %th Tda Position
+    %th Target Price
+    %th Target Ival
+    %th Curr Price
+    %th Curr Ival
+    %th Predicted Price
+    %th Predicted Ival
+    %th Crossed At
+    %th Updated At
+
+  = render :partial => 'watch_list', :collection => current_objects
+
+= link_to 'New watch_list', new_object_path 

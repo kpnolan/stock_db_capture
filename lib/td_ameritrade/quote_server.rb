@@ -22,6 +22,7 @@ module TdAmeritrade
   DAY2SEC = 24*60*60
   PASSWORD = 'Troika3'
   MINUTES_PER_DAY = 390
+  SNAPSHOT_INTERVAL = 5.minutes
   STREAMER_ORDER = [ :U, :W, :A, :token, :company, :segment, :cddomain, :usergroup, :accesslevel, :authorized, :acl, :timestamp, :appid ]
 
   #U=781467570&W=c95e834acfd31ec4655197d262c6b133bd3dcbef&A=userid=781467570&token=c95e834acfd31ec4655197d262c6b133bd3dcbef&company=AMER&segment=AMER&acddomain=A000000011276183&usergroup=ACCT&accesslevel=ACCT&authorized=Y&acl=ADAQDRESGKMAPNQ2QSRFSPTETFTOTTUAURWSQ2NS&timestamp=1246573874&appid=sdc|S=NASDAQ_CHART&C=GET&P=DELL,0,29,1d,1m/n/n
@@ -45,7 +46,8 @@ module TdAmeritrade
     include Net
     include CacheProc
 
-    attr_reader :ioptions, :bars, :interval_type, :frequency
+    attr_accessor :snap_interval
+    attr_reader :ioptions, :bars, :interval_type, :frequency, :snaptimes
     attr_reader :response, :body, :login_xml, :cdi, :company, :segment, :account_id, :cookies, :token, :acl, :cddomain
     attr_reader :accesslevel, :appid, :streamer_url, :userid, :usergroup, :w, :a, :u, :authorized, :timestamp, :tcache
 
@@ -56,6 +58,8 @@ module TdAmeritrade
       @interval_type = nil
       @frequency = nil
       @tcache = { }
+      @snaptimes = { }
+      @snap_interval = SNAPSHOT_INTERVAL
     end
 
     def parse_login_xml(h)
@@ -186,7 +190,7 @@ module TdAmeritrade
       end.join('&')
     end
 
-    def submit_request1(uri, req, options={})
+    def submit_request_raw(uri, req, options={})
       url = URI.parse(uri)
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true if options[:use_ssl]
@@ -264,6 +268,7 @@ module TdAmeritrade
 
     def snapshot(symbol)
       symbol = symbol.to_s.upcase
+      return false if snaptimes[symbol] && snaptimes[symbol] + snap_interval < Time.now
       req = build_request(streamer_uri, {})
       req.body = '!' + build_param_str()
       suffix = ''
@@ -272,9 +277,10 @@ module TdAmeritrade
       ehash = { :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
       exch = ehash[Ticker.exchange(symbol)]
       seq = max(Snapshot.last_seq(symbol, Date.today)+1, 90)
-      req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',610,1d,1m'
+      req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',480,1d,1m'
       req.body << "\n\n"
-      buff = submit_request1(streamer_uri, req)
+      snaptimes[symbol] = Time.now
+      buff = submit_request_raw(streamer_uri, req)
       symbol, status, compressed_bars = parse_snapshot(buff)
       buffer = Zlib::Inflate.inflate(compressed_bars)
       Snapshot.populate(process_snapshot(buffer))

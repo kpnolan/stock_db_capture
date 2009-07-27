@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090719170151
+# Schema version: 20090726180014
 #
 # Table name: snapshots
 #
@@ -21,6 +21,8 @@ class Snapshot < ActiveRecord::Base
 
   FORDER = [ :symbol, :seq, :open, :high, :low, :close, :volume, :secmid, :date ]
 
+  include Predict
+
   class << self
 
     def form_volume_sql(ticker_id, date)
@@ -29,6 +31,23 @@ class Snapshot < ActiveRecord::Base
 
     def form_seq_sql(ticker_id, date)
       sql = "select max(seq) from snapshots where ticker_id = #{ticker_id} and date(snaptime) = '#{date.to_s(:db)}'"
+    end
+
+    def form_close_sql(ticker_id, date)
+      sql = "select close from snapshots where ticker_id = #{ticker_id} and date(snaptime) = '#{date.to_s(:db)}' having max(seq)"
+    end
+
+    def last_close(ticker_id, date=Date.today)
+      return bar[:close] unless (bar = last_bar(ticker_id, date)).nil?
+      nil
+    end
+
+    def last_bar(ticker_id, date=Date.today)
+      snap = Snapshot.find(:first, :conditions => ['ticker_id = ? and date(snaptime) = ?', ticker_id, date], :order => 'seq desc')
+      bar = [:open, :high, :low, :close].inject({}) { |h, k| h[k] = snap[k]; h }
+      bar[:volume] = snap[:accum_volume]
+      bar[:time] = snap[:snaptime]
+      bar
     end
 
     def last_seq(symbol, date)
@@ -40,6 +59,16 @@ class Snapshot < ActiveRecord::Base
     def accum_vol(ticker_id, date)
       av_str = Snapshot.connection.select_value(form_volume_sql(ticker_id, date))
       av_str.nil? ? 0 : av_str.to_i
+    end
+
+    def predict(ticker_or_sym, bar_val=:close, date=Date.today, predict_to=480)
+      raise ArgumentError, "bar_val not on of #{FORDER.join(', ')}" unless FORDER.include? bar_val
+      ticker_id = Ticker.resolve_id(ticker_or_sym)
+      series = find(:all, :conditions => ["ticker_id = ? and date(snaptime) = ?", ticker_id, date], :order => :seq)
+      xvec = series.map(&:seq)
+      yvec = series.map(&bar_val)
+      yval, sd = linear(xvec, yvec, predict_to)
+      return yval, sd, series.length
     end
 
     def populate(snapshot)

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090719170151
+# Schema version: 20090726180014
 #
 # Table name: scans
 #
@@ -24,8 +24,10 @@ class Scan < ActiveRecord::Base
 
   before_save :clear_associations_if_dirty
 
-  def self.find_by_name(keyword_or_string)
-    first(:conditions => { :name => keyword_or_string.to_s.downcase})
+  class << self
+    def find_by_name(keyword_or_string)
+      first(:conditions => { :name => keyword_or_string.to_s.downcase})
+    end
   end
 
   def clear_associations_if_dirty

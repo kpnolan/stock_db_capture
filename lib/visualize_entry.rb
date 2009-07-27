@@ -13,7 +13,7 @@ module VisualizeEntry
            end
       p = Position.find pair.first
       @ret = pair.last.nil? ? 'NULL' : pair.last.to_f * 100.0
-      start_date = trading_days_from(p.entry_date, 20, -1).last.to_date
+      start_date = trading_days_from(p.entry_date, -20).last.to_date
       if p.exit_date
         exit_date = trading_days_from(p.exit_date, 10).last.to_date
       else

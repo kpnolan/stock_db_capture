@@ -28,6 +28,48 @@ module UserAnalysis
     nil
   end
 
+  #
+  # return the scalar price, given a series of prices and a time_period (decay rate)
+  # that would have produced the given RSI (on the next bar)
+  #
+  def invrsi(options={ })
+    options.reverse_merge! :time_period => 14, :rsi => 30.0
+    idx_range = calc_indexes(nil, options[:time_period])
+    n = options[:time_period]
+    r = options[:rsi]
+    alpha = 2.0 / (n + 1.0)             # rate of exp decay calc from time_period
+    today = idx_range.begin - n
+    emaPos = 0.0
+    emaNeg = 0.0
+    #
+    # compute the SMA for the first the first :time_period bars
+    #
+    while today <= idx_range.begin
+      deltaClose = price[today] - price[today-1]
+      up = [0, deltaClose].max
+      dn = [0, -deltaClose].max
+      emaPos += up
+      emaNeg += dn
+      today += 1
+    end
+    emaPos /= n
+    emaNeg /= n
+    #
+    # Now accumulate (and decay) the value of the two ema's solving for
+    # the price which would have produced the given RSI
+    #
+    while today <= idx_range.end
+      deltaClose = price[today] - price[today-1]
+      up = [0, deltaClose].max
+      dn = [0, -deltaClose].max
+      emaPos = (up - emaPos)*alpha + emaPos     # add the current price to the decayed sum
+      emaNeg = (dn - emaNeg)*alpha + emaNeg
+      today += 1
+    end
+    delta = (100*empPos - 100*alpha*empPos - alpha*dn*r - emaNeg*r + alpha*emaNeg*r - empPos*r + alpha*emaPos*r) / (alpha * (r - 100))
+    price[today]+delta
+  end
+
   # Relative Valatility Index
   def rvi(options={})
     options.reverse_merge! :time_period => 5
@@ -44,8 +86,8 @@ module UserAnalysis
     alpha = options[:alpha]
     out = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
     today = idx_range.begin - n
-    upExpAvg = 0.0
-    downExpAvg = 0.0
+    upEMA = 0.0
+    downEMA = 0.0
     #
     # compute the SMA for the first output point
     while today <= idx_range.begin
@@ -56,13 +98,13 @@ module UserAnalysis
       else
         down, up = sd, 0.0
       end
-      upExpAvg += up
-      downExpAvg += down
+      upEMA += up
+      downEMA += down
       today += 1
     end
-    upExpAvg /= n
-    downExpAvg /= n
-    out[0] = 100.0 * (upExpAvg / (upExpAvg+ downExpAvg))
+    upEMA /= n
+    downEMA /= n
+    out[0] = 100.0 * (upEMA / (upEMA+ downEMA))
     outidx = 1
     # now we start outputing results
     while today <= idx_range.end
@@ -73,9 +115,9 @@ module UserAnalysis
       else
         down, up = sd, 0.0
       end
-      upExpAvg = (up - upExpAvg)*alpha + upExpAvg
-      downExpAvg = (down - downExpAvg)*alpha + downExpAvg
-      out[outidx] = 100.0 * (upExpAvg / (upExpAvg + downExpAvg))
+      upEMA = (up - upEMA)*alpha + upEMA
+      downEMA = (down - downEMA)*alpha + downEMA
+      out[outidx] = 100.0 * (upEMA / (upEMA + downEMA))
       today += 1
       outidx += 1
     end

@@ -1,0 +1,67 @@
+# == Schema Information
+# Schema version: 20090726180014
+#
+# Table name: tda_positions
+#
+#  id           :integer(4)      not null, primary key
+#  ticker_id    :integer(4)
+#  estrategy_id :integer(4)
+#  xstrategy_id :integer(4)
+#  entry_price  :float
+#  exit_price   :float
+#  curr_price   :float
+#  entry_date   :date
+#  exit_date    :date
+#  rum_shares   :integer(4)
+#  days_held    :integer(4)
+#  stop_loss    :boolean(1)
+#  nreturn      :float
+#  rretrun      :float
+#  eorderid     :integer(4)
+#  xorderid     :integer(4)
+#  openned_at   :datetime
+#  closed_at    :datetime
+#  updated_at   :datetime
+#  com          :boolean(1)
+#
+
+one:
+  id: 1
+  ticker_id: 1
+  estrategy_id: 1
+  xstrategy_id: 1
+  entry_date: 2009-07-26
+  exit_date: 2009-07-26
+  openned_at: 2009-07-26 07:17:06
+  closed_at: 2009-07-26 07:17:06
+  updated_at: 2009-07-26 07:17:06
+  entry_price: 1.5
+  exit_price: 1.5
+  curr_price: 1.5
+  eorderid: 1
+  xorderid: 1
+  rum_shares: 1
+  stop_loss: false
+  days_held: 1
+  nreturn: 1.5
+  rretrun: 1.5
+two:
+  id: 2
+  ticker_id: 1
+  estrategy_id: 1
+  xstrategy_id: 1
+  entry_date: 2009-07-26
+  exit_date: 2009-07-26
+  openned_at: 2009-07-26 07:17:06
+  closed_at: 2009-07-26 07:17:06
+  updated_at: 2009-07-26 07:17:06
+  entry_price: 1.5
+  exit_price: 1.5
+  curr_price: 1.5
+  eorderid: 1
+  xorderid: 1
+  rum_shares: 1
+  stop_loss: false
+  days_held: 1
+  nreturn: 1.5
+  rretrun: 1.5

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090719170151) do
+ActiveRecord::Schema.define(:version => 20090727032303) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -364,6 +364,7 @@ ActiveRecord::Schema.define(:version => 20090719170151) do
     t.integer  "ta_spec_id"
     t.datetime "stime"
     t.float    "value"
+    t.integer  "seq"
   end
 
   create_table "ta_specs", :force => true do |t|
@@ -371,7 +372,33 @@ ActiveRecord::Schema.define(:version => 20090719170151) do
     t.integer "time_period"
   end
 
-  add_index "ta_specs", ["indicator_id"], :name => "indicator_id"
+  add_index "ta_specs", ["indicator_id", "time_period"], :name => "indicator_id_and_time_period_idx", :unique => true
+
+  create_table "tda_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "estrategy_id"
+    t.integer  "xstrategy_id"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "curr_price"
+    t.date     "entry_date"
+    t.date     "exit_date"
+    t.integer  "rum_shares"
+    t.integer  "days_held"
+    t.boolean  "stop_loss"
+    t.float    "nreturn"
+    t.float    "rretrun"
+    t.integer  "eorderid"
+    t.integer  "xorderid"
+    t.datetime "openned_at"
+    t.datetime "closed_at"
+    t.datetime "updated_at"
+    t.boolean  "com"
+  end
+
+  add_index "tda_positions", ["ticker_id"], :name => "ticker_id"
+  add_index "tda_positions", ["estrategy_id"], :name => "estrategy_id"
+  add_index "tda_positions", ["xstrategy_id"], :name => "xstrategy_id"
 
   create_table "tickers", :force => true do |t|
     t.string  "symbol",      :limit => 8
@@ -392,6 +419,24 @@ ActiveRecord::Schema.define(:version => 20090719170151) do
   add_index "tickers", ["name"], :name => "ticker_name_index"
   add_index "tickers", ["exchange_id"], :name => "exchange_id"
 
+  create_table "watch_list", :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "tda_position_id"
+    t.float    "target_price"
+    t.float    "target_ival"
+    t.float    "curr_price"
+    t.float    "curr_ival"
+    t.float    "predicted_price"
+    t.float    "predicted_ival"
+    t.datetime "crossed_at"
+    t.datetime "updated_at"
+    t.float    "predicted_sd"
+    t.integer  "num_samples"
+  end
+
+  add_index "watch_list", ["ticker_id"], :name => "ticker_id"
+  add_index "watch_list", ["tda_position_id"], :name => "tda_position_id"
+
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
 
@@ -402,12 +447,7 @@ ActiveRecord::Schema.define(:version => 20090719170151) do
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 
-  add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_2"
-  add_foreign_key "positions", ["strategy_id"], "strategies", ["id"], :name => "positions_ibfk_3"
-  add_foreign_key "positions", ["scan_id"], "scans", ["id"], :name => "positions_ibfk_4"
-
   add_foreign_key "positions_strategies", ["strategy_id"], "strategies", ["id"], :name => "positions_strategies_ibfk_1"
-  add_foreign_key "positions_strategies", ["position_id"], "positions", ["id"], :name => "positions_strategies_ibfk_2"
 
   add_foreign_key "scans_strategies", ["scan_id"], "scans", ["id"], :name => "scans_strategies_ibfk_1"
   add_foreign_key "scans_strategies", ["strategy_id"], "strategies", ["id"], :name => "scans_strategies_ibfk_2"
@@ -417,8 +457,15 @@ ActiveRecord::Schema.define(:version => 20090719170151) do
 
   add_foreign_key "ta_specs", ["indicator_id"], "indicators", ["id"], :name => "ta_specs_ibfk_1"
 
+  add_foreign_key "tda_positions", ["ticker_id"], "tickers", ["id"], :name => "tda_positions_ibfk_1"
+  add_foreign_key "tda_positions", ["estrategy_id"], "strategies", ["id"], :name => "tda_positions_ibfk_2"
+  add_foreign_key "tda_positions", ["xstrategy_id"], "strategies", ["id"], :name => "tda_positions_ibfk_3"
+
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"
   add_foreign_key "tickers", ["exchange_id"], "exchanges", ["id"], :name => "tickers_ibfk_3"
+
+  add_foreign_key "watch_list", ["ticker_id"], "tickers", ["id"], :name => "watch_list_ibfk_1"
+  add_foreign_key "watch_list", ["tda_position_id"], "tda_positions", ["id"], :name => "watch_list_ibfk_2"
 
 end

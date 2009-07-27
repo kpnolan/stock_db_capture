@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090719170151
+# Schema version: 20090726180014
 #
 # Table name: ta_specs
 #
@@ -20,6 +20,9 @@ class TaSpec < ActiveRecord::Base
       i = Indicator.create!(:name => ind) unless (i = Indicator.find_by_name(ind))
       is = create!(:indicator_id => i.id, :time_period => time_period) unless (is = find_by_indicator_id_and_time_period(i.id, time_period))
       is
+    end
+    def find_by_indicator_and_time_period(indicator, time_period)
+      find_by_sql "SELECT ta.* FROM ta_specs ta, indicator i WHERE ta.indicator_id = i.id AND i.name = '#{indicator}' AND i.time_period = #{time_period}"
     end
   end
 end

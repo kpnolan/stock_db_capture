@@ -8,6 +8,7 @@
 VALUE Tda2Ruby = Qnil;
 VALUE tda_buff_index = INT2FIX(0);
 VALUE time_klass;
+VALUE snapshot_exception;
 
 
 VALUE next_ts(unsigned char* str);
@@ -31,6 +32,7 @@ void Init_tda2ruby() {
   rb_define_method(Tda2Ruby, "parse_bar_stream", method_parse_bar_stream, 1);
   rb_define_method(Tda2Ruby, "parse_snapshot", method_parse_snapshot, 1);
   rb_define_method(Tda2Ruby, "parse_snapshot_bar", method_parse_snapshot_bar, 1);
+  snapshot_exception = rb_define_class("SnapshotProtocolError", rb_eException);
   time_klass = rb_const_get(rb_cObject, rb_intern("Time"));
 }
 
@@ -298,7 +300,7 @@ VALUE method_parse_snapshot(VALUE self, VALUE buff) {
 
   status = *(unsigned short*)&str[i];
   if ( status != 0 )
-    rb_warn("status is not zero");
+    rb_raise(snapshot_exception, "status is not zero");
 
   rstatus = ushort2rb(&str[i]);
   i += sizeof(short);

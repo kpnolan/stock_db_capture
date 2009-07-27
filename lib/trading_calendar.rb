@@ -51,9 +51,13 @@ module TradingCalendar
     trading_days(start_date..end_date)
   end
 
-  def trading_days_from(date, number, dir=1)
+  def trading_days_from(date, number)
     date = date.to_date
     return [ date ] if number == 0
+    if number < 0
+      dir = -1
+      number = -number
+    end
     trading_days = [ ]
     calendar_days = dir
     while trading_days.empty? || trading_days.length < number

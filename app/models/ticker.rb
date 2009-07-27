@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090719170151
+# Schema version: 20090726180014
 #
 # Table name: tickers
 #
@@ -53,8 +53,22 @@ class Ticker < ActiveRecord::Base
       end
     end
 
+    def resolve_id(ticker_or_sym)
+      begin
+        case ticker_or_sym
+        when Numeric          : find(ticker_or_sym).id
+        when Symbol, String   : lookup(ticker_or_sym).id
+        when Ticker           : ticker_or_sym[:id]
+        end
+      rescue ActiveRecord::RecordNotFound
+        nil
+      end
+    end
+
     def lookup(symbol)
-      find(:first, :conditions => { :symbol => symbol.to_s.upcase })
+      ticker = find(:first, :conditions => { :symbol => symbol.to_s.upcase })
+      raise ActiveRecord::RecordNotFound, "Couldn't find Ticker with symbol=#{symbol}" if ticker.nil?
+      ticker
     end
 
     def listing_name(symbol)

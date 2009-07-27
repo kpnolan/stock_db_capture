@@ -238,11 +238,10 @@ plot.positions <-
 
 
 get.snap.quote <-
-function (instrument, date, drop=FALSE,  quote = c("Open", "High", "Low", "Close"))
+function (instrument, date, drop=FALSE,  quote = c("Open", "High", "Low", "Close"), retclass="ts")
 {
   if (missing(date))
     date <- format(Sys.Date(), "%Y-%m-%d")
-  retclass <- "ts"
   instrument = toupper(instrument)
 
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")

@@ -28,20 +28,21 @@ class Timeseries
 
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 50
+  POSTCALC_BARS = 30
 
   DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ]   },
                       IntraDayBar => { :sample_resolution => [ 30.minutes ]  } }
 
   attr_reader :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
-  attr_reader :begin_time, :end_time, :utc_offset, :resolution
+  attr_reader :begin_time, :end_time, :utc_offset, :resolution, :options
   attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset, :only
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
   attr_reader :expected_bar_count, :expected_trading_days
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
-    options.reverse_merge! :price => :default, :pre_buffer => true, :populate => true, :post_buffer => false
+    @options = options.reverse_merge :price => :default, :pre_buffer => true, :populate => true, :post_buffer => false
     initialize_state()
-    @ticker_id = (symbol_or_id.is_a? Fixnum) ? Ticker.find(symbol_or_id).id : Ticker.lookup(symbol_or_id).id
+    @ticker_id = Ticker.resolve_id(symbol_or_id)
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     @symbol = Ticker.find(ticker_id).symbol
     if local_range.is_a? Range
@@ -70,10 +71,10 @@ class Timeseries
     @stride = options[:stride].nil? ? 1 :  options[:stride]
     @stride_offset = options[:stride_offset].nil? ? 0 : options[:stride_offset]
     raise ArgumentError, "Stride offset with no stride makes no sense also stride_offset must be < stride" if stride && stride_offset >= stride
-    pre_offset = options[:pre_buffer] == true ? PRECALC_BARS : options[:pre_buffer].is_a?(Fixnum) ? options[:pre_buffer] : 0
-    post_offset = options[:post_buffer] == true ? PRECALC_BARS : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
-    @begin_time = offset_date(@local_range.begin, pre_offset, -1)
-    @end_time = (od = offset_date(@local_range.end, post_offset, 1)) > Time.now ? Time.now : od
+    pre_offset = calc_prebuffer()
+    post_offset = options[:post_buffer] == true ? POSTCALC_BARS : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
+    @begin_time = offset_date(@local_range.begin, -pre_offset)
+    @end_time = (od = offset_date(@local_range.end, post_offset)) > Time.now ? Time.now : od
     @expected_trading_days = trading_days(begin_time.to_date..end_time.to_date)
     @expected_bar_count =  expected_trading_days.length * bars_per_day
     options.reverse_merge!(DEFAULT_OPTIONS[model])
@@ -249,9 +250,9 @@ class Timeseries
   #
   # Compute the calendar date to be given to the DB to grab the selected data range plus any pre-buffering
   #
-  def offset_date(ref_date, offset, dir)
+  def offset_date(ref_date, offset)
     trading_days = ((1.day / bars_per_day ) * offset) /1.day
-    tdf = trading_days_from(ref_date, trading_days, dir).last.to_time.utc.midnight
+    tdf = trading_days_from(ref_date, trading_days).last.to_time.utc.midnight
   end
 
   #
@@ -413,6 +414,7 @@ class Timeseries
   #
   def index2time(index, offset=0)
     return nil if index >= timevec.length
+    return timevec[index_range.end+index+1].send(model.time_convert) if index < 0
     timevec[index+offset] ? timevec[index+offset].send(model.time_convert) : nil
   end
 
@@ -462,11 +464,62 @@ class Timeseries
     end
   end
 
+  def update_from_snapshot
+    raise TimeseriesException, "Snapshot is not at the end of the Timeseries" if timevec.last.to_day > Date.today
+    if timevec.last.to_date == Date.today
+      time_map[timevec.last] = nil
+      pop_values()
+      push_last_bar(false)
+    else
+      push_last_bar(true)
+    end
+  end
+
+  def push_last_bar(append)
+    bar = Snapshot.last_bar(ticker_id)
+    time = bar.delete :time
+
+    bar.keys.each do |key|
+      value_hash[key].push(bar[key])
+    end
+    if model.time_class == Date
+      timevec.push(time.utc.midnight)
+      value_hash[:date].push(time.utc.midnight)
+    else
+      timevec.push(time)
+      value_hash[:start_time].push(time)
+    end
+    time_map[timevec[-1]] = timevec.length-1
+    if append
+      @local_range = local_range.begin..(time.to_date)
+      @end_index = time2index(local_range.end, -1)
+      @index_range = (index_range.begin)...end_index
+    end
+  end
+
+  def pop_values()
+    value_hash.values.each { |val_vec| val_vec.pop }
+  end
+
   #
   # One of the ways of computing price
   #
   def avg_price
     (open+close+high+low).scale(0.25)
+  end
+
+  def calc_prebuffer()
+    pbopt = options[:pre_buffer]
+    if pbopt == :ema
+      raise ArgumentError, ":time_period must be specified if :pre_buffer => :ema" if options[:time_period].nil?
+      3.45 * (options[:time_period]+1)
+    elsif pbopt.is_a? Numeric
+      pbopt.to_i
+    elsif pbopt == true # FIXME should have list of possible talib fcns and select the max of the loopback functions
+      PRECALC_BARS
+    else
+      0
+    end
   end
 
   #

@@ -1,0 +1,24 @@
+one:
+  id: 1
+  ticker_id: 1
+  tda_position_id: 1
+  target_price: 1.5
+  target_ival: 1.5
+  curr_price: 1.5
+  curr_ival: 1.5
+  predicted_price: 1.5
+  predicted_ival: 1.5
+  crossed_at: 2009-07-26 07:25:03
+  updated_at: 2009-07-26 07:25:03
+two:
+  id: 2
+  ticker_id: 1
+  tda_position_id: 1
+  target_price: 1.5
+  target_ival: 1.5
+  curr_price: 1.5
+  curr_ival: 1.5
+  predicted_price: 1.5
+  predicted_ival: 1.5
+  crossed_at: 2009-07-26 07:25:03
+  updated_at: 2009-07-26 07:25:03

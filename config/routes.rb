@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :watch_lists
+
+  map.resources :tda_positions
+
   map.resources :snapshots
 
   map.resources :studies

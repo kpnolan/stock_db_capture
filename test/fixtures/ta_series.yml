@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090719170151
+# Schema version: 20090726180014
 #
 # Table name: ta_series
 #
@@ -8,6 +8,7 @@
 #  ta_spec_id :integer(4)
 #  stime      :datetime
 #  value      :float
+#  seq        :integer(4)
 #
 
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html

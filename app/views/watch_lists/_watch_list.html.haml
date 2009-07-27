@@ -1,0 +1,27 @@
+%tr[watch_list]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.ticker_id
+    = lkup watch_list.ticker
+  %td.tda_position_id
+    = lkup watch_list.tda_position
+  %td.target_price
+    = h watch_list.target_price
+  %td.target_ival
+    = h watch_list.target_ival
+  %td.curr_price
+    = h watch_list.curr_price
+  %td.curr_ival
+    = h watch_list.curr_ival
+  %td.predicted_price
+    = h watch_list.predicted_price
+  %td.predicted_ival
+    = h watch_list.predicted_ival
+  %td.crossed_at
+    = h watch_list.crossed_at
+  %td.updated_at
+    = h watch_list.updated_at
+  %td.show
+    = link_to 'Show', object_path(watch_list)
+  %td.edit
+    = link_to 'Edit', edit_object_path(watch_list)
+  %td.destroy
+    = link_to 'Destroy', object_path(watch_list), :confirm => 'Really destroy watch_list?', :method => :delete

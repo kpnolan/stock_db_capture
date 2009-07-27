@@ -1,0 +1,10 @@
+%h1 Creating Watch List
+
+= error_messages_for :watch_list
+
+%fieldset
+  - smart_form_for(current_object) do |f|
+    = render :partial => "form", :locals => {:f => f}
+    %p= f.submit "Create"
+
+= link_to 'Back', objects_path

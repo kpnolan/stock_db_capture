@@ -78,7 +78,7 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
           retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
 {
   if (missing(start))
-    start <- "2000-01-02"
+    start <- "2009-01-02"
   if (missing(end))
     end <- format(Sys.Date() - 1, "%Y-%m-%d")
   retclass <- match.arg(retclass)

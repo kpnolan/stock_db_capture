@@ -57,6 +57,8 @@ module TradingCalendar
     if number < 0
       dir = -1
       number = -number
+    else
+      dir = 1
     end
     trading_days = [ ]
     calendar_days = dir

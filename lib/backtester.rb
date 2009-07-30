@@ -24,7 +24,8 @@ class Backtester
   attr_reader :strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
 
   def initialize(strategy_name, population_names, description, options, &block)
-    @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false, :days_to_close => 30, :epass => 0..2, :xpass => 0..0, :reset => true
+    @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false,
+                                     :days_to_close => 30, :epass => 0..2, :reset => true
     @sname = strategy_name
     @pnames = population_names
     @desc = description
@@ -104,28 +105,24 @@ class Backtester
     # and closed, giving the raw data for the analysis of the backtest
     logger.info "Beginning close positions analysis..."
     startt = Time.now
-    pass = 0
-    for pass in (days_to_close > 0 ? options[:xpass] : [])
-      if options[:reset]
-        open_positions = strategy.positions.find(:all)
+
+    if options[:reset]
+      open_positions = strategy.positions.find(:all)
+    else
+      open_positions = strategy.positions.find(:all, :conditions => 'exit_date is null')
+    end
+    pos_count = open_positions.length
+
+    counter = 1
+    for position in open_positions
+      p = close_position(position)
+      next if p.nil?
+      if p.exit_price.nil?
+        logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
       else
-        open_positions = strategy.positions.find(:all, :conditions => 'exit_date is null')
+        logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return)
       end
-      pos_count = open_positions.length
-      break if pos_count == 0
-      counter = 1
-      for position in open_positions
-        p = close_position(position, pass)
-        next if p.nil?
-        if p.exit_price.nil?
-          logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
-#          logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t>#{days_to_close}\t#{p.entry_price}\t***.**\t0.000000"
-        else
-          logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return)
-         # logger.info "Pass(#{pass}) Position #{counter} of #{pos_count} #{p.entry_date.to_date}\t\t#{p.days_held}\t#{p.entry_price}\t#{p.exit_price}\t#{p.nreturn*100.0}"
-        end
-        counter += 1
-      end
+      counter += 1
     end
     endt = Time.now
     delta = endt - startt
@@ -247,20 +244,20 @@ class Backtester
   end
 
   # Close a position opened during the first phase of the backtest
-  def close_position(p, pass)
+  def close_position(p)
     begin
       end_date = trading_days_from(p.entry_date, days_to_close).last
       ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, 1.day,
-                          :pre_buffer => 30, :post_buffer => 0, :debug => true)
+                          :pre_buffer => :rsi, :time_period => 14, :post_buffer => 0, :debug => true)
 
-      index = ts.instance_exec(closing.params, pass, &closing.block)
+      index = ts.instance_exec(closing.params, &closing.block)
 
       if index.nil?
         p.update_attributes!(:exit_price => nil, :exit_date => nil,
                              :days_held => nil, :nreturn => nil)
       else
         price = ts.value_at(index, :close)
-        exit_trigger = ts.memo.result_for(index)
+        #exit_trigger = ts.memo.result_for(index) we don't know this any more.
         edate = p.entry_date.to_date
         xdate = ts.index2time(index)
         debugger if xdate.nil?
@@ -268,8 +265,7 @@ class Backtester
         nreturn = days_held.zero? ? 0.0 : ((price - p.entry_price) / p.entry_price) / days_held
         nreturn *= -1.0 if p.short and nreturn != 0.0
         p.update_attributes!(:exit_price => price, :exit_date => xdate,
-                             :days_held => days_held, :nreturn => nreturn,
-                             :exit_trigger => exit_trigger, :exit_pass => pass)
+                             :days_held => days_held, :nreturn => nreturn)
       end
     #rescue TimeseriesException => e
     #  if e.message =~ /recorded history/

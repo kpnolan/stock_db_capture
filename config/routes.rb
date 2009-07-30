@@ -1,24 +1,14 @@
 ActionController::Routing::Routes.draw do |map|
   map.resources :watch_lists
-
   map.resources :tda_positions
-
   map.resources :snapshots
-
   map.resources :studies
-
   map.resources :indicators
-
   map.resources :intra_snapshots
-
   map.resources :industries
-
   map.resources :sectors
-
   map.resources :intra_day_bars
-
   map.resources :daily_bars
-
   map.resources :scans
   map.resources :strategies
   map.resources :derived_value_types
@@ -36,8 +26,6 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :current_listing, :contoller => 'current_listing'
   map.resources :exchanges
   map.resources :daily_closes, :member => { :plot => :get },:collection => { :reload => :get, :begin_load => :post, :progress => :get }
-  map.resources :exchanges
-  map.resources :live_quotes
 
   map.root :controller => 'tickers', :action => 'index'
 

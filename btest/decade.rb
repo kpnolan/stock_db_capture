@@ -59,12 +59,12 @@ analytics do
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  close_position :rsi_rvi, :time_period => 14 do |params, pass|
+  close_position :rsi_rvi, :time_period => 14 do |params|
     params.reverse_merge! :noplot => true, :result => :raw
     rsi_ary = rsi(params).first
     rvi_ary = rvi(params).first
-    rsi_idx = under_threshold(50-pass*5, rsi_ary).first
-    rvi_idx = under_threshold(40-pass*5, rvi_ary).first
+    rsi_idx = under_threshold(50, rsi_ary).first
+    rvi_idx = under_threshold(40, rvi_ary).first
 
     [rsi_idx, rvi_idx].min do |a,b|
       case
@@ -91,7 +91,7 @@ populations do
   end
 end
 
-backtests(:price => :close, :epass => 0..2, :xpass => 0..0) do
+backtests(:price => :close, :epass => 0..2) do
   apply(:rsi_rvi, :liquid_2008) do
 #    make_sheet()
   end

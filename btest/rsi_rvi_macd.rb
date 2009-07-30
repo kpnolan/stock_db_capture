@@ -2,17 +2,18 @@ analytics do
   desc "Find all places where RSI gooes heads upwards of 30"
   open_position :rsi_rvi_macd_2009, :time_period => 14 do |params, pass|
     rsi_ary = rsi(params.merge(:noplot => true, :result => :raw)).first
-    indexes = under_threshold(20+pass*5, rsi_ary)  end
+    indexes = under_threshold(20+pass*5, rsi_ary)
+  end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  close_position :rsi_rvi_macd_2009, :time_period => 14 do |params, pass|
+  close_position :rsi_rvi_macd_2009, :time_period => 14 do |params|
     params.reverse_merge! :noplot => true, :result => :raw
     rsi_ary = rsi(params).first
-    rvi_ary = rvi(params).first
-    macd_ary = macd().third # the args are all defaulted to the std values (the ones you were using), the 3rd return val
-    rsi_idx = under_threshold(50-pass*5, rsi_ary).first
-    rvi_idx = under_threshold(40-pass*5, rvi_ary).first
-    macd_idx = over_threshold(0, macd_ary).first
+    rvi_ary = rvi(params.merge(:alpha => :rsi)).first
+    macd_ary = macd(:result => :raw).third # the args are all defaulted to the std values (the ones you were using), the 3rd return val
+    rsi_idx = under_threshold(50, rsi_ary).first
+    rvi_idx = under_threshold(50, rvi_ary).first
+    macd_idx = under_threshold(0, macd_ary).first
 
     [rsi_idx, rvi_idx, macd_idx].min do |a,b|
       case

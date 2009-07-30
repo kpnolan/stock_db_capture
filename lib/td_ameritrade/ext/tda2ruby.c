@@ -311,7 +311,6 @@ VALUE method_parse_snapshot(VALUE self, VALUE buff) {
 
   rpayload = rb_str_new(payld_ptr, rpayld_len);
   rb_ary_push(header_ary, rsymbol);
-  rb_ary_push(header_ary, rstatus);
   rb_ary_push(header_ary, rpayload);
 
   return ( header_ary );

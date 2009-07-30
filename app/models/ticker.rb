@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090726180014
+# Schema version: 20090729181214
 #
 # Table name: tickers
 #
@@ -42,14 +42,13 @@ class Ticker < ActiveRecord::Base
       else
         ticker = lookup(symbol_or_id)
       end
-      if ticker.exchange == 'AMEX'
-        :nyse
-      elsif ['NCM', 'NGM', 'NasdaqNM'].include? ticker.exchange.symbol
-        :nasdaq
-      elsif ticker.exchange.symbol == 'NYSE'
-        :nyse
+
+      case ticker.exchange.symbol
+      when 'NCM', 'NGM','NasdaqNM'  : :nasdaq
+      when 'AMX', 'NYSE'            : :nyse
+      when 'PCX'                    : :pcx
       else
-        nil
+        raise ArgumenttError, "Cannot find exchange for #{ticker.symbol}"
       end
     end
 

@@ -31,7 +31,8 @@ class Timeseries
   POSTCALC_BARS = 30
 
   DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ]   },
-                      IntraDayBar => { :sample_resolution => [ 30.minutes ]  } }
+                     IntraDayBar => { :sample_resolution => [ 30.minutes ] },
+                     Snapshot => { :sample_resolution => [ 1.minute ] } }
 
   attr_reader :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
   attr_reader :begin_time, :end_time, :utc_offset, :resolution, :options
@@ -42,6 +43,7 @@ class Timeseries
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     @options = options.reverse_merge :price => :default, :pre_buffer => true, :populate => true, :post_buffer => false
     initialize_state()
+    talib_init() #FIXME this should have been done is self.included!!!
     @ticker_id = Ticker.resolve_id(symbol_or_id)
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     @symbol = Ticker.find(ticker_id).symbol
@@ -77,12 +79,15 @@ class Timeseries
     @end_time = (od = offset_date(@local_range.end, post_offset)) > Time.now ? Time.now : od
     @expected_trading_days = trading_days(begin_time.to_date..end_time.to_date)
     @expected_bar_count =  expected_trading_days.length * bars_per_day
-    options.reverse_merge!(DEFAULT_OPTIONS[model])
-    options[:populate] ? repopulate({}) : init_timevec
+    self.options.reverse_merge!(DEFAULT_OPTIONS[model])
+    self.options[:populate] ? repopulate({}) : init_timevec
     add_methods_for_attributes(value_hash.keys)
-    set_price(options[:price])
+    set_price(self.options[:price])
   end
 
+  def eql?(other)
+    ticker_id == other.ticker_id && local_range == other.local_range && resolution == other.resolution && options == other.options
+  end
   #
   # Parse a date/time string with the nominal format (see 2nd arg to strptime)
   # returning a time have the local timezone
@@ -102,6 +107,13 @@ class Timeseries
 
   def inspect
     super
+  end
+  #
+  # Since we don't keep a reference to tickers around, deref the id and
+  # return the associated Ticker
+  #
+  def ticker
+    Ticker.find ticker_id
   end
 
   #
@@ -325,7 +337,7 @@ class Timeseries
   # we get a full vector of results
   #
   def minimal_samples(lookback_fun, *args)
-    lookback_fun ? Talib.send(lookback_fun, *args) : args.sum
+    ms = lookback_fun ? Talib.send(lookback_fun, *args) : args.sum
   end
 
   # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
@@ -450,11 +462,14 @@ class Timeseries
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
 
-    if graph_type == :overlap
-      aggregate(symbol, pb, options.merge(:with => 'financebars')) if options[:plot_results]
-    else
-      with_function fcn  if options[:plot_results]
+    if options[:plot_results] && options[:result] != :raw
+      if graph_type == :overlap
+        aggregate(symbol, pb, options.merge(:with => 'financebars'))
+      else
+        with_function fcn
+      end
     end
+
     case options[:result]
     when nil    : raise ArgumentError, ':result of (:keys|:memo|:raw) required as an option'
     when :keys  : pb.keys
@@ -464,19 +479,19 @@ class Timeseries
     end
   end
 
-  def update_from_snapshot
-    raise TimeseriesException, "Snapshot is not at the end of the Timeseries" if timevec.last.to_day > Date.today
+  def update_last_bar(bar)
     if timevec.last.to_date == Date.today
       time_map[timevec.last] = nil
       pop_values()
-      push_last_bar(false)
+      push_bar(bar, false)
     else
-      push_last_bar(true)
+      raise TimeseriesException, "Snaphot bar not trading day following last entry" unless timevec.last.to_date == trading_days_from(bar[:time].to_date, -1).last
+      push_bar(bar, true)
     end
   end
 
-  def push_last_bar(append)
-    bar = Snapshot.last_bar(ticker_id)
+  def push_bar(bar, append)
+    bar = bar.dup
     time = bar.delete :time
 
     bar.keys.each do |key|
@@ -484,12 +499,12 @@ class Timeseries
     end
     if model.time_class == Date
       timevec.push(time.utc.midnight)
-      value_hash[:date].push(time.utc.midnight)
+      value_hash[model.time_col].push(time.utc.midnight)
     else
       timevec.push(time)
-      value_hash[:start_time].push(time)
+      value_hash[model.time_col].push(time)
     end
-    time_map[timevec[-1]] = timevec.length-1
+    time_map[timevec.last] = timevec.length-1
     if append
       @local_range = local_range.begin..(time.to_date)
       @end_index = time2index(local_range.end, -1)
@@ -510,11 +525,19 @@ class Timeseries
 
   def calc_prebuffer()
     pbopt = options[:pre_buffer]
-    if pbopt == :ema
-      raise ArgumentError, ":time_period must be specified if :pre_buffer => :ema" if options[:time_period].nil?
-      3.45 * (options[:time_period]+1)
+    if [:ema].include? pbopt
+      raise ArgumentError, ":time_period must be specified if :pre_buffer => :ema or brothers" if options[:time_period].nil?
+      count = (3.45 * (options[:time_period]+1)).ceil
+      set_unstable_period(pbopt, count)
+      count
+    elsif pbopt == :rsi
+      count = (2.45 * (options[:time_period]+1)).ceil
+      set_unstable_period(:rsi, count)
+      count
     elsif pbopt.is_a? Numeric
-      pbopt.to_i
+      count = pbopt.to_i
+      set_unstable_period(:all, count)
+      count
     elsif pbopt == true # FIXME should have list of possible talib fcns and select the max of the loopback functions
       PRECALC_BARS
     else

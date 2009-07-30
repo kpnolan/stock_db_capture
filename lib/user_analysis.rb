@@ -33,19 +33,21 @@ module UserAnalysis
   # that would have produced the given RSI (on the next bar)
   #
   def invrsi(options={ })
-    options.reverse_merge! :time_period => 14, :rsi => 30.0
-    idx_range = calc_indexes(nil, options[:time_period])
+    raise ArgumentError, ":rsi must be specified" if options[:rsi].nil?
+    options.reverse_merge! :time_period => 14
+    idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    unstable_period = get_unstable_period(:rsi)
     n = options[:time_period]
+    n1 = n - 1
     r = options[:rsi]
-    alpha = 2.0 / (n + 1.0)             # rate of exp decay calc from time_period
-    today = idx_range.begin - n
+    today = idx_range.begin - unstable_period
     emaPos = 0.0
     emaNeg = 0.0
     #
     # compute the SMA for the first the first :time_period bars
     #
-    while today <= idx_range.begin
-      deltaClose = price[today] - price[today-1]
+    for i in 1..n
+      deltaClose = price[i] - price[i-1]
       up = [0, deltaClose].max
       dn = [0, -deltaClose].max
       emaPos += up
@@ -59,21 +61,23 @@ module UserAnalysis
     # the price which would have produced the given RSI
     #
     while today <= idx_range.end
+      emaPosPre, emaNegPre = emaPos, emaNeg
       deltaClose = price[today] - price[today-1]
       up = [0, deltaClose].max
       dn = [0, -deltaClose].max
-      emaPos = (up - emaPos)*alpha + emaPos     # add the current price to the decayed sum
-      emaNeg = (dn - emaNeg)*alpha + emaNeg
+      emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
+      emaNeg = (emaNeg * n1 + dn)/n
       today += 1
     end
-    delta = (100*empPos - 100*alpha*empPos - alpha*dn*r - emaNeg*r + alpha*emaNeg*r - empPos*r + alpha*emaPos*r) / (alpha * (r - 100))
-    price[today]+delta
+    delta = (100*emaPosPre*n1 - (dn+(emaNegPre+emaPosPre)*n1)*r)/(r-100)
+    price[today-1]+delta
   end
 
   # Relative Valatility Index
   def rvi(options={})
-    options.reverse_merge! :time_period => 5
-    options.reverse_merge! :alpha => (2.0 / (options[:time_period] + 1))
+    options.reverse_merge! :time_period => 5, :alpha => :ema
+    alpha = options[:alpha] == :rsi ? (n - 1.0)/n : (2.0 / (n + 1.0))            # rate of exp decay calc from time_period
+    options[:alpha] = alpha
     idx_range = calc_indexes(nil, options[:time_period])
     out = (rvi_1(high, options) + rvi_1(low, options)).scale(0.5)
     result = [0, idx_range.begin, out]
@@ -84,16 +88,17 @@ module UserAnalysis
     idx_range = calc_indexes(nil, options[:time_period])
     n = options[:time_period]
     alpha = options[:alpha]
+    unstable_period = get_unstable_period(:rsi)
     out = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
-    today = idx_range.begin - n
+    today = idx_range.begin - unstable_period
     upEMA = 0.0
     downEMA = 0.0
     #
     # compute the SMA for the first output point
-    while today <= idx_range.begin
-      prev9vec = price.subvector(today-9, 10)
-      sd = prev9vec.sd
-      if price[today] > price[today-1]
+    for i in 1..n
+      prev10vec = price.subvector(i-9, 10)
+      sd = prev10vec.sd
+      if price[i] > price[i-1]
         up, down = sd, 0.0
       else
         down, up = sd, 0.0
@@ -106,6 +111,20 @@ module UserAnalysis
     downEMA /= n
     out[0] = 100.0 * (upEMA / (upEMA+ downEMA))
     outidx = 1
+    # Compute the unstable period w/o ouputing data but
+    # just accumulating into the ema's involved
+    while today <= idx_range.begin
+      prev9vec = price.subvector(today-9, 10)
+      sd = prev9vec.sd
+      if price[today] > price[today-1]
+        up, down = sd, 0.0
+      else
+        down, up = sd, 0.0
+      end
+      upEMA = (up - upEMA)*alpha + upEMA
+      downEMA = (down - downEMA)*alpha + downEMA
+      today += 1
+    end
     # now we start outputing results
     while today <= idx_range.end
       prev9vec = price.subvector(today-9, 10)

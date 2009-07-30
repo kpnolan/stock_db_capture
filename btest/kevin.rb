@@ -15,11 +15,13 @@ analytics do
     rvi = ts.rvi :time_period => 14, :noplot => true, :result => :memo
     r70 = rsi5_70.under_threshold(70, :rsi).first
     r40 = rvi.over_threshold(40, :rvi).first
-    case
-      when r70.nil? && r40 : r40
-      when r70 && r40 : min(r70, r40)
-      when r40.nil? : nil
-      when r40 : r40
+    [r70, r40].min do |a,b|
+      case
+      when a && b : a <=> b
+      when a.nil? && b : 1
+      when b.nil? && a : -1
+      else 0
+      end
     end
   end
 end

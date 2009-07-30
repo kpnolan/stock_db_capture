@@ -9,6 +9,36 @@
     # to be a mixin to the Timeseries class upon with talib functions operate.
     ################################################################################################################
 module TechnicalAnalysis
+
+  UNSTABLE_PERIOD_METHODS = [ :adx, :adxr, :atr, :cmo, :dx, :ema, :ht_dcperiod, :ht_dcphace, :ht_phasor, :ht_sine,
+                             :ht_trendline, :kama, :mama, :mfi, :minus_di, :minus_dm, :natr, :plus_di, :plus_dm,
+                             :rsi, :stoch_rsi, :t3, :all ]
+
+#   def self.included(other)
+#     puts "#{self} included in #{other}"
+#     other.instance_variable_set(:@unstable_fcn_map, Hash.new)
+#     other.instance_eval do
+#       UNSTABLE_PERIOD_METHODS.each_with_index { |meth, i| @unstable_fcn_map[meth] = i }
+#       puts @unstable_fcn_map.inspect
+#     end
+#   end
+
+  def talib_init
+    @unstable_fcn_map = {}
+    UNSTABLE_PERIOD_METHODS.each_with_index { |meth, i| @unstable_fcn_map[meth] = i }
+    @unstable_fcn_map[:rvi] = @unstable_fcn_map[:rsi]
+  end
+
+  def set_unstable_period(meth, value)
+    raise ArgumentError, "bad method for unstable period: #{meth}" if @unstable_fcn_map[meth].nil?
+    Talib.ta_set_unstable_period(@unstable_fcn_map[meth], value)
+  end
+
+  def get_unstable_period(meth)
+    raise ArgumentError, "bad method for unstable period: #{meth}" if @unstable_fcn_map[meth].nil?
+    Talib.ta_get_unstable_period(@unstable_fcn_map[meth])
+  end
+
   #Vector Trigonometric ACos
   def acos(inReal, options={})
     idx_range = calc_indexes(:ta_acos_lookback)

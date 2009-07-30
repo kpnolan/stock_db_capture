@@ -22,7 +22,7 @@ module TdAmeritrade
   DAY2SEC = 24*60*60
   PASSWORD = 'Troika3'
   MINUTES_PER_DAY = 390
-  SNAPSHOT_INTERVAL = 5.minutes
+  SNAPSHOT_INTERVAL = 0
   STREAMER_ORDER = [ :U, :W, :A, :token, :company, :segment, :cddomain, :usergroup, :accesslevel, :authorized, :acl, :timestamp, :appid ]
 
   #U=781467570&W=c95e834acfd31ec4655197d262c6b133bd3dcbef&A=userid=781467570&token=c95e834acfd31ec4655197d262c6b133bd3dcbef&company=AMER&segment=AMER&acddomain=A000000011276183&usergroup=ACCT&accesslevel=ACCT&authorized=Y&acl=ADAQDRESGKMAPNQ2QSRFSPTETFTOTTUAURWSQ2NS&timestamp=1246573874&appid=sdc|S=NASDAQ_CHART&C=GET&P=DELL,0,29,1d,1m/n/n
@@ -266,9 +266,9 @@ module TdAmeritrade
       submit_request_stream(streamer_uri, req)
     end
 
-    def snapshot(symbol)
+    def snapshot(symbol, options={})
       symbol = symbol.to_s.upcase
-      return false if snaptimes[symbol] && snaptimes[symbol] + snap_interval < Time.now
+      return false if snaptimes[symbol] && snaptimes[symbol] + snap_interval > Time.now
       req = build_request(streamer_uri, {})
       req.body = '!' + build_param_str()
       suffix = ''
@@ -280,8 +280,8 @@ module TdAmeritrade
       req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',480,1d,1m'
       req.body << "\n\n"
       snaptimes[symbol] = Time.now
-      buff = submit_request_raw(streamer_uri, req)
-      symbol, status, compressed_bars = parse_snapshot(buff)
+      buff = submit_request_raw(streamer_uri, req, options)
+      symbol, compressed_bars = parse_snapshot(buff)
       buffer = Zlib::Inflate.inflate(compressed_bars)
       Snapshot.populate(process_snapshot(buffer))
     end

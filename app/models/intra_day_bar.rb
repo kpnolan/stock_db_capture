@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090726180014
+# Schema version: 20090729181214
 #
 # Table name: intra_day_bars
 #
@@ -89,7 +89,7 @@ class IntraDayBar < ActiveRecord::Base
     end
 
     def prior_close(ticker_id, cur_date)
-      last_daily_bar_date = trading_days_from(cur_date, 1, -1).last
+      last_daily_bar_date = trading_days_from(cur_date, -1).last
       dc = DailyBar.find(:first, :conditions => { :ticker_id => ticker_id, :date => last_daily_bar_date})
       dc.nil? ? nil : dc.close
     end

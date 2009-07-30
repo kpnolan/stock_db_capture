@@ -61,12 +61,13 @@ analytics do
     rsi_idx = under_threshold(60-pass*5, rsi_ary).first
     rvi_idx = under_threshold(50-pass*5, rvi_ary).first
 
-    case
-    when rsi_idx.nil? && rvi_idx : rvi_idx
-    when rsi_idx && rvi_idx : rsi_idx < rvi_idx ? rsi_idx : rvi_idx
-    when rvi_idx.nil? : nil
-    when rvi_idx : rvi_idx
-    when rsi_idx : rsi_idx
+    [rsi_idx, rvi_idx].min do |a,b|
+      case
+      when a && b : a <=> b
+      when a.nil? && b :  1
+      when b.nil? && a : -1
+      else 0
+      end
     end
   end
 

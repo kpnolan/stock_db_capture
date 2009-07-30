@@ -58,12 +58,14 @@ analytics do
     rvi = ts.rvi params
     rsi_idx = rsi.under_threshold(60-pass*5, :rsi).first
     rvi_idx = rvi.under_threshold(50-pass*5, :rvi).first
-    case
-    when rsi_idx.nil? && rvi_idx : rvi_idx
-    when rsi_idx && rvi_idx : min(rsi_idx, rvi_idx)
-    when rvi_idx.nil? : nil
-    when rvi_idx : rvi_idx
-    when rsi_idx : rsi_idx
+
+    [rsi_idx, rvi_idx].min do |a,b|
+      case
+      when a && b : a <=> b
+      when a.nil? && b : 1
+      when b.nil? && a : -1
+      else 0
+      end
     end
   end
 end

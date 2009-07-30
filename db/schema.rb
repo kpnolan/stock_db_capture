@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090727032303) do
+ActiveRecord::Schema.define(:version => 20090729181214) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -429,9 +429,11 @@ ActiveRecord::Schema.define(:version => 20090727032303) do
     t.float    "predicted_price"
     t.float    "predicted_ival"
     t.datetime "crossed_at"
-    t.datetime "updated_at"
+    t.datetime "last_snaptime"
     t.float    "predicted_sd"
     t.integer  "num_samples"
+    t.integer  "snapshots_above", :default => 0, :null => false
+    t.integer  "snapshots_below", :default => 0, :null => false
   end
 
   add_index "watch_list", ["ticker_id"], :name => "ticker_id"

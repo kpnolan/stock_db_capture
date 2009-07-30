@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090726180014
+# Schema version: 20090729181214
 #
 # Table name: snapshots
 #
@@ -21,7 +21,7 @@ class Snapshot < ActiveRecord::Base
 
   FORDER = [ :symbol, :seq, :open, :high, :low, :close, :volume, :secmid, :date ]
 
-  include Predict
+  extend Predict
 
   class << self
 
@@ -38,8 +38,8 @@ class Snapshot < ActiveRecord::Base
     end
 
     def last_close(ticker_id, date=Date.today)
-      return bar[:close] unless (bar = last_bar(ticker_id, date)).nil?
-      nil
+      bar = last_bar(ticker_id, date)
+      bar.nil? ? nil : bar[:close]
     end
 
     def last_bar(ticker_id, date=Date.today)
@@ -72,7 +72,7 @@ class Snapshot < ActiveRecord::Base
     end
 
     def populate(snapshot)
-      return nil if snapshot.empty?
+      return 0 if snapshot.empty?
       ticker = Ticker.lookup(snapshot.first.first)
       accum_volume = accum_vol(ticker.id, snapshot.first.last)
       for bar in snapshot

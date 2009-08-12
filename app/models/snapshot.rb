@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090729181214
+# Schema version: 20090810235140
 #
 # Table name: snapshots
 #
@@ -43,14 +43,17 @@ class Snapshot < ActiveRecord::Base
     end
 
     def last_bar(ticker_id, date=Date.today)
-      snap = Snapshot.find(:first, :conditions => ['ticker_id = ? and date(snaptime) = ?', ticker_id, date], :order => 'seq desc')
-      bar = [:open, :high, :low, :close].inject({}) { |h, k| h[k] = snap[k]; h }
-      bar[:volume] = snap[:accum_volume]
-      bar[:time] = snap[:snaptime]
-      bar
+      snap_ary = Snapshot.find(:all, :conditions => ['ticker_id = ? and date(snaptime) = ?', ticker_id, date], :order => 'seq desc')
+      high = snap_ary.map(&:high).max
+      low = snap_ary.map(&:low).min
+      open = snap_ary.last.open
+      close = snap_ary.first.open
+      values = [open, high, low, close, snap_ary.first.accum_volume, snap_ary.first.snaptime]
+      bar = [:open, :high, :low, :close, :volume, :time].inject({}) { |h, k| h[k] = values.shift; h }
     end
 
     def last_seq(symbol, date)
+      # TODO change symbol to ticker or id
       ticker_id = Ticker.lookup(symbol).id
       seq_str = Snapshot.connection.select_value(form_seq_sql(ticker_id, date))
       seq_str.nil? ? -1 : seq_str.to_i

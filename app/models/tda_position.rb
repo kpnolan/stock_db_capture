@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090729181214
+# Schema version: 20090810235140
 #
 # Table name: tda_positions
 #
@@ -29,11 +29,12 @@ class TdaPosition < ActiveRecord::Base
   belongs_to :ticker
   belongs_to :strategy, :foreign_key => :estrategy_id
   belongs_to :strategy, :foreign_key => :xstrategy_id
+  has_many :watch_list
 
   def update_price(current_price)
     update_attribute(:curr_price, current_price)
   end
-  
+
   def close(price, time)
   end
 end

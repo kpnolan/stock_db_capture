@@ -6,6 +6,7 @@ require 'population/builder'
 require 'population/maker'
 require 'backtest/maker'
 require 'backtest/builder'
+require 'strategies/base'
 require 'yaml'
 
 require 'rubygems'
@@ -22,9 +23,10 @@ class Backtester
   attr_accessor :ticker, :ts, :result_hash, :meta_data_hash
   attr_reader :pnames, :sname, :desc, :options, :post_process, :days_to_close, :entry_cache, :ts_cache
   attr_reader :strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
+  attr_reader :resolution
 
   def initialize(strategy_name, population_names, description, options, &block)
-    @options = options.reverse_merge :populate => true, :resolution => 1.day, :plot_results => false,
+    @options = options.reverse_merge :resolution => 1.day, :plot_results => false,
                                      :days_to_close => 30, :epass => 0..2, :reset => true
     @sname = strategy_name
     @pnames = population_names
@@ -34,6 +36,7 @@ class Backtester
     @post_process = block
     @entry_cache = {}
     @ts_cache = {}
+    @resolution = self.options.delete :resolution
 
     raise BacktestException.new("Cannot find strategy: #{sname.to_s}") unless $analytics.has_pair?(sname)
 
@@ -44,7 +47,7 @@ class Backtester
 
   def run(logger)
     $logger = logger
-    logger.info "Processing backtest of #{sname} against #{pnames.join(', ')}"
+    logger.info "\nProcessing backtest of #{sname} against #{pnames.join(', ')}"
     @strategy = Strategy.find_by_name(sname)
     @opening = $analytics.find_opening(sname)
     @closing = $analytics.find_closing(sname)
@@ -64,8 +67,8 @@ class Backtester
         logger.info "Recomputing Positions"
       end
       @tid_array = scan.tickers_ids
-      sdate = scan.start_date
-      edate = scan.end_date
+      sdate = options[:start_date] ? options[:start_date] : scan.start_date
+      edate = options[:end_date] ? options[:end_date] : scan.end_date
       @date_range = sdate..edate
       # Foreach ticker in the population, create a timeseries for the date range given with the population
       # and run the analysis given with the strategy on said timeseries
@@ -75,7 +78,7 @@ class Backtester
           @ticker = Ticker.find tid
           begin
             if ts_cache[tid].nil?
-              ts = Timeseries.new(ticker.symbol, date_range, options[:resolution], options)
+              ts = Timeseries.new(ticker.symbol, date_range, resolution, options)
               ts_cache[tid] = ts
             elsif ts_cache[tid]
               ts = ts_cache[tid]
@@ -120,7 +123,7 @@ class Backtester
       if p.exit_price.nil?
         logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
       else
-        logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return)
+        logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return, p.indicator.name )
       end
       counter += 1
     end
@@ -193,7 +196,6 @@ class Backtester
 
   def tstop(p, threshold_percent, options={})
     options.reverse_merge! :resolution => 30.minutes, :max_days => 30
-    res = options[:resolution]
     tratio = threshold_percent / 100.0
     etime = p.entry_date
     # determine if this position was entered during trading hours or at the end of the day
@@ -211,7 +213,7 @@ class Backtester
     # grab a timeseries at the given resolution from the entry date (or following day)
     # through the number of specified trailing days
     begin
-      ts = Timeseries.new(p.ticker.symbol, edate..max_date, res, :pre_buffer => 0, :post_buffer => 0)
+      ts = Timeseries.new(p.ticker.symbol, edate..max_date, options[:resolution])
       max_high = p.entry_price
       while sindex < ts.length
         high, low = ts.values_at(sindex, :high, :low)
@@ -245,27 +247,34 @@ class Backtester
 
   # Close a position opened during the first phase of the backtest
   def close_position(p)
-    begin
+    #begin
+      options = self.options.reverse_merge :post_buffer => 0, :debug => true
       end_date = trading_days_from(p.entry_date, days_to_close).last
-      ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, 1.day,
-                          :pre_buffer => :rsi, :time_period => 14, :post_buffer => 0, :debug => true)
+      ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, resolution, options)
 
-      index = ts.instance_exec(closing.params, &closing.block)
+      result = ts.instance_exec(closing.params, &closing.block)
 
-      if index.nil?
+      indicator, xtime, index = nil, nil, nil
+
+      case result
+      when Array      : xtime, indicator = result
+      when Numeric    : index = result
+      end
+
+      if index.nil? && xtime.nil?
         p.update_attributes!(:exit_price => nil, :exit_date => nil,
-                             :days_held => nil, :nreturn => nil)
+                             :days_held => nil, :nreturn => nil, :indicator_id => Indicator.lookup(:unknown))
       else
-        price = ts.value_at(index, :close)
-        #exit_trigger = ts.memo.result_for(index) we don't know this any more.
+        price = index ? ts.value_at(index, :close) : ts.value_at(ts.time2index(xtime), :close)
         edate = p.entry_date.to_date
-        xdate = ts.index2time(index)
+        xdate = xtime ? xtime.to_date : ts.index2time(index)
         debugger if xdate.nil?
         days_held = Position.trading_day_count(edate, xdate)
         nreturn = days_held.zero? ? 0.0 : ((price - p.entry_price) / p.entry_price) / days_held
         nreturn *= -1.0 if p.short and nreturn != 0.0
+        indicator_id = Indicator.lookup(indicator).id
         p.update_attributes!(:exit_price => price, :exit_date => xdate,
-                             :days_held => days_held, :nreturn => nreturn)
+                             :days_held => days_held, :nreturn => nreturn, :indicator_id => indicator_id)
       end
     #rescue TimeseriesException => e
     #  if e.message =~ /recorded history/
@@ -273,13 +282,15 @@ class Backtester
     #    p.distroy
     #  end
     #  p = nil
-    rescue Exception => e
-      $logger.error "#{e.to_s} deleting position}" if $logger
-      $logger.error p.inspect if $logger
-      p.strategies.delete_all
-      p.delete
-      p = nil
-    end
+    # rescue ActiveRecord::RecordNotFound
+#       indicator = :unknown and retry
+#     rescue Exception => e
+#       $logger.error "#{e.to_s} deleting position}" if $logger
+#       $logger.error p.inspect if $logger
+#       p.strategies.delete_all
+#       p.delete
+#       p = nil
+#     end
     p
   end
 end

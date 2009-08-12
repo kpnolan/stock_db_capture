@@ -13,6 +13,9 @@ module TradingCalendar
                  2009 => ['1/1', '1/19', '2/16', '4/10', '5/25', '7/3', '9/7',  '11/26', '12/25' ],
                  2010 => ['1/1', '1/18', '2/15', '4/2',  '5/31', '7/5', '9/6',  '11/25', '12/25' ] }
 
+  DATEFMT1 = /(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/
+  DATEFMT2 = /(\d{1,2})[-\/](\d{1,2})/
+
   def holidays()
     if @holidays.nil?
       @holidays = {}
@@ -97,5 +100,45 @@ module TradingCalendar
     t = Time.local(d[:year], d[:mon], d[:mday], 6, 30, 0, 0)
     delta = time - t
     index = (delta / resolution).to_i
+  end
+
+  def normalize_date(date)
+    return date unless date.is_a? String
+    if m = DATEFMT1.match(date)
+      y = m[2].to_int
+      year = y > 1900 ? y : y < 25 ? y+2000 : y+1900
+      year = m[3].length == 2 ? 2000 + m[2].to_int : m[2].to_int
+      mon = m[1].to_i
+      day = m[2].to_i
+      Date.civil(year, mon, day)
+    elsif m =  DATEFMT2.match(date)
+      year = 2009
+      mon = m[1].to_i
+      day = m[2].to_i
+      Date.civil(year, mon, day)
+    else
+      Date.parse(date)
+    end
+  end
+
+  #
+  # This routine does a whole lot of process to make the entry of dates user friendly
+  # so that a timeseries can be create with Dates/Times like
+  # ts = Timeeries.new('IBM'), 1.month.ago)             # one month ago upto today
+  # ts = Timeeries.new('IBM'), Date.today, -2.months)
+  # ts = Timeeries.new('IBM'), 1.year.ago, 252) # Fixnum as date2 are treated as trading days
+  # ts = Timeeries.new('IBM'), 1.month.ago, 10) # Fixnum as date2 are treated as trading days
+  # ts = Timeeries.new('IBM'), Date.today, nil, 30.minutes) # 30 minute bars for today
+  # ts = Timeeries.new('IBM'), 1.week.ago, nil, 1.minute) # 1 minute bars for for last week (max history)
+  # ts = Timeeries.new('IBM'), Date.today, nil, 1.minute) # 1 minute bars for today
+  # ts = Timeeries.new('IBM'), '1/1', Date.today) # All 1 day bars for 2009 (so far)
+  #
+  def normalize_dates(arg1, arg2, res)
+    dates = case
+            when arg1.is_a?(Date) && arg2.is_a?(Date) then  [arg1, arg2]
+            when arg1.is_a?(String) && arg2.is_a?(String) then  [normalize_date(arg1), normalize_date(arg2)]
+            when arg1.is_a?(Date) && arg2.is_a?(Fixnum) && arg2 < 252 && arg2 >= 0 then arg1..trading_days_from(arg1, arg2).last
+            when arg1.is_a?(Date) && arg2.is_a?(Fixnum) && arg2 < -252 then arg1..(date+arg2)
+            end
   end
 end

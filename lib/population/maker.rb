@@ -4,6 +4,7 @@ module Population
   module Maker
     def self.populations(options, &block)
       $population = builder = Population::Builder.new(options)
+      builder.extend(TechnicalAnalysis::ClassMethods)
       builder.instance_eval(&block)
     end
   end

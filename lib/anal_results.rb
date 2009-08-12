@@ -61,7 +61,7 @@ class AnalResults
   def each_from_result(sym)
     raise ArgumentError, "#{sym} is not a valid result for #{function}" unless names.include? sym.to_s.downcase
     i = -1
-    result_hash[sym.to_sym].each { |e| i+=1; yield [e, timeseries.index2time(i, outidx)] }
+    result_hash[sym.to_sym].each { |e| i+=1; yield [e, index2time(i)] }
   end
 
   def match(fcn, options={})

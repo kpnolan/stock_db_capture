@@ -274,16 +274,20 @@ module TdAmeritrade
       suffix = ''
       bar = urlencode('|')
       eq = '='
-      ehash = { :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
+      ehash = { :pcx => 'NYSE_CHART', :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
       exch = ehash[Ticker.exchange(symbol)]
       seq = max(Snapshot.last_seq(symbol, Date.today)+1, 90)
       req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',480,1d,1m'
       req.body << "\n\n"
       snaptimes[symbol] = Time.now
       buff = submit_request_raw(streamer_uri, req, options)
-      symbol, compressed_bars = parse_snapshot(buff)
-      buffer = Zlib::Inflate.inflate(compressed_bars)
-      Snapshot.populate(process_snapshot(buffer))
+      begin
+        symbol, compressed_bars = parse_snapshot(buff)
+        buffer = Zlib::Inflate.inflate(compressed_bars)
+        Snapshot.populate(process_snapshot(buffer))
+      rescue SnapshotProtocolError => e
+        #TODO Log something here
+      end
     end
 
     def build_request(uri, form_data)

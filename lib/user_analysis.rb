@@ -32,22 +32,67 @@ module UserAnalysis
   # return the scalar price, given a series of prices and a time_period (decay rate)
   # that would have produced the given RSI (on the next bar)
   #
+  def rsi1(options={ })
+    options.reverse_merge! :time_period => 14
+    idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    today = self.today
+    n = options[:time_period]
+    n1 = n - 1
+    r = options[:rsi]
+    emaPos = 0.0
+    emaNeg = 0.0
+    today += 1
+    out = []
+    #
+    # compute the SMA for the first the first :time_period bars
+    #
+    n.times do
+      deltaClose = price[today] - price[today-1]
+      up = [0, deltaClose].max
+      dn = [0, -deltaClose].max
+      emaPos += up
+      emaNeg += dn
+      today += 1
+    end
+    emaPos /= n
+    emaNeg /= n
+    out << 100.0 * (emaPos / (emaPos + emaNeg))
+    #
+    # Now accumulate (and decay) the value of the two ema's solving for
+    # the price which would have produced the given RSI
+    #
+    while today <= idx_range.end
+      deltaClose = price[today] - price[today-1]
+      up = [0, deltaClose].max
+      dn = [0, -deltaClose].max
+      emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
+      emaNeg = (emaNeg * n1 + dn)/n
+      out << 100.0 * (emaPos / (emaPos + emaNeg)) if today > idx_range.begin
+      today += 1
+    end
+    out
+  end
+
+  #
+  # return the scalar price, given a series of prices and a time_period (decay rate)
+  # that would have produced the given RSI (on the next bar)
+  #
   def invrsi(options={ })
     raise ArgumentError, ":rsi must be specified" if options[:rsi].nil?
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
-    unstable_period = get_unstable_period(:rsi)
-    n = options[:time_period]
-    n1 = n - 1
+    today = self.today
+    n = options[:time_period].to_f
+    n1 = n - 1.0
     r = options[:rsi]
-    today = idx_range.begin - unstable_period
     emaPos = 0.0
     emaNeg = 0.0
+    today += 1
     #
     # compute the SMA for the first the first :time_period bars
     #
-    for i in 1..n
-      deltaClose = price[i] - price[i-1]
+    n.to_int.times do
+      deltaClose = price[today] - price[today-1]
       up = [0, deltaClose].max
       dn = [0, -deltaClose].max
       emaPos += up
@@ -68,134 +113,85 @@ module UserAnalysis
       emaNeg = (emaNeg * n1 + dn)/n
       today += 1
     end
+    dn = 0.0
+    delta = (100.0*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100.0)
+    price[today-1]+delta
+  end
+
+
+  def invrsi_orig(options={ })
+    raise ArgumentError, ":rsi must be specified" if options[:rsi].nil?
+    options.reverse_merge! :time_period => 14
+    idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    today = self.today
+    n = options[:time_period].to_f
+    n1 = n - 1.0
+    r = options[:rsi]
+    emaPos = 0.0
+    emaNeg = 0.0
+    up = 0.0
+    dn = 0.0
+    #
+    # compute the SMA for the first the first :time_period bars
+    #
+    n.to_int.times do
+      delta_close = price[today] - price[today-1]
+      if delta_close < 0.0
+        emaNeg -= delta_close
+      else
+        emaPos += delta_close
+     end
+      today += 1
+    end
+    emaPos /= n
+    emaNeg /= n
+    #
+    # Now accumulate (and decay) the value of the two ema's solving for
+    # the price which would have produced the given RSI
+    #
+    while today <= idx_range.end
+      delta_close = price[today] - price[today-1]
+      emaPos *= n1
+      emaNeg *= n1
+      if delta_close < 0.0
+        emaNeg -= delta_close
+      else
+        emaPos += delta_close
+      end
+      emaPos /= n
+      emaNeg /= n
+      today += 1
+    end
+    dn = 0.0
     delta = (100*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100)
     price[today-1]+delta
   end
 
   # Relative Valatility Index
   def rvi(options={})
-    options.reverse_merge! :time_period => 14, :alpha => :ema
-    if options[:alpha] == :ema
-      options[:alpha] = 2.0 / (options[:time_period] + 1.0)            # rate of exp decay calc from time_period
-      out = (rvi_1(high, options) + rvi_1(low, options)).scale(0.5)
-    else
-      out = ( rvi_wilder(high, options) + rvi_wilder(low, options)).scale(0.5)
-    end
-    idx_range = calc_indexes(nil, options[:time_period])
+    options.reverse_merge! :time_period => 14
+    idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    options.merge! :idx_range => idx_range
+    out = ( rvi_wilder(high, options) + rvi_wilder(low, options)).scale(0.5)
     result = [0, idx_range.begin, out]
     memoize_result(self, :rvi, idx_range, options, result, :financebars)
   end
 
-  def rvi_ema(price, options)
-    idx_range = calc_indexes(nil, options[:time_period])
-    n = options[:time_period]
-    alpha = options[:alpha]
-    unstable_period = get_unstable_period(:rsi)
-    out = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
-    today = idx_range.begin - unstable_period
-    upEMA = 0.0
-    downEMA = 0.0
-    #
-    # compute the SMA for the first output point
-    for i in 1..n
-      prev10vec = price.subvector(i-9, 10)
-      sd = prev10vec.sd
-      if price[i] > price[i-1]
-        up, down = sd, 0.0
-      else
-        down, up = sd, 0.0
-      end
-      upEMA += up
-      downEMA += down
-      today += 1
-    end
-    upEMA /= n
-    downEMA /= n
-    out[0] = 100.0 * (upEMA / (upEMA+ downEMA))
-    outidx = 1
-    #
-    # now we start begin the main loop outputing points only when
-    # we've reached the beginning index.
-    #
-    while today <= idx_range.end
-      prev9vec = price.subvector(today-9, 10)
-      sd = prev9vec.sd
-      if price[today] > price[today-1]
-        up, down = sd, 0.0
-      else
-        down, up = sd, 0.0
-      end
-      upEMA = (up - upEMA)*alpha + upEMA
-      downEMA = (down - downEMA)*alpha + downEMA
-      # Output results only when we are within range
-      if today >= idx_range.begin
-        out[outidx] = 100.0 * (upEMA / (upEMA + downEMA))
-        outidx += 1
-      end
-      today += 1
-    end
-    out
-  end
-
-  def rvi_1(price, options)
-    idx_range = calc_indexes(nil, options[:time_period])
-    n = options[:time_period]
-    alpha = options[:alpha]
-    out = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
-    today = idx_range.begin - n
-    upExpAvg = 0.0
-    downExpAvg = 0.0
-    #
-    # compute the SMA for the first output point
-    while today <= idx_range.begin
-      prev9vec = price.subvector(today-9, 10)
-      sd = prev9vec.sd
-      if price[today] > price[today-1]
-        up, down = sd, 0.0
-      else
-        down, up = sd, 0.0
-      end
-      upExpAvg += up
-      downExpAvg += down
-      today += 1
-    end
-    upExpAvg /= n
-    downExpAvg /= n
-    out[0] = 100.0 * (upExpAvg / (upExpAvg+ downExpAvg))
-    outidx = 1
-    # now we start outputing results
-    while today <= idx_range.end
-      prev9vec = price.subvector(today-9, 10)
-      sd = prev9vec.sd
-      if price[today] > price[today-1]
-        up, down = sd, 0.0
-      else
-        down, up = sd, 0.0
-      end
-      upExpAvg = (up - upExpAvg)*alpha + upExpAvg
-      downExpAvg = (down - downExpAvg)*alpha + downExpAvg
-      out[outidx] = 100.0 * (upExpAvg / (upExpAvg + downExpAvg))
-      today += 1
-      outidx += 1
-    end
-    out
-  end
-
   def rvi_wilder(price, options)
-    idx_range = calc_indexes(nil, options[:time_period])
-    n = options[:time_period]
-    n1 = n - 1
-    unstable_period = get_unstable_period(:rsi)
+    idx_range, n = options[:idx_range], options[:time_period].to_f
+    today = self.today
+    outidx = 0
+    n1 = n - 1.0
     out = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
-    today = idx_range.begin - unstable_period
     emaPos = 0.0
     emaNeg = 0.0
     #
     # compute the SMA for the first output point
-    for i in 1..n
-      prev10vec = price.subvector(i-9, 10)
+    today += 9
+    n.to_int.times do
+      prev10vec = price.subvector(today-9, 9)
       sd = prev10vec.sd
-      if price[i] > price[i-1]
+      if price[today] > price[today-1]
         up, dn = sd, 0.0
       else
         dn, up = sd, 0.0
@@ -204,13 +200,15 @@ module UserAnalysis
       emaNeg += dn
       today += 1
     end
+    today -= 9
     emaPos /= n
     emaNeg /= n
     out[0] = 100.0 * (emaPos / (emaPos+ emaNeg))
-    outidx = 1
+    today += 1
+    outidx += 1
 
     while today <= idx_range.end
-      prev9vec = price.subvector(today-9, 10)
+      prev9vec = price.subvector(today-9, 9)
       sd = prev9vec.sd
       if price[today] > price[today-1]
         up, dn = sd, 0.0

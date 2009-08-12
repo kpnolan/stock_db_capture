@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090729181214
+# Schema version: 20090810235140
 #
 # Table name: positions
 #
@@ -19,14 +19,18 @@
 #  exit_trigger  :float
 #  logr          :float
 #  short         :boolean(1)
-#  exit_pass     :integer(4)
 #  entry_pass    :integer(4)
+#  indicator_id  :integer(4)
 #
 
 #require 'rubygems'
 #require 'ruby-debug'
 
 class Position < ActiveRecord::Base
+  belongs_to :ticker
+  belongs_to :strategy
+  belongs_to :scan
+  belongs_to :indicator
 
   extend TradingCalendar
 
@@ -42,9 +46,14 @@ class Position < ActiveRecord::Base
   end
 
   def self.open(population, strategy, ticker, entry_time, entry_price, entry_trigger, short=false, pass=0, aux={})
-    pos = create!(:scan_id => population.id, :strategy_id => strategy.id, :ticker_id => ticker.id,
-            :entry_price => entry_price, :entry_date => entry_time, :num_shares => 1, :entry_trigger => entry_trigger,
-            :short => short, :entry_pass => pass)
+    begin
+      pos = create!(:scan_id => population.id, :strategy_id => strategy.id, :ticker_id => ticker.id,
+                    :entry_price => entry_price, :entry_date => entry_time, :num_shares => 1, :entry_trigger => entry_trigger,
+                    :short => short, :entry_pass => pass)
+    rescue ActiveRecord::RecordInvalid => e
+      raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
+      raise e
+    end
     unless aux.empty?
       aux.delete :index
       aux.each do |k,v|

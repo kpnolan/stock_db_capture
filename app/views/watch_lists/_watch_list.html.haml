@@ -1,27 +1,37 @@
 %tr[watch_list]{:class => cycle('list-line-even', 'list-line-odd')}
   %td.ticker_id
-    = lkup watch_list.ticker
+    = lkup watch_list.ticker, :symbol
   %td.tda_position_id
     = lkup watch_list.tda_position
-  %td.target_price
-    = h watch_list.target_price
-  %td.target_ival
+  %td.center{:class => 'red'}
+    = h watch_list.price
+  %td.center
+    = h format ("%3.2f", watch_list.target_price)
+  %td.center
+    = h watch_list.open
+  %td.center
+    = h watch_list.high
+  %td.center
+    = h watch_list.low
+  %td.center
+    = h watch_list.last_seq == 480 ? watch_list.close : '-'
+  %td.center
+    = h watch_list.volume
+  %td.center
+    = h 'RSI'
+  %td.center
+    = h format ("%3.2f", watch_list.curr_ival)
+  %td.center
     = h watch_list.target_ival
-  %td.curr_price
-    = h watch_list.curr_price
-  %td.curr_ival
-    = h watch_list.curr_ival
-  %td.predicted_price
-    = h watch_list.predicted_price
-  %td.predicted_ival
-    = h watch_list.predicted_ival
-  %td.crossed_at
-    = h watch_list.crossed_at
-  %td.updated_at
-    = h watch_list.updated_at
+  %td.center
+    = h watch_list.crossed_at.nil? ? '-' :  watch_list.crossed_at.to_formatted_s(:short)
+  %td.center
+    = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:short)
+  %td.Plot
+    = link_to 'Plot', plot_watch_list_path(watch_list)
+  %td.open_link
+    = link_to 'Open', open_watch_list_path(watch_list)
   %td.show
-    = link_to 'Show', object_path(watch_list)
-  %td.edit
-    = link_to 'Edit', edit_object_path(watch_list)
+    = link_to 'Close', close_watch_list_path(watch_list)
   %td.destroy
     = link_to 'Destroy', object_path(watch_list), :confirm => 'Really destroy watch_list?', :method => :delete

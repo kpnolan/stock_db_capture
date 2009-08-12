@@ -162,11 +162,11 @@ do.positions <-
     if ( type == "normal" ) {
       pos = get.positions()
     } else if ( type == "losers" ) {
-      pos = get.positions(where="where exit_price is not null and nreturn < 0", order="order by ((exit_price - entry_price)/entry_price)")
+      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn < 0", order="order by ((exit_price - entry_price)/entry_price)")
     } else if ( type == "winners" ) {
-      pos = get.positions(where="where exit_price is not null and nreturn > 0", order="order by ((exit_price - entry_price)/entry_price) desc")
+      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn > 0", order="order by ((exit_price - entry_price)/entry_price) desc")
     } else if ( type == "non" ) {
-      pos = get.positions(where="where exit_date is null")
+      pos = get.positions(where="where year(entry_date) = 2009 and exit_date is null")
     } else {
       print("invalid arg")
     }
@@ -290,8 +290,9 @@ plot.rt.snap <-
   function(symbol, date, lrline=FALSE, ...) {
   if (missing(date))
     date <- format(Sys.Date(), "%Y-%m-%d")
-  frame = get.rt.quote(symbol, date)
+  frame = get.snap.quote(symbol, date)
   plot.rt.quote(frame, ylab=toupper(symbol), lrline=lrline, main=paste("Realtime 1 min bars for", toupper(symbol), "on", date, ...))
+  NULL
 }
 
 plot.rt.quote <-

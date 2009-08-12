@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090729181214
+# Schema version: 20090810235140
 #
 # Table name: positions
 #
@@ -19,8 +19,8 @@
 #  exit_trigger  :float
 #  logr          :float
 #  short         :boolean(1)
-#  exit_pass     :integer(4)
 #  entry_pass    :integer(4)
+#  indicator_id  :integer(4)
 #
 
 one:

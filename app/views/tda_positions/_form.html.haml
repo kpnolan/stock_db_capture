@@ -1,18 +1,7 @@
 = f.table_select :ticker_id
-= f.table_select :estrategy_id
-= f.table_select :xstrategy_id
 = f.date_select :entry_date
-= f.date_select :exit_date
 = f.datetime_select :openned_at
-= f.datetime_select :closed_at
-= f.datetime_select :updated_at
 = f.text_field :entry_price
-= f.text_field :exit_price
-= f.text_field :curr_price
-= f.text_field :eorderid
-= f.text_field :xorderid
+= f.text_field :eorderid, :label => 'Entry Order Id'
 = f.text_field :rum_shares
 = f.check_box :stop_loss
-= f.text_field :days_held
-= f.text_field :nreturn
-= f.text_field :rretrun

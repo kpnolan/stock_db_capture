@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090729181214
+# Schema version: 20090810235140
 #
 # Table name: indicators
 #
@@ -10,4 +10,12 @@
 class Indicator < ActiveRecord::Base
   validates_presence_of :name
   validates_uniqueness_of :name
+
+  class << self
+    def lookup(name)
+      obj = find(:first, :conditions => { :name => name.to_s })
+      raise ActiveRecord::RecordNotFound, "no indicator named: '#{name}' found" if obj.nil?
+      obj
+    end
+  end
 end

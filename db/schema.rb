@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090729181214) do
+ActiveRecord::Schema.define(:version => 20090810235140) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -74,6 +74,19 @@ ActiveRecord::Schema.define(:version => 20090729181214) do
   end
 
   add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_bars_on_ticker_id_and_date", :unique => true
+
+  create_table "delayed_jobs", :force => true do |t|
+    t.integer  "priority",   :default => 0
+    t.integer  "attempts",   :default => 0
+    t.text     "handler"
+    t.text     "last_error"
+    t.datetime "run_at"
+    t.datetime "locked_at"
+    t.datetime "failed_at"
+    t.string   "locked_by"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "derived_value_types", :force => true do |t|
     t.string "name"
@@ -212,11 +225,11 @@ ActiveRecord::Schema.define(:version => 20090729181214) do
     t.float    "exit_trigger"
     t.float    "logr"
     t.boolean  "short"
-    t.integer  "exit_pass"
     t.integer  "entry_pass"
+    t.integer  "indicator_id"
   end
 
-  add_index "positions", ["ticker_id", "entry_date"], :name => "pass_index", :unique => true
+  add_index "positions", ["ticker_id", "strategy_id", "entry_date"], :name => "ticker_id_strategy_id_entry_date", :unique => true
   add_index "positions", ["strategy_id"], :name => "strategy_id"
   add_index "positions", ["ticker_id"], :name => "index_positions_on_portfolio_id_and_ticker_id"
   add_index "positions", ["scan_id"], :name => "scan_id"
@@ -424,16 +437,23 @@ ActiveRecord::Schema.define(:version => 20090729181214) do
     t.integer  "tda_position_id"
     t.float    "target_price"
     t.float    "target_ival"
-    t.float    "curr_price"
+    t.float    "price"
     t.float    "curr_ival"
     t.float    "predicted_price"
-    t.float    "predicted_ival"
     t.datetime "crossed_at"
     t.datetime "last_snaptime"
     t.float    "predicted_sd"
     t.integer  "num_samples"
     t.integer  "snapshots_above", :default => 0, :null => false
     t.integer  "snapshots_below", :default => 0, :null => false
+    t.date     "entered_on"
+    t.date     "closed_on"
+    t.float    "open"
+    t.float    "high"
+    t.float    "low"
+    t.float    "close"
+    t.integer  "volume"
+    t.integer  "last_seq"
   end
 
   add_index "watch_list", ["ticker_id"], :name => "ticker_id"

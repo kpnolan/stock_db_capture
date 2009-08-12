@@ -1,0 +1,10 @@
+%h1 Opening TDA Position
+
+= error_messages_for :tda_position
+
+%fieldset
+  - smart_form_for(current_object) do |f|
+    = render :partial => "open_form", :locals => {:f => f}
+    %p= f.submit "Open"
+
+= link_to 'Back', objects_path

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090729181214
+# Schema version: 20090810235140
 #
 # Table name: scans
 #
@@ -24,8 +24,6 @@ class Scan < ActiveRecord::Base
 
   before_save :clear_associations_if_dirty
 
-  JOIN_CLAUSE = 'JOIN tickers ON tickers.id = ticker_id JOIN exchanges ON exchanges.id = exchange_id '
-
   class << self
     def find_by_name(keyword_or_string)
       first(:conditions => { :name => keyword_or_string.to_s.downcase})
@@ -43,18 +41,17 @@ class Scan < ActiveRecord::Base
 
   # TODO find a better name for this method
   def tickers_ids(repopulate=false)
-    join = self.join ? JOIN_CLAUSE + self.join : JOIN_CLAUSE
     order = self.order_by ? " ORDER BY #{self.order_by}" : ''
     having = conditions ? "HAVING #{conditions}" : ''
     sql1 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date >= '#{start_date.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}'AND exchanges.symbol <> 'PCX' " +
+          "date >= '#{start_date.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     sql2 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date(start_time) >= '#{start_date.to_s(:db)}' AND date(start_time) <= '#{(end_date).to_s(:db)}'AND exchanges.symbol <> 'PCX' " +
+          "date(start_time) >= '#{start_date.to_s(:db)}' AND date(start_time) <= '#{(end_date).to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     if repopulate || tickers.empty?
       $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger
-      tickers.clear
+      tickers.delete_all
       if table_name == 'daily_bars'
         @population_ids = Scan.connection.select_values(sql1)
       elsif table_name == 'intra_day_bars'
@@ -62,7 +59,8 @@ class Scan < ActiveRecord::Base
       else
         raise ArgumentError, 'table_name must be "daily_bar" or "intra_day_bars"'
       end
-      self.ticker_ids = @population_ids
+      debugger
+      self.ticker_ids = @population_ids.map(&:to_i)
       ticker_ids
     else
       $logger.info "Using *CACHED* values for scan #{name}" if $logger

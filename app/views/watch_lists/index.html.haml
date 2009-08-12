@@ -2,16 +2,18 @@
 %table
   %tr.heading
     %th Ticker
-    %th Tda Position
+    %th TDA
+    %th Price
     %th Target Price
-    %th Target Ival
-    %th Curr Price
-    %th Curr Ival
-    %th Predicted Price
-    %th Predicted Ival
+    %th Open
+    %th High
+    %th Low
+    %th Close
+    %th Volume
+    %th Strategy
+    %th Indicator Value
+    %th Target Threshold
     %th Crossed At
     %th Updated At
 
   = render :partial => 'watch_list', :collection => current_objects
-
-= link_to 'New watch_list', new_object_path 

@@ -10,7 +10,7 @@ module Trading
     def rsi_open(threshold, options={})
       options.reverse_merge! :plot_results => false, :result => :raw
       rsi_vec, dummy = rsi(options)
-      rsi, last_sample = rsi_vec[-1], index2time(-1)
+      rsi, last_sample = rsi_vec[-1], index2time(-1) #fixme non neg indexes
       raise StrategyException, "Timeseries last element not today: #{last_sample.to_s(:db)}" if last_sample != Date.today
       rsi >= threshold
     end
@@ -24,7 +24,7 @@ module Trading
 
       rsi = rsi_vec[-1]
       rvi = rvi_vec[-1]
-      last_sample = index2time(-1)
+      last_sample = index2time(-1) #fixme nonneg index
       raise StrategyException, "Timeseries last element not today: #{last_sample.to_s(:db)}" if last_sample != Date.today
 
       rsi >= rsi_threshold || rvi >= rvi.threshold

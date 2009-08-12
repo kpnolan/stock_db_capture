@@ -281,7 +281,8 @@ VALUE method_parse_snapshot(VALUE self, VALUE buff) {
   char* payld_ptr = 0;
 
   if (str[i] != 'N')
-    rb_warn("First byte of message not N");
+    rb_raise(snapshot_exception, "First byte of message not N");
+
   i += sizeof(char);
   i += sizeof(short);                              // skit snapshot ID len
   i += sizeof(short);                              // skip snapshot ID

@@ -41,8 +41,8 @@ module Trading
       @ots_hash = Hash.new
       @cts_vec = Array.new
       create_candidate_list()
-      repopulate()
       add_possible_entries()
+      repopulate()
     end
 
     def clear_watch_list
@@ -90,7 +90,6 @@ module Trading
                 next
               end
               puts "(#{ts.symbol}) tp: #{target_price} : #{last_close}\t#{threshold} -- Rsi: #{rsi}" #if ots_hash[ts].nil?
-              self.ots_hash[ts] = [threshold, target_price]
               break
             end
           end

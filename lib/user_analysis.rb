@@ -281,6 +281,22 @@ module UserAnalysis
     return ret_vec.second
   end
 
+  def mom_percent(options={ })
+    options.reverse_merge! :time_period => 1, :rratio => -0.01, :absoute => true
+    out = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
+    n = options[:time_period]
+    idx_range = calc_indexes(nil, options[:time_period])
+    entry_price = index_range.begin
+    for i in index_range
+      days_held = i - index_range.begin
+      next if days_held.zero?
+      ratio = option[:absolute] ? (price[i]-entry_price)/entry_price : (price[i]-price[i-n])/price[i]
+      out << ratio
+    end
+    result = [ 0, index_range.begin, out ]
+    memoize_result(self, :mom_percent, idx_range, options, result, :financebars)
+  end
+
   def lrsigma(options={ })
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(nil, options[:time_period], 0)

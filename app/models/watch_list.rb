@@ -33,6 +33,9 @@ class WatchList < ActiveRecord::Base
   belongs_to :tda_position
   belongs_to :ticker
 
+  validates_presence_of :ticker_id
+  validates_uniqueness_of :ticker_id, :scope => :target_ival
+
   class << self
     def create_openning(ticker_id, target_price, current_ival, target_ivalue, open_date)
       unless lookup_entry(ticker_id, open_date)

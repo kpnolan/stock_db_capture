@@ -1,12 +1,13 @@
+- price_color = session[:prices][watch_list.ticker_id] >= session[:prev_prices][watch_list.ticker_id] ? 'green' : 'red'
 %tr[watch_list]{:class => cycle('list-line-even', 'list-line-odd')}
   %td.ticker_id
     = lkup watch_list.ticker, :symbol
   %td.tda_position_id
     = lkup watch_list.tda_position
-  %td.center{:class => 'red'}
+  %td.center{:class =>  price_color }
     = h watch_list.price
   %td.center
-    = h format ("%3.2f", watch_list.target_price)
+    = h format("%3.2f", watch_list.target_price)
   %td.center
     = h watch_list.open
   %td.center
@@ -20,7 +21,7 @@
   %td.center
     = h 'RSI'
   %td.center
-    = h format ("%3.2f", watch_list.curr_ival)
+    = h format("%3.2f", watch_list.curr_ival)
   %td.center
     = h watch_list.target_ival
   %td.center

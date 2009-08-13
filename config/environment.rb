@@ -105,8 +105,8 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   #$ts1 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/22/2009'), 1.day)
   #$ts2 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/23/2009'), 1.day)
 
-  #$sw = Trading::StockWatcher.new
-  #$qt = $sw.qt
+  $sw = Trading::StockWatcher.new
+  $qt = $sw.qt
 
   def lookup(symbol, start_date, end_date=nil, options={})
     options.reverse_merge! :interval => 1.day.seconds

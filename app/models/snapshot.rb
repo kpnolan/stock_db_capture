@@ -19,6 +19,8 @@
 class Snapshot < ActiveRecord::Base
   belongs_to :ticker
 
+  validates_presence_of :ticker_id
+
   FORDER = [ :symbol, :seq, :open, :high, :low, :close, :volume, :secmid, :date ]
 
   extend Predict

@@ -38,7 +38,10 @@ module Trading
     end
 
     def reset()
-      clear_watch_list()
+      @ots_hash = Hash.new
+      @cts_vec = Array.new
+      create_candidate_list()
+      repopulate()
       add_possible_entries()
     end
 
@@ -80,7 +83,12 @@ module Trading
             target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
             if ( rsi < threshold && rsi >= (RSI_CUTOFF_PERCENT/100.0) * threshold or
                  last_close < target_price && last_close >= (PRICE_CUTOFF_PERCENT/100.0) * target_price)
-              WatchList.create_openning(ticker_id, target_price, rsi, threshold, start_date)
+              begin
+                WatchList.create_openning(ticker_id, target_price, rsi, threshold, start_date)
+                rescue Exception => e
+                puts "Dup record #{e.to_s} for #{ts.symbol} at #{target_price}"
+                next
+              end
               puts "(#{ts.symbol}) tp: #{target_price} : #{last_close}\t#{threshold} -- Rsi: #{rsi}" #if ots_hash[ts].nil?
               self.ots_hash[ts] = [threshold, target_price]
               break

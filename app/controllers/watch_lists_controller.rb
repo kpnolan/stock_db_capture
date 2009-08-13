@@ -4,7 +4,6 @@ class WatchListsController < ApplicationController
 
     before :index do
       puts "calling before..."
-      session[:prev_prices] ||= WatchList.find(:all, :include => :ticker, :order => 'crossed_at, tickers.symbol')
     end
 
     after :index do
@@ -16,6 +15,7 @@ class WatchListsController < ApplicationController
   def current_objects
     wl = WatchList.find(:all, :include => :ticker, :order => 'crossed_at, tickers.symbol')
     session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
+    session[:prev_prices] ||= session[:prices]
     puts session[:prev_prices].inspect
     puts session[:prices].inspect
     wl

@@ -59,7 +59,6 @@ class Scan < ActiveRecord::Base
       else
         raise ArgumentError, 'table_name must be "daily_bar" or "intra_day_bars"'
       end
-      debugger
       self.ticker_ids = @population_ids.map(&:to_i)
       ticker_ids
     else

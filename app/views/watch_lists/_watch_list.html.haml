@@ -25,9 +25,9 @@
   %td.center
     = h watch_list.target_ival
   %td.center
-    = h watch_list.crossed_at.nil? ? '-' :  watch_list.crossed_at.to_formatted_s(:short)
+    = h watch_list.crossed_at.nil? ? '-' :  watch_list.crossed_at.to_formatted_s(:pm)
   %td.center
-    = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:short)
+    = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:pm)
   %td.Plot
     = link_to 'Plot', plot_watch_list_path(watch_list)
   %td.open_link

@@ -277,7 +277,7 @@ module TdAmeritrade
       ehash = { :pcx => 'NYSE_CHART', :nyse => 'NYSE_CHART', :nasdaq => 'NASDAQ_CHART' }
       exch = ehash[Ticker.exchange(symbol)]
       seq = max(Snapshot.last_seq(symbol, Date.today)+1, 90)
-      req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',480,1d,1m'
+      req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',481,1d,1m'
       req.body << "\n\n"
       snaptimes[symbol] = Time.now
       buff = submit_request_raw(streamer_uri, req, options)

@@ -219,7 +219,8 @@ VALUE method_parse_bar_stream(VALUE self, VALUE buff) {
   VALUE bar_ary = rb_ary_new();
   char* str = StringValuePtr(buff);
   if (str[i] != 'S')
-    rb_warn("First byte of message not S");
+    rb_raise(snapshot_exception, "First byte of message not S");
+
   i += sizeof(char);
   int msg_len = ushort2rb(&str[i]);
   i += sizeof(short);

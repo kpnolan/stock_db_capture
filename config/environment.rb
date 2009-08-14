@@ -64,7 +64,11 @@ Rails::Initializer.run do |config|
 
   # Activate observers that should always be running
   # config.active_record.observers = :cacher, :garbage_collector
+
+  # Configure a Time format which uses 12hour time
 end
+
+Time::DATE_FORMATS[:pm] = "%d %b %I:%M"
 
 require 'smart_form_builder'
 #require 'memcached'
@@ -102,7 +106,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
-  #$ts1 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/22/2009'), 1.day)
+  $ts1 = Timeseries.new(:frp, Date.parse('2/24/2009')..Date.parse('3/13/2009'), 1.day)
   #$ts2 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/23/2009'), 1.day)
 
   $sw = Trading::StockWatcher.new

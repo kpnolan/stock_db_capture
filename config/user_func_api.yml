@@ -248,3 +248,29 @@ FinancialFunctions:
           - Name: Close
             Type: Price
       ShortDescription: Relative Vigor
+    - Abbreviation: mom_percent
+      CamelCaseName: MomPercent
+      GroupId: Momentum Indicators
+      OptionalInputArguments:
+        OptionalInputArgument:
+          DefaultValue: 0
+          Name: Time Period
+          Range:
+            Maximum: 50
+            Minimum: 0
+            SuggestedEnd: 50
+            SuggestedIncrement: 1
+            SuggestedStart: 0
+          ShortDescription: Number of period
+          Type: Integer
+      OutputArguments:
+        OutputArgument:
+          - Flags:
+              Flag: Dashed Line
+            Name: outMomPercent
+            Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          - Name: Close
+            Type: Price
+      ShortDescription: Momentum Percent

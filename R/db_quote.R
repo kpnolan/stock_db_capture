@@ -160,7 +160,7 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
 do.positions <-
   function(type="normal") {
     if ( type == "normal" ) {
-      pos = get.positions()
+      pos = get.positions(order="order by date")
     } else if ( type == "losers" ) {
       pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn < 0", order="order by ((exit_price - entry_price)/entry_price)")
     } else if ( type == "winners" ) {

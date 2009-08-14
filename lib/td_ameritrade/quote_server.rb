@@ -172,7 +172,12 @@ module TdAmeritrade
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true
       http.set_debug_output($stderr) if options[:debug]
-      res = http.start { http.request(req) }
+
+      begin
+        res = http.start { http.request(req) }
+      rescue Timeout::Error
+        retry
+      end
 
       case res
       when Net::HTTPSuccess, Net::HTTPRedirection
@@ -195,7 +200,11 @@ module TdAmeritrade
       http = Net::HTTP.new(url.host, url.port)
       http.use_ssl = true if options[:use_ssl]
       http.set_debug_output($stderr) if options[:debug]
-      res = http.start { http.request(req) }
+      begin
+        res = http.start { http.request(req) }
+      rescue Timeout::Error
+        retry
+      end
 
       case res
       when Net::HTTPSuccess, Net::HTTPRedirection

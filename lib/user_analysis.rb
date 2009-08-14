@@ -267,18 +267,39 @@ module UserAnalysis
     memoize_result(self, :rvig, idx_range, options, result, :financebars)
   end
 
-  def linreg(entry_index, options={ })
-    options.reverse_merge! :time_period => 14
-    idx_range = calc_indexes(nil, options[:time_period], 0)
-    xvec = GSL::Vector.linspace(0, options[:time_period]-1, options[:time_period])
-    close_vec = close[entry_index...(entry_index+options[:time_period])]
-    ret_vec = GSL::Fit::linear(xvec, close_vec)
-    unless options[:noplot]
-      out_vec = xvec.to_a.map { |x| x * ret_vec.second + value_at(entry_index, :close)}
+  def linreg(options={ })
+    options.reverse_merge! :time_period => 5, :price => :price
+    n = options[:time_period]
+    idx_range = calc_indexes(nil)
+    entry_index = idx_range.begin
+    price = options[:price]
+    xvec = GSL::Vector.linspace(0, n-1, n)
+    price_vec = send(price)[entry_index...(entry_index+n)]
+    ret_vec = GSL::Fit::linear(xvec, price_vec)
+    if options[:plot_results]
+      out_vec = xvec.to_a.map { |x| x * ret_vec.second + value_at(entry_index, price)}
       result = [ 0, entry_index, out_vec ]
-      memoize_result(self, :linreg, entry_index...(entry_index+options[:time_period]), options, result, :overlap)
+      memoize_result(self, :linreg, entry_index...(entry_index+n), options, result, :overlap)
+    else
+      out_vec = GSL::Vector.alloc(n)
+      out_vec[-1] = ret_vec.second
+      result = [ 0, entry_index, out_vec ]
+      memoize_result(self, :linreg, entry_index...(entry_index+n), options, result, :overlap)
     end
-    return ret_vec.second
+  end
+
+  def slope(options={ })
+    options.reverse_merge! :time_period => 5, :price => :price
+    n = options[:time_period]
+    idx_range = calc_indexes(nil)
+    entry_index = idx_range.begin
+    price = options[:price]
+    xvec = GSL::Vector.linspace(0, n-1, n)
+    price_vec = send(price)[entry_index...(entry_index+n)]
+    ret_vec = GSL::Fit::linear(xvec, price_vec)
+    out_vec = xvec.to_a.map { |x| x * ret_vec.second + value_at(entry_index, :close)}
+    result = [ 0, entry_index, out_vec ]
+    memoize_result(self, :linreg, entry_index...(entry_index+n), options, result, :overlap)
   end
 
   def mom_percent(options={ })

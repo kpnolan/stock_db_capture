@@ -171,6 +171,7 @@ do.positions <-
       print("invalid arg")
     }
     plot.positions(pos)
+    pos
   }
 
 get.positions <-
@@ -208,7 +209,7 @@ plot.positions <-
       } else {
         xdate7 = xdate + 7
         ret = ((xprice - eprice)/eprice)*100.0
-        xlabel = paste("Time, ret:", format(ret, digits=5), "%")
+        xlabel = paste("Time, ret:", format(ret, digits=5), "%", "Days held:", xdate - edate)
       }
 
       q = get.db.quote(symbol, start=edate7, end=xdate7, retclass="ts", quiet=TRUE)
@@ -220,6 +221,10 @@ plot.positions <-
         fit = lsfit(seq(ejdate, xjdate, len=days), seq(eprice, xprice, len=days))
         abline(fit, col='purple')
       }
+
+      fit7 = lsfit(seq(ejdate, xjdate, len=7), q[, "High"][seq(8, len=7)])
+      abline(fit7, col="blue")
+
       x0 = ejdate
       y0 = eprice
       x1 = ejdate

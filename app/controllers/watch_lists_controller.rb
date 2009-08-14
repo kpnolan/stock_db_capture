@@ -16,8 +16,6 @@ class WatchListsController < ApplicationController
     wl = WatchList.find(:all, :include => :ticker, :order => 'crossed_at, tickers.symbol')
     session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
     session[:prev_prices] ||= session[:prices]
-    puts session[:prev_prices].inspect
-    puts session[:prices].inspect
     wl
   end
 

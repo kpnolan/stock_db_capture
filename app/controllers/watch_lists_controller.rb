@@ -15,7 +15,7 @@ class WatchListsController < ApplicationController
   def current_objects
     wl = WatchList.find(:all, :include => :ticker, :order => 'crossed_at, tickers.symbol')
     session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
-    session[:prev_prices] ||= session[:prices]
+    session[:prev_prices] = session[:prices] if session[:prev_prices].nil? or session[:prev_prices].keys != session[:prices].keys
     wl
   end
 

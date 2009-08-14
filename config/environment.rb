@@ -134,6 +134,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   end
 end
 
+
 #puts "RAILS_ENV: #{RAILS_ENV}"
 #puts "ENV['RAILS_ENV']: #{ENV['RAILS_ENV']}"
 

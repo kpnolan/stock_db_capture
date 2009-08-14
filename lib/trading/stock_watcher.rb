@@ -130,7 +130,7 @@ module Trading
     def update_loop
       loop do
         update_time = update_openings()
-        update_time > 0.0 ? sleep(60.0-update_time) : sleep(60)
+        sleep(60.0-update_time) if update_time < 60.0
       end
     end
 

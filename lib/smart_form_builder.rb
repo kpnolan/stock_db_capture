@@ -21,6 +21,11 @@ class SmartFormBuilder < ActionView::Helpers::FormBuilder
       super(field, options.reverse_merge(:class => self.options[:field_class], :disabled => self.options[:readonly])) + brk(options)
   end
 
+  def datetime_select(field, options = {})
+    label(field, options) +
+      super(field, options.reverse_merge(:class => self.options[:field_class], :disabled => self.options[:readonly])) + brk(options)
+  end
+
   def text_area(field, options = {})
     label(field, options) +
       super(field, options.reverse_merge(:class => self.options[:field_class], :readonly => self.options[:readonly])) + brk(options)

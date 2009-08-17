@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090817002435) do
+ActiveRecord::Schema.define(:version => 20090817185325) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -418,7 +418,7 @@ ActiveRecord::Schema.define(:version => 20090817002435) do
     t.float    "curr_price"
     t.date     "entry_date"
     t.date     "exit_date"
-    t.integer  "rum_shares"
+    t.integer  "num_shares"
     t.integer  "days_held"
     t.boolean  "stop_loss"
     t.float    "nreturn"

@@ -31,16 +31,13 @@ class TdaPosition < ActiveRecord::Base
   belongs_to :strategy, :foreign_key => :xstrategy_id
   has_one    :watch_list
 
-  class << self
-    def build(params)
-#      wl = WatchList.find params['watch_list_id']
-      TdaPosition.new()
-    end
-  end
   def update_price(current_price)
     update_attribute(:curr_price, current_price)
   end
 
   def close(price, time)
+  end
+
+  def watch_list_id=(dummy)
   end
 end

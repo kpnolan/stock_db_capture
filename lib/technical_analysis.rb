@@ -67,7 +67,7 @@ module TechnicalAnalysis
         set_unstable_period(:ema, count)
         minimal_samples(to_lookback(base_indicator), *args)
       when :rsi then
-        unstable = (2.5*(args[0]+1)).ceil
+        unstable = (2.0*(args[0]+1)).ceil
         set_unstable_period(:rsi, unstable)
         minimal_samples(to_lookback(base_indicator), *args)
       when :macd, :macdfix then

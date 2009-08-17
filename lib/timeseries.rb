@@ -76,10 +76,6 @@ class Timeseries
     remember_params(:none)
     populate(calc_indexes(nil)) if self.options[:populate]
   end
-
-  def eql?(other)
-    ticker_id == other.ticker_id && local_range == other.local_range && resolution == other.resolution && options == other.options
-  end
   #
   # return a string summarizing the contents of this Timeseries
   #

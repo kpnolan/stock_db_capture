@@ -78,12 +78,18 @@ module TradingCalendar
     return trading_days
   end
 
-  def total_bars(date1, date2, bars_per_day)
+  def total_bars(date1, date2, bars_per_day=1)
     trading_day_count(date1, date2) * bars_per_day
   end
 
   def trading_day_count(date1, date2)
     trading_days(date1.to_date..date2.to_date).length
+  end
+
+  # FIXME these routines ore woefully inefficient. They make arrays and then take the lenght, that's fine if you
+  # FIXME the array, but what if you only want a count?
+  def trading_days_between(date1, date2)
+    trading_days(date1.to_date..date2.to_date).length-1
   end
 
   def format_dates_where_clause(dates)

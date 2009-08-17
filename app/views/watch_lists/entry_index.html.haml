@@ -7,11 +7,10 @@
 </script>
 
 
-%h1 Listing Combined Watch List
+%h1 Listing Watch List Entries
 %table
   %tr.heading
     %th Ticker
-    %th TDA
     %th Price
     %th Target Price
     %th Open
@@ -25,4 +24,4 @@
     %th Crossed At
     %th Updated At
 
-  = render :partial => 'watch_list', :collection => current_objects
+  = render :partial => 'entry_list', :collection => entry_objects

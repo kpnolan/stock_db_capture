@@ -268,13 +268,13 @@ module UserAnalysis
   end
 
   def linreg(options={ })
-    options.reverse_merge! :time_period => 5, :price => :price
+    options.reverse_merge! :time_period => 7
     n = options[:time_period]
     idx_range = calc_indexes(nil)
     entry_index = idx_range.begin
     price = options[:price]
     xvec = GSL::Vector.linspace(0, n-1, n)
-    price_vec = send(price)[entry_index...(entry_index+n)]
+    price_vec = (high[entry_index...(entry_index+n)]+low[entry_index...(entry_index+n)]).scale(0.5)
     ret_vec = GSL::Fit::linear(xvec, price_vec)
     if options[:plot_results]
       out_vec = xvec.to_a.map { |x| x * ret_vec.second + value_at(entry_index, price)}
@@ -284,22 +284,11 @@ module UserAnalysis
       out_vec = GSL::Vector.alloc(n)
       out_vec[-1] = ret_vec.second
       result = [ 0, entry_index, out_vec ]
+      if ret_vec.second < 0.0
+        puts out_vec.to_a.join(', ')
+      end
       memoize_result(self, :linreg, entry_index...(entry_index+n), options, result, :overlap)
     end
-  end
-
-  def slope(options={ })
-    options.reverse_merge! :time_period => 5, :price => :price
-    n = options[:time_period]
-    idx_range = calc_indexes(nil)
-    entry_index = idx_range.begin
-    price = options[:price]
-    xvec = GSL::Vector.linspace(0, n-1, n)
-    price_vec = send(price)[entry_index...(entry_index+n)]
-    ret_vec = GSL::Fit::linear(xvec, price_vec)
-    out_vec = xvec.to_a.map { |x| x * ret_vec.second + value_at(entry_index, :close)}
-    result = [ 0, entry_index, out_vec ]
-    memoize_result(self, :linreg, entry_index...(entry_index+n), options, result, :overlap)
   end
 
   def mom_percent(options={ })
@@ -359,6 +348,20 @@ module UserAnalysis
     end
     result = [0, idx_range.begin, slopevec, chisq]
     memoize_result(self, :lr, index_range, options, result, :financebars)
+  end
+
+  def slope(options={ })
+    options.reverse_merge! :time_period => 5
+    n = options[:time_period]
+    idx_range = calc_indexes(nil)
+    entry_index = idx_range.begin
+    price = options[:price]
+    price_vec = send(price)[entry_index...(entry_index+n)]
+    xvec = GSL::Vector.linspace(0, n-1, n)
+    ret_vec = GSL::Fit::linear(xvec, price_vec)
+    out_vec = xvec.to_a.map { |x| x * ret_vec.second + value_at(entry_index, :close)}
+    result = [ 0, entry_index, out_vec ]
+    memoize_result(self, :linreg, entry_index...(entry_index+n), options, result, :overlap)
   end
 
   def nreturn(options={ })

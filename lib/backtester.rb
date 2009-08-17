@@ -120,7 +120,7 @@ class Backtester
     for position in open_positions
       p = close_position(position)
       next if p.nil?
-      if p.exit_price.nil?
+      if p.exit_date.nil?
         logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
       else
         logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return, p.indicator.name )
@@ -157,7 +157,7 @@ class Backtester
   # the open positions
   def open_positions(ts, params, pass)
       pass_count = 0
-      begin
+      #begin
         open_indexes = ts.instance_exec(params, pass, &opening.block)
         for idx in open_indexes
           aux = { }
@@ -183,14 +183,14 @@ class Backtester
           pass_count += 1
           position
         end
-      rescue NoMethodError => e
-        $logger.info e.message unless e.message =~ /to_v/ or $logger.nil?
-      rescue TimeseriesException => e
-        $logger.info e.message unless e.message =~ /recorded history/ or $logger.nil?
+      #rescue NoMethodError => e
+      #  $logger.info e.message unless e.message =~ /to_v/ or $logger.nil?
+      #rescue TimeseriesException => e
+      #  $logger.info e.message unless e.message =~ /recorded history/ or $logger.nil?
 #      rescue Exception => e
 #        $logger.info e.message
 #        $logger.info e.backtrace
-    end
+    #end
     pass_count
   end
 
@@ -262,18 +262,29 @@ class Backtester
       end
 
       if index.nil? && xtime.nil?
-        p.update_attributes!(:exit_price => nil, :exit_date => nil,
-                             :days_held => nil, :nreturn => nil, :indicator_id => Indicator.lookup(:unknown))
+        days_held = days_to_close
+        edate = p.entry_date.to_date
+        xdate = trading_days_from(edate, days_held).last
+        xprice = ts.value_at(ts.index_range.begin+days_held, :close)
+        roi = (xprice - p.entry_price) / p.entry_price
+        rreturn = xprice/p.entry_price
+        logr = Math.log(rreturn.zero? ? 0 : rreturn)
+        nreturn = roi / days_held
+        p.update_attributes!(:exit_date => xdate, :exit_price => xprice, :roi => roi, #leave out closes so it defaults to NULL
+                             :days_held => days_to_close, :nreturn => nreturn, :indicator_id => Indicator.lookup(:unknown))
       else
-        price = index ? ts.value_at(index, :close) : ts.value_at(ts.time2index(xtime), :close)
+        xprice = index ? ts.value_at(index, :close) : ts.value_at(ts.time2index(xtime), :close)
         edate = p.entry_date.to_date
         xdate = xtime ? xtime.to_date : ts.index2time(index)
         debugger if xdate.nil?
-        days_held = Position.trading_day_count(edate, xdate)
-        nreturn = days_held.zero? ? 0.0 : ((price - p.entry_price) / p.entry_price) / days_held
+        days_held = Position.trading_days_between(edate, xdate)
+        roi = (xprice - p.entry_price) / p.entry_price
+        rreturn = xprice/p.entry_price
+        logr = Math.log(rreturn.zero? ? 0 : rreturn)
+        nreturn = days_held.zero? ? 0.0 : roi / days_held
         nreturn *= -1.0 if p.short and nreturn != 0.0
         indicator_id = Indicator.lookup(indicator).id
-        p.update_attributes!(:exit_price => price, :exit_date => xdate,
+        p.update_attributes!(:exit_price => xprice, :exit_date => xdate, :closed => true, :roi => roi,
                              :days_held => days_held, :nreturn => nreturn, :indicator_id => indicator_id)
       end
     #rescue TimeseriesException => e

@@ -7,22 +7,21 @@
 </script>
 
 
-%h1 Listing Combined Watch List
+%h1 Listing Watch Exits
 %table
   %tr.heading
     %th Ticker
     %th TDA
     %th Price
-    %th Target Price
     %th Open
     %th High
     %th Low
     %th Close
     %th Volume
-    %th Strategy
+    %th Closest Indicator
     %th Indicator Value
     %th Target Threshold
     %th Crossed At
     %th Updated At
 
-  = render :partial => 'watch_list', :collection => current_objects
+  = render :partial => 'exit_list', :collection => exiting_objects

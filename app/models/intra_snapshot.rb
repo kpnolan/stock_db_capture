@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090810235140
+# Schema version: 20090815165411
 #
 # Table name: intra_snapshots
 #
@@ -19,8 +19,6 @@ class IntraSnapshot < ActiveRecord::Base
   HOURS_AT_3PM = 15
 
   belongs_to :ticker
-
-  schema_validations :only => :ticker_id
 
   include TradingCalendar
   extend TableExtract

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090810235140
+# Schema version: 20090815165411
 #
 # Table name: watch_list
 #
@@ -25,6 +25,7 @@
 #  close           :float
 #  volume          :integer(4)
 #  last_seq        :integer(4)
+#  state_date      :date
 #
 
 class WatchList < ActiveRecord::Base
@@ -34,24 +35,43 @@ class WatchList < ActiveRecord::Base
   belongs_to :ticker
 
   validates_presence_of :ticker_id
-  validates_uniqueness_of :ticker_id, :scope => :target_ival
+  validates_uniqueness_of :ticker_id, :scope => :stale_date
+
+  def symbol
+    ticker.symbol
+  end
 
   class << self
     def create_openning(ticker_id, target_price, current_ival, target_ivalue, open_date)
-      unless lookup_entry(ticker_id, open_date)
-        create!(:ticker_id => ticker_id, :target_price => target_price, :curr_ival => current_ival, :target_ival => target_ivalue, :entered_on => open_date)
-      end
+      create!(:ticker_id => ticker_id, :target_price => target_price, :curr_ival => current_ival, :target_ival => target_ivalue, :entered_on => open_date)
     end
 
     def create_closure(position, target_price, target_ivalue, close_date)
       create!(:ticker_id => position.ticker_id, :tda_poistion_id => position[:id], :target_price => target_price, :target_ival => target_ival, :closed_on => close_date)
     end
 
+    def dispose(ticker_id, current_ival, target_ivalue)
+      conflict = find_conflict(ticker_id)
+      conflict.tda_position_id.nil? && current_ival > conflict.target_ival && conflict.update_attribute(:stale_date, Date.today)
+    end
+
+    def find_conflict(ticker_id)
+      find :first, :conditions => { :ticker_id => ticker_id, :stale_date => nil }
+    end
+
     def lookup_entry(ticker_id, entry_date=nil)
       cond = { :ticker_id => ticker_id }
       cond.merge!(:entered_on => entry_date) unless entry_date.nil?
-      find(:first, :conditions => cond)
+      find(:all, :conditions => cond)
     end
+  end
+
+  def active_entries(options={})
+    options.reverse_merge! :order => 'crossed_at desc, (target_ival-current_ival), tickers.symbol', :where => { }
+    order = options[:order]
+    where = options[:where]
+    raise ArgumentError, 'status must be :'
+    find :all, :include => :ticker, :conditions => { :stale_date => nil }.merge(where), :order => order
   end
 
   def update_from_snapshot!(last_bar, curr_ival, num_samples, predicted_price, stddev, last_seq)

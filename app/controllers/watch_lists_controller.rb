@@ -2,12 +2,7 @@ class WatchListsController < ApplicationController
   make_resourceful do
     actions :all
 
-    before :index do
-      puts "calling before..."
-    end
-
     after :index do
-      puts "calling after..."
       session[:prev_prices] = session[:prices]
     end
   end
@@ -31,4 +26,7 @@ class WatchListsController < ApplicationController
   def close
   end
 
+  def retire
+
+  end
 end

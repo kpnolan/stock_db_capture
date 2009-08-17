@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090810235140
+# Schema version: 20090815165411
 #
 # Table name: intra_day_archives
 #

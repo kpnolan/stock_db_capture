@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090810235140
+# Schema version: 20090815165411
 #
 # Table name: daily_bars
 #
@@ -22,8 +22,6 @@ class DailyBar < ActiveRecord::Base
   COLUMN_ORDER = [:close, :high, :low, :open, :volume, :date]
 
   belongs_to :ticker
-
-  schema_validations :only => :ticker_id
 
   extend TableExtract
   extend Plot

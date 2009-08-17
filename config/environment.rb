@@ -96,7 +96,8 @@ include VisualizeEntry
 # ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
 # ARGV[0] contains the name of the rake task otherwise. Since, at this point, we don't have any rake
 # tasks the use Talib functions, we will skip this whole initialization block for rake tasks.
-if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
+
+#if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   Talib.ta_initialize();
 
   TALIB_META_INFO_HASH = YAML.load_file("#{RAILS_ROOT}/config/ta_func_api.yml")
@@ -106,11 +107,11 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
-  $ts1 = Timeseries.new(:frp, Date.parse('2/24/2009')..Date.parse('3/13/2009'), 1.day)
+  #$ts1 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/22/2009'), 1.day)
   #$ts2 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/23/2009'), 1.day)
 
-  $sw = Trading::StockWatcher.new
-  $qt = $sw.qt
+  #sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
+  #$qt = $sw.qt
 
   def lookup(symbol, start_date, end_date=nil, options={})
     options.reverse_merge! :interval => 1.day.seconds
@@ -132,7 +133,7 @@ if ARGV.empty? || (ARGV[0] =~ /active_trader/).nil?
       puts e.to_s
     end
   end
-end
+#end
 
 
 #puts "RAILS_ENV: #{RAILS_ENV}"

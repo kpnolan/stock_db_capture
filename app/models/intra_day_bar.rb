@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090810235140
+# Schema version: 20090815165411
 #
 # Table name: intra_day_bars
 #
@@ -22,8 +22,6 @@ class IntraDayBar < ActiveRecord::Base
   COLUMN_ORDER = [:close, :high, :low, :open, :volume, :start_time]
 
   belongs_to :ticker
-
-  schema_validations :only => :id
 
   include TradingCalendar
   extend TableExtract

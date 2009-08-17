@@ -25,7 +25,9 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :current_listing, :contoller => 'current_listing'
   map.resources :exchanges
   map.resources :daily_closes, :member => { :plot => :get },:collection => { :reload => :get, :begin_load => :post, :progress => :get }
-  map.resources :watch_lists, :member => { :plot => :get, :open => :get, :close => :get }
+  map.resources :watch_lists, :has_one => :tda_position,
+                              :member => { :plot => :get, :open => :get, :close => :get, :retire => :get },
+                              :collection => { :entry_index => :get, :exit_index => :get }
 
   map.root :controller => 'tickers', :action => 'index'
 

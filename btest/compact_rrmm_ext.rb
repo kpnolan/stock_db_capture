@@ -11,7 +11,7 @@ analytics do
     close_crossing_value(:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :third),
                          :rsi => params.merge(:threshold => 50, :direction => :under),
                          :rvi => params.merge(:threshold => 50, :direction => :under),
-                         :linreg => params.merge(:time_period => 5, :threshold => 0.01, :direction => :over))
+                         :linreg => params.merge(:time_period => 7, :threshold => -0.01, :direction => :over))
   end
 
   desc "Close the position if the stop loss is 15% or greater"

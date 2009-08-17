@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090810235140
+# Schema version: 20090815165411
 #
 # Table name: tda_positions
 #
@@ -29,8 +29,14 @@ class TdaPosition < ActiveRecord::Base
   belongs_to :ticker
   belongs_to :strategy, :foreign_key => :estrategy_id
   belongs_to :strategy, :foreign_key => :xstrategy_id
-  has_many :watch_list
+  has_one    :watch_list
 
+  class << self
+    def build(params)
+#      wl = WatchList.find params['watch_list_id']
+      TdaPosition.new()
+    end
+  end
   def update_price(current_price)
     update_attribute(:curr_price, current_price)
   end

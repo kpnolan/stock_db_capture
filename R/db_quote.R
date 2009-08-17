@@ -162,11 +162,11 @@ do.positions <-
     if ( type == "normal" ) {
       pos = get.positions(order="order by date")
     } else if ( type == "losers" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn < 0", order="order by ((exit_price - entry_price)/entry_price)")
+      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn < 0 and closed not null", order="order by roi")
     } else if ( type == "winners" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn > 0", order="order by ((exit_price - entry_price)/entry_price) desc")
+      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn > 0 and closed not null", order="order by roi desc")
     } else if ( type == "non" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and exit_date is null")
+      pos = get.positions(where="where year(entry_date) = 2009 and closed is null", order="order by roi")
     } else {
       print("invalid arg")
     }
@@ -174,11 +174,14 @@ do.positions <-
     pos
   }
 
+strategy="and strategy_id = 20"
+
+
 get.positions <-
   function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, entry_date", where="") {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice from positions left outer join tickers",
-                 "on tickers.id = ticker_id", where, order)
+    sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
+                 "on tickers.id = ticker_id", where, strategy, order)
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
     if ( nrow(x) == 0 ) {
@@ -191,10 +194,13 @@ get.positions <-
 plot.positions <-
   function(x,  origin = "1899-12-30") {
     syms = x$symbol
+    closed = x$closed
     edates = x$edate
     xdates = x$xdate
     eprices = x$eprice
     xprices = x$xprice
+    rois = x$roi
+    dh = x$days_held
     print(paste("There are", length(syms), "entries in this set"))
     for ( i in 1:length(syms) )  {
       symbol = syms[i]
@@ -202,28 +208,24 @@ plot.positions <-
       xdate = as.Date(xdates[i])
       eprice = eprices[i]
       xprice = xprices[i]
+      roi = rois[i]
+      days_held = dh[i]
       edate7 = edate-7
-      if ( is.na(xdate) ) {
-        xdate = xdate7 = edate+30
-        xlabel = "Timem ret: ??.??"
-      } else {
-        xdate7 = xdate + 7
-        ret = ((xprice - eprice)/eprice)*100.0
-        xlabel = paste("Time, ret:", format(ret, digits=5), "%", "Days held:", xdate - edate)
-      }
+      xdate7 = xdate + 7
 
       q = get.db.quote(symbol, start=edate7, end=xdate7, retclass="ts", quiet=TRUE)
-      plotOHLC(q, ylab=symbol, xlab=xlabel, main=paste(symbol, "entry:", edate, "exit:", xdate))
       ejdate <- unclass(julian(edate, origin = as.Date(origin)))
       xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
       days = xjdate-ejdate
-      if ( days > 1 && !is.na(xprice) ) {
+
+      roi = roi * 100.0
+      xlabel = paste("Time, ret:", format(roi, digits=5), "%", "Days held:", days_held)
+
+      plotOHLC(q, ylab=symbol, xlab=xlabel, main=paste(symbol, "entry:", edate, "exit:", xdate))
+      if ( days > 1 ) {
         fit = lsfit(seq(ejdate, xjdate, len=days), seq(eprice, xprice, len=days))
         abline(fit, col='purple')
       }
-
-      fit7 = lsfit(seq(ejdate, xjdate, len=7), q[, "High"][seq(8, len=7)])
-      abline(fit7, col="blue")
 
       x0 = ejdate
       y0 = eprice

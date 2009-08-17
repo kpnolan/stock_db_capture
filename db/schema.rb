@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090810235140) do
+ActiveRecord::Schema.define(:version => 20090817002435) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -227,6 +227,8 @@ ActiveRecord::Schema.define(:version => 20090810235140) do
     t.boolean  "short"
     t.integer  "entry_pass"
     t.integer  "indicator_id"
+    t.float    "roi"
+    t.boolean  "closed"
   end
 
   add_index "positions", ["ticker_id", "strategy_id", "entry_date"], :name => "ticker_id_strategy_id_entry_date", :unique => true
@@ -252,6 +254,26 @@ ActiveRecord::Schema.define(:version => 20090810235140) do
     t.boolean  "short"
     t.integer  "exit_pass"
     t.integer  "entry_pass"
+  end
+
+  create_table "positions_rrm", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.integer  "num_shares"
+    t.boolean  "stop_loss"
+    t.integer  "strategy_id"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.integer  "scan_id"
+    t.float    "entry_trigger"
+    t.float    "exit_trigger"
+    t.float    "logr"
+    t.boolean  "short"
+    t.integer  "entry_pass"
+    t.integer  "indicator_id"
   end
 
   create_table "positions_strategies", :id => false, :force => true do |t|
@@ -454,6 +476,7 @@ ActiveRecord::Schema.define(:version => 20090810235140) do
     t.float    "close"
     t.integer  "volume"
     t.integer  "last_seq"
+    t.date     "stale_date"
   end
 
   add_index "watch_list", ["ticker_id"], :name => "ticker_id"

@@ -29,9 +29,9 @@ config/environments/test.rb,0
 config/routes.rb,0
 
 config/environment.rb,135
-class StringString81,3593
-  def to_date()to_date82,3606
-  def lookup(symbol, start_date, end_date=nil, options={})lookup111,4915
+class StringString85,3686
+  def to_date()to_date86,3699
+  def lookup(symbol, start_date, end_date=nil, options={})lookup116,5121
 
 config/deploy.rb,0
 
@@ -601,7 +601,7 @@ module ExcelSimulationDumperExcelSimulationDumper7,114
   def make_sheet(strategy=nil, options={})make_sheet13,234
   def make_header_row(options)make_header_row57,1993
 
-lib/user_analysis.rb,598
+lib/user_analysis.rb,680
 module UserAnalysisUserAnalysis5,70
   def zema(options = {})zema6,90
   def rsi1(options={ })rsi135,1229
@@ -610,12 +610,14 @@ module UserAnalysisUserAnalysis5,70
   def rvi(options={})rvi171,5007
   def rvi_wilder(price, options)rvi_wilder180,5384
   def rvig(options={})rvig236,7011
-  def linreg(entry_index, options={ })linreg270,8337
-  def lrsigma(options={ })lrsigma284,9000
-  def lr(options={ })lr304,9737
-  def nreturn(options={ })nreturn323,10380
-  def extract(options={})extract335,10834
-  def calculate(options={})calculate343,11141
+  def linreg(options={ })linreg270,8337
+  def mom_percent(options={ })mom_percent294,9289
+  def lrsigma(options={ })lrsigma314,10045
+  def lr(options={ })lr334,10782
+  def slope(options={ })slope353,11425
+  def nreturn(options={ })nreturn367,11997
+  def extract(options={})extract379,12451
+  def calculate(options={})calculate387,12758
 
 lib/aggregator.rb,541
 module AggregatorAggregator5,85
@@ -631,67 +633,66 @@ lib/plot_aux_info.rb,93
 module PlotAuxInfoPlotAuxInfo3,57
   def plot_commands_for(function)plot_commands_for4,76
 
-lib/timeseries.rb,3076
+lib/timeseries.rb,3044
 class TimeTime13,445
   def bod?; hour == 9 && min == 30;endbod?14,456
   def eod?; hour == 15 && min == 30; endeod?15,495
   def in_trade?; hour >= 9 && hour <= 15; endin_trade?16,536
 class TimeseriesTimeseries19,587
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})initialize43,1613
-  def eql?(other)eql?80,3578
-  def to_sto_s86,3805
-  def inspectinspect90,3909
-  def tickerticker97,4052
-  def outidxoutidx109,4645
-  def set_enum_attrs(subset)set_enum_attrs119,5050
-  def eacheach127,5342
-  def local_each(attrs)local_each134,5530
-  def hash_at(i, attrs)hash_at140,5756
-  def all(*args)all148,6044
-  def values_at(index, vals)values_at155,6230
-  def multi_calc(fcn_vec, options={})multi_calc162,6432
-  def multi_fopt(fopt_vec, options={})multi_fopt173,6774
-  def find_result(fcn, options={})find_result185,7227
-  def clear_resultsclear_results197,7514
-  def vector_for(sym_or_pair)vector_for204,7664
-  def set_price(expression = :default)set_price224,8446
-  def select_by_resolution(resolution)select_by_resolution237,8973
-  def offset_date(ref_date, offset)offset_date247,9344
-  def init_timevecinit_timevec255,9587
-  def map_local_range()map_local_range260,9726
-  def calculate_fill_indexes(pre_offset)calculate_fill_indexes270,10023
-  def populate(pre_offset)populate283,10784
-  def populated?populated?322,12632
-  def depopulate()depopulate326,12671
-  def apply_options(options)apply_options338,12883
-  def compute_timestampscompute_timestamps347,13125
-  def params_changed?(lookback_fcn, *args)params_changed?356,13415
-  def remember_params(lookback_fcn, *args)remember_params360,13525
-  def todaytoday365,13634
-  def calc_indexes(lookback_fcn=nil, *args)calc_indexes371,13788
-  def time2index(time, direction=0, raise_on_range_error=true)time2index383,14460
-  def time2index_days(time, direction, raise_on_range_error)time2index_days394,14818
-  def time2index_time(time, direction, raise_on_range_error=true)time2index_time418,15910
-  def values_at(index, *slots)values_at442,17085
-  def value_at(index, slot)value_at446,17165
-  def times_for(indexes)times_for452,17278
-  def index2time(index)index2time459,17406
-  def lengthlength471,17879
-  def memomemo478,17983
-  def extended_range?extended_range?483,18067
-  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result490,18219
-  def update_last_bar(bar)update_last_bar521,19279
-  def push_bar(bar)push_bar530,19482
-  def last_close()last_close544,19778
-  def pop_values()pop_values548,19838
-  def cici552,19917
-  def avg_priceavg_price559,20003
-  def calc_prefetch(lookback_fcn, *args)calc_prefetch563,20064
-  def find_memo(fcn_symbol, time_range=nil, options={})find_memo583,20687
-  def add_methods_for_attributes(attrs)add_methods_for_attributes592,20971
-  def initialize_stateinitialize_state603,21311
-    def parse_time(date_time_str, fmt="%m/%d/%Y %H:%M")parse_time618,21672
-def ts(symbol, local_range, seconds, options={})ts626,21911
+  def to_sto_s82,3649
+  def inspectinspect86,3753
+  def tickerticker93,3896
+  def outidxoutidx105,4489
+  def set_enum_attrs(subset)set_enum_attrs115,4894
+  def eacheach123,5186
+  def local_each(attrs)local_each130,5374
+  def hash_at(i, attrs)hash_at136,5600
+  def all(*args)all144,5888
+  def values_at(index, vals)values_at151,6074
+  def multi_calc(fcn_vec, options={})multi_calc158,6276
+  def multi_fopt(fopt_vec, options={})multi_fopt169,6618
+  def find_result(fcn, options={})find_result181,7071
+  def clear_resultsclear_results193,7358
+  def vector_for(sym_or_pair)vector_for200,7508
+  def set_price(expression = :default)set_price220,8290
+  def select_by_resolution(resolution)select_by_resolution233,8817
+  def offset_date(ref_date, offset)offset_date243,9188
+  def init_timevecinit_timevec251,9431
+  def map_local_range()map_local_range256,9570
+  def calculate_fill_indexes(pre_offset)calculate_fill_indexes266,9867
+  def populate(pre_offset)populate279,10628
+  def populated?populated?318,12476
+  def depopulate()depopulate322,12515
+  def apply_options(options)apply_options334,12727
+  def compute_timestampscompute_timestamps343,12969
+  def params_changed?(lookback_fcn, *args)params_changed?352,13259
+  def remember_params(lookback_fcn, *args)remember_params356,13369
+  def todaytoday361,13478
+  def calc_indexes(lookback_fcn=nil, *args)calc_indexes367,13632
+  def time2index(time, direction=0, raise_on_range_error=true)time2index379,14304
+  def time2index_days(time, direction, raise_on_range_error)time2index_days390,14662
+  def time2index_time(time, direction, raise_on_range_error=true)time2index_time414,15754
+  def values_at(index, *slots)values_at438,16929
+  def value_at(index, slot)value_at442,17009
+  def times_for(indexes)times_for448,17122
+  def index2time(index)index2time455,17250
+  def lengthlength467,17723
+  def memomemo474,17827
+  def extended_range?extended_range?479,17911
+  def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)memoize_result486,18063
+  def update_last_bar(bar)update_last_bar517,19123
+  def push_bar(bar)push_bar526,19326
+  def last_close()last_close540,19622
+  def pop_values()pop_values544,19682
+  def cici548,19761
+  def avg_priceavg_price555,19847
+  def calc_prefetch(lookback_fcn, *args)calc_prefetch559,19908
+  def find_memo(fcn_symbol, time_range=nil, options={})find_memo579,20531
+  def add_methods_for_attributes(attrs)add_methods_for_attributes588,20815
+  def initialize_stateinitialize_state599,21155
+    def parse_time(date_time_str, fmt="%m/%d/%Y %H:%M")parse_time614,21516
+def ts(symbol, local_range, seconds, options={})ts622,21755
 
 lib/csv_dumper.rb,164
 module CsvDumperCsvDumper7,114
@@ -706,23 +707,23 @@ module TradingTrading1,0
     def rsi_open(threshold, options={})rsi_open10,140
     def rsi_rvi_close(options)rsi_rvi_close18,515
 
-lib/trading/stock_watcher.rb,713
+lib/trading/stock_watcher.rb,741
 module TradingTrading1,0
   class StockWatcherStockWatcher3,16
-    def initialize(options={})initialize14,269
-    def create_candidate_list()create_candidate_list22,614
-    def loggerlogger35,1176
-    def reset()reset40,1351
-    def clear_watch_listclear_watch_list45,1430
-    def lengthlength49,1549
-    def test_snapshot_servertest_snapshot_server53,1595
-    def add_possible_entries()add_possible_entries69,2104
-    def repopulaterepopulate97,3340
-    def add_open_positions()add_open_positions111,3939
-    def update_loopupdate_loop123,4317
-    def update_openings()update_openings130,4474
-  def init_closuresinit_closures158,5491
-  def update_closures()update_closures162,5519
+    def initialize(logger, options={})initialize15,334
+    def create_candidate_list()create_candidate_list21,608
+    def reset()reset34,1170
+    def clear_watch_listclear_watch_list41,1308
+    def lengthlength45,1427
+    def test_snapshot_servertest_snapshot_server49,1473
+    def add_possible_entries()add_possible_entries64,2021
+    def repopulaterepopulate100,3642
+    def add_open_positions()add_open_positions114,4228
+    def start_watching()start_watching125,4605
+    def update_loopupdate_loop138,4874
+    def update_openings()update_openings147,5095
+  def init_closuresinit_closures172,6065
+  def update_closures()update_closures176,6093
 
 lib/scans.rb,324
 module ScansScans5,73
@@ -814,7 +815,7 @@ class AnalResultsAnalResults2,56
   def to_tsto_ts78,2381
   def decode(*syms)decode82,2415
 
-lib/technical_analysis.rb,8420
+lib/technical_analysis.rb,8423
 module TechnicalAnalysisTechnicalAnalysis11,814
   def self.included(base)included17,1143
   module ClassMethodsClassMethods22,1228
@@ -826,164 +827,164 @@ module TechnicalAnalysisTechnicalAnalysis11,814
     def to_lookback(sym)to_lookback55,2443
     def prefetch_bars(short_form, *args)prefetch_bars59,2516
     def indicator_prefetch(base_indicator, *args)indicator_prefetch63,2610
-  def acos(inReal, options={})acos85,3362
-  def ad(options={})ad92,3595
-  def add(inReal0, inReal1, options={})add99,3835
-  def adosc(options={})adosc106,4090
-  def adx(options={})adx114,4513
-  def adxr(options={})adxr122,4876
-  def apo(options={})apo130,5227
-  def aroon(options={})aroon138,5648
-  def aroonosc(options={})aroonosc146,5973
-  def asin(inReal, options={})asin154,6319
-  def atan(inReal, options={})atan161,6561
-  def atr(options={})atr168,6796
-  def avgprice(options={})avgprice176,7135
-  def bbands(options={})bbands183,7401
-  def beta(inReal0, inReal1, options={})beta191,7928
-  def bop(options={})bop199,8273
-  def cci(options={})cci206,8517
-  def cdl2crows(options={})cdl2crows214,8834
-  def cdl3blackcrows(options={})cdl3blackcrows221,9112
-  def cdl3inside(options={})cdl3inside228,9413
-  def cdl3linestrike(options={})cdl3linestrike235,9695
-  def cdl3outside(options={})cdl3outside242,9997
-  def cdl3starsinsouth(options={})cdl3starsinsouth249,10290
-  def cdl3whitesoldiers(options={})cdl3whitesoldiers256,10609
-  def cdlabandonedbaby(options={})cdlabandonedbaby263,10916
-  def cdladvanceblock(options={})cdladvanceblock271,11310
-  def cdlbelthold(options={})cdlbelthold278,11602
-  def cdlbreakaway(options={})cdlbreakaway285,11878
-  def cdlclosingmarubozu(options={})cdlclosingmarubozu292,12165
-  def cdlconcealbabyswall(options={})cdlconcealbabyswall299,12483
-  def cdlcounterattack(options={})cdlcounterattack306,12795
-  def cdldarkcloudcover(options={})cdldarkcloudcover313,13098
-  def cdldoji(options={})cdldoji321,13487
-  def cdldojistar(options={})cdldojistar328,13747
-  def cdldragonflydoji(options={})cdldragonflydoji335,14028
-  def cdlengulfing(options={})cdlengulfing342,14332
-  def cdleveningdojistar(options={})cdleveningdojistar349,14620
-  def cdleveningstar(options={})cdleveningstar357,15021
-  def cdlgapsidesidewhite(options={})cdlgapsidesidewhite365,15430
-  def cdlgravestonedoji(options={})cdlgravestonedoji372,15744
-  def cdlhammer(options={})cdlhammer379,16041
-  def cdlhangingman(options={})cdlhangingman386,16311
-  def cdlharami(options={})cdlharami393,16600
-  def cdlharamicross(options={})cdlharamicross400,16879
-  def cdlhighwave(options={})cdlhighwave407,17174
-  def cdlhikkake(options={})cdlhikkake414,17456
-  def cdlhikkakemod(options={})cdlhikkakemod421,17743
-  def cdlhomingpigeon(options={})cdlhomingpigeon428,18031
-  def cdlidentical3crows(options={})cdlidentical3crows435,18335
-  def cdlinneck(options={})cdlinneck442,18645
-  def cdlinvertedhammer(options={})cdlinvertedhammer449,18919
-  def cdlkicking(options={})cdlkicking456,19217
-  def cdlkickingbylength(options={})cdlkickingbylength463,19533
-  def cdlladderbottom(options={})cdlladderbottom470,19841
-  def cdllongleggeddoji(options={})cdllongleggeddoji477,20140
-  def cdllongline(options={})cdllongline484,20447
-  def cdlmarubozu(options={})cdlmarubozu491,20722
-  def cdlmatchinglow(options={})cdlmatchinglow498,21001
-  def cdlmathold(options={})cdlmathold505,21288
-  def cdlmorningdojistar(options={})cdlmorningdojistar513,21662
-  def cdlmorningstar(options={})cdlmorningstar521,22063
-  def cdlonneck(options={})cdlonneck529,22451
-  def cdlpiercing(options={})cdlpiercing536,22726
-  def cdlrickshawman(options={})cdlrickshawman543,23005
-  def cdlrisefall3methods(options={})cdlrisefall3methods550,23312
-  def cdlseparatinglines(options={})cdlseparatinglines557,23627
-  def cdlshootingstar(options={})cdlshootingstar564,23935
-  def cdlshortline(options={})cdlshortline571,24235
-  def cdlspinningtop(options={})cdlspinningtop578,24518
-  def cdlstalledpattern(options={})cdlstalledpattern585,24812
-  def cdlsticksandwich(options={})cdlsticksandwich592,25117
-  def cdltakuri(options={})cdltakuri599,25455
-  def cdltasukigap(options={})cdltasukigap606,25724
-  def cdlthrusting(options={})cdlthrusting613,26012
-  def cdltristar(options={})cdltristar620,26298
-  def cdlunique3river(options={})cdlunique3river627,26575
-  def cdlupsidegap2crows(options={})cdlupsidegap2crows634,26878
-  def cdlxsidegap3methods(options={})cdlxsidegap3methods641,27206
-  def ceil(inReal, options={})ceil648,27516
-  def cmo(options={})cmo655,27759
-  def correl(inReal0, inReal1, options={})correl663,28107
-  def cos(inReal, options={})cos671,28469
-  def cosh(inReal, options={})cosh678,28707
-  def dema(options={})dema685,28957
-  def div(inReal0, inReal1, options={})div693,29289
-  def dx(options={})dx700,29548
-  def ema(options={})ema708,29896
-  def exp(inReal, options={})exp716,30250
-  def floor(inReal, options={})floor723,30475
-  def ht_dcperiod(options={})ht_dcperiod730,30737
-  def ht_dcphase(options={})ht_dcphase737,31013
-  def ht_phasor(options={})ht_phasor744,31282
-  def ht_sine(options={})ht_sine751,31538
-  def ht_trendline(options={})ht_trendline758,31801
-  def ht_trendmode(options={})ht_trendmode765,32090
-  def kama(options={})kama772,32361
-  def linearreg(inReal, options={})linearreg780,32689
-  def linearreg_angle(options={})linearreg_angle788,33052
-  def linearreg_intercept(options={})linearreg_intercept796,33424
-  def linearreg_slope(options={})linearreg_slope804,33818
-  def ln(inReal, options={})ln812,34181
-  def log10(inReal, options={})log10819,34402
-  def ma(options={})ma826,34637
-  def macd(options={})macd834,35030
-  def macdext(options={})macdext842,35498
-  def macdfix(options={})macdfix850,36160
-  def mama(options={})mama858,36506
-  def mavp(inPeriods, options={})mavp866,36915
-  def max(inReal, options={})max874,37421
-  def maxindex(inReal, options={})maxindex882,37783
-  def medprice(options={})medprice890,38121
-  def mfi(options={})mfi897,38375
-  def midpoint(inReal, options={})midpoint905,38725
-  def midprice(options={})midprice913,39087
-  def min(inReal, options={})min921,39454
-  def minindex(inReal, options={})minindex929,39815
-  def minmax(inReal, options={})minmax937,40190
-  def minmaxindex(inReal, options={})minmaxindex945,40578
-  def minus_di(options={})minus_di953,40943
-  def minus_dm(options={})minus_dm961,41315
-  def mom(options={})mom969,41662
-  def mult(inReal0, inReal1, options={})mult977,41981
-  def natr(options={})natr984,42247
-  def obv(options={})obv992,42594
-  def plus_di(options={})plus_di999,42832
-  def plus_dm(options={})plus_dm1007,43199
-  def ppo(options={})ppo1015,43561
-  def roc(options={})roc1023,44019
-  def rocp(options={})rocp1031,44370
-  def rocr(options={})rocr1039,44710
-  def rocr100(options={})rocr1001047,45064
-  def rsi(options={})rsi1055,45400
-  def sar(options={})sar1063,45724
-  def sarext(options={})sarext1071,46149
-  def sin(inReal, options={})sin1079,46979
-  def sinh(inReal, options={})sinh1086,47217
-  def sma(options={})sma1093,47455
-  def sqrt(inReal, options={})sqrt1101,47807
-  def stddev(inReal, options={})stddev1108,48042
-  def stoch(options={})stoch1116,48433
-  def stochf(options={})stochf1124,49029
-  def stochrsi(options={})stochrsi1132,49518
-  def sub(inReal0, inReal1, options={})sub1140,50080
-  def sum(inReal, options={})sum1147,50322
-  def t3(options={})t31155,50666
-  def tan(inReal, options={})tan1163,51065
-  def tanh(inReal, options={})tanh1170,51303
-  def tema(options={})tema1177,51553
-  def trange(options={})trange1185,51874
-  def trima(options={})trima1192,52126
-  def trix(options={})trix1200,52490
-  def tsf(options={})tsf1208,52811
-  def typprice(options={})typprice1216,53131
-  def ultosc(options={})ultosc1223,53395
-  def var(options={})var1231,53866
-  def wclprice(options={})wclprice1239,54246
-  def willr(options={})willr1246,54503
-  def wma(options={})wma1254,54842
+  def acos(inReal, options={})acos87,3441
+  def ad(options={})ad94,3674
+  def add(inReal0, inReal1, options={})add101,3914
+  def adosc(options={})adosc108,4169
+  def adx(options={})adx116,4592
+  def adxr(options={})adxr124,4955
+  def apo(options={})apo132,5306
+  def aroon(options={})aroon140,5727
+  def aroonosc(options={})aroonosc148,6052
+  def asin(inReal, options={})asin156,6398
+  def atan(inReal, options={})atan163,6640
+  def atr(options={})atr170,6875
+  def avgprice(options={})avgprice178,7214
+  def bbands(options={})bbands185,7480
+  def beta(inReal0, inReal1, options={})beta193,8007
+  def bop(options={})bop201,8352
+  def cci(options={})cci208,8596
+  def cdl2crows(options={})cdl2crows216,8913
+  def cdl3blackcrows(options={})cdl3blackcrows223,9191
+  def cdl3inside(options={})cdl3inside230,9492
+  def cdl3linestrike(options={})cdl3linestrike237,9774
+  def cdl3outside(options={})cdl3outside244,10076
+  def cdl3starsinsouth(options={})cdl3starsinsouth251,10369
+  def cdl3whitesoldiers(options={})cdl3whitesoldiers258,10688
+  def cdlabandonedbaby(options={})cdlabandonedbaby265,10995
+  def cdladvanceblock(options={})cdladvanceblock273,11389
+  def cdlbelthold(options={})cdlbelthold280,11681
+  def cdlbreakaway(options={})cdlbreakaway287,11957
+  def cdlclosingmarubozu(options={})cdlclosingmarubozu294,12244
+  def cdlconcealbabyswall(options={})cdlconcealbabyswall301,12562
+  def cdlcounterattack(options={})cdlcounterattack308,12874
+  def cdldarkcloudcover(options={})cdldarkcloudcover315,13177
+  def cdldoji(options={})cdldoji323,13566
+  def cdldojistar(options={})cdldojistar330,13826
+  def cdldragonflydoji(options={})cdldragonflydoji337,14107
+  def cdlengulfing(options={})cdlengulfing344,14411
+  def cdleveningdojistar(options={})cdleveningdojistar351,14699
+  def cdleveningstar(options={})cdleveningstar359,15100
+  def cdlgapsidesidewhite(options={})cdlgapsidesidewhite367,15509
+  def cdlgravestonedoji(options={})cdlgravestonedoji374,15823
+  def cdlhammer(options={})cdlhammer381,16120
+  def cdlhangingman(options={})cdlhangingman388,16390
+  def cdlharami(options={})cdlharami395,16679
+  def cdlharamicross(options={})cdlharamicross402,16958
+  def cdlhighwave(options={})cdlhighwave409,17253
+  def cdlhikkake(options={})cdlhikkake416,17535
+  def cdlhikkakemod(options={})cdlhikkakemod423,17822
+  def cdlhomingpigeon(options={})cdlhomingpigeon430,18110
+  def cdlidentical3crows(options={})cdlidentical3crows437,18414
+  def cdlinneck(options={})cdlinneck444,18724
+  def cdlinvertedhammer(options={})cdlinvertedhammer451,18998
+  def cdlkicking(options={})cdlkicking458,19296
+  def cdlkickingbylength(options={})cdlkickingbylength465,19612
+  def cdlladderbottom(options={})cdlladderbottom472,19920
+  def cdllongleggeddoji(options={})cdllongleggeddoji479,20219
+  def cdllongline(options={})cdllongline486,20526
+  def cdlmarubozu(options={})cdlmarubozu493,20801
+  def cdlmatchinglow(options={})cdlmatchinglow500,21080
+  def cdlmathold(options={})cdlmathold507,21367
+  def cdlmorningdojistar(options={})cdlmorningdojistar515,21741
+  def cdlmorningstar(options={})cdlmorningstar523,22142
+  def cdlonneck(options={})cdlonneck531,22530
+  def cdlpiercing(options={})cdlpiercing538,22805
+  def cdlrickshawman(options={})cdlrickshawman545,23084
+  def cdlrisefall3methods(options={})cdlrisefall3methods552,23391
+  def cdlseparatinglines(options={})cdlseparatinglines559,23706
+  def cdlshootingstar(options={})cdlshootingstar566,24014
+  def cdlshortline(options={})cdlshortline573,24314
+  def cdlspinningtop(options={})cdlspinningtop580,24597
+  def cdlstalledpattern(options={})cdlstalledpattern587,24891
+  def cdlsticksandwich(options={})cdlsticksandwich594,25196
+  def cdltakuri(options={})cdltakuri601,25534
+  def cdltasukigap(options={})cdltasukigap608,25803
+  def cdlthrusting(options={})cdlthrusting615,26091
+  def cdltristar(options={})cdltristar622,26377
+  def cdlunique3river(options={})cdlunique3river629,26654
+  def cdlupsidegap2crows(options={})cdlupsidegap2crows636,26957
+  def cdlxsidegap3methods(options={})cdlxsidegap3methods643,27285
+  def ceil(inReal, options={})ceil650,27595
+  def cmo(options={})cmo657,27838
+  def correl(inReal0, inReal1, options={})correl665,28186
+  def cos(inReal, options={})cos673,28548
+  def cosh(inReal, options={})cosh680,28786
+  def dema(options={})dema687,29036
+  def div(inReal0, inReal1, options={})div695,29368
+  def dx(options={})dx702,29627
+  def ema(options={})ema710,29975
+  def exp(inReal, options={})exp718,30329
+  def floor(inReal, options={})floor725,30554
+  def ht_dcperiod(options={})ht_dcperiod732,30816
+  def ht_dcphase(options={})ht_dcphase739,31092
+  def ht_phasor(options={})ht_phasor746,31361
+  def ht_sine(options={})ht_sine753,31617
+  def ht_trendline(options={})ht_trendline760,31880
+  def ht_trendmode(options={})ht_trendmode767,32169
+  def kama(options={})kama774,32440
+  def linearreg(inReal, options={})linearreg782,32768
+  def linearreg_angle(options={})linearreg_angle790,33131
+  def linearreg_intercept(options={})linearreg_intercept798,33503
+  def linearreg_slope(options={})linearreg_slope806,33897
+  def ln(inReal, options={})ln814,34260
+  def log10(inReal, options={})log10821,34481
+  def ma(options={})ma828,34716
+  def macd(options={})macd836,35109
+  def macdext(options={})macdext844,35577
+  def macdfix(options={})macdfix852,36239
+  def mama(options={})mama860,36585
+  def mavp(inPeriods, options={})mavp868,36994
+  def max(inReal, options={})max876,37500
+  def maxindex(inReal, options={})maxindex884,37862
+  def medprice(options={})medprice892,38200
+  def mfi(options={})mfi899,38454
+  def midpoint(inReal, options={})midpoint907,38804
+  def midprice(options={})midprice915,39166
+  def min(inReal, options={})min923,39533
+  def minindex(inReal, options={})minindex931,39894
+  def minmax(inReal, options={})minmax939,40269
+  def minmaxindex(inReal, options={})minmaxindex947,40657
+  def minus_di(options={})minus_di955,41022
+  def minus_dm(options={})minus_dm963,41394
+  def mom(options={})mom971,41741
+  def mult(inReal0, inReal1, options={})mult979,42060
+  def natr(options={})natr986,42326
+  def obv(options={})obv994,42673
+  def plus_di(options={})plus_di1001,42911
+  def plus_dm(options={})plus_dm1009,43278
+  def ppo(options={})ppo1017,43640
+  def roc(options={})roc1025,44098
+  def rocp(options={})rocp1033,44449
+  def rocr(options={})rocr1041,44789
+  def rocr100(options={})rocr1001049,45143
+  def rsi(options={})rsi1057,45479
+  def sar(options={})sar1065,45803
+  def sarext(options={})sarext1073,46228
+  def sin(inReal, options={})sin1081,47058
+  def sinh(inReal, options={})sinh1088,47296
+  def sma(options={})sma1095,47534
+  def sqrt(inReal, options={})sqrt1103,47886
+  def stddev(inReal, options={})stddev1110,48121
+  def stoch(options={})stoch1118,48512
+  def stochf(options={})stochf1126,49108
+  def stochrsi(options={})stochrsi1134,49597
+  def sub(inReal0, inReal1, options={})sub1142,50159
+  def sum(inReal, options={})sum1149,50401
+  def t3(options={})t31157,50745
+  def tan(inReal, options={})tan1165,51144
+  def tanh(inReal, options={})tanh1172,51382
+  def tema(options={})tema1179,51632
+  def trange(options={})trange1187,51953
+  def trima(options={})trima1194,52205
+  def trix(options={})trix1202,52569
+  def tsf(options={})tsf1210,52890
+  def typprice(options={})typprice1218,53210
+  def ultosc(options={})ultosc1225,53474
+  def var(options={})var1233,53945
+  def wclprice(options={})wclprice1241,54325
+  def willr(options={})willr1248,54582
+  def wma(options={})wma1256,54921
 
 lib/table_extract.rb,687
 module TableExtractTableExtract3,57
@@ -1246,7 +1247,7 @@ module LogReturnsLogReturns8,130
   def get_tuples(symbol, ticker_id)get_tuples103,3064
   def compute_vectors_and_update(symbol, ticker_id, date_range=nil)compute_vectors_and_update111,3370
 
-lib/td_ameritrade/quote_server.rb,1713
+lib/td_ameritrade/quote_server.rb,1714
 module TdAmeritradeTdAmeritrade12,187
   class QuoteServerQuoteServer43,1616
     def initialize(options={})initialize54,2042
@@ -1262,19 +1263,19 @@ module TdAmeritradeTdAmeritrade12,187
     def streamer_info(options={})streamer_info154,5004
     def logout(options={})logout160,5246
     def submit_request(uri, form_data, options={})submit_request167,5485
-    def build_param_str()build_param_str186,6024
-    def submit_request_raw(uri, req, options={})submit_request_raw193,6186
-    def submit_request_stream(uri, req, options={})submit_request_stream208,6596
-    def submit_quote_request(symbol, start_date, end_date, options={})submit_quote_request233,7385
-    def urlencode(str)urlencode241,7885
-    def group_symbols(symbols)group_symbols245,7949
-    def stream(symbols)stream254,8283
-    def snapshot(symbol, options={})snapshot269,8818
-    def build_request(uri, form_data)build_request293,9792
-    def append_form_data(req, params, sep='&')append_form_data300,9948
-    def validate_resolution(period, resolution)validate_resolution304,10103
-    def process_snapshot(buffer)process_snapshot320,10616
-    def retrieve_quotes_from_file()retrieve_quotes_from_file330,11126
+    def build_param_str()build_param_str191,6091
+    def submit_request_raw(uri, req, options={})submit_request_raw198,6253
+    def submit_request_stream(uri, req, options={})submit_request_stream217,6729
+    def submit_quote_request(symbol, start_date, end_date, options={})submit_quote_request242,7518
+    def urlencode(str)urlencode250,8018
+    def group_symbols(symbols)group_symbols254,8082
+    def stream(symbols)stream263,8416
+    def snapshot(symbol, options={})snapshot278,8951
+    def build_request(uri, form_data)build_request302,9925
+    def append_form_data(req, params, sep='&')append_form_data309,10081
+    def validate_resolution(period, resolution)validate_resolution313,10236
+    def process_snapshot(buffer)process_snapshot329,10749
+    def retrieve_quotes_from_file()retrieve_quotes_from_file339,11259
 
 lib/td_ameritrade/ext/extconf.rb,0
 
@@ -2701,12 +2702,16 @@ class TdaPosition < ActiveRecord::BaseTdaPosition28,636
 app/models/membership.rb,56
 class Membership < ActiveRecord::BaseMembership11,234
 
-app/models/watch_list.rb,459
-class WatchList < ActiveRecord::BaseWatchList30,784
-    def create_openning(ticker_id, target_price, current_ival, target_ivalue, open_date)create_openning37,917
-    def create_closure(position, target_price, target_ivalue, close_date)create_closure43,1230
-    def lookup_entry(ticker_id, entry_date=nil)lookup_entry47,1482
-  def update_from_snapshot!(last_bar, curr_ival, num_samples, predicted_price, stddev, last_seq)update_from_snapshot!54,1694
+app/models/watch_list.rb,671
+class WatchList < ActiveRecord::BaseWatchList31,809
+  def symbolsymbol40,1022
+    def create_openning(ticker_id, target_price, current_ival, target_ivalue, open_date)create_openning45,1076
+    def create_closure(position, target_price, target_ivalue, close_date)create_closure49,1329
+    def dispose(ticker_id, current_ival, target_ivalue)dispose53,1581
+    def find_conflict(ticker_id)find_conflict58,1817
+    def lookup_entry(ticker_id, entry_date=nil)lookup_entry62,1941
+  def active_entries(options={})active_entries69,2151
+  def update_from_snapshot!(last_bar, curr_ival, num_samples, predicted_price, stddev, last_seq)update_from_snapshot!77,2509
 
 app/models/ta_spec.rb,218
 class TaSpec < ActiveRecord::BaseTaSpec11,198
@@ -2800,16 +2805,16 @@ class Scan < ActiveRecord::BaseScan17,341
 
 app/models/snapshot.rb,652
 class Snapshot < ActiveRecord::BaseSnapshot19,401
-    def form_volume_sql(ticker_id, date)form_volume_sql28,577
-    def form_seq_sql(ticker_id, date)form_seq_sql32,764
-    def form_close_sql(ticker_id, date)form_close_sql36,928
-    def last_close(ticker_id, date=Date.today)last_close40,1107
-    def last_bar(ticker_id, date=Date.today)last_bar45,1236
-    def last_seq(symbol, date)last_seq55,1759
-    def accum_vol(ticker_id, date)accum_vol62,2004
-    def predict(ticker_or_sym, bar_val=:close, date=Date.today, predict_to=480)predict67,2166
-    def populate(snapshot)populate77,2671
-    def calc_time(seq, date)calc_time97,3358
+    def form_volume_sql(ticker_id, date)form_volume_sql30,613
+    def form_seq_sql(ticker_id, date)form_seq_sql34,800
+    def form_close_sql(ticker_id, date)form_close_sql38,964
+    def last_close(ticker_id, date=Date.today)last_close42,1143
+    def last_bar(ticker_id, date=Date.today)last_bar47,1272
+    def last_seq(symbol, date)last_seq57,1795
+    def accum_vol(ticker_id, date)accum_vol64,2040
+    def predict(ticker_or_sym, bar_val=:close, date=Date.today, predict_to=480)predict69,2202
+    def populate(snapshot)populate79,2707
+    def calc_time(seq, date)calc_time99,3394
 
 app/controllers/tda_positions_controller.rb,80
 class TdaPositionsController < ApplicationControllerTdaPositionsController1,0
@@ -2842,12 +2847,12 @@ class LiveQuotesController < ApplicationControllerLiveQuotesController1,0
 app/controllers/current_listing_controller.rb,85
 class CurrentListingController <  ApplicationControllerCurrentListingController1,0
 
-app/controllers/watch_lists_controller.rb,190
+app/controllers/watch_lists_controller.rb,192
 class WatchListsController < ApplicationControllerWatchListsController1,0
-  def current_objectscurrent_objects6,97
-  def plotplot10,200
-  def openopen16,420
-  def closeclose19,438
+  def current_objectscurrent_objects15,264
+  def plotplot22,602
+  def openopen28,822
+  def closeclose31,840
 
 app/controllers/exchanges_controller.rb,74
 class ExchangesController < ApplicationControllerExchangesController1,0
@@ -3070,39 +3075,17 @@ module StatValuesHelperStatValuesHelper1,0
   def stat_values_pathstat_values_path2,24
   def stat_value_path(obj)stat_value_path6,71
 
-btest/milestone.rb,0
-
 btest/intra_stats.rb,0
-
-btest/aroon.rb,0
-
-btest/rsi_mom.rb,0
 
 btest/compact_rrm.rb,0
 
-btest/rsi_ema.rb,0
-
-btest/intra_stop_2009.rb,0
-
 btest/rfamily.rb,0
 
-btest/stop_2009.rb,0
-
-btest/rsi_rvi_macd.rb,0
+btest/compact_rrmm_ext.rb,0
 
 btest/compact_rrm_ext.rb,0
 
-btest/decade.rb,0
-
-btest/2000_2008.rb,0
-
 btest/emas.rb,0
-
-btest/kevin.rb,0
-
-btest/kevin_2008.rb,0
-
-stop_2009.rb,0
 
 script/tits.rb,0
 
@@ -3479,6 +3462,11 @@ db/migrate/20090307022324_create_derived_values.rb,126
 class CreateDerivedValues < ActiveRecord::MigrationCreateDerivedValues1,0
   def self.upup2,52
   def self.downdown14,270
+
+db/migrate/20090815165411_add_stale_date_to_watch_list.rb,133
+class AddStaleDateToWatchList < ActiveRecord::MigrationAddStaleDateToWatchList1,0
+  def self.upup2,56
+  def self.downdown6,124
 
 db/migrate/20090711171320_create_position_stats.rb,126
 class CreatePositionStats < ActiveRecord::MigrationCreatePositionStats1,0

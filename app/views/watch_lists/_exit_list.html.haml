@@ -1,4 +1,4 @@
-- price_color = price_color(watch_list)
+- price_color = session[:prices][watch_list.ticker_id] >= session[:prev_prices][watch_list.ticker_id] ? 'green' : 'red'
 %tr[watch_list]{:class => cycle('list-line-even', 'list-line-odd')}
   %td.ticker_id
     = lkup watch_list.ticker, :symbol
@@ -28,7 +28,7 @@
     = h watch_list.crossed_at.nil? ? '-' :  watch_list.crossed_at.to_formatted_s(:pm)
   %td.center
     = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:pm)
-  %td.open
-    = link_to 'Open', new_watch_list_tda_position_path(watch_list)
-  %td.destroy
-    = link_to 'Destroy', object_path(watch_list), :confirm => 'Really destroy Watch List Item?', :method => :delete
+  %td.Plot
+    = link_to 'Plot', plot_watch_list_path(watch_list)
+  %td.show
+    = link_to 'Close', close_watch_list_path(watch_list)

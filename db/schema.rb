@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090817185325) do
+ActiveRecord::Schema.define(:version => 20090822010347) do
 
   create_table "bar_lookup", :force => true do |t|
   end
@@ -175,6 +175,31 @@ ActiveRecord::Schema.define(:version => 20090817185325) do
 
   add_index "intra_snapshots", ["ticker_id"], :name => "ticker_id"
 
+  create_table "legacy_watch_list", :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "tda_position_id"
+    t.float    "target_price"
+    t.float    "target_ival"
+    t.float    "price"
+    t.float    "curr_ival"
+    t.float    "predicted_price"
+    t.datetime "crossed_at"
+    t.datetime "last_snaptime"
+    t.float    "predicted_sd"
+    t.integer  "num_samples"
+    t.integer  "snapshots_above", :default => 0, :null => false
+    t.integer  "snapshots_below", :default => 0, :null => false
+    t.date     "entered_on"
+    t.date     "closed_on"
+    t.float    "open"
+    t.float    "high"
+    t.float    "low"
+    t.float    "close"
+    t.integer  "volume"
+    t.integer  "last_seq"
+    t.date     "stale_date"
+  end
+
   create_table "listing_categories", :force => true do |t|
     t.string "name"
   end
@@ -309,14 +334,15 @@ ActiveRecord::Schema.define(:version => 20090817185325) do
   end
 
   create_table "scans", :force => true do |t|
-    t.string "name"
-    t.date   "start_date"
-    t.date   "end_date"
-    t.text   "conditions"
-    t.string "description"
-    t.string "join"
-    t.string "table_name"
-    t.string "order_by"
+    t.string  "name"
+    t.date    "start_date"
+    t.date    "end_date"
+    t.text    "conditions"
+    t.string  "description"
+    t.string  "join"
+    t.string  "table_name"
+    t.string  "order_by"
+    t.integer "prefetch"
   end
 
   create_table "scans_strategies", :id => false, :force => true do |t|
@@ -429,11 +455,13 @@ ActiveRecord::Schema.define(:version => 20090817185325) do
     t.datetime "closed_at"
     t.datetime "updated_at"
     t.boolean  "com"
+    t.integer  "watch_list_id"
   end
 
   add_index "tda_positions", ["ticker_id"], :name => "ticker_id"
   add_index "tda_positions", ["estrategy_id"], :name => "estrategy_id"
   add_index "tda_positions", ["xstrategy_id"], :name => "xstrategy_id"
+  add_index "tda_positions", ["watch_list_id"], :name => "watch_list_id"
 
   create_table "tickers", :force => true do |t|
     t.string  "symbol",      :limit => 8
@@ -456,19 +484,11 @@ ActiveRecord::Schema.define(:version => 20090817185325) do
 
   create_table "watch_list", :force => true do |t|
     t.integer  "ticker_id"
-    t.integer  "tda_position_id"
     t.float    "target_price"
-    t.float    "target_ival"
     t.float    "price"
-    t.float    "curr_ival"
-    t.float    "predicted_price"
-    t.datetime "crossed_at"
     t.datetime "last_snaptime"
-    t.float    "predicted_sd"
     t.integer  "num_samples"
-    t.integer  "snapshots_above", :default => 0, :null => false
-    t.integer  "snapshots_below", :default => 0, :null => false
-    t.date     "entered_on"
+    t.date     "listed_on"
     t.date     "closed_on"
     t.float    "open"
     t.float    "high"
@@ -476,11 +496,20 @@ ActiveRecord::Schema.define(:version => 20090817185325) do
     t.float    "close"
     t.integer  "volume"
     t.integer  "last_seq"
-    t.date     "stale_date"
+    t.float    "current_rsi"
+    t.float    "current_rvi"
+    t.float    "current_macdfix"
+    t.float    "target_rsi"
+    t.float    "target_rvi"
+    t.datetime "open_crossed_at"
+    t.datetime "closed_crossed_at"
+    t.float    "min_delta"
+    t.string   "nearest_indicator"
+    t.float    "target_macdfix"
+    t.date     "opened_on"
   end
 
   add_index "watch_list", ["ticker_id"], :name => "ticker_id"
-  add_index "watch_list", ["tda_position_id"], :name => "tda_position_id"
 
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
@@ -505,12 +534,12 @@ ActiveRecord::Schema.define(:version => 20090817185325) do
   add_foreign_key "tda_positions", ["ticker_id"], "tickers", ["id"], :name => "tda_positions_ibfk_1"
   add_foreign_key "tda_positions", ["estrategy_id"], "strategies", ["id"], :name => "tda_positions_ibfk_2"
   add_foreign_key "tda_positions", ["xstrategy_id"], "strategies", ["id"], :name => "tda_positions_ibfk_3"
+  add_foreign_key "tda_positions", ["watch_list_id"], "watch_list", ["id"], :name => "tda_positions_ibfk_4"
 
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"
   add_foreign_key "tickers", ["exchange_id"], "exchanges", ["id"], :name => "tickers_ibfk_3"
 
   add_foreign_key "watch_list", ["ticker_id"], "tickers", ["id"], :name => "watch_list_ibfk_1"
-  add_foreign_key "watch_list", ["tda_position_id"], "tda_positions", ["id"], :name => "watch_list_ibfk_2"
 
 end

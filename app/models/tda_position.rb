@@ -1,28 +1,29 @@
 # == Schema Information
-# Schema version: 20090815165411
+# Schema version: 20090822010347
 #
 # Table name: tda_positions
 #
-#  id           :integer(4)      not null, primary key
-#  ticker_id    :integer(4)
-#  estrategy_id :integer(4)
-#  xstrategy_id :integer(4)
-#  entry_price  :float
-#  exit_price   :float
-#  curr_price   :float
-#  entry_date   :date
-#  exit_date    :date
-#  rum_shares   :integer(4)
-#  days_held    :integer(4)
-#  stop_loss    :boolean(1)
-#  nreturn      :float
-#  rretrun      :float
-#  eorderid     :integer(4)
-#  xorderid     :integer(4)
-#  openned_at   :datetime
-#  closed_at    :datetime
-#  updated_at   :datetime
-#  com          :boolean(1)
+#  id            :integer(4)      not null, primary key
+#  ticker_id     :integer(4)
+#  estrategy_id  :integer(4)
+#  xstrategy_id  :integer(4)
+#  entry_price   :float
+#  exit_price    :float
+#  curr_price    :float
+#  entry_date    :date
+#  exit_date     :date
+#  num_shares    :integer(4)
+#  days_held     :integer(4)
+#  stop_loss     :boolean(1)
+#  nreturn       :float
+#  rretrun       :float
+#  eorderid      :integer(4)
+#  xorderid      :integer(4)
+#  openned_at    :datetime
+#  closed_at     :datetime
+#  updated_at    :datetime
+#  com           :boolean(1)
+#  watch_list_id :integer(4)
 #
 
 class TdaPosition < ActiveRecord::Base

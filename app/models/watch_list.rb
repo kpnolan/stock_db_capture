@@ -1,31 +1,33 @@
 # == Schema Information
-# Schema version: 20090815165411
+# Schema version: 20090822010347
 #
 # Table name: watch_list
 #
-#  id              :integer(4)      not null, primary key
-#  ticker_id       :integer(4)
-#  tda_position_id :integer(4)
-#  target_price    :float
-#  target_ival     :float
-#  price           :float
-#  curr_ival       :float
-#  predicted_price :float
-#  crossed_at      :datetime
-#  last_snaptime   :datetime
-#  predicted_sd    :float
-#  num_samples     :integer(4)
-#  snapshots_above :integer(4)      default(0), not null
-#  snapshots_below :integer(4)      default(0), not null
-#  entered_on      :date
-#  closed_on       :date
-#  open            :float
-#  high            :float
-#  low             :float
-#  close           :float
-#  volume          :integer(4)
-#  last_seq        :integer(4)
-#  state_date      :date
+#  id                :integer(4)      not null, primary key
+#  ticker_id         :integer(4)
+#  target_price      :float
+#  price             :float
+#  last_snaptime     :datetime
+#  num_samples       :integer(4)
+#  listed_on         :date
+#  closed_on         :date
+#  open              :float
+#  high              :float
+#  low               :float
+#  close             :float
+#  volume            :integer(4)
+#  last_seq          :integer(4)
+#  current_rsi       :float
+#  current_rvi       :float
+#  current_macdfix   :float
+#  target_rsi        :float
+#  target_rvi        :float
+#  open_crossed_at   :datetime
+#  closed_crossed_at :datetime
+#  min_delta         :float
+#  nearest_indicator :string(255)
+#  target_macdfix    :float
+#  opened_on         :date
 #
 
 class WatchList < ActiveRecord::Base

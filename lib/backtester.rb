@@ -23,7 +23,7 @@ class Backtester
   attr_accessor :ticker, :ts, :result_hash, :meta_data_hash
   attr_reader :pnames, :sname, :desc, :options, :post_process, :days_to_close, :entry_cache, :ts_cache
   attr_reader :strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
-  attr_reader :resolution
+  attr_reader :resolution, :logger
 
   def initialize(strategy_name, population_names, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false,
@@ -46,7 +46,7 @@ class Backtester
   end
 
   def run(logger)
-    $logger = logger
+    @logger = logger
     logger.info "\nProcessing backtest of #{sname} against #{pnames.join(', ')}"
     @strategy = Strategy.find_by_name(sname)
     @opening = $analytics.find_opening(sname)
@@ -92,7 +92,7 @@ class Backtester
           @entry_cache[tid] ||= []
           pass_count += open_positions(ts, opening.params, pass)
         end
-        $logger.info(">>>>> Entries for pass #{pass}: #{pass_count} <<<<<<<<<<<<<<<<")
+        logger.info(">>>>> Entries for pass #{pass}: #{pass_count} <<<<<<<<<<<<<<<<")
       end
       @entry_cache = nil                # free up to be grabage collected
       strategy.scans << scan
@@ -184,12 +184,12 @@ class Backtester
           position
         end
       #rescue NoMethodError => e
-      #  $logger.info e.message unless e.message =~ /to_v/ or $logger.nil?
+      #  logger.info e.message unless e.message =~ /to_v/ or logger.nil?
       #rescue TimeseriesException => e
-      #  $logger.info e.message unless e.message =~ /recorded history/ or $logger.nil?
+      #  logger.info e.message unless e.message =~ /recorded history/ or logger.nil?
 #      rescue Exception => e
-#        $logger.info e.message
-#        $logger.info e.backtrace
+#        logger.info e.message
+#        logger.info e.backtrace
     #end
     pass_count
   end
@@ -227,7 +227,7 @@ class Backtester
           nreturn = ((low - p.entry_price) / p.entry_price) / days_held if days_held > 0
           ret = ((low - p.entry_price) / p.entry_price)
           nreturn *= -1.0 if p.short and nreturn != 0.0
-          $logger.info(format("%s\tentry: %3.2f max high: %3.2f low(exit): %3.2f on drop: %3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
+          logger.info(format("%s\tentry: %3.2f max high: %3.2f low(exit): %3.2f on drop: %3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
                               ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0))
           p.update_attributes!(:exit_price => low, :exit_date => xtime,
                                :days_held => days_held, :nreturn => nreturn,
@@ -238,16 +238,16 @@ class Backtester
         sindex += 1
       end
     rescue TimeseriesException => e
-      $logger.info e.to_s
+      logger.info e.to_s
     rescue Exception => e
-      $logger.info e.to_s
+      logger.info e.to_s
     end
     nil
   end
 
   # Close a position opened during the first phase of the backtest
   def close_position(p)
-    #begin
+    begin
       options = self.options.reverse_merge :post_buffer => 0, :debug => true
       end_date = trading_days_from(p.entry_date, days_to_close).last
       ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, resolution, options)
@@ -271,7 +271,7 @@ class Backtester
         logr = Math.log(rreturn.zero? ? 0 : rreturn)
         nreturn = roi / days_held
         p.update_attributes!(:exit_date => xdate, :exit_price => xprice, :roi => roi, #leave out closes so it defaults to NULL
-                             :days_held => days_to_close, :nreturn => nreturn, :indicator_id => Indicator.lookup(:unknown))
+                             :days_held => days_to_close, :nreturn => nreturn, :indicator_id => Indicator.lookup(:unknown).id)
       else
         xprice = index ? ts.value_at(index, :close) : ts.value_at(ts.time2index(xtime), :close)
         edate = p.entry_date.to_date
@@ -287,17 +287,14 @@ class Backtester
         p.update_attributes!(:exit_price => xprice, :exit_date => xdate, :closed => true, :roi => roi,
                              :days_held => days_held, :nreturn => nreturn, :indicator_id => indicator_id)
       end
-    #rescue TimeseriesException => e
-    #  if e.message =~ /recorded history/
-    #    p.strategies.delete_all
-    #    p.distroy
-    #  end
-    #  p = nil
+    rescue TimeseriesException => e
+        logger.error("#{e.class.to_s}: #{e.to_s}")
+    end
     # rescue ActiveRecord::RecordNotFound
 #       indicator = :unknown and retry
 #     rescue Exception => e
-#       $logger.error "#{e.to_s} deleting position}" if $logger
-#       $logger.error p.inspect if $logger
+#       logger.error "#{e.to_s} deleting position}" if logger
+#       logger.error p.inspect if logger
 #       p.strategies.delete_all
 #       p.delete
 #       p = nil

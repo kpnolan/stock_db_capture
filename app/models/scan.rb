@@ -51,7 +51,7 @@ class Scan < ActiveRecord::Base
     count = "count(*) = #{total_bars(adjusted_start, end_date)}"
     order = self.order_by ? " ORDER BY #{self.order_by}" : ''
     having = conditions ? "HAVING #{conditions} and #{count}" : "HAVING #{count}"
-    debugger
+
     sql1 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
           "date >= '#{adjusted_start.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
@@ -62,7 +62,6 @@ class Scan < ActiveRecord::Base
       $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger
       tickers.delete_all
       if table_name == 'daily_bars'
-        debugger
         @population_ids = Scan.connection.select_values(sql1)
       elsif table_name == 'intra_day_bars'
         @population_ids = Scan.connection.select_values(sql2)

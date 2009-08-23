@@ -26,6 +26,8 @@ class Timeseries
   include CsvDumper
   include Enumerable
   include Strategies::Base
+  include Trading::Strategies
+  #include TsPersistence
 
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 50
@@ -41,7 +43,7 @@ class Timeseries
 
 # def initialize(symbol_or_id, date1, date2=nil, time_resolution=1.day, options={})
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
-    @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0
+    @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false
     initialize_state()
     @ticker_id = Ticker.resolve_id(symbol_or_id)
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
@@ -74,7 +76,7 @@ class Timeseries
     self.options.reverse_merge!(DEFAULT_OPTIONS[model])
     @pre_offset = -1
     remember_params(:none)
-    populate(calc_indexes(nil)) if self.options[:populate]
+    calc_indexes(nil) if self.options[:populate]
   end
   #
   # return a string summarizing the contents of this Timeseries
@@ -150,6 +152,7 @@ class Timeseries
   # a non-hacked iterator like each
   def values_at(index, vals)
     vals = vals.map { |v| value_hash[v][index] }
+    vals
   end
 
   #
@@ -194,6 +197,12 @@ class Timeseries
     @derived_values = []
   end
 
+  def result_keys
+    derived_values.map do |pb|
+      { pb.function => pb.names }
+    end
+  end
+
   #
   # Returns the results of a prior TA call, takes a symbol or pair [ :fcn, :result_name ]
   #
@@ -202,7 +211,7 @@ class Timeseries
       case
       when sym_or_pair.is_a?(Symbol) &&
            memo.result_hash.has_key?(sym_or_pair)                       : return memo.result_hash[sym_or_pair]
-      when sym_or_pair.is_a?(Array) && sym_or_pair.first == memo.fcn &&
+      when sym_or_pair.is_a?(Array) && sym_or_pair.first == memo.function &&
            memo.result_hash.hash_key?(sym_or_pair.second)               : return memo.result_hash[sym_or_pair.second]
       end
     end
@@ -492,7 +501,7 @@ class Timeseries
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
 
-    unless options[:result] == :first  || options[:result] == :raw || options[:plot_results].nil?
+    if options[:plot_results]
       if graph_type == :overlap
         aggregate(symbol, pb, options.merge(:with => 'financebars'))
       else
@@ -500,18 +509,19 @@ class Timeseries
       end
     end
 
-    case options[:result]
-    when :keys  : pb.keys
-    when :memo  : pb
-    when :raw   : results
-    when :first : results.first
-    when :second : results.second
-    when :third : results.third
-    when :last  : results.first.last
-    when :array : results.first.to_a
-    else
-      raise ArgumentError, ':result of (:keys|:memo|:raw|:first|:array) required as an option'
-    end
+    results = case options[:result]
+              when :keys  : pb.keys
+              when :memo  : pb
+              when :raw   : results
+              when :first : results.first
+              when :second : results.second
+              when :third : results.third
+              when :last  : results.first.last
+              when :last_of_third : results.third.last
+              when :array : results.first.to_a
+              else
+                raise ArgumentError, ':result of (:keys|:memo|:raw|:first|:array) required as an option'
+              end
   end
 
   def update_last_bar(bar)

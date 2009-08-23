@@ -10,16 +10,20 @@ module ExcelSimulationDumper
 
   OCHLV = [:date, :open, :high, :low, :close, :volume, :logr]
 
+  attr_reader :logger
+
   def make_sheet(strategy=nil, options={})
-    options.reverse_merge! :values => [:high, :low], :pre_days => 0, :post_days => 30, :keep => false
-    day_count = options[:pre_days] + options[:post_days] + 1
+    options.reverse_merge! :values => [:high, :low], :pre_days => 0, :post_days => 30, :keep => false, :log => 'make_sheet'
+    @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{options[:log]}.log")) if options[:log]
+
     if strategy
       strategy_id = Strategy.find_by_name(strategy)
       conditions = { :strategy_id => strategy_id }
     else
       conditions = { }
     end
-    FasterCSV.open(File.join(RAILS_ROOT, 'tmp', 'positions.csv'), 'w') do |csv|
+
+    FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{options[:year].to_s}.csv"), 'w') do |csv|
       csv << make_header_row(options)
       positions = Position.find(:all, :conditions => conditions)
       positions.each do |pos|
@@ -39,16 +43,17 @@ module ExcelSimulationDumper
         row << pos.stop_loss == 1 ? 'TRUE' : 'FALSE'
         range_start = trading_days_from(entry_date, -options[:pre_days]).last
         range_end = trading_days_from(pos.entry_date, options[:post_days]).last
-        ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => false)
-        ts.set_enum_attrs(options[:values])
-        if ts.length == day_count || options[:keep]
-          puts "#{symbol}\t#{entry_date.to_s}\t#{ts.length}"
-          ts.each { |vec| vec.each { |e| row << e } }
-          csv << row
-          csv.flush
-        else
-          puts "#{symbol}\t#{entry_date.to_s}\t#{ts.length} <<<<<<<<<<<<<"
+        begin
+          ts = Timeseries.new(symbol, range_start..range_end, 1.day, :populate => true, :pre_buffer => 0)
+        rescue TimeseriesException => e
+          logger.error("Position skipped #{e.to_s}")
+          next
         end
+        ts.set_enum_attrs(options[:values])
+        logger.info("#{symbol}\t#{entry_date.to_s}\t#{ts.length}") if logger
+        ts.each { |vec| vec.each { |e| row << e } }
+        csv << row
+        csv.flush
       end
     end
     true

@@ -101,10 +101,10 @@ class Backtester
     delta = endt - startt
     deltam = delta/60.0
     logger.info "Open position elapsed time: #{deltam} minutes"
-    # Now closes the posisitons that we just openned by running the block associated with the backtest
+    # Now closes the posisitons that we just opened by running the block associated with the backtest
     # The purpose for "apply" kind of backtest is to open positions based upon the criterion given
     # in the "analytics" section and then close them be evaluating the block associated with the "apply"
-    # If everybody does what they're supposed to do, we end up with a set of positions that have been openned
+    # If everybody does what they're supposed to do, we end up with a set of positions that have been opened
     # and closed, giving the raw data for the analysis of the backtest
     logger.info "Beginning close positions analysis..."
     startt = Time.now
@@ -153,7 +153,7 @@ class Backtester
   end
   # Run the analysis associated with the strategy which returns a set of indexes for which analysis is true
   # Convert this indexes to dates and open a position on that date at the openning price
-  # Remember all of the positions openned for the second part of the backtest, which is to close
+  # Remember all of the positions opened for the second part of the backtest, which is to close
   # the open positions
   def open_positions(ts, params, pass)
       pass_count = 0

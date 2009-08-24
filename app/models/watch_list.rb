@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090823015126
+# Schema version: 20090824160651
 #
 # Table name: watch_list
 #
@@ -47,7 +47,7 @@ class WatchList < ActiveRecord::Base
     @status ||= case
       when tda_position.nil? && opened_on.nil? : 'W'
       when tda_position.closed_at              : 'C'
-      when tda_position.openned_at             : 'O'
+      when tda_position.opened_at              : 'O'
     end
   end
 

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090823015126
+# Schema version: 20090824160651
 #
 # Table name: tda_positions
 #
@@ -19,7 +19,7 @@
 #  rretrun       :float
 #  eorderid      :integer(4)
 #  xorderid      :integer(4)
-#  openned_at    :datetime
+#  opened_at     :datetime
 #  closed_at     :datetime
 #  updated_at    :datetime
 #  com           :boolean(1)

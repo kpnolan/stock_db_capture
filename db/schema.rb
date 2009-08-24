@@ -1,4 +1,4 @@
-# This file is auto-generated from the current state of the database. Instead of editing this file,
+# This file is auto-generated from the current state of the database. Instead of editing this file, 
 # please use the migrations feature of Active Record to incrementally modify your database, and
 # then regenerate this schema definition.
 #
@@ -9,7 +9,8 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090823015126) do
+ActiveRecord::Schema.define(:version => 20090824160651) do
+
   create_table "bar_lookup", :force => true do |t|
   end
 
@@ -457,7 +458,7 @@ ActiveRecord::Schema.define(:version => 20090823015126) do
     t.float    "rretrun"
     t.integer  "eorderid"
     t.integer  "xorderid"
-    t.datetime "openned_at"
+    t.datetime "opened_at"
     t.datetime "closed_at"
     t.datetime "updated_at"
     t.boolean  "com"
@@ -537,11 +538,10 @@ ActiveRecord::Schema.define(:version => 20090823015126) do
 
   add_foreign_key "ta_specs", ["indicator_id"], "indicators", ["id"], :name => "ta_specs_ibfk_1"
 
-  add_foreign_key "tda_positions", ["watch_list_id"], "watch_list", ["id"], :on_delete => :set_null, :name => "tda_positions_ibfk_4"
   add_foreign_key "tda_positions", ["ticker_id"], "tickers", ["id"], :name => "tda_positions_ibfk_1"
   add_foreign_key "tda_positions", ["estrategy_id"], "strategies", ["id"], :name => "tda_positions_ibfk_2"
   add_foreign_key "tda_positions", ["xstrategy_id"], "strategies", ["id"], :name => "tda_positions_ibfk_3"
-  add_foreign_key "tda_positions", ["watch_list_id"], "watch_list", ["id"], :name => "tda_positions_ibfk_4"
+  add_foreign_key "tda_positions", ["watch_list_id"], "watch_list", ["id"], :on_delete => :set_null, :name => "tda_positions_ibfk_4"
 
   add_foreign_key "tickers", ["sector_id"], "sectors", ["id"], :name => "tickers_ibfk_1"
   add_foreign_key "tickers", ["industry_id"], "industries", ["id"], :name => "tickers_ibfk_2"

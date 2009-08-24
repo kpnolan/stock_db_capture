@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090823015126
+# Schema version: 20090824160651
 #
 # Table name: indicators
 #

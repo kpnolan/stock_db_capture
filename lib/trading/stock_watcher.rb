@@ -68,7 +68,7 @@ module Trading
           ss = Snapshot.find(:first, :conditions => { :ticker_id => wl.ticker_id, :snaptime => wl.open_crossed_at })
           unless ss.nil?
             TdaPosition.create!(:ticker_id => wl.ticker_id, :watch_list_id => wl.id, :entry_price => ss.close,
-                                :entry_date => ss.snaptime.to_date, :openned_at => ss.snaptime, :num_shares => 10000)
+                                :entry_date => ss.snaptime.to_date, :opened_at => ss.snaptime, :num_shares => 10000)
             count += 1
           end
         end

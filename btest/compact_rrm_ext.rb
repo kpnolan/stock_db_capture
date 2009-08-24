@@ -19,8 +19,6 @@ analytics do
 end
 
 populations do
-  name = "macd_2009"
-
   # Find the lastest daily bar in the DB (using IBM as the guiney pig)
   latest_bar_date = DailyBar.maximum(:date, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" )
   # end date keeps advancing as long as their 30 trading days which is the max hold time
@@ -28,7 +26,7 @@ populations do
 
   liquid = "min(volume) >= 100000"
   desc "Population of all stocks with a minimum valume of 100000"
-  scan name, :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
+  scan 'macd_2009', :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
 end
 
 backtests(:price => :close, :start_date => '1/2/2009'.to_date) do

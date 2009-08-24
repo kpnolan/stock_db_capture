@@ -47,10 +47,11 @@ module Population
 
     def prepare_attributes(options)
       cols = Scan.content_columns.map { |c| c.name.to_sym }
-      options[:start_date] = options[:start_date].is_a?(Date) ? options[:start_date] : Date.parse(options[:start_date])
-      options[:end_date] = options[:end_date].is_a?(Date) ? options[:end_date] : Date.parse(options[:end_date])
+      options[:start_date] = options[:start_date].to_date
+      options[:end_date] = options[:end_date].to_date
       options[:description] = @descriptions.shift
       options[:table_name] = 'daily_bars' if options[:table_name].nil?
+      options[:prefetch] = options[:prefetch].to_i if options[:prefetch].is_a?(Numeric)
       options.reject { |key, value| ! cols.include? key }
     end
 

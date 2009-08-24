@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090821150720
+# Schema version: 20090823015126
 #
 # Table name: scans
 #
@@ -12,9 +12,12 @@
 #  join        :string(255)
 #  table_name  :string(255)
 #  order_by    :string(255)
+#  prefetch    :integer(4)
 #
 
 class Scan < ActiveRecord::Base
+
+  include TradingCalendar
 
   has_and_belongs_to_many :tickers
   has_and_belongs_to_many :strategies
@@ -39,15 +42,21 @@ class Scan < ActiveRecord::Base
     tickers_ids(repopulate)
   end
 
+  def adjusted_start()
+    prefetch.is_a?(Numeric) ? trading_days_from(start_date, -prefetch.to_i).last : start_date
+  end
+
   # TODO find a better name for this method
   def tickers_ids(repopulate=false)
+    count = "count(*) = #{total_bars(adjusted_start, end_date)}"
     order = self.order_by ? " ORDER BY #{self.order_by}" : ''
-    having = conditions ? "HAVING #{conditions}" : ''
+    having = conditions ? "HAVING #{conditions} and #{count}" : "HAVING #{count}"
+
     sql1 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date >= '#{start_date.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
+          "date >= '#{adjusted_start.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     sql2 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date(start_time) >= '#{start_date.to_s(:db)}' AND date(start_time) <= '#{(end_date).to_s(:db)}' " +
+          "date(start_time) >= '#{adjusted_start.to_s(:db)}' AND date(start_time) <= '#{(end_date).to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     if repopulate || tickers.empty?
       $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger

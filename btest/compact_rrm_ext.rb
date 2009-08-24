@@ -19,17 +19,16 @@ analytics do
 end
 
 populations do
+  name = "macd_2009"
+
   # Find the lastest daily bar in the DB (using IBM as the guiney pig)
   latest_bar_date = DailyBar.maximum(:date, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" )
-  macd_bars = Timeseries.prefetch_bars(:macdfix, 9)
-  name = "macd_2009"
-  ## start way early to allow macd to settle out.
-  pseudo_start_date = trading_days_from('1/2/2009', -macd_bars).last
-  start_date = '1/2/2009'.to_date
-  end_date = trading_days_from(latest_bar_date, -30).last # end date keeps advancing as long as we keep 30 days of foreward buffered ahead of us
-  liquid = "min(volume) >= 100000 and count(*) = #{total_bars(pseudo_start_date, end_date)}"
-  desc "Population of all stocks with a minimum valume of 100000 and have  #{total_bars(pseudo_start_date, end_date)} bars"
-  scan name, :start_date => pseudo_start_date, :end_date => end_date, :conditions => liquid
+  # end date keeps advancing as long as their 30 trading days which is the max hold time
+  end_date = trading_days_from(latest_bar_date, -30).last
+
+  liquid = "min(volume) >= 100000"
+  desc "Population of all stocks with a minimum valume of 100000"
+  scan name, :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
 end
 
 backtests(:price => :close, :start_date => '1/2/2009'.to_date) do

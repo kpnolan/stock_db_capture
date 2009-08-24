@@ -58,3 +58,5 @@ div.progressBar div.background {
   width: 0%;
 }
 
+.ticker { size: 5em }
+.company { size: 30em }

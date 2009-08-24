@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :position_series
+
   map.resources :tda_positions, :member => { :close => :put, :plot => :get }, :collection => { :open => :post, :summary => :get }
   map.resources :snapshots
   map.resources :studies
@@ -27,7 +29,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :daily_closes, :member => { :plot => :get },:collection => { :reload => :get, :begin_load => :post, :progress => :get }
   map.resources :watch_lists, :has_one => :tda_position,
                               :member => { :plot => :get, :open => :get, :close => :get, :retire => :get },
-                              :collection => { :entry_index => :get, :exit_index => :get }
+                              :collection => { :entries => :get, :exits => :get }
 
   map.root :controller => 'tickers', :action => 'index'
 

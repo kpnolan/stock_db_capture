@@ -27,7 +27,7 @@ class Timeseries
   include Enumerable
   include Strategies::Base
   include Trading::Strategies
-  #include TsPersistence
+  include TsPersistence
 
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 50

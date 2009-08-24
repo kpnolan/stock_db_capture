@@ -23,7 +23,7 @@ class AnalResults
     self.outidx = outidx
     self.vectors = results
     self.graph_type = graph_type
-    self.names = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names
+    self.names = TALIB_META_INFO_DICTIONARY[fcn].stripped_output_names.map(&:to_sym)
     self.timeseries = ts
     self.result_hash = {}
 

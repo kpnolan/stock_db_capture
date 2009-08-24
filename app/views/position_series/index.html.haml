@@ -1,0 +1,11 @@
+%h1 Listing position_series
+%table
+  %tr.heading
+    %th Position
+    %th Date
+    %th Indicator
+    %th Value
+
+  = render :partial => 'position_series', :collection => current_objects
+
+= link_to 'New position_series', new_object_path 

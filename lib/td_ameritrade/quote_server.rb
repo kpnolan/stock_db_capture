@@ -295,7 +295,7 @@ module TdAmeritrade
         buffer = Zlib::Inflate.inflate(compressed_bars)
         Snapshot.populate(process_snapshot(buffer))
       rescue SnapshotProtocolError => e
-        #TODO Log something here
+        raise
       end
     end
 

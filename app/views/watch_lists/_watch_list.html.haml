@@ -2,8 +2,6 @@
 %tr[watch_list]{:class => cycle('list-line-even', 'list-line-odd')}
   %td.ticker_id
     = lkup watch_list.ticker, :symbol
-  %td.tda_position_id
-    = lkup watch_list.tda_position
   %td.center{:class =>  price_color }
     = h watch_list.price
   %td.center
@@ -21,11 +19,13 @@
   %td.center
     = h 'RSI'
   %td.center
-    = h format("%3.2f", watch_list.curr_ival)
+    = h format("%3.2f", watch_list.current_rsi)
   %td.center
-    = h watch_list.target_ival
+    = h watch_list.target_rsi
   %td.center
-    = h watch_list.crossed_at.nil? ? '-' :  watch_list.crossed_at.to_formatted_s(:pm)
+    = h watch_list.listed_on.to_s(:db)
+  %td.center
+    = h watch_list.open_crossed_at.nil? ? '-' :  watch_list.open_crossed_at.to_formatted_s(:pm)
   %td.center
     = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:pm)
   %td.open

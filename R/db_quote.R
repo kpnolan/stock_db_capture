@@ -72,6 +72,57 @@ get.db.slope <-
   x
 }
 
+get.position.series <-  function(pos_id, origin = "1899-12-30", retclass = c("zoo", "its", "ts"), indicators = c('rsi', 'rvi', 'macd_hist'),
+                                 quiet = FALSE, drop = FALSE)  {
+  sql <- paste("select date,",
+                "sum(if(name='rsi', value, 0)) as rsi,",
+                "sum(if(name='rvi', value, 0)) as rvi,",
+                "sum(if(name='macd_hist', value, 0)) as macd_hist",
+               "from position_series left outer join indicators on indicators.id = indicator_id",
+               "where position_id = ", pos_id, "group by date order by date desc")
+  con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+  res = dbSendQuery(con, sql)
+  x = fetch(res, n = -1)
+  dbDisconnect(con)
+
+  print(paste("min/max RSI:", min(x$rsi), '/', max(x$rsi)))
+  print(paste("min/max RVI:", min(x$rvi), '/', max(x$rvi)))
+  print(paste("min/max MACD:", min(x$macd_hist), '/', max(x$macd_hist)))
+
+  names(x) <- gsub("\\.", "", names(x))
+  nser <- pmatch(indicators, names(x)[-1]) + 1
+  n <- nrow(x)
+
+  dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+
+  if (retclass == "ts") {
+    jdat <- unclass(julian(dat, origin = as.Date(origin)))
+    ind <- jdat - jdat[n] + 1
+    y <- matrix(NA, nrow = max(ind), ncol = length(nser))
+    y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
+    colnames(y) <- names(x)[nser]
+    y <- y[, seq_along(nser), drop = drop]
+    return(ts(y, start = jdat[n], end = jdat[1]))
+  }
+  else {
+    x <- as.matrix(x[, nser, drop = FALSE])
+    rownames(x) <- NULL
+    y <- zoo(x, dat)
+    y <- y[, seq_along(nser), drop = drop]
+    if (retclass == "its") {
+      if ("package:its" %in% search() || require("its", quietly = TRUE)) {
+        index(y) <- as.POSIXct(index(y))
+        y <- its::as.its(y)
+      }
+      else {
+        warning("package its could not be loaded: zoo series returned")
+      }
+    }
+    return(y)
+  }
+}
+
+
 get.db.quote <-
 function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
           method = NULL, origin = "1899-12-30",
@@ -162,15 +213,15 @@ do.positions <-
     if ( type == "normal" ) {
       pos = get.positions(order="order by date")
     } else if ( type == "losers" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn < 0 and closed not null", order="order by roi")
+      pos = get.positions(where="where year(entry_date) = 2009 and nreturn < 0 and closed is not null", order="order by roi")
     } else if ( type == "winners" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and exit_price is not null and nreturn > 0 and closed not null", order="order by roi desc")
+      pos = get.positions(where="where year(entry_date) = 2009 and roi > 0 and closed is not null", order="order by roi desc")
     } else if ( type == "non" ) {
       pos = get.positions(where="where year(entry_date) = 2009 and closed is null", order="order by roi")
     } else {
       print("invalid arg")
     }
-    plot.positions(pos)
+    plot.positions(type, pos)
     pos
   }
 
@@ -180,7 +231,7 @@ strategy="and strategy_id = 20"
 get.positions <-
   function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, entry_date", where="") {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
+    sql <- paste("select positions.id as id, symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
                  "on tickers.id = ticker_id", where, strategy, order)
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
@@ -192,7 +243,8 @@ get.positions <-
   }
 
 plot.positions <-
-  function(x,  origin = "1899-12-30") {
+  function(type, x,  origin = "1899-12-30", scale=10.0) {
+    ids = x$id
     syms = x$symbol
     closed = x$closed
     edates = x$edate
@@ -202,6 +254,10 @@ plot.positions <-
     rois = x$roi
     dh = x$days_held
     print(paste("There are", length(syms), "entries in this set"))
+
+    op <- par(pty = "m", bg="white")
+    split.screen(c(2,1))
+
     for ( i in 1:length(syms) )  {
       symbol = syms[i]
       edate = as.Date(edates[i])
@@ -221,6 +277,8 @@ plot.positions <-
       roi = roi * 100.0
       xlabel = paste("Time, ret:", format(roi, digits=5), "%", "Days held:", days_held)
 
+      screen(1)
+
       plotOHLC(q, ylab=symbol, xlab=xlabel, main=paste(symbol, "entry:", edate, "exit:", xdate))
       if ( days > 1 ) {
         fit = lsfit(seq(ejdate, xjdate, len=days), seq(eprice, xprice, len=days))
@@ -239,8 +297,17 @@ plot.positions <-
         y1 = xprice-.01
         arrows(x0, y0, x1, y1, col='red')
       }
+      if (type == "non") {
+        screen(2)
+        pos.stats = get.position.series(ids[i], retclass="its")
+        pos.stats[, "macd_hist"] = pos.stats[, "macd_hist"] * scale
+        plot(pos.stats)
+      }
       ask()
+      erase.screen(1)
+      erase.screen(2)
     }
+    par(op)
 }
 
 

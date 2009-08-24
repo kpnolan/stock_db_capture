@@ -1,0 +1,12 @@
+one:
+  id: 1
+  position_id: 1
+  date: 2009-08-22
+  indicator_id: 1
+  value: 1.5
+two:
+  id: 2
+  position_id: 1
+  date: 2009-08-22
+  indicator_id: 1
+  value: 1.5

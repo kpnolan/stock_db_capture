@@ -1,34 +1,36 @@
-- price_color = session[:prices][watch_list.ticker_id] >= session[:prev_prices][watch_list.ticker_id] ? 'green' : 'red'
-%tr[watch_list]{:class => cycle('list-line-even', 'list-line-odd')}
+- price_color = session[:prices][exit_list.ticker_id] >= session[:prev_prices][exit_list.ticker_id] ? 'green' : 'red'
+%tr[exit_list]{:class => cycle('list-line-even', 'list-line-odd')}
   %td.ticker_id
-    = lkup watch_list.ticker, :symbol
-  %td.tda_position_id
-    = lkup watch_list.tda_position
+    = lkup exit_list.ticker, :symbol
+  %td.center
+    = h exit_list.tda_position.entry_date
+  %td.center
+    = h exit_list.tda_position.compute_days_held
+  %td.center
+    = h exit_list.tda_position.entry_price
   %td.center{:class =>  price_color }
-    = h watch_list.price
+    = h exit_list.price
   %td.center
-    = h format("%3.2f", watch_list.target_price)
+    = h format('%3.2f%%', exit_list.tda_position.roi())
   %td.center
-    = h watch_list.open
+    = h exit_list.volume
   %td.center
-    = h watch_list.high
+    = h format('%3.2f', exit_list.current_rsi)
   %td.center
-    = h watch_list.low
+    = h format('%3.2f', exit_list.current_rvi)
   %td.center
-    = h watch_list.last_seq == 480 ? watch_list.close : '-'
+    = h format('%3.2f', exit_list.current_macdfix)
   %td.center
-    = h watch_list.volume
+    = h exit_list.thresholds
   %td.center
-    = h 'RSI'
+    = h exit_list.nearest_indicator.upcase.strip
   %td.center
-    = h format("%3.2f", watch_list.curr_ival)
+    = h format('%3.2f', exit_list.min_delta)
   %td.center
-    = h watch_list.target_ival
+    = h exit_list.closed_crossed_at.nil? ? '-' :  exit_list.closed_crossed_at.to_formatted_s(:pm)
   %td.center
-    = h watch_list.crossed_at.nil? ? '-' :  watch_list.crossed_at.to_formatted_s(:pm)
-  %td.center
-    = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:pm)
+    = h exit_list.last_snaptime.nil? ? '-' :  exit_list.last_snaptime.to_formatted_s(:pm)
   %td.Plot
-    = link_to 'Plot', plot_watch_list_path(watch_list)
+    = link_to 'Plot', plot_watch_list_path(exit_list)
   %td.show
-    = link_to 'Close', close_watch_list_path(watch_list)
+    = link_to 'Close', close_watch_list_path(exit_list)

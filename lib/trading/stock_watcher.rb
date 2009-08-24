@@ -6,16 +6,19 @@ module Trading
 
     WATCHLIST_NAME = 'Watchlist_2009'
     PREWATCH_NAME = 'Prewatch_2009'
-    RSI_CUTOFF_PERCENT = 20.0/25.0 - 1.0
-    PRICE_CUTOFF_PERCENT = 85.0
+    PRICE_CUTOFF_RATIO = 85.0/100.0
     RSI_OPEN_THRESHOLDS = [20.0, 25.0, 30.0]
+    RSI_CUTOFF = 45.0
 
-    attr_reader :candidate_ids, :scan, :ots_hash, :cts_vec, :qt, :logger
+    attr_reader :candidate_ids, :scan, :qt, :logger, :closing_strategy_params
 
     def initialize(logger, options={})
       @logger = logger
-      @ots_hash = { }                   # hash of timeeries one entry each for a posible watched for openning
-      @cts_vec = []                     # vector o timeseries one each for possible closures
+      @closing_strategy_params = {
+        :macdfix => {:threshold => 0, :range => -1..1, :direction => :over, :result => :last_of_third},
+        :rsi => {:threshold => 50, :range => 0..100, :direction => :under, :result => :last},
+        :rvi => {:threshold => 50, :range => 0..100, :direction => :under, :result => :last}
+      }
     end
 
     def create_candidate_list()
@@ -32,8 +35,6 @@ module Trading
     end
 
     def reset()
-      @ots_hash = Hash.new
-      @cts_vec = Array.new
       create_candidate_list()
       add_possible_entries()
     end
@@ -58,6 +59,24 @@ module Trading
     end
 
     #
+    # The routines automatically opens a position upon a theshold crossing
+    #
+    def open_at_crossing
+      count = 0
+      WatchList.all.each do |wl|
+        unless wl.open_crossed_at.nil?
+          ss = Snapshot.find(:first, :conditions => { :ticker_id => wl.ticker_id, :snaptime => wl.open_crossed_at })
+          unless ss.nil?
+            TdaPosition.create!(:ticker_id => wl.ticker_id, :watch_list_id => wl.id, :entry_price => ss.close,
+                                :entry_date => ss.snaptime.to_date, :openned_at => ss.snaptime, :num_shares => 10000)
+            count += 1
+          end
+        end
+      end
+      count
+    end
+
+    #
     # Loop through the tickers matching the scan testing if the price is closse enough (CUTOFF_PERCENT) to one of the three target rsi's.
     # If it passes the test, add it to the WatchList
     #
@@ -66,26 +85,29 @@ module Trading
       logger.info("\n#{startt.to_s(:db)} -- Beginning search for new positions...")
       for ticker_id in candidate_ids
         #begin
-          ticker = Ticker.find ticker_id
-          start_date = trading_days_from(Date.today, -1).last
-          end_date = trading_days_from(Date.today, -1).last
-          ts = Timeseries.new(ticker, start_date..end_date, 1.day)
-          rsi = ts.rsi(:time_period => 14, :result => :last)
-          last_close = ts.close.last
-          openning_thresholds = RSI_OPEN_THRESHOLDS.map do |threshold|
-            target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
-            if ( rsi < threshold && rsi >= (RSI_CUTOFF_PERCENT/100.0) * threshold or
-                 last_close < target_price && last_close >= (PRICE_CUTOFF_PERCENT/100.0) * target_price)
-              begin
-                WatchList.create_openning(ticker_id, target_price, rsi, threshold, Date.today)
-              rescue Exception => e
-                logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{target_price}, ignored.")
-                WatchList.dispose(ticker_id, rsi, threshold) and retry
-              end
-              logger.info("Added (#{ts.symbol}) tp: #{target_price} : #{last_close}\t#{threshold} -- Rsi: #{rsi}")
+        ticker = Ticker.find ticker_id
+        start_date = trading_days_from(Date.today, -1).last
+        end_date = trading_days_from(Date.today, -1).last
+        ts = Timeseries.new(ticker, start_date..end_date, 1.day)
+        rsi = ts.rsi(:time_period => 14, :result => :last)
+        last_close = ts.close.last
+
+        thresholds = RSI_OPEN_THRESHOLDS
+        thresholds.each do |threshold|
+          target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
+          # what happens we we have multiple watch list items per ticker?
+          if  rsi < threshold or last_close < target_price && last_close >= (PRICE_CUTOFF_RATIO)*target_price
+            begin
+              WatchList.create_or_update_listing(ticker_id, target_price, rsi, threshold, Date.today, :logger => logger)
               break
+            rescue Exception => e
+              logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{target_price} listed on #{Date.today.to_s(:db)}.")
             end
+          elsif ( rsi >= RSI_CUTOFF and WatchList.find(:first, :conditions => { :ticker_id => ticker_id, :opened_on => nil} ))
+            logger.info("Deleting #{ts.symbol} RSI of #{rsi} above threhold of #{RSI_CUTOFF}")
+            WatchList.delete_all(:ticker_id => ticker_id, :opened_on => nil)
           end
+        end
         #rescue Exception => e
         #  logger.error(e.to_s)
         #  next
@@ -96,39 +118,38 @@ module Trading
       true
     end
 
-    def repopulate
+    def populate_opening_list
       #
       # repopulate with possible entry that aren't stale
       #
-      @ots_hash = Hash.new()
-      WatchList.find(:all, :conditions => { :stale_date => nil }).each do |watched_position|
-        ticker_id = Ticker.find watched_position.ticker_id
-        start_date = watched_position.entered_on
-        end_date = DailyBar.maximum(:date, :conditions => { :ticker_id => ticker_id })
-        ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
-        self.ots_hash[ts] = [watched_position.target_ival, watched_position.target_price]
+      returning (Hash.new) do |hash|
+        WatchList.find(:all, :conditions => 'opened_on IS NULL').each do |watched_position|
+          ticker_id = Ticker.find watched_position.ticker_id
+          start_date = watched_position.listed_on
+          end_date = DailyBar.maximum(:date, :conditions => { :ticker_id => ticker_id })
+          ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
+          hash[ts] = [watched_position.target_rsi, watched_position.target_price]
+        end
       end
     end
 
-    def add_open_positions()
-      open_posiions = TdaPositions.find(:all, :conditions => { :com => false })
-      for position in open_positions
-        ticker_id = position.ticker_id
-        WatchList.create_closure(position, nil, 60.0)
-        ts = Timeseries.new(ticker_id, scan.start_date..scan.end_date)
-        self.cts_vec << ts
+    def populate_closure_list
+      returning [] do |vec|
+        WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
+          ticker_id = opened_position.ticker_id
+          start_date = opened_position.tda_position.entry_date
+          end_date = DailyBar.maximum(:date, :conditions => { :ticker_id => ticker_id })
+          vec << Timeseries.new(ticker_id, start_date..end_date, 1.day)
+        end
       end
-      cts_vec.length
     end
 
     def start_watching()
-      repopulate()
       @qt = TdAmeritrade::QuoteServer.new
       @qt.attach_to_streamer()
-      test_snapshot_server()
       begin
         test_snapshot_server()
-      rescue
+      rescue Exception
         sleep(60) and retry
       end
       update_loop()
@@ -136,45 +157,57 @@ module Trading
 
     def update_loop
       loop do
-        update_time = update_openings()
+        startt = Time.now
+        ots_hash = populate_opening_list()
+        cts_vec = populate_closure_list()
+        update_openings(ots_hash)
+        update_closures(cts_vec)
+        endt = Time.now
+        update_time = endt - startt
         sleep(60.0-update_time) if update_time < 60.0
         time = Time.now
         break if time.hour == 13 and time.min > 5
       end
     end
 
-    def update_openings()
-      repopulate if ots_hash.empty?
-      startt = Time.now
+    def update_openings(ots_hash)
       ots_hash.each_pair do |ts, targets|
         threshold, target_price = targets
-        new_sample_count = qt.snapshot(ts.symbol)
-        if new_sample_count > 0
-          last_bar = Snapshot.last_bar(ts.ticker_id)
+        returning WatchList.lookup_entry(ts.ticker_id) do |watch|
           begin
-            ts.update_last_bar(last_bar)
-            current_rsi = ts.rsi(:time_period => 14, :result => :last)
-            pred_price, sd, num_samples = Snapshot.predict(ts.symbol)
-            WatchList.lookup_entry(ts.ticker_id).each do |watch|
-              watch.update_from_snapshot!(last_bar, current_rsi, num_samples, pred_price, sd, Snapshot.last_seq(ts.symbol, Date.today))
+            unless qt.snapshot(ts.symbol).zero? and not watch.last_snaptime.nil?
+              last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
+              if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
+                ts.update_last_bar(last_bar)
+                current_rsi = ts.rsi(:time_period => 14, :result => :last)
+                watch.update_open_from_snapshot!(last_bar, current_rsi, num_samples, Snapshot.last_seq(ts.symbol, Date.today))
+              end
             end
           rescue Exception => e
-            logger.error("Exception -- Snaphot for #{ts.symbol} on #{last_bar[:time].to_s(:db)} yields: #{e.to_s}")
+            logger.error("Exception -- #{ts.symbol} on  msg: #{e.to_s}")
           end
         end
       end
-      endt = Time.now
-      deltat = endt - startt
     end
-  end
 
-  def init_closures
-
-  end
-
-  def update_closures()
-    cst_vec.each do |ts|
-      #TODO fill these in
+    def update_closures(cts_vec)
+      cts_vec.each do |ts|
+        returning WatchList.lookup_entry(ts.ticker_id) do |watch|
+          begin
+            unless qt.snapshot(ts.symbol).zero? and not watch.last_snaptime.nil?
+              last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
+              if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
+                ts.update_last_bar(last_bar)
+                result_hash = ts.eval_crossing(closing_strategy_params)
+                watch.update_closure!(result_hash, last_bar,  num_samples)
+              end
+            end
+          rescue Exception => e
+            logger.error("Exception -- #{ts.symbol} on msg: #{e.to_s}")
+          end
+        end
+      end
     end
   end
 end
+

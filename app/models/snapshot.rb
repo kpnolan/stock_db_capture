@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090815165411
+# Schema version: 20090821150720
 #
 # Table name: snapshots
 #
@@ -35,16 +35,12 @@ class Snapshot < ActiveRecord::Base
       sql = "select max(seq) from snapshots where ticker_id = #{ticker_id} and date(snaptime) = '#{date.to_s(:db)}'"
     end
 
-    def form_close_sql(ticker_id, date)
-      sql = "select close from snapshots where ticker_id = #{ticker_id} and date(snaptime) = '#{date.to_s(:db)}' having max(seq)"
-    end
-
     def last_close(ticker_id, date=Date.today)
       bar = last_bar(ticker_id, date)
       bar.nil? ? nil : bar[:close]
     end
 
-    def last_bar(ticker_id, date=Date.today)
+    def last_bar(ticker_id, date=Date.today, count=false)
       snap_ary = Snapshot.find(:all, :conditions => ['ticker_id = ? and date(snaptime) = ?', ticker_id, date], :order => 'seq desc')
       high = snap_ary.map(&:high).max
       low = snap_ary.map(&:low).min
@@ -52,6 +48,7 @@ class Snapshot < ActiveRecord::Base
       close = snap_ary.first.open
       values = [open, high, low, close, snap_ary.first.accum_volume, snap_ary.first.snaptime]
       bar = [:open, :high, :low, :close, :volume, :time].inject({}) { |h, k| h[k] = values.shift; h }
+      count ? [bar, snap_ary.length] : bar
     end
 
     def last_seq(symbol, date)

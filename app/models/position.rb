@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090815165411
+# Schema version: 20090821150720
 #
 # Table name: positions
 #
@@ -21,6 +21,8 @@
 #  short         :boolean(1)
 #  entry_pass    :integer(4)
 #  indicator_id  :integer(4)
+#  roi           :float
+#  closed        :boolean(1)
 #
 
 #require 'rubygems'
@@ -31,6 +33,8 @@ class Position < ActiveRecord::Base
   belongs_to :strategy
   belongs_to :scan
   belongs_to :indicator
+
+  has_and_belongs_to_many :strategies
 
   extend TradingCalendar
 

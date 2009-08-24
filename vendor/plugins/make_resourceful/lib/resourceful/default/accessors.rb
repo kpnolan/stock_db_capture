@@ -123,6 +123,7 @@ module Resourceful
       #
       def build_object
         @current_object = if current_model.respond_to? :build
+                            debugger
           current_model.build(object_parameters)
         else
           returning(current_model.new(object_parameters)) do |obj|

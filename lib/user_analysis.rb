@@ -171,7 +171,7 @@ module UserAnalysis
   def rvi(options={})
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
-    options.merge! :idx_range => idx_range
+    options = options.merge :idx_range => idx_range
     out = ( rvi_wilder(high, options) + rvi_wilder(low, options)).scale(0.5)
     result = [0, idx_range.begin, out]
     memoize_result(self, :rvi, idx_range, options, result, :financebars)

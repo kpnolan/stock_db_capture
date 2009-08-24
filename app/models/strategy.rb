@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090815165411
+# Schema version: 20090821150720
 #
 # Table name: strategies
 #
@@ -15,6 +15,7 @@ require 'yaml'
 
 class Strategy < ActiveRecord::Base
 
+  has_many :positions_stragies
   has_and_belongs_to_many :positions
   has_and_belongs_to_many :scans
 

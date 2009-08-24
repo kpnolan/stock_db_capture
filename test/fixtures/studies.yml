@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090815165411
+# Schema version: 20090821150720
 #
 # Table name: studies
 #

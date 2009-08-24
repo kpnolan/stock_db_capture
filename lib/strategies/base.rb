@@ -35,7 +35,7 @@ module Strategies
         when :under : time_array << props[:time] = index2time(under_threshold(props[:threshold], values).first)
         when :over : time_array << props[:time] = index2time(over_threshold(props[:threshold], values).first)
         else
-          railse ArgumentError, ":direction must be :over or :under"
+          raise ArgumentError, ":direction must be :over or :under"
         end
       end
 
@@ -50,6 +50,7 @@ module Strategies
       ta_props.each_pair do |meth, props|
         return min_time, meth if props[:time] == min_time
       end
+      debugger
     end
   end
 

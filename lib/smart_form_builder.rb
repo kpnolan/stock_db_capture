@@ -46,7 +46,7 @@ class SmartFormBuilder < ActionView::Helpers::FormBuilder
   end
 
   def select(field, choices, options = {}, html_options = {})
-    label_options = html_options
+    label_options = html_options.merge(:class => 'form-field')
     label_options.delete(:id)
     choices.unshift([html_options[:include_blank], nil]) if html_options[:include_blank]
     label(field, label_options)+
@@ -67,6 +67,7 @@ class SmartFormBuilder < ActionView::Helpers::FormBuilder
     else
       choices = tclass.send(:find, :all, :order => order ? order : :id).collect { |o| [o.name, o.id] }
     end
+    debugger
     select(field_name, choices, {}, html_options.reverse_merge(:class => self.options[:field_class]))
   end
 

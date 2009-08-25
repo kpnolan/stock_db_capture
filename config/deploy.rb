@@ -1,8 +1,27 @@
 desc "Set staging instance variables"
+task :local do
+  set :application, "stock_db_capture"
+  set :domain, "localhost"
+  set :repository,  "/backup/git/stock_db_capture.git"
+  set :branch, "master"
+  set :user, "kevin"
+  set :git_username, "kevin"
+  set :use_sudo, false
+  set :deploy_to, "/home/#{user}/apps/#{application}"
+  set :deploy_via, :remote_cache
+  set :chmod755, "app config db lib public vendor script/* public/disp*"
+  set :mongrel_port, "80"
+
+  role :app, domain
+  role :web, domain
+  role :db,  domain, :primary => true
+end
+
+desc "Set staging instance variables"
 task :staging do
   set :application, "stock_db_capture"
   set :domain, "amd64"
-  set :repository,  "ssh://kevin@amd64/home/git/stock_db_capture.git"
+  set :repository,  "git://github/backup/git/stock_db_capture.git"
   set :branch, "master"
   set :user, "kevin"
   set :git_username, "kevin"
@@ -20,16 +39,16 @@ end
 desc "set the production instance variables"
 task :production do
   set :application, "stock_db_capture"
-  set :domain, "insgraph.com"
-  set :repository,  "ssh://kevin@71.56.151.108/home/git/stock_db_capture.git"
+  set :domain, "stern"
+  set :repository,  "git://github/backup/git/stock_db_capture.git"
   set :branch, "master"
-  set :user, "insgrap"
+  set :user, "kevin"
   set :git_username, "kevin"
   set :use_sudo, false
   set :deploy_to, "/home/#{user}/apps/#{application}"
   set :deploy_via, :remote_cache
   set :chmod755, "app config db lib public vendor script/* public/disp*"
-  set :mongrel_port, "4018"
+  set :mongrel_port, "80"
   role :app, domain
   role :web, domain
   role :db,  domain, :primary => true

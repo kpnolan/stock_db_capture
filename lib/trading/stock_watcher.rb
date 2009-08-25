@@ -173,7 +173,7 @@ module Trading
     def update_openings(ots_hash)
       ots_hash.each_pair do |ts, targets|
         threshold, target_price = targets
-        returning WatchList.lookup_entry(ts.ticker_id) do |watch|
+        returning WatchList.lookup_entry(ts.ticker_id, :open) do |watch|
           begin
             unless qt.snapshot(ts.symbol).zero? and not watch.last_snaptime.nil?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
@@ -192,7 +192,7 @@ module Trading
 
     def update_closures(cts_vec)
       cts_vec.each do |ts|
-        returning WatchList.lookup_entry(ts.ticker_id) do |watch|
+        returning WatchList.lookup_entry(ts.ticker_id, :close) do |watch|
           begin
             unless qt.snapshot(ts.symbol).zero? and not watch.last_snaptime.nil?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)

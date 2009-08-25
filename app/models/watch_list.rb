@@ -88,9 +88,14 @@ class WatchList < ActiveRecord::Base
       end
     end
 
-    def lookup_entry(ticker_id, listing_date=nil)
-      cond = { :ticker_id => ticker_id }
-      cond.merge!(:listed_on => entry_date) unless listing_date.nil?
+    def lookup_entry(ticker_id, type)
+      cond = "ticker_id = #{ticker_id} and " +
+        case type
+        when :open  : 'opened_on IS NULL'
+        when :close : 'opened_on IS NOT NULL'
+        else
+          raise ArgumentError, "type should be :open or :close"
+        end
       wl_ary = find(:all, :conditions => cond)
       raise "WatchList has #{wl_ary.length} live entries instead of 1" if wl_ary.length > 1
       wl_ary.first

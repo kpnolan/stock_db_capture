@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :exit_strategies
+
+  map.resources :entry_strategies
+
   map.resources :position_series
 
   map.resources :tda_positions, :member => { :close => :put, :plot => :get }, :collection => { :open => :post, :summary => :get }

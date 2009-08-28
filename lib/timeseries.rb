@@ -497,6 +497,8 @@ class Timeseries
     outidx = results.shift
     pb = AnalResults.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
     @derived_values << pb
+    value_hash.merge! pb.result_hash
+
 
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
@@ -519,8 +521,13 @@ class Timeseries
               when :last  : results.first.last
               when :last_of_third : results.third.last
               when :array : results.first.to_a
+              when nil    : nil
               else
-                raise ArgumentError, ':result of (:keys|:memo|:raw|:first|:array) required as an option'
+                if value_hash.keys.include? options[:result]
+                  value_hash[options[:result]]
+                else
+                  raise ArgumentError, "invalid value for :result => #{options[:result]}"
+                end
               end
   end
 
@@ -629,7 +636,7 @@ class Timeseries
   end
 end
 
-def ts(symbol, local_range, seconds, options={})
+def ts(symbol, local_range, seconds=1.day, options={})
   options.reverse_merge! :populate => true
   $ts = Timeseries.new(symbol, local_range, seconds, options)
   nil

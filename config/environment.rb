@@ -109,6 +109,7 @@ include VisualizeEntry
 
   #$ts1 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/22/2009'), 1.day)
   #$ts2 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/23/2009'), 1.day)
+$ts1 = Timeseries.new(:ainv, '1/2/2009'.to_date..'7/15/2009'.to_date, 1.day)
 
   $sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
   $qt = $sw.qt

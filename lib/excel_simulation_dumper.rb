@@ -12,18 +12,22 @@ module ExcelSimulationDumper
 
   attr_reader :logger
 
-  def make_sheet(strategy=nil, options={})
+  #
+  # Takes either the names or the actual ActiveRecord objects for which to construct a .csv file from the positions
+  # with the characteristics of the args passed. Each arg default to nil which means it is a wildcard in the selection, e.g.
+  # make_sheet() will select all positions while make_sheet(:rsi_open_14) will include a position with that entry strategy. Each non-nil
+  # further constrains the match.
+  #
+  def make_sheet(entry_strategy=nil, exit_strategy=nil, scan=nil, options={})
     options.reverse_merge! :values => [:high, :low], :pre_days => 0, :post_days => 30, :keep => false, :log => 'make_sheet'
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{options[:log]}.log")) if options[:log]
 
-    if strategy
-      strategy_id = Strategy.find_by_name(strategy)
-      conditions = { :strategy_id => strategy_id }
-    else
-      conditions = { }
-    end
+    args = validate_args(entry_strategy, exit_strategy, scan)
+    conditions = build_conditions(args)
 
-    FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{options[:year].to_s}.csv"), 'w') do |csv|
+    csv_suffix = args.last.nil? ? options[:year] : args.last.name
+    csv_suffix += '-' unless csv_suffix.nil?
+    FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
       csv << make_header_row(options)
       positions = Position.find(:all, :conditions => conditions)
       positions.each do |pos|
@@ -75,6 +79,37 @@ module ExcelSimulationDumper
       vals.each { |v| row << "#{v.to_s}#{idx}" }
     end
     row
+  end
+
+  def validate_args(entry_strategy, exit_strategy, scan)
+    arg_num = 1
+    args = [:entry_strategy, :exit_strategy, :scan].map do |sym|
+      name = sym.to_s
+      arg = eval(name)
+      model = name.classify.constantize
+      obj = case arg
+      when String, Symbol
+        raise ArgumentError, "Argument ##{arg_num} (#{arg}) is not valid name in table '#{name.tableize}'" if (obj = model.find_by_name(arg.to_s)).nil?
+        obj
+      when ActiveRecord::Base
+        raise ArgumentError, "Argument ##{arg_num} (#{name}) is an #{arg.class}, not a #{name.classify}" unless arg.is_a? model
+        arg
+      when NilClass
+        nil
+      else
+        raise ArgumentError, "Argument ##{arg_num} (#{name}) must be a #{name.classify} or nil"
+      end
+      arg_num += 1
+      obj
+    end
+    args
+  end
+
+  def build_conditions(args)
+    non_nils = args.compact
+    fkeys = non_nils.map { |ar| ar.class.to_s.foreign_key }.map(&:to_sym)
+    pairs = fkeys.zip(non_nils.map { |ar| ar[:id] })
+    pairs.inject({}) { |h, p| h[p.first] = p.last; h }
   end
 end
 

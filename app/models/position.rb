@@ -1,28 +1,27 @@
 # == Schema Information
-# Schema version: 20090824160651
+# Schema version: 20090826144841
 #
 # Table name: positions
 #
-#  id            :integer(4)      not null, primary key
-#  ticker_id     :integer(4)
-#  entry_date    :datetime
-#  exit_date     :datetime
-#  entry_price   :float
-#  exit_price    :float
-#  num_shares    :integer(4)
-#  stop_loss     :boolean(1)
-#  strategy_id   :integer(4)
-#  days_held     :integer(4)
-#  nreturn       :float
-#  scan_id       :integer(4)
-#  entry_trigger :float
-#  exit_trigger  :float
-#  logr          :float
-#  short         :boolean(1)
-#  entry_pass    :integer(4)
-#  indicator_id  :integer(4)
-#  roi           :float
-#  closed        :boolean(1)
+#  id                :integer(4)      not null, primary key
+#  ticker_id         :integer(4)
+#  entry_date        :datetime
+#  exit_date         :datetime
+#  entry_price       :float
+#  exit_price        :float
+#  num_shares        :integer(4)
+#  stop_loss         :boolean(1)
+#  days_held         :integer(4)
+#  nreturn           :float
+#  scan_id           :integer(4)
+#  logr              :float
+#  short             :boolean(1)
+#  entry_pass        :integer(4)
+#  indicator_id      :integer(4)
+#  roi               :float
+#  closed            :boolean(1)
+#  entry_strategy_id :integer(4)
+#  exit_strategy_id  :integer(4)
 #
 
 #require 'rubygems'
@@ -30,16 +29,14 @@
 
 class Position < ActiveRecord::Base
   belongs_to :ticker
-  belongs_to :strategy
+  belongs_to :entry_strategy
+  belongs_to :exit_strategy
   belongs_to :scan
   belongs_to :indicator
 
-  has_and_belongs_to_many :strategies
+  has_many :position_series, :dependent => :delete
 
   extend TradingCalendar
-
-  belongs_to :ticker
-  has_and_belongs_to_many :strategies
 
   def return()
     unless exit_price.nil?
@@ -49,20 +46,17 @@ class Position < ActiveRecord::Base
     end
   end
 
-  def self.open(population, strategy, ticker, entry_time, entry_price, entry_trigger, short=false, pass=0, aux={})
+  def self.open(ticker, entry_strategy, exit_strategy, scan, entry_time, entry_price, pass, options={})
+
     begin
-      pos = create!(:scan_id => population.id, :strategy_id => strategy.id, :ticker_id => ticker.id,
-                    :entry_price => entry_price, :entry_date => entry_time, :num_shares => 1, :entry_trigger => entry_trigger,
+      short = options[:short]
+      pos = create!(:ticker_id => ticker.id,
+                    :entry_strategy_id => entry_strategy[:id], :exit_strategy_id => exit_strategy[:id], :scan_id => scan[:id],
+                    :entry_price => entry_price, :entry_date => entry_time, :num_shares => 1,
                     :short => short, :entry_pass => pass)
     rescue ActiveRecord::RecordInvalid => e
       raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
       raise e
-    end
-    unless aux.empty?
-      aux.delete :index
-      aux.each do |k,v|
-        PositionStats.create!(:position_id => pos.id, :name => k.to_s, :value => v)
-      end
     end
     pos
   end

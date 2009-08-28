@@ -1,13 +1,19 @@
 analytics do
 
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :compact_rrm_2009, :time_period => 14, :result => :first do |params, pass|
+  open_position :rsi_open_14, :time_period => 14, :result => :first do |params, pass|
     rsi_ary = rsi(params)
     indexes = under_threshold(20+pass*5, rsi_ary)
+    #unless indexes.empty?
+    #  macd_hist = macdfix(:results => :third)
+    #  indexes.select { |idx| macd_hist[idx-outidx] >= 0.0 }
+    #else
+    #  []
+    #end
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  close_position :compact_rrm_2009, :time_period => 14, :result => :first do |params|
+  close_position :compact_rrm_14, :time_period => 14, :result => :first do |params|
     close_crossing_value(:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :third),
                          :rsi => params.merge(:threshold => 50, :direction => :under),
                          :rvi => params.merge(:threshold => 50, :direction => :under))
@@ -29,8 +35,8 @@ populations do
   scan 'macd_2009', :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
 end
 
-backtests(:price => :close, :start_date => '1/2/2009'.to_date) do
-  apply(:compact_rrm_2009, :macd_2009) do
-#    make_sheet()
+backtests(:generate_stats => true, :truncate => :scan) do
+  using(:rsi_open_14, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
+    make_sheet(entry_strategy, exit_strategy, scan)
   end
 end

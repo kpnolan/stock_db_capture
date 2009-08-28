@@ -1,0 +1,10 @@
+%h1 Listing exit_strategies
+%table
+  %tr.heading
+    %th Name
+    %th Params
+    %th Description
+
+  = render :partial => 'exit_strategy', :collection => current_objects
+
+= link_to 'New exit_strategy', new_object_path 

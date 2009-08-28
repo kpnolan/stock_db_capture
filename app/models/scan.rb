@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090824160651
+# Schema version: 20090826144841
 #
 # Table name: scans
 #
@@ -19,8 +19,9 @@ class Scan < ActiveRecord::Base
 
   include TradingCalendar
 
+  has_many :positions
   has_and_belongs_to_many :tickers
-  has_and_belongs_to_many :strategies
+  has_and_belongs_to_many :entry_strategies
 
   validates_uniqueness_of :name
   validates_presence_of :name, :start_date, :end_date
@@ -35,7 +36,7 @@ class Scan < ActiveRecord::Base
 
   def clear_associations_if_dirty
     tickers.clear if changed?
-    strategies.clear if changed?
+    entry_strategies.clear if changed?
   end
 
   def population_ids(repopulate=false)

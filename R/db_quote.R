@@ -72,8 +72,9 @@ get.db.slope <-
   x
 }
 
-get.position.series <-  function(pos_id, origin = "1899-12-30", retclass = c("zoo", "its", "ts"), indicators = c('rsi', 'rvi', 'macd_hist'),
-                                 quiet = FALSE, drop = FALSE)  {
+get.position.series <-
+  function(pos_id, origin = "1899-12-30", retclass = c("zoo", "its", "ts"), indicators = c('rsi', 'rvi', 'macd_hist'),
+           quiet = FALSE, drop = FALSE)  {
   sql <- paste("select date,",
                 "sum(if(name='rsi', value, 0)) as rsi,",
                 "sum(if(name='rvi', value, 0)) as rvi,",
@@ -85,8 +86,6 @@ get.position.series <-  function(pos_id, origin = "1899-12-30", retclass = c("zo
   x = fetch(res, n = -1)
   dbDisconnect(con)
 
-  print(paste("min/max RSI:", min(x$rsi), '/', max(x$rsi)))
-  print(paste("min/max RVI:", min(x$rvi), '/', max(x$rvi)))
   print(paste("min/max MACD:", min(x$macd_hist), '/', max(x$macd_hist)))
 
   names(x) <- gsub("\\.", "", names(x))
@@ -130,7 +129,7 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
 {
   if (missing(start))
     start <- "2009-01-02"
-  if (missing(end))
+  if (missing(end) || is.na(end))
     end <- format(Sys.Date() - 1, "%Y-%m-%d")
   retclass <- match.arg(retclass)
   start <- as.Date(start)
@@ -145,6 +144,8 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   names(x) <- gsub("\\.", "", names(x))
   nser <- pmatch(quote, names(x)[-1]) + 1
   n <- nrow(x)
+
+  print(paste("Rows:", n))
 
   dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
   if (!quiet && dat[n] != start)
@@ -213,7 +214,7 @@ do.positions <-
     if ( type == "normal" ) {
       pos = get.positions(order="order by date")
     } else if ( type == "losers" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and nreturn < 0 and closed is not null", order="order by roi")
+      pos = get.positions(where="where year(entry_date) = 2009 and roi < 0 and closed is not null", order="order by roi")
     } else if ( type == "winners" ) {
       pos = get.positions(where="where year(entry_date) = 2009 and roi > 0 and closed is not null", order="order by roi desc")
     } else if ( type == "non" ) {
@@ -222,11 +223,10 @@ do.positions <-
       print("invalid arg")
     }
     plot.positions(type, pos)
-    pos
+#    pos
   }
 
-strategy="and strategy_id = 20"
-
+strategy=""
 
 get.positions <-
   function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, entry_date", where="") {
@@ -254,7 +254,6 @@ plot.positions <-
     rois = x$roi
     dh = x$days_held
     print(paste("There are", length(syms), "entries in this set"))
-
     op <- par(pty = "m", bg="white")
     split.screen(c(2,1))
 
@@ -266,10 +265,10 @@ plot.positions <-
       xprice = xprices[i]
       roi = rois[i]
       days_held = dh[i]
-      edate7 = edate-7
-      xdate7 = xdate + 7
+      edate14 = edate - 14
+      xdate14 = xdate + 14
 
-      q = get.db.quote(symbol, start=edate7, end=xdate7, retclass="ts", quiet=TRUE)
+      q = get.db.quote(symbol, start=edate14, end=xdate14, retclass="ts", quiet=TRUE)
       ejdate <- unclass(julian(edate, origin = as.Date(origin)))
       xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
       days = xjdate-ejdate
@@ -280,7 +279,7 @@ plot.positions <-
       screen(1)
 
       plotOHLC(q, ylab=symbol, xlab=xlabel, main=paste(symbol, "entry:", edate, "exit:", xdate))
-      if ( days > 1 ) {
+      if ( !is.na(days) && days > 1 ) {
         fit = lsfit(seq(ejdate, xjdate, len=days), seq(eprice, xprice, len=days))
         abline(fit, col='purple')
       }
@@ -297,7 +296,7 @@ plot.positions <-
         y1 = xprice-.01
         arrows(x0, y0, x1, y1, col='red')
       }
-      if (type == "non") {
+      if ( !is.na(xdate) ) {
         screen(2)
         pos.stats = get.position.series(ids[i], retclass="its")
         pos.stats[, "macd_hist"] = pos.stats[, "macd_hist"] * scale

@@ -9,22 +9,10 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090824160651) do
-
-  create_table "bar_lookup", :force => true do |t|
-  end
-
-  add_index "bar_lookup", ["id"], :name => "id"
+ActiveRecord::Schema.define(:version => 20090826185948) do
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
-  end
-
-  create_table "cstats", :id => false, :force => true do |t|
-    t.integer "entry_pass"
-    t.float   "bslope"
-    t.float   "eslope"
-    t.float   "cslope"
   end
 
   create_table "current_listings", :force => true do |t|
@@ -103,12 +91,32 @@ ActiveRecord::Schema.define(:version => 20090824160651) do
   add_index "derived_values", ["ticker_id"], :name => "ticker_id"
   add_index "derived_values", ["derived_value_type_id"], :name => "derived_value_type_id"
 
+  create_table "entry_strategies", :force => true do |t|
+    t.string "name"
+    t.string "params"
+    t.string "description"
+  end
+
+  create_table "entry_strategies_scans", :id => false, :force => true do |t|
+    t.integer "scan_id"
+    t.integer "entry_strategy_id"
+  end
+
+  add_index "entry_strategies_scans", ["scan_id"], :name => "scan_id"
+  add_index "entry_strategies_scans", ["entry_strategy_id"], :name => "entry_strategy_id"
+
   create_table "exchanges", :force => true do |t|
     t.string "symbol"
     t.string "name"
     t.string "country"
     t.string "currency"
     t.string "timezone"
+  end
+
+  create_table "exit_strategies", :force => true do |t|
+    t.string "name"
+    t.string "params"
+    t.string "description"
   end
 
   create_table "factors", :force => true do |t|
@@ -249,24 +257,24 @@ ActiveRecord::Schema.define(:version => 20090824160651) do
     t.float    "exit_price"
     t.integer  "num_shares"
     t.boolean  "stop_loss"
-    t.integer  "strategy_id"
     t.integer  "days_held"
     t.float    "nreturn"
     t.integer  "scan_id"
-    t.float    "entry_trigger"
-    t.float    "exit_trigger"
     t.float    "logr"
     t.boolean  "short"
     t.integer  "entry_pass"
     t.integer  "indicator_id"
     t.float    "roi"
     t.boolean  "closed"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_strategy_id"
   end
 
-  add_index "positions", ["ticker_id", "strategy_id", "entry_date"], :name => "ticker_id_strategy_id_entry_date", :unique => true
-  add_index "positions", ["strategy_id"], :name => "strategy_id"
+  add_index "positions", ["ticker_id", "scan_id", "entry_strategy_id", "exit_strategy_id", "entry_date"], :name => "unique_param_ids", :unique => true
   add_index "positions", ["ticker_id"], :name => "index_positions_on_portfolio_id_and_ticker_id"
   add_index "positions", ["scan_id"], :name => "scan_id"
+  add_index "positions", ["entry_strategy_id"], :name => "entry_strategy_id"
+  add_index "positions", ["exit_strategy_id"], :name => "exit_strategy_id"
 
   create_table "positions08", :force => true do |t|
     t.integer  "ticker_id"
@@ -352,14 +360,6 @@ ActiveRecord::Schema.define(:version => 20090824160651) do
     t.integer "prefetch"
   end
 
-  create_table "scans_strategies", :id => false, :force => true do |t|
-    t.integer "scan_id"
-    t.integer "strategy_id"
-  end
-
-  add_index "scans_strategies", ["scan_id"], :name => "scan_id"
-  add_index "scans_strategies", ["strategy_id"], :name => "strategy_id"
-
   create_table "scans_tickers", :id => false, :force => true do |t|
     t.integer "ticker_id"
     t.integer "scan_id"
@@ -370,11 +370,6 @@ ActiveRecord::Schema.define(:version => 20090824160651) do
 
   create_table "sectors", :force => true do |t|
     t.string "name"
-  end
-
-  create_table "slopes", :id => false, :force => true do |t|
-    t.float "pslope"
-    t.float "eslope"
   end
 
   create_table "snapshots", :force => true do |t|
@@ -521,6 +516,9 @@ ActiveRecord::Schema.define(:version => 20090824160651) do
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
 
+  add_foreign_key "entry_strategies_scans", ["scan_id"], "scans", ["id"], :name => "entry_strategies_scans_ibfk_1"
+  add_foreign_key "entry_strategies_scans", ["entry_strategy_id"], "entry_strategies", ["id"], :name => "entry_strategies_scans_ibfk_2"
+
   add_foreign_key "factors", ["study_id"], "studies", ["id"], :name => "factors_ibfk_1"
   add_foreign_key "factors", ["indicator_id"], "indicators", ["id"], :name => "factors_ibfk_2"
 
@@ -529,9 +527,6 @@ ActiveRecord::Schema.define(:version => 20090824160651) do
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 
   add_foreign_key "positions_strategies", ["strategy_id"], "strategies", ["id"], :name => "positions_strategies_ibfk_1"
-
-  add_foreign_key "scans_strategies", ["scan_id"], "scans", ["id"], :name => "scans_strategies_ibfk_1"
-  add_foreign_key "scans_strategies", ["strategy_id"], "strategies", ["id"], :name => "scans_strategies_ibfk_2"
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"

@@ -19,9 +19,8 @@ module Backtest
       @backtests = []
     end
 
-    def apply(strategy, populations, &block)
-      populations = [ populations ] unless populations.is_a? Array
-      @backtests << Backtester.new(strategy, populations, description, options, &block)
+    def using(entry_strategy_name, exit_strategy_name, scan_name, &block)
+      @backtests << Backtester.new(entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
     end
 
     def desc(string)

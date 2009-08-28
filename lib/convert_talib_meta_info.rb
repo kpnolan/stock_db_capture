@@ -115,6 +115,14 @@ module ConvertTalibMetaInfo
       string_or_array = [ string_or_array ] if string_or_array.class != Array
       string_or_array.map { |string| ConvertTalibMetaInfo.normalize_key(string) }
     end
+
+    def form_param_list(options)
+      returning [] do |vec|
+        opt_args.each do |arg|
+          vec << (options.has_key?(arg.name) ? options[arg.name] : arg.default)
+        end
+      end
+    end
   end
 
   def self.import_functions(fcn_h_array)

@@ -1,0 +1,13 @@
+%tr[exit_strategy]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.name
+    = h exit_strategy.name
+  %td.params
+    = h exit_strategy.params
+  %td.description
+    = h exit_strategy.description
+  %td.show
+    = link_to 'Show', object_path(exit_strategy)
+  %td.edit
+    = link_to 'Edit', edit_object_path(exit_strategy)
+  %td.destroy
+    = link_to 'Destroy', object_path(exit_strategy), :confirm => 'Really destroy exit_strategy?', :method => :delete

@@ -56,6 +56,14 @@ module TechnicalAnalysis
       "ta_#{sym.to_s}_lookback".to_sym
     end
 
+    def optimize_prefetch(method_hash)
+      method_hash.sort do |a,b|
+        a_pre = prefetch_bars(a.first, *TALIB_META_INFO_DICTIONARY[a.first].form_param_list(a.last))
+        b_pre = prefetch_bars(b.first, *TALIB_META_INFO_DICTIONARY[b.first].form_param_list(b.last))
+        b_pre > a_pre ? 1 : b_pre < a_pre ? -1 : 0
+      end
+    end
+
     def prefetch_bars(short_form, *args)
       indicator_prefetch(short_form, *args)
     end
@@ -66,10 +74,10 @@ module TechnicalAnalysis
         unstable = (3.45*(args[0]+1)).ceil
         set_unstable_period(:ema, count)
         minimal_samples(to_lookback(base_indicator), *args)
-      when :rsi then
+      when :rsi, :rvi then
         unstable = (2.0*(args[0]+1)).ceil
         set_unstable_period(:rsi, unstable)
-        minimal_samples(to_lookback(base_indicator), *args)
+        minimal_samples(to_lookback(:rsi), *args)
       when :macd, :macdfix then
         ratio = 1.75
         unstable = (ratio*26+1).ceil
@@ -708,7 +716,7 @@ module TechnicalAnalysis
 
   #Exponential Moving Average
   def ema(options={})
-    options.reverse_merge!(:input => price, :time_period => 5)
+    options.reverse_merge!(:input => price, :time_period => 30)
     idx_range = calc_indexes(:ta_ema_lookback, options[:time_period])
     result = Talib.ta_ema(idx_range.begin, idx_range.end, options[:input], options[:time_period])
     memoize_result(self, :ema, idx_range, options, result, :overlap)

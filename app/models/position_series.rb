@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090824160651
+# Schema version: 20090826144841
 #
 # Table name: position_series
 #
@@ -11,4 +11,6 @@
 #
 
 class PositionSeries < ActiveRecord::Base
+  belongs_to :position
+  belongs_to :indicator
 end

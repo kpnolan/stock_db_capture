@@ -48,13 +48,13 @@ module Analytics
       @closings.find { |c| c.name == name }
     end
 
-    def has_pair?(name)
-      find_opening(name) && find_closing(name)
+    def has_pair?(entry_strategy_name, exit_strategy_name)
+      find_opening(entry_strategy_name) && find_closing(exit_strategy_name)
     end
 
     def open_position(name, params={}, &block)
       raise ArgumentError.new("Block missing for open position #{name}") unless block_given?
-      Strategy.record_open!(name, @descriptions.shift, params.to_yaml)
+      es = EntryStrategy.create_or_update!(name, @descriptions.shift, params.to_yaml)
       opening = OpenStruct.new
       opening.name = name
       opening.params = params
@@ -72,7 +72,7 @@ module Analytics
 
     def close_position(name, params={}, &block)
       raise ArgumentError.new("Block missing for close position #{name}") unless block_given?
-      Strategy.record_close!(name, @descriptions.shift, params.to_yaml)
+      xs = ExitStrategy.create_or_update!(name, @descriptions.shift, params.to_yaml)
       closing = OpenStruct.new
       closing.name = name
       closing.params = params

@@ -57,7 +57,7 @@ module Population
 
     def scan(name, options={})
       options.reverse_merge! :table_name => 'daily_bars'
-      begin
+      #begin
         name = name.to_s.downcase
         if (scan = Scan.find_by_name(name))
           attrs = prepare_attributes(options)
@@ -68,9 +68,9 @@ module Population
           scan = Scan.create!({:name => name}.merge(options))
           @scans << scan
         end
-      rescue => e
-        raise BuilderException.new(name, e.message)
-      end
+      #rescue => e
+      #  raise BuilderException.new(name, e.message)
+      #end
     end
   end
 end

@@ -1,0 +1,22 @@
+# == Schema Information
+# Schema version: 20090826144841
+#
+# Table name: backtest_entries
+#
+#  id                :integer(4)      not null, primary key
+#  entry_strategy_id :integer(4)
+#  position_id       :integer(4)
+#  scan_id           :integer(4)
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  entry_strategy_id: 1
+  position_id: 1
+  scan_id: 1
+
+two:
+  entry_strategy_id: 1
+  position_id: 1
+  scan_id: 1

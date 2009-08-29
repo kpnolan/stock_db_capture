@@ -5,7 +5,7 @@
 # ENV['RAILS_ENV'] ||= 'production'
 
 # Specifies gem version of Rails to use when vendor/rails is not present
-RAILS_GEM_VERSION = '2.3.2' unless defined? RAILS_GEM_VERSION
+RAILS_GEM_VERSION = '2.3.3' unless defined? RAILS_GEM_VERSION
 
 # Bootstrap the Rails environment, frameworks, and default configuration
 require File.join(File.dirname(__FILE__), 'boot')
@@ -25,6 +25,7 @@ Rails::Initializer.run do |config|
   # config.gem "bj"
   # config.gem "hpricot", :version => '0.6', :source => "http://code.whytheluckystiff.net"
   # config.gem "aws-s3", :lib => "aws/s3"
+  config.gem "rubyist-aasm", :source => "http://gems.github.com", :lib => 'aasm'
 
   # Only load the plugins named here, in the order given. By default, all plugins
   # in vendor/plugins are loaded in alphabetical order.
@@ -79,19 +80,11 @@ require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
 require 'excel_simulation_dumper'
-require 'visualize_entry'
 require 'ruby-debug'
-
-class String
-  def to_date()
-    Date.parse(self)
-  end
-end
 
 ETZ = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
 include TradingCalendar
 include ExcelSimulationDumper
-include VisualizeEntry
 
 # ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
 # ARGV[0] contains the name of the rake task otherwise. Since, at this point, we don't have any rake
@@ -107,12 +100,9 @@ include VisualizeEntry
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
-  #$ts1 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/22/2009'), 1.day)
-  #$ts2 = Timeseries.new(:msft, Date.parse('01/27/2009')..Date.parse('07/23/2009'), 1.day)
-$ts1 = Timeseries.new(:ainv, '1/2/2009'.to_date..'7/15/2009'.to_date, 1.day)
 
-  $sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
-  $qt = $sw.qt
+  #$sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
+  #$qt = $sw.qt
 
   def lookup(symbol, start_date, end_date=nil, options={})
     options.reverse_merge! :interval => 1.day.seconds
@@ -135,10 +125,6 @@ $ts1 = Timeseries.new(:ainv, '1/2/2009'.to_date..'7/15/2009'.to_date, 1.day)
     end
   end
 #end
-
-
-#puts "RAILS_ENV: #{RAILS_ENV}"
-#puts "ENV['RAILS_ENV']: #{ENV['RAILS_ENV']}"
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 #$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)

@@ -54,6 +54,7 @@ task :production do
   role :db,  domain, :primary => true
 end
 
+set :keep_releases, 5
 set :scm, :git
 
 namespace :deploy do

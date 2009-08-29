@@ -44,7 +44,7 @@ class Scan < ActiveRecord::Base
   end
 
   def adjusted_start()
-    prefetch.is_a?(Numeric) ? trading_days_from(start_date, -prefetch.to_i).last : start_date
+    prefetch.is_a?(Numeric) ? trading_date_from(start_date, -prefetch.to_i) : start_date
   end
 
   # TODO find a better name for this method

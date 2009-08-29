@@ -204,9 +204,9 @@ class Backtester
       edate = p.entry_date.to_date
     else
       sindex = 0
-      edate = trading_days_from(etime.to_date, 1).last
+      edate = trading_date_from(etime.to_date, 1)
     end
-    max_date = p.exit_date.nil? ? trading_days_from(edate, options[:max_days]).last : p.exit_date.to_date
+    max_date = p.exit_date.nil? ? trading_date_from(edate, options[:max_days]) : p.exit_date.to_date
     etime = p.entry_date
     # grab a timeseries at the given resolution from the entry date (or following day)
     # through the number of specified trailing days
@@ -247,7 +247,7 @@ class Backtester
   def close_position(p)
     begin
       options = self.options.reverse_merge :post_buffer => 0, :debug => true
-      end_date = trading_days_from(p.entry_date, days_to_close).last
+      end_date = trading_date_from(p.entry_date, days_to_close)
       ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, resolution, options)
 
       result = ts.instance_exec(closing.params, &closing.block)
@@ -262,7 +262,7 @@ class Backtester
       if index.nil? && xtime.nil?
         days_held = days_to_close
         edate = p.entry_date.to_date
-        xdate = trading_days_from(edate, days_held).last
+        xdate = trading_date_from(edate, days_held)
         xprice = ts.value_at(ts.index_range.begin+days_held, :close)
         roi = (xprice - p.entry_price) / p.entry_price
         rreturn = xprice/p.entry_price
@@ -323,8 +323,8 @@ class Backtester
   end
 
   def generate_stats(position)
-    start_date = trading_days_from(position.entry_date, -10).last
-    end_date = trading_days_from(position.exit_date, 10).last
+    start_date = trading_date_from(position.entry_date, -10)
+    end_date = trading_date_from(position.exit_date, 10)
     ts = Timeseries.new(position.ticker_id, start_date..end_date, 1.day, :post_buffer => 0)
     ts.compute_and_persist(position,
                            :macdfix => { :result => :macd_hist },

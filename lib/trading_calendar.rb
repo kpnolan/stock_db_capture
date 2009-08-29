@@ -16,6 +16,12 @@ module TradingCalendar
   DATEFMT1 = /(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/
   DATEFMT2 = /(\d{1,2})[-\/](\d{1,2})/
 
+  class String
+    def to_date()
+      Date.parse(self)
+    end
+  end
+
   def holidays()
     if @holidays.nil?
       @holidays = {}
@@ -54,9 +60,16 @@ module TradingCalendar
     trading_days(start_date..end_date)
   end
 
+  def trading_date_from(date, number)
+    return date if number.zero?
+    incr = number > 0 ? 1 : - 1
+    trading_day?(date+=incr) && (number -= incr) while number != 0
+    date
+  end
+
   def trading_days_from(date, number)
     date = date.to_date
-    return [ date ] if number == 0
+    return [ date ] if number.zero?
     if number < 0
       dir = -1
       number = -number
@@ -94,10 +107,6 @@ module TradingCalendar
 
   def format_dates_where_clause(dates)
     " IN ('#{dates.join("',' ")}' )"
-  end
-
-  def trading_to_calendar(start_date, day_count)
-    trading_days_from(start_date, day_count).last
   end
 
   def ttime2index(time, resolution)
@@ -143,7 +152,7 @@ module TradingCalendar
     dates = case
             when arg1.is_a?(Date) && arg2.is_a?(Date) then  [arg1, arg2]
             when arg1.is_a?(String) && arg2.is_a?(String) then  [normalize_date(arg1), normalize_date(arg2)]
-            when arg1.is_a?(Date) && arg2.is_a?(Fixnum) && arg2 < 252 && arg2 >= 0 then arg1..trading_days_from(arg1, arg2).last
+            when arg1.is_a?(Date) && arg2.is_a?(Fixnum) && arg2 < 252 && arg2 >= 0 then arg1..trading_date_from(arg1, arg2)
             when arg1.is_a?(Date) && arg2.is_a?(Fixnum) && arg2 < -252 then arg1..(date+arg2)
             end
   end

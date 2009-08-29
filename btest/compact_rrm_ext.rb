@@ -28,7 +28,7 @@ populations do
   # Find the lastest daily bar in the DB (using IBM as the guiney pig)
   latest_bar_date = DailyBar.maximum(:date, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" )
   # end date keeps advancing as long as their 30 trading days which is the max hold time
-  end_date = trading_days_from(latest_bar_date, -30).last
+  end_date = trading_date_from(latest_bar_date, -30)
 
   liquid = "min(volume) >= 100000"
   desc "Population of all stocks with a minimum valume of 100000"

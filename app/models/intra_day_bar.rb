@@ -87,7 +87,7 @@ class IntraDayBar < ActiveRecord::Base
     end
 
     def prior_close(ticker_id, cur_date)
-      last_daily_bar_date = trading_days_from(cur_date, -1).last
+      last_daily_bar_date = trading_date_from(cur_date, -1)
       dc = DailyBar.find(:first, :conditions => { :ticker_id => ticker_id, :date => last_daily_bar_date})
       dc.nil? ? nil : dc.close
     end

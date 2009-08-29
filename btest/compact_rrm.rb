@@ -22,7 +22,7 @@ populations do
   macd_bars = Timeseries.prefetch_bars(:macdfix, 9)
   name = "macd_2009"
   ## start way early to allow macd to settle out.
-  pseudo_start_date = trading_days_from('1/2/2009', -macd_bars).last
+  pseudo_start_date = trading_date_from('1/2/2009', -macd_bars)
   start_date = '1/2/2009'.to_date
   end_date = '6/5/2009'.to_date
   liquid = "min(volume) >= 100000 and count(*) = #{total_bars(pseudo_start_date, end_date, 1)}"

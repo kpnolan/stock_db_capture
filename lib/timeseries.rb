@@ -251,7 +251,7 @@ class Timeseries
   #
   def offset_date(ref_date, offset)
     trading_days = ((1.day / bars_per_day ) * offset) /1.day
-    tdf = trading_days_from(ref_date, trading_days).last.to_time.utc.midnight
+    tdf = trading_date_from(ref_date, trading_days).to_time.utc.midnight
   end
 
   #

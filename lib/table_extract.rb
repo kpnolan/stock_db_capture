@@ -69,8 +69,8 @@ module TableExtract
     # between give you one day of intraday for 2 between days
     #
     if self.name == 'IntraDayBar'
-      bdate = trading_days_from(bdate, -1).last unless trading_day?(bdate)
-      edate = trading_days_from(edate, 1).last
+      bdate = trading_date_from(bdate, -1) unless trading_day?(bdate)
+      edate = trading_date_from(edate, 1)
     end
     "ticker_id = #{ticker_id} AND #{time_col} BETWEEN '#{bdate.to_s(:db)}' AND '#{edate.to_s(:db)}' "
   end

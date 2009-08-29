@@ -34,7 +34,7 @@ class Position < ActiveRecord::Base
   belongs_to :scan
   belongs_to :indicator
 
-  has_many :position_series, :dependent => :delete
+  has_many :position_series, :dependent => :delete_all
 
   extend TradingCalendar
 

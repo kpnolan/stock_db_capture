@@ -119,7 +119,7 @@ module LogReturns
 
     prev_bar = nil
     if date_range
-      prev_date = trading_days_from(date_range.begin, -1).last
+      prev_date = trading_date_from(date_range.begin, -1)
       prev_bar = DailyBar.find_by_ticker_id_and_date(ticker_id, prev_date)
     end
     close_vec1.unshift(prev_bar ? prev_bar.close : close_vec.first)

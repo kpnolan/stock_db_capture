@@ -25,7 +25,7 @@ module Trading
       @scan = Scan.find_by_name(WATCHLIST_NAME)
 
       start_date = Date.parse('1/1/2009')
-      end_date = trading_days_from(Date.today, -1).last
+      end_date = trading_date_from(Date.today, -1)
       liquid = "min(volume) >= 100000 AND count(*) = #{total_bars(start_date, end_date, 1)}"
       scan.update_attributes!(:table_name => 'daily_bars',
                               :start_date => start_date, :end_date => end_date,
@@ -86,8 +86,8 @@ module Trading
       for ticker_id in candidate_ids
         #begin
         ticker = Ticker.find ticker_id
-        start_date = trading_days_from(Date.today, -1).last
-        end_date = trading_days_from(Date.today, -1).last
+        start_date = trading_date_from(Date.today, -1)
+        end_date = trading_date_from(Date.today, -1)
         ts = Timeseries.new(ticker, start_date..end_date, 1.day)
         rsi = ts.rsi(:time_period => 14, :result => :last)
         last_close = ts.close.last

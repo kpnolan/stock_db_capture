@@ -1,17 +1,18 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: daily_bars
 #
 #  id        :integer(4)      not null, primary key
 #  ticker_id :integer(4)
-#  date      :date
+#  old_date  :date
 #  open      :float
 #  close     :float
 #  high      :float
 #  volume    :integer(4)
 #  logr      :float
 #  low       :float
+#  bartime   :datetime
 #
 
 one:

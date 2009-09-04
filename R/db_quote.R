@@ -16,8 +16,8 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   start <- as.Date(start)
   end <- as.Date(end)
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-  sql <- paste("select start_time, open as Open, high as High, low as Low, close as Close from intra_day_bars left outer join tickers ",
-    " on tickers.id = ticker_id where symbol = '", instrument, "' and date(start_date) >= '", start, "' and date(start_date) <= '", end, "' order by start_time desc", sep="")
+  sql <- paste("select bartime, open as Open, high as High, low as Low, close as Close from intra_day_bars left outer join tickers ",
+    " on tickers.id = ticker_id where symbol = '", instrument, "' and date(start_date) >= '", start, "' and date(start_date) <= '", end, "' order by bartime desc", sep="")
   res = dbSendQuery(con, sql)
   x = fetch(res, n = -1)
   dbDisconnect(con)
@@ -135,7 +135,7 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   start <- as.Date(start)
   end <- as.Date(end)
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-  sql <- paste("select date, open as Open, high as High, low as Low, close as Close from daily_bars left outer join tickers ",
+  sql <- paste("select date(bartime) as date, open as Open, high as High, low as Low, close as Close from daily_bars left outer join tickers ",
     " on tickers.id = ticker_id where symbol = '", instrument, "' and date between '", start, "' and '", end, "' order by date desc", sep="")
   res = dbSendQuery(con, sql)
   x = fetch(res, n = -1)
@@ -319,7 +319,7 @@ function (instrument, date, drop=FALSE,  quote = c("Open", "High", "Low", "Close
 
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
   sql <- paste("select seq-88, open as Open, high as High, low as Low, close as Close from snapshots left outer join tickers ",
-               " on tickers.id = ticker_id where symbol = '", instrument, "' and date(snaptime) = '", date ,"'",
+               " on tickers.id = ticker_id where symbol = '", instrument, "' and date(bartime) = '", date ,"'",
                "AND seq between 89 and 479",
                " order by seq", sep="")
   res = dbSendQuery(con, sql)

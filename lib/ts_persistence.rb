@@ -17,7 +17,7 @@ module TsPersistence
     return unless PositionSeries.find_by_position_id(position_id).nil?
     timevec = self.timevec[index_range]
     keys.each do |k|
-      indicator_id = Indicator.find_by_name(k.to_s)[:id]
+      indicator_id = Indicator.find_by_name(k.to_s).id
       results = vector_for(k)
       timevec.each_with_index do |time, i|
         begin

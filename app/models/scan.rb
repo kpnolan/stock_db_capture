@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: scans
 #
@@ -19,7 +19,7 @@ class Scan < ActiveRecord::Base
 
   include TradingCalendar
 
-  has_many :positions
+  has_many :positions, :dependent => :destroy
   has_and_belongs_to_many :tickers
   has_and_belongs_to_many :entry_strategies
 
@@ -53,27 +53,22 @@ class Scan < ActiveRecord::Base
     order = self.order_by ? " ORDER BY #{self.order_by}" : ''
     having = conditions ? "HAVING #{conditions} and #{count}" : "HAVING #{count}"
 
-    sql1 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date >= '#{adjusted_start.to_s(:db)}' AND date <= '#{end_date.to_s(:db)}' " +
-          "GROUP BY ticker_id " + having + order
-    sql2 = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date(start_time) >= '#{adjusted_start.to_s(:db)}' AND date(start_time) <= '#{(end_date).to_s(:db)}' " +
+    sql = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
+          "date(bartime) BETWEEN '#{adjusted_start.to_s(:db)}' AND '#{end_date.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     if repopulate || tickers.empty?
       $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger
       tickers.delete_all
-      if table_name == 'daily_bars'
-        @population_ids = Scan.connection.select_values(sql1)
-      elsif table_name == 'intra_day_bars'
-        @population_ids = Scan.connection.select_values(sql2)
-      else
-        raise ArgumentError, 'table_name must be "daily_bar" or "intra_day_bars"'
-      end
+      @population_ids = Scan.connection.select_values(sql)
       self.ticker_ids = @population_ids.map(&:to_i)
       ticker_ids
     else
       $logger.info "Using *CACHED* values for scan #{name}" if $logger
       ticker_ids
     end
+  end
+
+  def matching_ids(repopulate=false)
+
   end
 end

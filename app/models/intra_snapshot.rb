@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: intra_snapshots
 #
@@ -30,8 +30,6 @@ class IntraSnapshot < ActiveRecord::Base
   class << self
 
     def order ; 'start_time, id'; end
-    def time_col ; :start_time ;  end
-    def time_convert ; :to_time ;  end
     def time_class ; Time ;  end
     def time_res; 5.minutes; end
 

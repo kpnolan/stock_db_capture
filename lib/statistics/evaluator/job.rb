@@ -42,7 +42,7 @@ module Statistics
               raise TitsJobException, "Results for :#{ind.name}(#{ind.time_period} is of the wrong form: #{rvecs.class}" unless result_ok.call(rvecs)
               i = 0
               rvecs.first.each do |val|
-                TaSeries.create!(:ticker_id => tid, :ta_spec_id => ind[:id], :stime => ts.index2time(i), :value => val)
+                TaSeries.create!(:ticker_id => tid, :ta_spec_id => ind.id, :stime => ts.index2time(i), :value => val)
                 i += 1
               end
               ts.clear_results

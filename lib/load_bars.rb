@@ -4,12 +4,13 @@ require 'rubygems'
 require 'ruby-debug'
 require 'trading_calendar'
 require 'faster_csv'
+require 'holidays' # rake doesn't load on demand files with indefined constants so this has to be explicitly loaded
 
 module LoadBars
 
   MAX_RETRY = 12
 
-  include TradingCalendar
+  extend TradingCalendar
 
   attr_accessor :logger
 
@@ -28,13 +29,13 @@ module LoadBars
   end
 
   def tickers_with_lagging_history
-    sql = "select symbol, max(date) from daily_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date) < '#{latest_date.to_s(:db)}' order by symbol"
+    sql = "select symbol, max(date(bartime)) from daily_bars left outer join tickers on ticker_id = tickers.id  group by ticker_id having max(date(bartime)) < '#{latest_date.to_s(:db)}' order by symbol"
     @logger.info("SQL: #{sql}")
     DailyBar.connection.select_rows(sql)
   end
 
   def tickers_with_lagging_intraday
-    sql = "select symbol, max(date(start_time)) from intra_day_bars left outer join tickers on ticker_id = tickers.id where active = 1 group by ticker_id having max(date(start_time)) < '#{latest_date.to_s(:db)}' order by symbol"
+    sql = "select symbol, max(date(bartime)) from intra_day_bars left outer join tickers on ticker_id = tickers.id where active = 1 group by ticker_id having max(date(bartime)) < '#{latest_date.to_s(:db)}' order by symbol"
     @logger.info("SQL: #{sql}")
     DailyBar.connection.select_rows(sql)
   end
@@ -113,7 +114,7 @@ module LoadBars
     end_date = latest_date()
     for tuple in tuples
       symbol, max_date = tuple
-      max_date = Date.parse(max_date)
+      max_date = max_date.to_date
       td = trading_day_count(max_date, end_date)
       next if td.zero?
       start_date = max_date + 1.day
@@ -136,7 +137,7 @@ module LoadBars
   end
 
   def backfill_seq()
-    sql = "select id, start_time from intra_day_bars where seq is null"
+    sql = "select id, bartime from intra_day_bars where seq is null"
     rows = IntraDayBar.connection.select_rows(sql)
     basis = 52200
     count = 0
@@ -157,9 +158,10 @@ module LoadBars
     end_date = latest_date()
     for tuple in tuples
       symbol, max_date = tuple
+      max_date = max_date.to_date
       td = trading_day_count(max_date, end_date)
       next if td.zero?
-      start_date = Date.parse(max_date) + 1.day
+      start_date = max_date + 1.day
       begin
         puts "updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"
         logger.info "updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{max}"

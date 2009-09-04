@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: entry_strategies
 #
@@ -13,7 +13,7 @@ require 'yaml'
 
 class EntryStrategy < ActiveRecord::Base
 
-  has_many :positions
+  has_many :positions, :dependent => :destroy
   has_and_belongs_to_many :scans
 
   validates_presence_of :name

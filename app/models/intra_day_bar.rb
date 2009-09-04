@@ -1,12 +1,12 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: intra_day_bars
 #
 #  id           :integer(4)      not null, primary key
 #  ticker_id    :integer(4)
 #  period       :integer(4)
-#  start_time   :datetime
+#  bartime      :datetime
 #  open         :float
 #  close        :float
 #  high         :float
@@ -19,11 +19,11 @@
 
 class IntraDayBar < ActiveRecord::Base
 
-  COLUMN_ORDER = [:close, :high, :low, :open, :volume, :start_time]
+  COLUMN_ORDER = [:close, :high, :low, :open, :volume, :bartime]
 
   belongs_to :ticker
 
-  include TradingCalendar
+  extend TradingCalendar
   extend TableExtract
   extend Plot
 
@@ -32,8 +32,7 @@ class IntraDayBar < ActiveRecord::Base
 
   class << self
 
-    def order ; 'start_time, id'; end
-    def time_col ; :start_time ;  end
+    def order ; 'bartime, id'; end
     def time_convert ; :to_time ;  end
     def time_class ; Time ;  end
     def time_res; 30.minutes; end
@@ -53,18 +52,19 @@ class IntraDayBar < ActiveRecord::Base
 
     def create_bar(symbol, tda_bar_ary)
       bar = tda_bar_ary.dup
-      ticker_id = Ticker.find_by_symbol(symbol).id
+      ticker_id = Ticker.lookup(symbol).id
       attrs = COLUMN_ORDER.inject({}) { |h, col| h[col] = bar.shift; h }
       attrs[:ticker_id] = ticker_id
       attrs[:volume] = attrs[:volume].to_i * 100
       attrs[:period] = @period
-      if attrs[:start_time].to_date == @last_date
+
+      if attrs[:bartime].to_date == @last_date
         @accum_volume += attrs[:volume]
         attrs[:delta] = attrs[:close] - @last_close
         attrs[:accum_volume] = @accum_volume
       else
         @seq = 0
-        @last_date= attrs[:start_time].to_date
+        @last_date= attrs[:bartime].to_date
         @last_close = prior_close(ticker_id, @last_date)
         @accum_volume = attrs[:volume]
         attrs[:accum_volume] = @accum_volume
@@ -88,7 +88,7 @@ class IntraDayBar < ActiveRecord::Base
 
     def prior_close(ticker_id, cur_date)
       last_daily_bar_date = trading_date_from(cur_date, -1)
-      dc = DailyBar.find(:first, :conditions => { :ticker_id => ticker_id, :date => last_daily_bar_date})
+      dc = DailyBar.find(:first, :conditions => [ 'ticker_id = ? AND date(bartime) = ?', ticker_id, last_daily_bar_date])
       dc.nil? ? nil : dc.close
     end
   end

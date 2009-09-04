@@ -1,11 +1,11 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: snapshots
 #
 #  id           :integer(4)      not null, primary key
 #  ticker_id    :integer(4)
-#  snaptime     :datetime
+#  bartime      :datetime
 #  seq          :integer(4)
 #  open         :float
 #  high         :float
@@ -28,11 +28,11 @@ class Snapshot < ActiveRecord::Base
   class << self
 
     def form_volume_sql(ticker_id, date)
-      sql = "select accum_volume from snapshots where ticker_id = #{ticker_id} and date(snaptime) = '#{date.to_s(:db)}' having max(seq)"
+      sql = "select accum_volume from snapshots where ticker_id = #{ticker_id} and date(bartime) = '#{date.to_s(:db)}' having max(seq)"
     end
 
     def form_seq_sql(ticker_id, date)
-      sql = "select max(seq) from snapshots where ticker_id = #{ticker_id} and date(snaptime) = '#{date.to_s(:db)}'"
+      sql = "select max(seq) from snapshots where ticker_id = #{ticker_id} and date(bartime) = '#{date.to_s(:db)}'"
     end
 
     def last_close(ticker_id, date=Date.today)
@@ -41,12 +41,12 @@ class Snapshot < ActiveRecord::Base
     end
 
     def last_bar(ticker_id, date=Date.today, count=false)
-      snap_ary = Snapshot.find(:all, :conditions => ['ticker_id = ? and date(snaptime) = ?', ticker_id, date], :order => 'seq desc')
+      snap_ary = Snapshot.find(:all, :conditions => ['ticker_id = ? and date(bartime) = ?', ticker_id, date], :order => 'seq desc')
       high = snap_ary.map(&:high).max
       low = snap_ary.map(&:low).min
       open = snap_ary.last.open
       close = snap_ary.first.open
-      values = [open, high, low, close, snap_ary.first.accum_volume, snap_ary.first.snaptime]
+      values = [open, high, low, close, snap_ary.first.accum_volume, snap_ary.first.bartime]
       bar = [:open, :high, :low, :close, :volume, :time].inject({}) { |h, k| h[k] = values.shift; h }
       count ? [bar, snap_ary.length] : bar
     end
@@ -66,7 +66,7 @@ class Snapshot < ActiveRecord::Base
     def predict(ticker_or_sym, bar_val=:close, date=Date.today, predict_to=480)
       raise ArgumentError, "bar_val not on of #{FORDER.join(', ')}" unless FORDER.include? bar_val
       ticker_id = Ticker.resolve_id(ticker_or_sym)
-      series = find(:all, :conditions => ["ticker_id = ? and date(snaptime) = ?", ticker_id, date], :order => :seq)
+      series = find(:all, :conditions => ["ticker_id = ? and date(bartime) = ?", ticker_id, date], :order => :seq)
       xvec = series.map(&:seq)
       yvec = series.map(&bar_val)
       yval, sd = linear(xvec, yvec, predict_to)
@@ -83,7 +83,7 @@ class Snapshot < ActiveRecord::Base
         attrs.delete(:symbol)
         accum_volume += attrs[:volume]
         attrs[:ticker_id] = ticker.id
-        attrs[:snaptime] = calc_time(attrs[:seq], attrs[:date])
+        attrs[:bartime] = calc_time(attrs[:seq], attrs[:date])
         attrs[:accum_volume] = accum_volume
         attrs.delete :date
         create!(attrs)

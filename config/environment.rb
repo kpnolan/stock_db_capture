@@ -70,6 +70,7 @@ Rails::Initializer.run do |config|
 end
 
 Time::DATE_FORMATS[:pm] = "%d %b %I:%M"
+Time::DATE_FORMATS[:ymd] = "%Y-%m-%d"
 
 require 'smart_form_builder'
 #require 'memcached'
@@ -82,8 +83,17 @@ require 'timeseries'
 require 'excel_simulation_dumper'
 require 'ruby-debug'
 
+#
+# Monkey patched convenience method to convert a string in date fmt to a local time
+#
+#class String
+#  def to_time()
+#    TradingCalendar.normalize_date(self)
+#  end
+#end
+
 ETZ = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
-include TradingCalendar
+extend TradingCalendar
 include ExcelSimulationDumper
 
 # ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
@@ -100,6 +110,7 @@ include ExcelSimulationDumper
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
+#ts(:ibm, '1/1/2009'.to_date..'7/1/2009'.to_date, 1.day)
 
   #$sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
   #$qt = $sw.qt
@@ -111,7 +122,7 @@ include ExcelSimulationDumper
       start_date = start_date.is_a?(Date) ? start_date : Date.parse(start_date)
       end_date = end_date.nil? ? start_date : end_date.is_a?(Date) ? end_date : Date.parse(end_date)
       if options[:interval] == 1.day.seconds
-        td = trading_days(start_date..end_date).length
+        td = trading_day_count(start_date, end_date)
         puts "#{td} trading days in period specified"
         $qs.dailys_for(symbol, start_date, end_date, options) #unless td.zero?
       else
@@ -128,6 +139,3 @@ include ExcelSimulationDumper
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 #$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)
-
-
-

@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090826185948) do
+ActiveRecord::Schema.define(:version => 20090904021724) do
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
@@ -51,17 +51,17 @@ ActiveRecord::Schema.define(:version => 20090826185948) do
   end
 
   create_table "daily_bars", :force => true do |t|
-    t.integer "ticker_id"
-    t.date    "date"
-    t.float   "open"
-    t.float   "close"
-    t.float   "high"
-    t.integer "volume"
-    t.float   "logr"
-    t.float   "low"
+    t.integer  "ticker_id"
+    t.float    "open"
+    t.float    "close"
+    t.float    "high"
+    t.integer  "volume"
+    t.float    "logr"
+    t.float    "low"
+    t.datetime "bartime"
   end
 
-  add_index "daily_bars", ["ticker_id", "date"], :name => "index_daily_bars_on_ticker_id_and_date", :unique => true
+  add_index "daily_bars", ["ticker_id", "bartime"], :name => "index_daily_bars_on_ticker_id_and_bartime", :unique => true
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -129,6 +129,11 @@ ActiveRecord::Schema.define(:version => 20090826185948) do
   add_index "factors", ["study_id", "indicator_id", "result"], :name => "myfields_idx", :unique => true
   add_index "factors", ["indicator_id"], :name => "indicator_id"
 
+  create_table "foo", :id => false, :force => true do |t|
+    t.date     "date"
+    t.datetime "dt"
+  end
+
   create_table "historical_attributes", :force => true do |t|
     t.string "name"
   end
@@ -157,7 +162,7 @@ ActiveRecord::Schema.define(:version => 20090826185948) do
   create_table "intra_day_bars", :force => true do |t|
     t.integer  "ticker_id"
     t.integer  "period"
-    t.datetime "start_time"
+    t.datetime "bartime"
     t.float    "open"
     t.float    "close"
     t.float    "high"
@@ -168,7 +173,7 @@ ActiveRecord::Schema.define(:version => 20090826185948) do
     t.integer  "seq"
   end
 
-  add_index "intra_day_bars", ["ticker_id", "start_time"], :name => "ticker_id_and_start_time", :unique => true
+  add_index "intra_day_bars", ["ticker_id", "bartime"], :name => "ticker_id_and_start_time", :unique => true
 
   create_table "intra_snapshots", :force => true do |t|
     t.integer  "ticker_id"
@@ -374,7 +379,7 @@ ActiveRecord::Schema.define(:version => 20090826185948) do
 
   create_table "snapshots", :force => true do |t|
     t.integer  "ticker_id"
-    t.datetime "snaptime"
+    t.datetime "bartime"
     t.integer  "seq"
     t.float    "open"
     t.float    "high"

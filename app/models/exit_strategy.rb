@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: exit_strategies
 #
@@ -11,7 +11,7 @@
 
 class ExitStrategy < ActiveRecord::Base
 
-  has_many :positions
+  has_many :positions, :dependent => :destroy
 
   validates_presence_of :name
   validates_uniqueness_of :name

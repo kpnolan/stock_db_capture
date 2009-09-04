@@ -2,7 +2,7 @@ module Trading
 
   class StockWatcher
 
-    include TradingCalendar
+    extend TradingCalendar
 
     WATCHLIST_NAME = 'Watchlist_2009'
     PREWATCH_NAME = 'Prewatch_2009'
@@ -65,10 +65,10 @@ module Trading
       count = 0
       WatchList.all.each do |wl|
         unless wl.open_crossed_at.nil?
-          ss = Snapshot.find(:first, :conditions => { :ticker_id => wl.ticker_id, :snaptime => wl.open_crossed_at })
+          ss = Snapshot.find(:first, :conditions => { :ticker_id => wl.ticker_id, :bartime => wl.open_crossed_at })
           unless ss.nil?
             TdaPosition.create!(:ticker_id => wl.ticker_id, :watch_list_id => wl.id, :entry_price => ss.close,
-                                :entry_date => ss.snaptime.to_date, :opened_at => ss.snaptime, :num_shares => 10000)
+                                :entry_date => ss.bartime.to_date, :opened_at => ss.bartime, :num_shares => 10000)
             count += 1
           end
         end
@@ -126,7 +126,7 @@ module Trading
         WatchList.find(:all, :conditions => 'opened_on IS NULL').each do |watched_position|
           ticker_id = Ticker.find watched_position.ticker_id
           start_date = watched_position.listed_on
-          end_date = DailyBar.maximum(:date, :conditions => { :ticker_id => ticker_id })
+          end_date = DailyBar.maximum(:bartime, :conditions => { :ticker_id => ticker_id }).to_date
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
           hash[ts] = [watched_position.target_rsi, watched_position.target_price]
         end
@@ -138,7 +138,7 @@ module Trading
         WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
           ticker_id = opened_position.ticker_id
           start_date = opened_position.tda_position.entry_date
-          end_date = DailyBar.maximum(:date, :conditions => { :ticker_id => ticker_id })
+          end_date = DailyBar.maximum(:bartime, :conditions => { :ticker_id => ticker_id }).to_date
           vec << Timeseries.new(ticker_id, start_date..end_date, 1.day)
         end
       end
@@ -175,9 +175,9 @@ module Trading
         threshold, target_price = targets
         returning WatchList.lookup_entry(ts.ticker_id, :open) do |watch|
           begin
-            unless qt.snapshot(ts.symbol).zero? and not watch.last_snaptime.nil?
+            unless qt.snapshot(ts.symbol).zero? and not watch.last_bartime.nil?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
-              if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
+              if watch.last_bartime.nil? or last_bar[:time] > watch.last_bartime
                 ts.update_last_bar(last_bar)
                 current_rsi = ts.rsi(:time_period => 14, :result => :last)
                 watch.update_open_from_snapshot!(last_bar, current_rsi, num_samples, Snapshot.last_seq(ts.symbol, Date.today))
@@ -194,9 +194,9 @@ module Trading
       cts_vec.each do |ts|
         returning WatchList.lookup_entry(ts.ticker_id, :close) do |watch|
           begin
-            unless qt.snapshot(ts.symbol).zero? and not watch.last_snaptime.nil?
+            unless qt.snapshot(ts.symbol).zero? and not watch.last_bartime.nil?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
-              if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
+              if watch.last_bartime.nil? or last_bar[:time] > watch.last_snaptime
                 ts.update_last_bar(last_bar)
                 result_hash = ts.eval_crossing(closing_strategy_params)
                 watch.update_closure!(result_hash, last_bar,  num_samples)

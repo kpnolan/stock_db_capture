@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: tda_positions
 #
@@ -54,7 +54,7 @@ class TdaPosition < ActiveRecord::Base
   end
 
   def compute_days_held
-    @dh ||= trading_days_between(entry_date, Date.today)
+    @dh ||= trading_day_count_between(entry_date, Date.today)
     if @dh != days_held
       update_attribute(:days_held, @dh)
     end

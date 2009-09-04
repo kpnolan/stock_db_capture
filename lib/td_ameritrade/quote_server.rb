@@ -47,7 +47,7 @@ module TdAmeritrade
     include CacheProc
 
     attr_accessor :snap_interval
-    attr_reader :ioptions, :bars, :interval_type, :frequency, :snaptimes
+    attr_reader :ioptions, :bars, :interval_type, :frequency, :bartimes
     attr_reader :response, :body, :login_xml, :cdi, :company, :segment, :account_id, :cookies, :token, :acl, :cddomain
     attr_reader :accesslevel, :appid, :streamer_url, :userid, :usergroup, :w, :a, :u, :authorized, :timestamp, :tcache
 
@@ -58,7 +58,7 @@ module TdAmeritrade
       @interval_type = nil
       @frequency = nil
       @tcache = { }
-      @snaptimes = { }
+      @bartimes = { }
       @snap_interval = SNAPSHOT_INTERVAL
     end
 
@@ -277,7 +277,7 @@ module TdAmeritrade
 
     def snapshot(symbol, options={})
       symbol = symbol.to_s.upcase
-      return false if snaptimes[symbol] && snaptimes[symbol] + snap_interval > Time.now
+      return false if bartimes[symbol] && bartimes[symbol] + snap_interval > Time.now
       req = build_request(streamer_uri, {})
       req.body = '!' + build_param_str()
       suffix = ''
@@ -288,7 +288,7 @@ module TdAmeritrade
       seq = max(Snapshot.last_seq(symbol, Date.today)+1, 90)
       req.body << bar+'S'+eq+exch+'&C'+eq+'GET'+'&P'+eq+symbol+','+seq.to_s+',481,1d,1m'
       req.body << "\n\n"
-      snaptimes[symbol] = Time.now
+      bartimes[symbol] = Time.now
       buff = submit_request_raw(streamer_uri, req, options)
       begin
         symbol, compressed_bars = parse_snapshot(buff)

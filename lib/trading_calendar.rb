@@ -1,115 +1,163 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'ruby-debug'
+
 module TradingCalendar
-    HOLIDAYS = { 2000 => ['1/17', '2/21', '4/21', '5/29', '7/4', '9/4',  '11/23', '12/25' ],
-                 2001 => ['1/1', '1/15', '2/19', '4/13', '5/28', '7/4', '9/3', '9/11', '9/12', '9/13', '9/14',  '11/22', '12/25' ],
-                 2002 => ['1/1', '1/21', '2/18', '3/29', '5/27', '7/4', '9/2',  '11/28', '12/25' ],
-                 2003 => ['1/1', '1/20', '2/17', '4/18', '5/26', '7/4', '9/1',  '11/27', '12/25' ],
-                 2004 => ['1/1', '1/19', '2/16', '4/9',  '5/31', '6/11', '7/5', '9/6',  '11/25', '12/24' ],
-                 2005 => ['1/17', '2/21', '3/25', '5/30', '7/4', '9/5',  '11/24',  '12/26' ],
-                 2006 => ['1/2', '1/16', '2/20', '4/14', '5/29', '7/4', '9/4',  '11/23', '12/25' ],
-                 2007 => ['1/1', '1/2', '1/15', '2/19', '4/6',  '5/28', '7/4', '9/3',  '11/22', '12/25' ],
-                 2008 => ['1/1', '1/21', '2/18', '3/21', '5/26', '7/4', '9/1',  '11/27', '12/25' ],
-                 2009 => ['1/1', '1/19', '2/16', '4/10', '5/25', '7/3', '9/7',  '11/26', '12/25' ],
-                 2010 => ['1/1', '1/18', '2/15', '4/2',  '5/31', '7/5', '9/6',  '11/25', '12/25' ] }
 
   DATEFMT1 = /(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/
   DATEFMT2 = /(\d{1,2})[-\/](\d{1,2})/
 
-  class String
-    def to_date()
-      Date.parse(self)
+  EPOCH = Time.local(1980, 1, 1, 6, 30)             # Jan 1, 1980 6:30AM
+  EPOCH_END = Time.local(2010,12, 31, 6, 30)        # Dec 31, 2010 6:30AM
+  YEAR_SECONDS = 60*60*24*365
+  LEAP_SECONDS = 60*60*24*366
+  DST_CORRECTION = 60*60
+
+  #
+  # Initialize the holidays hash once the first time this module is
+  # extended into a class or module
+  #
+  def TradingCalendar.extend_object(o)
+    @@holidays ||= holiday_init()
+    @@calendar ||= calendar_init()
+    @@invert_calendar ||= @@calendar.invert
+    super
+  end
+  #
+  # Initialize the holidays has with the holidays represented in shorthand in the
+  # HOLIDAYS table. Holidays are record from 2000 to 2010
+  #
+  def TradingCalendar.holiday_init()
+    holidays = {}
+    Holidays::FROM1980.each do |holiday|
+      year, month, day = holiday.split('-').map(&:to_i)
+      holidays[Time.local(year, month, day, 6, 30).to_i] = true
     end
+    Holidays::FROM2000.each_pair do |year, dates|
+      for date in dates
+        mon, day = date.split('/')
+        holidays[Time.local(year, mon.to_i, day.to_i, 6, 30).to_i] = true
+      end
+    end
+    holidays
   end
 
-  def holidays()
-    if @holidays.nil?
-      @holidays = {}
-      HOLIDAYS.each_pair do |year, dates|
-        for date in dates
-          @holidays[Date.parse("#{date}/#{year}")] = true
+  #
+  # Initialize the Trading Calendar that maps Dates, encoded as Times, to the trading day index based
+  # on the Trading Calendar Epoch of 1/1/1980. A reverse hash is also created to map indexes to Dates
+  #
+  def TradingCalendar.calendar_init
+    date_seconds = EPOCH.to_i
+    epoch_end_seconds = EPOCH_END.to_i
+    day_index = 0
+    calendar = {}
+    begin
+      year_seconds = Time.at(date_seconds).year % 4 != 0 ? YEAR_SECONDS : LEAP_SECONDS
+      (0...year_seconds).step(1.day) do |seconds|
+        current_seconds = date_seconds + seconds
+        current_seconds -= DST_CORRECTION if Time.at(current_seconds).dst?
+        if trading_day?(Time.at(current_seconds))
+          calendar[current_seconds] = day_index
+          day_index += 1
+        else
+          calendar[current_seconds] = day_index
         end
       end
-    end
-    @holidays
+      date_seconds += year_seconds
+    end while date_seconds < epoch_end_seconds
+    calendar
   end
 
-  def trading_day?(date)
-    wday = date.to_time.wday
-    wday != 0 && wday != 6 && !holidays[date]
+  def TradingCalendar.trading_day?(time)
+    1 << time.wday | 0x3E == 0x3E && !@@holidays[time.to_i]
   end
 
-  def trading_days(date_range)
-    date_range.to_a.select do |date|
-      wday = date.to_time.wday
-      wday != 0 && wday != 6 && !holidays[date]
-    end
+  def time2index(time, raise_exception=false)
+    index = @@calendar[time.to_i]
+    raise ArgumentError, "#{time.to_date.to_s(:db)} not contained in Trading Calendar" if index.nil? and raise_exception
+    index
   end
 
-  def trading_count_for_year(year)
-    year = year + 2000 if year < 2000
-    start_date = Date.civil(year, 1, 1)
-    end_date = Date.civil(year, 12, 31)
-    trading_day_count(start_date, end_date)
+  def index2time(index, raise_exception=true)
+    time = Time.at(@@invert_calendar[index])
+    raise ArgumentError, "Trading Day Index #{index} not found in Trading Calendar" if time.nil? and raise_exception
+    time
   end
 
-  def trading_days_for_year(year)
-    year = year + 2000 if year < 2000
-    start_date = Date.civil(year, 1, 1)
-    end_date = Date.civil(year, 12, 31)
-    trading_days(start_date..end_date)
+  #
+  # true if weekday is between 1 through 5 and not a holiday
+  #
+  def trading_day?(time)
+    1 << time.wday | 0x3E == 0x3E && !@@holidays[time.to_i]
   end
-
-  def trading_date_from(date, number)
-    return date if number.zero?
-    incr = number > 0 ? 1 : - 1
-    trading_day?(date+=incr) && (number -= incr) while number != 0
-    date
-  end
-
-  def trading_days_from(date, number)
-    date = date.to_date
-    return [ date ] if number.zero?
-    if number < 0
-      dir = -1
-      number = -number
-    else
-      dir = 1
-    end
-    trading_days = [ ]
-    calendar_days = dir
-    while trading_days.empty? || trading_days.length < number
-      next_date = date + calendar_days
-      case
-      when [0,6].include?(next_date.to_time.wday) : calendar_days += dir
-      when holidays[next_date] : calendar_days += dir
-      else
-        trading_days << next_date
-        calendar_days += dir
+  #
+  # returns and array of times (6:30AM local) of the trading dates (inclusive by default) between two times
+  #
+  def trading_days(time1, time2, inclusive=true)
+    validate_times(time1, time2)
+    sec1 = time1.to_i
+    sec2 = time2.to_i
+    times = returning [] do |timevec|
+      (sec1..sec2).step(1.day) do |seconds|
+        time = Time.at(seconds)
+        timevec << time if trading_day?(time)
       end
     end
-    return trading_days
+    # The range was inclusive, but the iteration was exclusive
+    #times << time2 if inclusive and trading_day?(time2)
+    times
+  end
+  #
+  # Number of trading days in the given year. If year is less than 25, add 2000 to the year
+  #
+  def trading_count_for_year(year)
+    year = year + 2000 if year < 25
+    start_date = Time.local(year, 1, 1)
+    end_date = Time.local(year, 12, 31)
+    trading_day_count(start_date, end_date)
+  end
+  #
+  # returns the date which is number trading days from the first arg (date or time)
+  # The number can be negative in which case the date is before the given date
+  #
+  def trading_date_from(date_or_time, number)
+    return date_or_time if number.zero?
+    time = date_or_time.to_time.change(:hour => 6, :min => 30)
+    base_index = time2index(time)
+    offset_time = index2time(base_index+number)
+    date_or_time.is_a?(Date) ? offset_time.to_date : offset_time
   end
 
+  #
+  # return the total bars between the two days, multiplied by the given
+  # bars_per_day
+  #
   def total_bars(date1, date2, bars_per_day=1)
     trading_day_count(date1, date2) * bars_per_day
   end
 
-  def trading_day_count(date1, date2)
-    trading_days(date1.to_date..date2.to_date).length
+  #
+  # return the number of tradings days between the two dates (inclusive by default)
+  # FIXME this seem to be
+  #
+  def trading_day_count(date1, date2, inclusive=true)
+    index1 = time2index(date1.to_time.change(:hour => 6, :min => 30), true)
+    index2 = time2index(date2.to_time.change(:hour => 6, :min => 30), true)
+    index2 - index1 + (inclusive ? 1 : 0)
   end
 
-  # FIXME these routines ore woefully inefficient. They make arrays and then take the lenght, that's fine if you
-  # FIXME the array, but what if you only want a count?
+  #
+  # return the number of tradings days (exclusive) between the two dates
+  #
   def trading_days_between(date1, date2)
-    trading_days(date1.to_date..date2.to_date).length-1
+    trading_day_count(date1, date2, false)
   end
 
-  def format_dates_where_clause(dates)
-    " IN ('#{dates.join("',' ")}' )"
-  end
-
-  def ttime2index(time, resolution)
+  #
+  # return the zero-based index of the time given the period in minutes of
+  # a trading day. For example index of 9:30 would be 6 if the period was 30 minutes
+  #
+  def ttime2index(time, period)
     tstr = time.strftime("%m/%d/%Y %H:%M %z")
     d = Date._strptime(tstr, "%m/%d/%Y %H:%M")
     t = Time.local(d[:year], d[:mon], d[:mday], 6, 30, 0, 0)
@@ -117,22 +165,34 @@ module TradingCalendar
     index = (delta / resolution).to_i
   end
 
+  #
+  # tries to parse a date given the following formats
+  #    M/D/YY or MM/DD/YY or MM/DD/YYYY or MM/DD or M/D
+  # or permuations of the above, using regular expression (fast). If the date doesn't match
+  # any of the given formats it is pased on to Date.parse which does
+  # a more thorough (and much slower) job of parsing the given date string
+  #
   def normalize_date(date)
-    return date unless date.is_a? String
     if m = DATEFMT1.match(date)
-      y = m[2].to_int
+      y = m[2].to_i
       year = y > 1900 ? y : y < 25 ? y+2000 : y+1900
-      year = m[3].length == 2 ? 2000 + m[2].to_int : m[2].to_int
+      year = m[3].length == 2 ? 2000 + m[2].to_int : m[2].to_i
       mon = m[1].to_i
       day = m[2].to_i
-      Date.civil(year, mon, day)
+      Time.local(year, mon, day)
     elsif m =  DATEFMT2.match(date)
       year = 2009
       mon = m[1].to_i
       day = m[2].to_i
-      Date.civil(year, mon, day)
+      Time.local(year, mon, day)
     else
-      Date.parse(date)
+      raise ArgumentError, "unknown date format #{date}"
+    end
+  end
+
+  def validate_times(*times)
+    times.each do |time|
+      raise ArgumentError, "time for date must be given at local time midnight" unless !time.gmt? && time.hour == 6 && time.min == 30
     end
   end
 

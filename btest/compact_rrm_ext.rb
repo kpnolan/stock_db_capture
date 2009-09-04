@@ -26,17 +26,17 @@ end
 
 populations do
   # Find the lastest daily bar in the DB (using IBM as the guiney pig)
-  latest_bar_date = DailyBar.maximum(:date, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" )
+  latest_bar_date = DailyBar.maximum(:bartime, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" ).to_date
   # end date keeps advancing as long as their 30 trading days which is the max hold time
-  end_date = trading_date_from(latest_bar_date, -30)
+  end_date = Population.trading_date_from(latest_bar_date, -30)
 
   liquid = "min(volume) >= 100000"
   desc "Population of all stocks with a minimum valume of 100000"
   scan 'macd_2009', :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
 end
 
-backtests(:generate_stats => true, :truncate => :scan) do
+backtests(:generate_stats => false, :profile => false, :truncate => :scan) do
   using(:rsi_open_14, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
-    make_sheet(entry_strategy, exit_strategy, scan)
+    #make_sheet(entry_strategy, exit_strategy, scan)
   end
 end

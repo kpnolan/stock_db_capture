@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090826144841
+# Schema version: 20090903044201
 #
 # Table name: tickers
 #
@@ -53,11 +53,12 @@ class Ticker < ActiveRecord::Base
     end
 
     def resolve_id(ticker_or_sym)
+      #FIXME return actual AR here, not id
       begin
         case ticker_or_sym
         when Numeric          : find(ticker_or_sym).id
         when Symbol, String   : lookup(ticker_or_sym).id
-        when Ticker           : ticker_or_sym[:id]
+        when Ticker           : ticker_or_sym.id
         end
       rescue ActiveRecord::RecordNotFound
         nil

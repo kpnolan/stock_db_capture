@@ -6,7 +6,7 @@ require 'rbgsl'
 
 module ExcelSimulationDumper
 
-  include TradingCalendar
+  extend TradingCalendar
 
   OCHLV = [:date, :open, :high, :low, :close, :volume, :logr]
 
@@ -108,7 +108,7 @@ module ExcelSimulationDumper
   def build_conditions(args)
     non_nils = args.compact
     fkeys = non_nils.map { |ar| ar.class.to_s.foreign_key }.map(&:to_sym)
-    pairs = fkeys.zip(non_nils.map { |ar| ar[:id] })
+    pairs = fkeys.zip(non_nils.map { |ar| ar.id })
     pairs.inject({}) { |h, p| h[p.first] = p.last; h }
   end
 end

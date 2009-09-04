@@ -8,6 +8,7 @@ require 'backtest/maker'
 require 'backtest/builder'
 require 'strategies/base'
 require 'yaml'
+require 'ruby-prof'
 
 require 'rubygems'
 require 'ruby-debug'
@@ -19,6 +20,8 @@ class BacktestException < Exception
 end
 
 class Backtester
+
+  extend TradingCalendar
 
   attr_accessor :ticker, :ts, :result_hash, :meta_data_hash
   attr_reader :scan_name, :es_name, :xs_name, :desc, :options, :post_process, :days_to_close, :entry_cache, :ts_cache
@@ -74,6 +77,9 @@ class Backtester
       #
       # Foreach ticker in the population, create a timeseries for the date range given with the population
       # and run the analysis given with the strategy on said timeseries
+
+      RubyProf.start  if options[:profile]
+
       for pass in options[:epass]
         pass_count = 0
         for tid in tid_array
@@ -99,6 +105,16 @@ class Backtester
       delta = endt - startt
       deltam = delta/60.0
       logger.info "Open position elapsed time: #{deltam} minutes"
+
+      if options[:profile]
+        GC.disable
+        results = RubyProf.stop
+        GC.enable
+
+        File.open "#{RAILS_ROOT}/tmp/open-position.prof", 'w' do |file|
+          RubyProf::CallTreePrinter.new(results).print(file)
+        end
+      end
     else
       #TODO wipe all the scans associated with this position if position changed
       logger.info "Using CACHED positions"
@@ -113,6 +129,8 @@ class Backtester
     logger.info "Beginning close positions analysis..."
     startt = Time.now
 
+    RubyProf.start if options[:profile]
+
     open_positions = entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id })
     pos_count = open_positions.length
 
@@ -120,17 +138,28 @@ class Backtester
     for position in open_positions
       p = close_position(position)
       next if p.nil?
-      if p.exit_date.nil?
-        logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
-      else
-        logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return, p.indicator.name )
-      end
+      #if p.exit_date.nil?
+      #  logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
+      #else
+      #  logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return, p.indicator.name )
+      #end
       counter += 1
     end
     endt = Time.now
     delta = endt - startt
     deltam = delta/60.0
     logger.info "Backtest (close positions) elapsed time: #{deltam} minutes"
+
+    if options[:profile]
+      GC.disable
+      results = RubyProf.stop
+      GC.enable
+
+      File.open "#{RAILS_ROOT}/tmp/close-position.prof", 'w' do |file|
+        RubyProf::CallTreePrinter.new(results).print(file)
+      end
+      exit()                #!!!!!!!!!!!!!!!!!!!!!!!!! TAKE THIS OUT !!!!!!!!!!!!!!!!!!!!
+    end
     #
     # Perform stop loss analysis if it was specified in the analytics section of the backtest config
     #
@@ -165,20 +194,21 @@ class Backtester
                   when Hash : aux = idx; idx[:index]
                   end
           next if index.nil? || @entry_cache[ts.ticker_id].include?(index) # don't enter the same entry twice
-          begin
+          #begin
             price = ts.value_at(index, :close)
             time = ts.index2time(index)
             debugger if time.nil?
-          rescue Exception => e
-            debugger
-            puts e.to_s
-            next
-          end
+          #rescue Exception => e
+          #  debugger
+          #  puts e.to_s
+          #  next
+          #end
           #TODO wipe all positions associated with the strategy if the strategy changes
           #TODO add support for short sales using the optional params arg at end
           position = Position.open(ticker, entry_strategy, exit_strategy, scan, time, price, pass)
           @entry_cache[ts.ticker_id] << index
           entry_strategy.positions << position
+          scan.positions << position
           pass_count += 1
         end
       #rescue NoMethodError => e
@@ -204,9 +234,9 @@ class Backtester
       edate = p.entry_date.to_date
     else
       sindex = 0
-      edate = trading_date_from(etime.to_date, 1)
+      edate = Backtester.trading_date_from(etime.to_date, 1)
     end
-    max_date = p.exit_date.nil? ? trading_date_from(edate, options[:max_days]) : p.exit_date.to_date
+    max_date = p.exit_date.nil? ? Backtester.trading_date_from(edate, options[:max_days]) : p.exit_date.to_date
     etime = p.entry_date
     # grab a timeseries at the given resolution from the entry date (or following day)
     # through the number of specified trailing days
@@ -247,8 +277,10 @@ class Backtester
   def close_position(p)
     begin
       options = self.options.reverse_merge :post_buffer => 0, :debug => true
-      end_date = trading_date_from(p.entry_date, days_to_close)
-      ts = Timeseries.new(p.ticker_id, p.entry_date.to_date..end_date, resolution, options)
+      start_date = p.entry_date.to_date
+      end_date = Backtester.trading_date_from(start_date, days_to_close)
+
+      ts = Timeseries.new(p.ticker_id, start_date..end_date, resolution, options)
 
       result = ts.instance_exec(closing.params, &closing.block)
 
@@ -262,7 +294,7 @@ class Backtester
       if index.nil? && xtime.nil?
         days_held = days_to_close
         edate = p.entry_date.to_date
-        xdate = trading_date_from(edate, days_held)
+        xdate = Position.trading_date_from(edate, days_held)
         xprice = ts.value_at(ts.index_range.begin+days_held, :close)
         roi = (xprice - p.entry_price) / p.entry_price
         rreturn = xprice/p.entry_price
@@ -289,7 +321,7 @@ class Backtester
       exit_strategy.positions << p
       generate_stats(p) if options[:generate_stats]
     rescue TimeseriesException => e
-      logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
+      #logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
       p.destroy
     end
     # rescue ActiveRecord::RecordNotFound
@@ -323,8 +355,8 @@ class Backtester
   end
 
   def generate_stats(position)
-    start_date = trading_date_from(position.entry_date, -10)
-    end_date = trading_date_from(position.exit_date, 10)
+    start_date = Position.trading_date_from(position.entry_date, -10)
+    end_date = Position.trading_date_from(position.exit_date, 10)
     ts = Timeseries.new(position.ticker_id, start_date..end_date, 1.day, :post_buffer => 0)
     ts.compute_and_persist(position,
                            :macdfix => { :result => :macd_hist },

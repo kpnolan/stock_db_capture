@@ -11,12 +11,59 @@
 require 'date'
 
 class Time
-  def bod?; hour == 9 && min == 30;end
-  def eod?; hour == 15 && min == 30; end
-  def in_trade?; hour >= 9 && hour <= 15; end
+  def bod?; hour == 6 && min == 30;end
+  def eod?; hour == 13 && min == 30; end
+  def in_trade?; hour >= 6 && hour <= 13; end
 end
 
 class Timeseries
+
+  class TimeMap
+
+    attr_reader :first_index, :last_index,  :begin_time, :end_time, :timevec
+
+    extend TradingCalendar
+
+    def initialize(timevec)
+      @timevec = timevec
+      return if timevec.empty?
+      raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless timevec.first.acts_like_time?
+      @begin_time = timevec.first
+      @end_time = timevec.last
+      @first_index = TimeMap.time2index(begin_time)
+      @last_index = TimeMap.time2index(end_time)
+      report_missing_bars() if timevec.length <  last_index - first_index + 1
+    end
+
+    def index2time(index)
+      return TimeMap.index2time(first_index+index) if index < timevec.length
+      raise ArgumentError, "index [#{index}] is ouside of the range of bars, the maximum of which is #{timevec.length-1}"
+    end
+
+    def time2index(date_or_time)
+      time = date_or_time.to_time.change(:hour => 6, :min => 30)
+      abs_index = TimeMap.time2index(time)
+      abs_index - first_index
+    end
+
+    def report_missing_bars()
+      raise TimeseriesException, "Missing bars #{missing_bars.map{ |t| t.to_formatted_s(:ymd) }.join(', ')}"
+    end
+
+    def missing_bars()
+      timevec_as_seconds = timevec.map(&:to_i)
+      missing_bars_as_seconds = expected_bars_as_seconds - timevec_as_seconds
+      missing_bars_as_seconds.map { |secs| Time.at(secs) }
+    end
+
+    def expected_bars_as_seconds()
+      (first_index..last_index).to_a.map { |index| TimeMap.index2time(index).to_i }
+    end
+
+    def empty?
+      timevec.empty?
+    end
+  end
 
   include Plot
   include TechnicalAnalysis
@@ -28,6 +75,7 @@ class Timeseries
   include Strategies::Base
   include Trading::Strategies
   include TsPersistence
+  extend TradingCalendar
 
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 50
@@ -36,10 +84,10 @@ class Timeseries
                      IntraDayBar => { :sample_resolution => [ 30.minutes ] },
                      Snapshot => { :sample_resolution => [ 1.minute ] } }
   attr_reader :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
-  attr_reader :begin_time, :end_time, :pre_offset, :utc_offset, :resolution, :options
+  attr_reader :begin_time, :end_time, :pre_offset, :post_offset, :utc_offset, :resolution, :options
   attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
-  attr_reader :expected_bar_count, :expected_trading_days
+  attr_reader :expected_bar_count
 
 # def initialize(symbol_or_id, date1, date2=nil, time_resolution=1.day, options={})
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
@@ -50,15 +98,15 @@ class Timeseries
     @symbol = Ticker.find(ticker_id).symbol
     if local_range.is_a? Range
       if local_range.begin.is_a?(Date) && local_range.end.is_a?(Date)
-        @local_range = local_range.begin.to_time.utc.midnight..local_range.end.to_time.utc.midnight
+        @local_range = local_range.begin.to_time.change(:hour => 6, :min => 30)..local_range.end.to_time.change(:hour => 6, :min => 30)
       elsif local_range.begin.is_a?(Time) && local_range.end.is_a?(Time)
-        @local_range = local_range.begin.utc..local_range.end.utc
+        @local_range = local_range.begin...local_range.end
       else
         raise ArgumentError, "local_range must be a Date, a Range of Dates or Times, or String"
       end
     else
       if local_range.is_a?(Date)
-        @local_range = local_range.to_time.utc.midnight..(local_range.to_time.utc.midnight + 1.day)
+        @local_range = local_range.to_time..(local_range.to_time + 1.day)
       elsif local_range.is_a?(String)
         @local_range = parse_local_string(local_range)
       else
@@ -132,8 +180,7 @@ class Timeseries
   def local_each(attrs)
     timevec[index_range].each_with_index { |time, i| yield hash_at(i, attrs).merge({ :time => time}) }
   end
-  #
-  # returns a *hash* of values the keys of which are *attrs* for the index specified
+  #  # returns a *hash* of values the keys of which are *attrs* for the index specified
   #
   def hash_at(i, attrs)
     attrs.inject({}) { |a, h| h[a] = value_hash[a][i]; h}
@@ -250,21 +297,21 @@ class Timeseries
   # Compute the calendar date to be given to the DB to grab the selected data range plus any pre-buffering
   #
   def offset_date(ref_date, offset)
-    trading_days = ((1.day / bars_per_day ) * offset) /1.day
-    tdf = trading_date_from(ref_date, trading_days).to_time.utc.midnight
+    trading_day_count = ((1.day / bars_per_day ) * offset) /1.day
+    Timeseries.trading_date_from(ref_date, trading_day_count).to_time.change(:hour => 6, :min => 30)
   end
 
   #
   # initializes the time vector for this time series
   #
   def init_timevec
-    value_hash[model.time_col.to_sym] ||= model.time_vector(symbol, begin_time, end_time)
+    value_hash[:bartime] ||= model.time_vector(symbol, begin_time, end_time)
     compute_timestamps
   end
 
   def map_local_range()
-    @begin_index = time2index(local_range.begin, 1)
-    @end_index = time2index(local_range.end, -1)
+    @begin_index = time2index(local_range.begin)
+    @end_index = time2index(local_range.end)
     @index_range = begin_index..end_index
   end
 
@@ -272,56 +319,61 @@ class Timeseries
   # Expand or contact the indexes based upon the requirements of any technical indicator
   # using this timeseries
   #
-  def calculate_fill_indexes(pre_offset)
-    @pre_offset = pre_offset
-    @post_offset = options[:post_buffer] == :default ? POSTCALC_BARS : options[:post_buffer].is_a?(Fixnum) ? options[:post_buffer] : 0
-    @begin_time = offset_date(@local_range.begin, -pre_offset)
-    @end_time = (od = offset_date(@local_range.end, @post_offset)) > Time.now ? Time.now : od
-    @expected_trading_days = trading_days(begin_time.to_date..end_time.to_date)
-    @expected_bar_count =  expected_trading_days.length * bars_per_day
+  def calculate_fill_indexes(pre_buffer)
+    @pre_offset = pre_buffer.nil? ? options[:pre_buffer] : pre_buffer
+    @post_offset = options[:post_buffer]
+    @begin_time = pre_offset.zero? ? local_range.begin : offset_date(local_range.begin, -pre_offset)
+    @end_time = post_offset.zero? ? local_range.end : offset_date(local_range.end, post_offset)
+    @end_time = Time.now if @end_time > Time.now
+    @expected_bar_count =  Timeseries.trading_day_count(begin_time, end_time) * bars_per_day
   end
   #
   # Populates the timeseries with the results stored in the DB. This is resolution agnostic.
   # If the Timeseries whas specified with a stride, populated Timeseries with just the values
   # according to the stride and stride offset.
   #
-  def populate(pre_offset)
-    if pre_offset == @pre_offset           # Nothing need to change -- new data set bounded the same
+  def populate(pre_offset=nil)
+    if pre_offset.nil?
+      calculate_fill_indexes(nil)
+      raw_populate()
+    elsif pre_offset == @pre_offset           # Nothing need to change -- new data set bounded the same
       return self.index_range
-    elsif pre_offset < @pre_offset         # New dataset is smaller contract indexes FIXME does not work wit populate => true !!!
+    elsif pre_offset < @pre_offset
       calculate_fill_indexes(pre_offset)
       map_local_range()
-    else                                   # New dataset is bigger, repopulate (could prepend, but gsl so slow)
+    else
       calculate_fill_indexes(pre_offset)
-      @value_hash = model.general_vectors(symbol, attrs, begin_time, end_time)
-      @populated = true
-      push_bar(@last_bar) if @last_bar
-      compute_timestamps()
-      missing_bars = expected_bar_count - value_hash[:close].length
-      raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
-        "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
-      if missing_bars > 0 and model == DailyBar
-        @expected_timevec ||= expected_trading_days.map { |td| td.to_time.utc.midnight }
-        rejects = @expected_timevec.reject { |t| time_map.include?(t) }.map { |t| t.to_date.to_s(:db) }
-        raise TimeseriesException, "Missing #{missing_bars} bars: #{rejects.join(', ')} for #{symbol}" if missing_bars > 0
-      elsif missing_bars > 0
-        raise TimeseriesException, "Missing #{missing_bars} bars for #{symbol}"
-      end
-      if stride > 1
-        new_hash = { }
-        value_hash.each_pair do |k,v|
-          vec = []
-          v.each_with_index { |e,i| vec << e if i % stride == stride_offset }
-          new_hash[k] = vec
-        end
-        @value_hash = new_hash
-      end
-      unless respond_to? :close
-        add_methods_for_attributes(value_hash.keys)
-        set_price(self.options[:price])
-      end
-      map_local_range()
+      raw_populate()
     end
+  end
+  #
+  # Does the nitty gritty of populating the timeseries
+  #
+  def raw_populate()
+    @value_hash = model.general_vectors(ticker_id, attrs, begin_time, end_time)
+    @populated = true
+    push_bar(@last_bar) if @last_bar
+    compute_timestamps()
+    missing_bar_count = expected_bar_count - timevec.length
+
+    raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
+      "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
+    raise TimeseriesException, "Missing #{missing_bar_count} bars for #{symbol}" if missing_bar_count > 0
+
+    if stride > 1
+      new_hash = { }
+      value_hash.each_pair do |k,v|
+        vec = []
+        v.each_with_index { |e,i| vec << e if i % stride == stride_offset }
+        new_hash[k] = vec
+      end
+      @value_hash = new_hash
+    end
+    unless respond_to? :close
+      add_methods_for_attributes(value_hash.keys)
+      set_price(self.options[:price])
+    end
+    map_local_range()
   end
 
   def populated?
@@ -350,12 +402,16 @@ class Timeseries
   # Central routine handlling the normalization a storage of the time values returned from the database
   #
   def compute_timestamps
-    if model.time_class == Date
-      @timevec = value_hash[model.time_col.to_sym].collect { |dt| dt.to_time.utc.midnight }
+    @timevec = value_hash[:bartime]
+    if model == DailyBar
+      begin
+        @time_map = TimeMap.new(timevec)
+      rescue TimeseriesException => e
+        raise TimeseriesException, "#{e.message} for #{symbol}"
+      end
     else
-      @timevec = value_hash[model.time_col.to_sym]
+      timevec.each_with_index { |time, idx| @time_map[time.to_i] = idx }
     end
-    timevec.each_with_index { |time, idx| @time_map[time] = idx }
   end
 
   def params_changed?(lookback_fcn, *args)
@@ -385,60 +441,14 @@ class Timeseries
   #
   # Maps the time or data to the specific index in the vector for the sample associated with that date/time
   #
-  def time2index(time, direction=0, raise_on_range_error=true)
-    case
-    when model.time_class == Date : time2index_days(time, direction, raise_on_range_error=true)
-    when model.time_class == Time : time2index_time(time, direction, raise_on_range_error=true)
-    else debugger
+  def time2index(time)
+    if model == DailyBar
+      time_map.time2index(time)
+    elsif (index = time_map[time.to_i]).nil?
+      raise ArgumentError, "Cannot find index matching rgw time: #{time}"
+    else
+      index
     end
-  end
-
-  #
-  # Handles dates only, delegated to from time2index
-  #
-  def time2index_days(time, direction, raise_on_range_error)
-    adj_time = time.to_time.utc.midnight
-    if direction.zero?
-      time_map[adj_time]
-    elsif direction == -1
-      raise TimeseriesException, "#{symbol}: requested time: #{adj_time} is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
-      until time_map.include?(adj_time) || adj_time < timevec.first
-        adj_time -= resolution
-      end
-      raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
-      time_map[adj_time]
-    else # this is split into two loop to simplify the boundry test
-      raise TimeseriesException, "Requested time: #{adj_time} is after recorded history: ending #{timevec.last}" if adj_time > timevec.last
-      until time_map.include?(adj_time) || adj_time > timevec.last
-        adj_time += resolution
-      end
-    end
-    raise TimeseriesException.new, "#{time} is not contained within the DB" if time_map[adj_time].nil?
-    return time_map[adj_time]
-  end
-
-  #
-  # Handles times only, delegated to from time2index
-  #
-  def time2index_time(time, direction, raise_on_range_error=true)
-    adj_time = time.at_midnight ? ETZ.local(time.year, time.month, time.day, 9, 30, 0) : time
-    if direction.zero?
-      time_map[adj_time]
-    elsif direction == -1
-      raise TimeseriesException, "#{symbol}: requested time is before recorded history: starting #{timevec.first}" if adj_time < timevec.first
-      until time_map.include?(adj_time) || adj_time < timevec.first
-        adj_time -= resolution
-      end
-      raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
-      time_map[adj_time]
-    else # this is split into two loop to simplify the boundry test
-      raise TimeseriesException, "Requested time is after recorded history: ending #{timevec.last}" if adj_time > timevec.last
-      until time_map.include?(adj_time) || adj_time > timevec.last
-        adj_time += resolution
-      end
-    end
-    raise TimeseriesException, "#{time} is not contained within the DB" if time_map[adj_time].nil?
-    return time_map[adj_time]
   end
 
   #
@@ -464,9 +474,10 @@ class Timeseries
   def index2time(index)
     case
     when index.nil? : nil
-    when index > 0 && index < timevec.length : timevec[index].send(model.time_convert)
-    when index < 0 :  raise ArgumentException, "index [#(index}] is negative"
-      raise ArgumentException, "index [#(index}] os greater than timevec.len(#{timevec.length})"
+    when model == DailyBar : time_map.index2time(index)
+    when index > 0 && index < timevec.length : timevec[index]
+    when index < 0 :  raise ArgumentError, "index [#(index}] is negative"
+      raise ArgumentError, "index [#(index}] is ouside of the range of bars, the maximum of which is #{timevec.length-1}"
     end
   end
   #
@@ -548,9 +559,9 @@ class Timeseries
       value_hash[key].push(bar[key])
     end
     if model.time_class == Date
-      value_hash[model.time_col].push(time.utc.midnight)
+      value_hash[:bartime].push(time.change(:hour => 6, :min => 30))
     else
-      value_hash[model.time_col].push(time)
+      value_hash[:bartime].push(time)
     end
   end
 
@@ -558,6 +569,9 @@ class Timeseries
     value_hash[:close][end_index]
   end
 
+  #
+  # Pop the last value from each one of the value vectors stored in the value hash
+  #
   def pop_values()
     value_hash.values.each { |val_vec| val_vec.pop }
   end
@@ -637,7 +651,6 @@ class Timeseries
 end
 
 def ts(symbol, local_range, seconds=1.day, options={})
-  options.reverse_merge! :populate => true
   $ts = Timeseries.new(symbol, local_range, seconds, options)
   nil
 end

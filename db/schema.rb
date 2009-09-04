@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090904021724) do
+ActiveRecord::Schema.define(:version => 20090904191327) do
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
@@ -52,7 +52,7 @@ ActiveRecord::Schema.define(:version => 20090904021724) do
 
   create_table "daily_bars", :force => true do |t|
     t.integer  "ticker_id"
-    t.float    "open"
+    t.float    "opening"
     t.float    "close"
     t.float    "high"
     t.integer  "volume"
@@ -163,7 +163,7 @@ ActiveRecord::Schema.define(:version => 20090904021724) do
     t.integer  "ticker_id"
     t.integer  "period"
     t.datetime "bartime"
-    t.float    "open"
+    t.float    "opening"
     t.float    "close"
     t.float    "high"
     t.float    "low"
@@ -381,7 +381,7 @@ ActiveRecord::Schema.define(:version => 20090904021724) do
     t.integer  "ticker_id"
     t.datetime "bartime"
     t.integer  "seq"
-    t.float    "open"
+    t.float    "opening"
     t.float    "high"
     t.float    "low"
     t.float    "close"
@@ -497,7 +497,7 @@ ActiveRecord::Schema.define(:version => 20090904021724) do
     t.integer  "num_samples"
     t.date     "listed_on"
     t.date     "closed_on"
-    t.float    "open"
+    t.float    "opening"
     t.float    "high"
     t.float    "low"
     t.float    "close"

@@ -110,7 +110,7 @@ include ExcelSimulationDumper
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
-#ts(:ibm, '1/1/2009'.to_date..'7/1/2009'.to_date, 1.day)
+ts(:ibm, '1/1/2009'.to_date..'7/1/2009'.to_date, 1.day)
 
   #$sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
   #$qt = $sw.qt

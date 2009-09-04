@@ -4,7 +4,7 @@ require 'rubygems'
 require 'gsl'
 
 module StockStatistics
-  ATTRS = [ :open, :high, :low, :close, :volume, :adj_close ]
+  ATTRS = [ :opening, :high, :low, :close, :volume, :adj_close ]
 
   class StatSet
 

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090903044201
+# Schema version: 20090904191327
 #
 # Table name: intra_snapshots
 #
@@ -15,7 +15,7 @@
 #
 
 class IntraSnapshot < ActiveRecord::Base
-  COLUMN_ORDER = [:close, :high, :low, :open, :volume, :start_time]
+  COLUMN_ORDER = [:close, :high, :low, :opening, :volume, :start_time]
   HOURS_AT_3PM = 15
 
   belongs_to :ticker

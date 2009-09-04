@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090903044201
+# Schema version: 20090904191327
 #
 # Table name: intra_day_bars
 #
@@ -7,7 +7,7 @@
 #  ticker_id    :integer(4)
 #  period       :integer(4)
 #  bartime      :datetime
-#  open         :float
+#  opening      :float
 #  close        :float
 #  high         :float
 #  low          :float
@@ -19,7 +19,7 @@
 
 class IntraDayBar < ActiveRecord::Base
 
-  COLUMN_ORDER = [:close, :high, :low, :open, :volume, :bartime]
+  COLUMN_ORDER = [:close, :high, :low, :opening, :volume, :bartime]
 
   belongs_to :ticker
 

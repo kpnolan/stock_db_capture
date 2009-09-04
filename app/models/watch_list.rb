@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090903044201
+# Schema version: 20090904191327
 #
 # Table name: watch_list
 #
@@ -11,7 +11,7 @@
 #  num_samples       :integer(4)
 #  listed_on         :date
 #  closed_on         :date
-#  open              :float
+#  opening           :float
 #  high              :float
 #  low               :float
 #  close             :float

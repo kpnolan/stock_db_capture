@@ -1,12 +1,11 @@
 # == Schema Information
-# Schema version: 20090903044201
+# Schema version: 20090904191327
 #
 # Table name: daily_bars
 #
 #  id        :integer(4)      not null, primary key
 #  ticker_id :integer(4)
-#  old_date  :date
-#  open      :float
+#  opening   :float
 #  close     :float
 #  high      :float
 #  volume    :integer(4)
@@ -20,7 +19,7 @@ require 'date'
 class DailyBar < ActiveRecord::Base
 
   # this is the order of the data fields returned from TDAmeritrade for a PriceHistory request
-  COLUMN_ORDER = [:close, :high, :low, :open, :volume, :bartime]
+  COLUMN_ORDER = [:close, :high, :low, :opening, :volume, :bartime]
 
   belongs_to :ticker
 

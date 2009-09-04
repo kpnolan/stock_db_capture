@@ -20,8 +20,8 @@ module TableExtract
     return { } if recs.empty?
     result = { }
     attrs = [ attrs ] if attrs.class != Array
-    attrs = (attrs.empty? ? content_columns.collect!(&:name) : attrs) #TODO profide column names to avoid this loop!
-#    attrs.each { |attr| result[attr.to_sym] = recs.collect(&attr) }
+    attrs = (attrs.empty? ? content_columns.collect!(&:name) : attrs)
+    # This mode of extraction (via attrs) actually proved to be faster than calling the direct method (via method call)
     attrs.each { |attr| result[attr.to_sym] = recs.collect { |rec| rec[attr] } }
     result
   end

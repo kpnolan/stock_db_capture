@@ -80,9 +80,11 @@ class Timeseries
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 50
   POSTCALC_BARS = 30
-  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ]   },
-                     IntraDayBar => { :sample_resolution => [ 30.minutes ] },
-                     Snapshot => { :sample_resolution => [ 1.minute ] } }
+  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ],
+                                    :non_attrs => [ :logr ]   },
+                     IntraDayBar => { :sample_resolution => [ 30.minutes ], :non_attrs => [ :period, :delta, :seq ] },
+                     Snapshot => { :sample_resolution => [ 1.minute ], :non_attrs => [ :secmid ] } }
+
   attr_reader :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
   attr_reader :begin_time, :end_time, :pre_offset, :post_offset, :utc_offset, :resolution, :options
   attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset
@@ -116,7 +118,7 @@ class Timeseries
     @model, @model_attrs = select_by_resolution(time_resolution)
     @resolution = time_resolution
     @bars_per_day =  resolution == 1.day ? 1 : TRADING_PERIOD / resolution
-    @attrs = model.content_columns.map { |c| c.name.to_sym }
+    @attrs = model.content_columns.map { |c| c.name.to_sym } - DEFAULT_OPTIONS[model][:non_attrs]
     set_enum_attrs(attrs)
     @stride = options[:stride].nil? ? 1 :  options[:stride]
     @stride_offset = options[:stride_offset].nil? ? 0 : options[:stride_offset]

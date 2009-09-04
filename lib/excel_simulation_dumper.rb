@@ -8,7 +8,7 @@ module ExcelSimulationDumper
 
   extend TradingCalendar
 
-  OCHLV = [:date, :open, :high, :low, :close, :volume, :logr]
+  OCHLV = [:date, :opening, :high, :low, :close, :volume, :logr]
 
   attr_reader :logger
 

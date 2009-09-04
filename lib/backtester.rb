@@ -158,7 +158,6 @@ class Backtester
       File.open "#{RAILS_ROOT}/tmp/close-position.prof", 'w' do |file|
         RubyProf::CallTreePrinter.new(results).print(file)
       end
-      exit()                #!!!!!!!!!!!!!!!!!!!!!!!!! TAKE THIS OUT !!!!!!!!!!!!!!!!!!!!
     end
     #
     # Perform stop loss analysis if it was specified in the analytics section of the backtest config

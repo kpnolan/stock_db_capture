@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090903044201
+# Schema version: 20090904191327
 #
 # Table name: snapshots
 #
@@ -7,7 +7,7 @@
 #  ticker_id    :integer(4)
 #  bartime      :datetime
 #  seq          :integer(4)
-#  open         :float
+#  opening      :float
 #  high         :float
 #  low          :float
 #  close        :float
@@ -21,7 +21,7 @@ class Snapshot < ActiveRecord::Base
 
   validates_presence_of :ticker_id
 
-  FORDER = [ :symbol, :seq, :open, :high, :low, :close, :volume, :secmid, :date ]
+  FORDER = [ :symbol, :seq, :opening, :high, :low, :close, :volume, :secmid, :date ]
 
   extend Predict
 
@@ -47,7 +47,7 @@ class Snapshot < ActiveRecord::Base
       open = snap_ary.last.open
       close = snap_ary.first.open
       values = [open, high, low, close, snap_ary.first.accum_volume, snap_ary.first.bartime]
-      bar = [:open, :high, :low, :close, :volume, :time].inject({}) { |h, k| h[k] = values.shift; h }
+      bar = [:opening, :high, :low, :close, :volume, :time].inject({}) { |h, k| h[k] = values.shift; h }
       count ? [bar, snap_ary.length] : bar
     end
 

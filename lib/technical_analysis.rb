@@ -185,7 +185,7 @@ module TechnicalAnalysis
   #Average Price
   def avgprice(options={})
     idx_range = calc_indexes(:ta_avgprice_lookback)
-    result = Talib.ta_avgprice(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_avgprice(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :avgprice, idx_range, options, result, :overlap)
   end
 
@@ -208,7 +208,7 @@ module TechnicalAnalysis
   #Balance Of Power
   def bop(options={})
     idx_range = calc_indexes(:ta_bop_lookback)
-    result = Talib.ta_bop(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_bop(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :bop, idx_range, options, result)
   end
 
@@ -223,49 +223,49 @@ module TechnicalAnalysis
   #Two Crows
   def cdl2crows(options={})
     idx_range = calc_indexes(:ta_cdl_2crows_lookback)
-    result = Talib.ta_cdl_2crows(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdl_2crows(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdl2crows, idx_range, options, result, :candlestick)
   end
 
   #Three Black Crows
   def cdl3blackcrows(options={})
     idx_range = calc_indexes(:ta_cdl_3blackcrows_lookback)
-    result = Talib.ta_cdl_3blackcrows(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdl_3blackcrows(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdl3blackcrows, idx_range, options, result, :candlestick)
   end
 
   #Three Inside Up/Down
   def cdl3inside(options={})
     idx_range = calc_indexes(:ta_cdl_3inside_lookback)
-    result = Talib.ta_cdl_3inside(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdl_3inside(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdl3inside, idx_range, options, result, :candlestick)
   end
 
   #Three-Line Strike
   def cdl3linestrike(options={})
     idx_range = calc_indexes(:ta_cdl_3linestrike_lookback)
-    result = Talib.ta_cdl_3linestrike(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdl_3linestrike(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdl3linestrike, idx_range, options, result, :candlestick)
   end
 
   #Three Outside Up/Down
   def cdl3outside(options={})
     idx_range = calc_indexes(:ta_cdl_3outside_lookback)
-    result = Talib.ta_cdl_3outside(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdl_3outside(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdl3outside, idx_range, options, result, :candlestick)
   end
 
   #Three Stars In The South
   def cdl3starsinsouth(options={})
     idx_range = calc_indexes(:ta_cdl_3starsinsouth_lookback)
-    result = Talib.ta_cdl_3starsinsouth(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdl_3starsinsouth(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdl3starsinsouth, idx_range, options, result, :candlestick)
   end
 
   #Three Advancing White Soldiers
   def cdl3whitesoldiers(options={})
     idx_range = calc_indexes(:ta_cdl_3whitesoldiers_lookback)
-    result = Talib.ta_cdl_3whitesoldiers(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdl_3whitesoldiers(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdl3whitesoldiers, idx_range, options, result, :candlestick)
   end
 
@@ -273,49 +273,49 @@ module TechnicalAnalysis
   def cdlabandonedbaby(options={})
     options.reverse_merge!(:penetration => 0.3)
     idx_range = calc_indexes(:ta_cdlabandonedbaby_lookback, options[:penetration])
-    result = Talib.ta_cdlabandonedbaby(idx_range.begin, idx_range.end, open, high, low, close, options[:penetration])
+    result = Talib.ta_cdlabandonedbaby(idx_range.begin, idx_range.end, opening, high, low, close, options[:penetration])
     memoize_result(self, :cdlabandonedbaby, idx_range, options, result, :candlestick)
   end
 
   #Advance Block
   def cdladvanceblock(options={})
     idx_range = calc_indexes(:ta_cdladvanceblock_lookback)
-    result = Talib.ta_cdladvanceblock(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdladvanceblock(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdladvanceblock, idx_range, options, result, :candlestick)
   end
 
   #Belt-hold
   def cdlbelthold(options={})
     idx_range = calc_indexes(:ta_cdlbelthold_lookback)
-    result = Talib.ta_cdlbelthold(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlbelthold(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlbelthold, idx_range, options, result, :candlestick)
   end
 
   #Breakaway
   def cdlbreakaway(options={})
     idx_range = calc_indexes(:ta_cdlbreakaway_lookback)
-    result = Talib.ta_cdlbreakaway(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlbreakaway(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlbreakaway, idx_range, options, result, :candlestick)
   end
 
   #Closing Marubozu
   def cdlclosingmarubozu(options={})
     idx_range = calc_indexes(:ta_cdlclosingmarubozu_lookback)
-    result = Talib.ta_cdlclosingmarubozu(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlclosingmarubozu(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlclosingmarubozu, idx_range, options, result, :candlestick)
   end
 
   #Concealing Baby Swallow
   def cdlconcealbabyswall(options={})
     idx_range = calc_indexes(:ta_cdlconcealbabyswall_lookback)
-    result = Talib.ta_cdlconcealbabyswall(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlconcealbabyswall(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlconcealbabyswall, idx_range, options, result, :candlestick)
   end
 
   #Counterattack
   def cdlcounterattack(options={})
     idx_range = calc_indexes(:ta_cdlcounterattack_lookback)
-    result = Talib.ta_cdlcounterattack(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlcounterattack(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlcounterattack, idx_range, options, result, :candlestick)
   end
 
@@ -323,35 +323,35 @@ module TechnicalAnalysis
   def cdldarkcloudcover(options={})
     options.reverse_merge!(:penetration => 0.5)
     idx_range = calc_indexes(:ta_cdldarkcloudcover_lookback, options[:penetration])
-    result = Talib.ta_cdldarkcloudcover(idx_range.begin, idx_range.end, open, high, low, close, options[:penetration])
+    result = Talib.ta_cdldarkcloudcover(idx_range.begin, idx_range.end, opening, high, low, close, options[:penetration])
     memoize_result(self, :cdldarkcloudcover, idx_range, options, result, :candlestick)
   end
 
   #Doji
   def cdldoji(options={})
     idx_range = calc_indexes(:ta_cdldoji_lookback)
-    result = Talib.ta_cdldoji(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdldoji(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdldoji, idx_range, options, result, :candlestick)
   end
 
   #Doji Star
   def cdldojistar(options={})
     idx_range = calc_indexes(:ta_cdldojistar_lookback)
-    result = Talib.ta_cdldojistar(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdldojistar(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdldojistar, idx_range, options, result, :candlestick)
   end
 
   #Dragonfly Doji
   def cdldragonflydoji(options={})
     idx_range = calc_indexes(:ta_cdldragonflydoji_lookback)
-    result = Talib.ta_cdldragonflydoji(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdldragonflydoji(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdldragonflydoji, idx_range, options, result, :candlestick)
   end
 
   #Engulfing Pattern
   def cdlengulfing(options={})
     idx_range = calc_indexes(:ta_cdlengulfing_lookback)
-    result = Talib.ta_cdlengulfing(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlengulfing(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlengulfing, idx_range, options, result, :candlestick)
   end
 
@@ -359,7 +359,7 @@ module TechnicalAnalysis
   def cdleveningdojistar(options={})
     options.reverse_merge!(:penetration => 0.3)
     idx_range = calc_indexes(:ta_cdleveningdojistar_lookback, options[:penetration])
-    result = Talib.ta_cdleveningdojistar(idx_range.begin, idx_range.end, open, high, low, close, options[:penetration])
+    result = Talib.ta_cdleveningdojistar(idx_range.begin, idx_range.end, opening, high, low, close, options[:penetration])
     memoize_result(self, :cdleveningdojistar, idx_range, options, result, :candlestick)
   end
 
@@ -367,147 +367,147 @@ module TechnicalAnalysis
   def cdleveningstar(options={})
     options.reverse_merge!(:penetration => 0.3)
     idx_range = calc_indexes(:ta_cdleveningstar_lookback, options[:penetration])
-    result = Talib.ta_cdleveningstar(idx_range.begin, idx_range.end, open, high, low, close, options[:penetration])
+    result = Talib.ta_cdleveningstar(idx_range.begin, idx_range.end, opening, high, low, close, options[:penetration])
     memoize_result(self, :cdleveningstar, idx_range, options, result, :candlestick)
   end
 
   #Up/Down-gap side-by-side white lines
   def cdlgapsidesidewhite(options={})
     idx_range = calc_indexes(:ta_cdlgapsidesidewhite_lookback)
-    result = Talib.ta_cdlgapsidesidewhite(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlgapsidesidewhite(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlgapsidesidewhite, idx_range, options, result, :candlestick)
   end
 
   #Gravestone Doji
   def cdlgravestonedoji(options={})
     idx_range = calc_indexes(:ta_cdlgravestonedoji_lookback)
-    result = Talib.ta_cdlgravestonedoji(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlgravestonedoji(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlgravestonedoji, idx_range, options, result, :candlestick)
   end
 
   #Hammer
   def cdlhammer(options={})
     idx_range = calc_indexes(:ta_cdlhammer_lookback)
-    result = Talib.ta_cdlhammer(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlhammer(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlhammer, idx_range, options, result, :candlestick)
   end
 
   #Hanging Man
   def cdlhangingman(options={})
     idx_range = calc_indexes(:ta_cdlhangingman_lookback)
-    result = Talib.ta_cdlhangingman(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlhangingman(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlhangingman, idx_range, options, result, :candlestick)
   end
 
   #Harami Pattern
   def cdlharami(options={})
     idx_range = calc_indexes(:ta_cdlharami_lookback)
-    result = Talib.ta_cdlharami(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlharami(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlharami, idx_range, options, result, :candlestick)
   end
 
   #Harami Cross Pattern
   def cdlharamicross(options={})
     idx_range = calc_indexes(:ta_cdlharamicross_lookback)
-    result = Talib.ta_cdlharamicross(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlharamicross(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlharamicross, idx_range, options, result, :candlestick)
   end
 
   #High-Wave Candle
   def cdlhighwave(options={})
     idx_range = calc_indexes(:ta_cdlhighwave_lookback)
-    result = Talib.ta_cdlhighwave(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlhighwave(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlhighwave, idx_range, options, result, :candlestick)
   end
 
   #Hikkake Pattern
   def cdlhikkake(options={})
     idx_range = calc_indexes(:ta_cdlhikkake_lookback)
-    result = Talib.ta_cdlhikkake(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlhikkake(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlhikkake, idx_range, options, result, :candlestick)
   end
 
   #Modified Hikkake Pattern
   def cdlhikkakemod(options={})
     idx_range = calc_indexes(:ta_cdlhikkakemod_lookback)
-    result = Talib.ta_cdlhikkakemod(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlhikkakemod(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlhikkakemod, idx_range, options, result, :candlestick)
   end
 
   #Homing Pigeon
   def cdlhomingpigeon(options={})
     idx_range = calc_indexes(:ta_cdlhomingpigeon_lookback)
-    result = Talib.ta_cdlhomingpigeon(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlhomingpigeon(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlhomingpigeon, idx_range, options, result, :candlestick)
   end
 
   #Identical Three Crows
   def cdlidentical3crows(options={})
     idx_range = calc_indexes(:ta_cdlidentical3crows_lookback)
-    result = Talib.ta_cdlidentical3crows(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlidentical3crows(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlidentical3crows, idx_range, options, result, :candlestick)
   end
 
   #In-Neck Pattern
   def cdlinneck(options={})
     idx_range = calc_indexes(:ta_cdlinneck_lookback)
-    result = Talib.ta_cdlinneck(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlinneck(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlinneck, idx_range, options, result, :candlestick)
   end
 
   #Inverted Hammer
   def cdlinvertedhammer(options={})
     idx_range = calc_indexes(:ta_cdlinvertedhammer_lookback)
-    result = Talib.ta_cdlinvertedhammer(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlinvertedhammer(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlinvertedhammer, idx_range, options, result, :candlestick)
   end
 
   #Kicking
   def cdlkicking(options={})
     idx_range = calc_indexes(:ta_cdlkicking_lookback)
-    result = Talib.ta_cdlkicking(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlkicking(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlkicking, idx_range, options, result, :candlestick)
   end
 
   #Kicking - bull/bear determined by the longer marubozu
   def cdlkickingbylength(options={})
     idx_range = calc_indexes(:ta_cdlkickingbylength_lookback)
-    result = Talib.ta_cdlkickingbylength(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlkickingbylength(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlkickingbylength, idx_range, options, result, :candlestick)
   end
 
   #Ladder Bottom
   def cdlladderbottom(options={})
     idx_range = calc_indexes(:ta_cdlladderbottom_lookback)
-    result = Talib.ta_cdlladderbottom(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlladderbottom(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlladderbottom, idx_range, options, result, :candlestick)
   end
 
   #Long Legged Doji
   def cdllongleggeddoji(options={})
     idx_range = calc_indexes(:ta_cdllongleggeddoji_lookback)
-    result = Talib.ta_cdllongleggeddoji(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdllongleggeddoji(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdllongleggeddoji, idx_range, options, result, :candlestick)
   end
 
   #Long Line Candle
   def cdllongline(options={})
     idx_range = calc_indexes(:ta_cdllongline_lookback)
-    result = Talib.ta_cdllongline(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdllongline(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdllongline, idx_range, options, result, :candlestick)
   end
 
   #Marubozu
   def cdlmarubozu(options={})
     idx_range = calc_indexes(:ta_cdlmarubozu_lookback)
-    result = Talib.ta_cdlmarubozu(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlmarubozu(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlmarubozu, idx_range, options, result, :candlestick)
   end
 
   #Matching Low
   def cdlmatchinglow(options={})
     idx_range = calc_indexes(:ta_cdlmatchinglow_lookback)
-    result = Talib.ta_cdlmatchinglow(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlmatchinglow(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlmatchinglow, idx_range, options, result, :candlestick)
   end
 
@@ -515,7 +515,7 @@ module TechnicalAnalysis
   def cdlmathold(options={})
     options.reverse_merge!(:penetration => 0.5)
     idx_range = calc_indexes(:ta_cdlmathold_lookback, options[:penetration])
-    result = Talib.ta_cdlmathold(idx_range.begin, idx_range.end, open, high, low, close, options[:penetration])
+    result = Talib.ta_cdlmathold(idx_range.begin, idx_range.end, opening, high, low, close, options[:penetration])
     memoize_result(self, :cdlmathold, idx_range, options, result, :candlestick)
   end
 
@@ -523,7 +523,7 @@ module TechnicalAnalysis
   def cdlmorningdojistar(options={})
     options.reverse_merge!(:penetration => 0.3)
     idx_range = calc_indexes(:ta_cdlmorningdojistar_lookback, options[:penetration])
-    result = Talib.ta_cdlmorningdojistar(idx_range.begin, idx_range.end, open, high, low, close, options[:penetration])
+    result = Talib.ta_cdlmorningdojistar(idx_range.begin, idx_range.end, opening, high, low, close, options[:penetration])
     memoize_result(self, :cdlmorningdojistar, idx_range, options, result, :candlestick)
   end
 
@@ -531,126 +531,126 @@ module TechnicalAnalysis
   def cdlmorningstar(options={})
     options.reverse_merge!(:penetration => 0.3)
     idx_range = calc_indexes(:ta_cdlmorningstar_lookback, options[:penetration])
-    result = Talib.ta_cdlmorningstar(idx_range.begin, idx_range.end, open, high, low, close, options[:penetration])
+    result = Talib.ta_cdlmorningstar(idx_range.begin, idx_range.end, opening, high, low, close, options[:penetration])
     memoize_result(self, :cdlmorningstar, idx_range, options, result, :candlestick)
   end
 
   #On-Neck Pattern
   def cdlonneck(options={})
     idx_range = calc_indexes(:ta_cdlonneck_lookback)
-    result = Talib.ta_cdlonneck(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlonneck(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlonneck, idx_range, options, result, :candlestick)
   end
 
   #Piercing Pattern
   def cdlpiercing(options={})
     idx_range = calc_indexes(:ta_cdlpiercing_lookback)
-    result = Talib.ta_cdlpiercing(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlpiercing(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlpiercing, idx_range, options, result, :candlestick)
   end
 
   #Rickshaw Man
   def cdlrickshawman(options={})
     idx_range = calc_indexes(:ta_cdlrickshawman_lookback)
-    result = Talib.ta_cdlrickshawman(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlrickshawman(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlrickshawman, idx_range, options, result, :candlestick)
   end
 
   #Rising/Falling Three Methods
   def cdlrisefall3methods(options={})
     idx_range = calc_indexes(:ta_cdlrisefall3methods_lookback)
-    result = Talib.ta_cdlrisefall3methods(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlrisefall3methods(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlrisefall3methods, idx_range, options, result, :candlestick)
   end
 
   #Separating Lines
   def cdlseparatinglines(options={})
     idx_range = calc_indexes(:ta_cdlseparatinglines_lookback)
-    result = Talib.ta_cdlseparatinglines(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlseparatinglines(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlseparatinglines, idx_range, options, result, :candlestick)
   end
 
   #Shooting Star
   def cdlshootingstar(options={})
     idx_range = calc_indexes(:ta_cdlshootingstar_lookback)
-    result = Talib.ta_cdlshootingstar(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlshootingstar(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlshootingstar, idx_range, options, result, :candlestick)
   end
 
   #Short Line Candle
   def cdlshortline(options={})
     idx_range = calc_indexes(:ta_cdlshortline_lookback)
-    result = Talib.ta_cdlshortline(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlshortline(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlshortline, idx_range, options, result, :candlestick)
   end
 
   #Spinning Top
   def cdlspinningtop(options={})
     idx_range = calc_indexes(:ta_cdlspinningtop_lookback)
-    result = Talib.ta_cdlspinningtop(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlspinningtop(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlspinningtop, idx_range, options, result, :candlestick)
   end
 
   #Stalled Pattern
   def cdlstalledpattern(options={})
     idx_range = calc_indexes(:ta_cdlstalledpattern_lookback)
-    result = Talib.ta_cdlstalledpattern(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlstalledpattern(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlstalledpattern, idx_range, options, result, :candlestick)
   end
 
   #Stick Sandwich
   def cdlsticksandwich(options={})
     idx_range = calc_indexes(:ta_cdlsticksandwich_lookback)
-    result = Talib.ta_cdlsticksandwich(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlsticksandwich(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlsticksandwich, idx_range, options, result, :candlestick)
   end
 
   #Takuri (Dragonfly Doji with very long lower shadow)
   def cdltakuri(options={})
     idx_range = calc_indexes(:ta_cdltakuri_lookback)
-    result = Talib.ta_cdltakuri(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdltakuri(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdltakuri, idx_range, options, result, :candlestick)
   end
 
   #Tasuki Gap
   def cdltasukigap(options={})
     idx_range = calc_indexes(:ta_cdltasukigap_lookback)
-    result = Talib.ta_cdltasukigap(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdltasukigap(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdltasukigap, idx_range, options, result, :candlestick)
   end
 
   #Thrusting Pattern
   def cdlthrusting(options={})
     idx_range = calc_indexes(:ta_cdlthrusting_lookback)
-    result = Talib.ta_cdlthrusting(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlthrusting(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlthrusting, idx_range, options, result, :candlestick)
   end
 
   #Tristar Pattern
   def cdltristar(options={})
     idx_range = calc_indexes(:ta_cdltristar_lookback)
-    result = Talib.ta_cdltristar(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdltristar(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdltristar, idx_range, options, result, :candlestick)
   end
 
   #Unique 3 River
   def cdlunique3river(options={})
     idx_range = calc_indexes(:ta_cdlunique3river_lookback)
-    result = Talib.ta_cdlunique3river(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlunique3river(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlunique3river, idx_range, options, result, :candlestick)
   end
 
   #Upside Gap Two Crows
   def cdlupsidegap2crows(options={})
     idx_range = calc_indexes(:ta_cdlupsidegap2crows_lookback)
-    result = Talib.ta_cdlupsidegap2crows(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlupsidegap2crows(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlupsidegap2crows, idx_range, options, result, :candlestick)
   end
 
   #Upside/Downside Gap Three Methods
   def cdlxsidegap3methods(options={})
     idx_range = calc_indexes(:ta_cdlxsidegap3methods_lookback)
-    result = Talib.ta_cdlxsidegap3methods(idx_range.begin, idx_range.end, open, high, low, close)
+    result = Talib.ta_cdlxsidegap3methods(idx_range.begin, idx_range.end, opening, high, low, close)
     memoize_result(self, :cdlxsidegap3methods, idx_range, options, result, :candlestick)
   end
 

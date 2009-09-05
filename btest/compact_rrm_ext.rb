@@ -45,7 +45,7 @@ end
 #   :price => :close                determines the price used for calculation
 #   :days_to_close                  max number of days to hold open a position before closing it forcefully
 #
-backtests(:generate_stats => false, :truncate => :scan, :profile => false) do
+backtests(:generate_stats => false, :profile => false) do
   using(:rsi_open_14, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
     #make_sheet(entry_strategy, exit_strategy, scan)
   end

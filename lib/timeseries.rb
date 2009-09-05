@@ -46,7 +46,13 @@ class Timeseries
     end
 
     def report_missing_bars()
-      raise TimeseriesException, "Missing bars on #{missing_bars.map{ |t| t.to_formatted_s(:ymd)}.join(', ')}"
+      mbs = missing_bars()
+      ranges = TimeMap.to_ranges(mbs)
+      if ranges.length < mbs.length
+        raise TimeseriesException, "Missing bars on #{ranges.map{ |r| pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
+      else
+        raise TimeseriesException, "Missing bars on #{mbs.map{ |t| t.to_formatted_s(:ymd)}.join(', ')} (#{mbs.length} trading days)"
+      end
     end
 
     def missing_bars()
@@ -57,6 +63,12 @@ class Timeseries
 
     def expected_bars_as_seconds()
       (first_index..last_index).to_a.map { |index| TimeMap.index2time(index).to_i }
+    end
+
+    def pretty_range(range)
+      begin_str = range.begin.to_formatted_s(:ymd)
+      end_str = range.end.to_formatted_s(:ymd)
+      "#{begin_str}..#{end_str}"
     end
   end
 

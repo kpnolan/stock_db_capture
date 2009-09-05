@@ -306,7 +306,7 @@ class Backtester
       exit_strategy.positions << p
       generate_stats(p) if options[:generate_stats]
     rescue TimeseriesException => e
-      #logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
+      logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
       p.destroy
     end
     # rescue ActiveRecord::RecordNotFound

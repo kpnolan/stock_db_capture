@@ -35,6 +35,16 @@ populations do
   scan 'macd_2009', :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
 end
 
+# Validate options are:
+#   :generate_stats => true|false   generate a table which gives the values of the technical indicators used in the backtest at each bar.
+#                                   Used to generate meaninful reports, in R, of both bars and the values of the tecnical indicators at each bar
+#   :tuncate => [:entry_strategy | :exit_strategy | scan ] trucates thos positions matching the ones used in this backtest. Avoids collisions
+#   :epass => range                 controls the number of values at with the entry pass number is run. Defaults to 0..2
+#   :profile => (true|false)        turns on or off profiling. Defaults to false
+#   :resolution => 1.day            determintes at which resolution the backtest is run, currently on 1.day and 30.minutes is value
+#   :price => :close                determines the price used for calculation
+#   :days_to_close                  max number of days to hold open a position before closing it forcefully
+#
 backtests(:generate_stats => false, :truncate => :scan, :profile => false) do
   using(:rsi_open_14, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
     #make_sheet(entry_strategy, exit_strategy, scan)

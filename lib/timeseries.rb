@@ -24,14 +24,13 @@ class Timeseries
 
     extend TradingCalendar
 
-    def initialize(timevec)
-      @timevec = timevec
-      return if timevec.empty?
-      raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless timevec.first.acts_like_time?
-      @begin_time = timevec.first
-      @end_time = timevec.last
+    def initialize(begin_time, end_time, timevec)
+      @begin_time = begin_time
+      @end_time = end_time
       @first_index = TimeMap.time2index(begin_time)
       @last_index = TimeMap.time2index(end_time)
+      @timevec = timevec
+      raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless !timevec.empty? && timevec.first.acts_like_time?
       report_missing_bars() if timevec.length <  last_index - first_index + 1
     end
 
@@ -47,7 +46,7 @@ class Timeseries
     end
 
     def report_missing_bars()
-      raise TimeseriesException, "Missing bars #{missing_bars.map{ |t| t.to_formatted_s(:ymd) }.join(', ')}"
+      raise TimeseriesException, "Missing bars on #{missing_bars.map{ |t| t.to_formatted_s(:ymd)}.join(', ')}"
     end
 
     def missing_bars()
@@ -58,10 +57,6 @@ class Timeseries
 
     def expected_bars_as_seconds()
       (first_index..last_index).to_a.map { |index| TimeMap.index2time(index).to_i }
-    end
-
-    def empty?
-      timevec.empty?
     end
   end
 
@@ -307,7 +302,7 @@ class Timeseries
   #
   def init_timevec
     value_hash[:bartime] ||= model.time_vector(symbol, begin_time, end_time)
-    compute_timestamps
+    compute_timestamps(begin_time, end_time)
   end
 
   def map_local_range()
@@ -354,11 +349,12 @@ class Timeseries
     @value_hash = model.general_vectors(ticker_id, attrs, begin_time, end_time)
     @populated = true
     push_bar(@last_bar) if @last_bar
-    compute_timestamps()
+    compute_timestamps(begin_time, end_time)
     missing_bar_count = expected_bar_count - timevec.length
 
     raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
       "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
+    # We should only get here if we are not accessing DailyBars, otherwise that would have been caught earlier
     raise TimeseriesException, "Missing #{missing_bar_count} bars for #{symbol}" if missing_bar_count > 0
 
     if stride > 1
@@ -402,11 +398,11 @@ class Timeseries
   #
   # Central routine handlling the normalization a storage of the time values returned from the database
   #
-  def compute_timestamps
+  def compute_timestamps(begin_time, end_time)
     @timevec = value_hash[:bartime]
     if model == DailyBar
       begin
-        @time_map = TimeMap.new(timevec)
+        @time_map = TimeMap.new(begin_time, end_time, timevec)
       rescue TimeseriesException => e
         raise TimeseriesException, "#{e.message} for #{symbol}"
       end
@@ -629,7 +625,7 @@ class Timeseries
 #  end
 
   def initialize_state
-    @value_hash, @time_map = {}, {}
+    @value_hash = {}
     @derived_values,  @attrs = [], []
     @timevec = []
     @utc_offset = Time.now.utc_offset

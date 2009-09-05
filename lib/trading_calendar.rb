@@ -20,7 +20,6 @@ module TradingCalendar
   def TradingCalendar.extend_object(o)
     @@holidays ||= holiday_init()
     @@calendar ||= calendar_init()
-    @@invert_calendar ||= @@calendar.invert
     super
   end
   #
@@ -51,6 +50,7 @@ module TradingCalendar
     epoch_end_seconds = EPOCH_END.to_i
     day_index = 0
     calendar = {}
+    @@invert_calendar = {}
     begin
       year_seconds = Time.at(date_seconds).year % 4 != 0 ? YEAR_SECONDS : LEAP_SECONDS
       (0...year_seconds).step(1.day) do |seconds|
@@ -58,6 +58,7 @@ module TradingCalendar
         current_seconds -= DST_CORRECTION if Time.at(current_seconds).dst?
         if trading_day?(Time.at(current_seconds))
           calendar[current_seconds] = day_index
+          @@invert_calendar[day_index] = current_seconds
           day_index += 1
         else
           calendar[current_seconds] = day_index
@@ -65,7 +66,7 @@ module TradingCalendar
       end
       date_seconds += year_seconds
     end while date_seconds < epoch_end_seconds
-    calendar
+    return calendar
   end
 
   def TradingCalendar.trading_day?(time)

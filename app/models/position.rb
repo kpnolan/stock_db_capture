@@ -46,11 +46,11 @@ class Position < ActiveRecord::Base
     end
   end
 
-  def self.open(ticker, entry_strategy, exit_strategy, scan, entry_time, entry_price, pass, options={})
+  def self.open(ticker_id, entry_strategy, exit_strategy, scan, entry_time, entry_price, pass, options={})
 
     begin
       short = options[:short]
-      pos = create!(:ticker_id => ticker.id,
+      pos = create!(:ticker_id => ticker_id,
                     :entry_strategy_id => entry_strategy[:id], :exit_strategy_id => exit_strategy[:id], :scan_id => scan[:id],
                     :entry_price => entry_price, :entry_date => entry_time, :num_shares => 1,
                     :short => short, :entry_pass => pass)

@@ -23,8 +23,8 @@ class Backtester
 
   extend TradingCalendar
 
-  attr_accessor :ticker, :ts, :result_hash, :meta_data_hash
-  attr_reader :scan_name, :es_name, :xs_name, :desc, :options, :post_process, :days_to_close, :entry_cache, :ts_cache
+  attr_accessor :ts, :result_hash, :meta_data_hash
+  attr_reader :scan_name, :es_name, :xs_name, :desc, :options, :post_process, :days_to_close, :opened_index_hash
   attr_reader :entry_strategy, :exit_strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
   attr_reader :resolution, :logger
 
@@ -38,8 +38,6 @@ class Backtester
     @days_to_close = @options[:days_to_close]
     @positions = []
     @post_process = block
-    @entry_cache = {}
-    @ts_cache = {}
     @resolution = self.options.delete :resolution
 
     raise BacktestException.new("Cannot find strategy: #{es_name.to_s} or #{xs_name}") unless $analytics.has_pair?(es_name, xs_name)
@@ -80,31 +78,23 @@ class Backtester
 
       RubyProf.start  if options[:profile]
 
-      for pass in options[:epass]
-        pass_count = 0
-        for tid in tid_array
-          @ticker = Ticker.find tid
-          begin
-            ts = ts_cache[tid] ||= Timeseries.new(ticker.symbol, date_range, resolution, options)
-          rescue TimeseriesException => e
-            logger.error("#{ticker.symbol} has missing dates beteen #{ts.begin_time} and #{ts.end_time}, skipping...")
-            logger.error("Error: #{e.to_s}")
-            ts_cache[tid] = false
-            next
-          end
-          entry_cache[tid] ||= []
-          pass_count += open_positions(ts, opening.params, pass)
+      #--------------------------------------------------------------------------------------------------------------------
+      # The is the open option loop -- all of it. The nitty gritty of trashold crossing is handeled by open_positions(...)
+      #-------------------------------------------------------------------------------------------------------------------
+      count = 0
+      for tid in tid_array
+        ts = Timeseries.new(tid, date_range, resolution, options)
+        reset_position_index_hash()
+        for pass in options[:epass]
+          count += open_positions(ts, opening.params, pass)
         end
-        logger.info(">>>>>>>>>> Entries for pass #{pass}: #{pass_count}")
       end
-      @entry_cache = nil                # free up to be garbage collected
-      @ts_cache = nil                   # ditto here
       entry_strategy.scans << scan      # record the fact we've process the openings for the entry strategy for this population
 
       endt = Time.now
       delta = endt - startt
       deltam = delta/60.0
-      logger.info "Open position elapsed time: #{deltam} minutes"
+      logger.info "#{count} positions opened -- elapsed time: #{deltam} minutes"
 
       if options[:profile]
         GC.disable
@@ -184,15 +174,11 @@ class Backtester
   # Remember all of the positions opened for the second part of the backtest, which is to close
   # the open positions
   def open_positions(ts, params, pass)
-      pass_count = 0
       #begin
+        count = 0
         open_indexes = ts.instance_exec(params, pass, &opening.block)
-        for idx in open_indexes
-          index = case idx
-                  when Numeric : idx
-                  when Hash : aux = idx; idx[:index]
-                  end
-          next if index.nil? || @entry_cache[ts.ticker_id].include?(index) # don't enter the same entry twice
+        for index in open_indexes
+          next if opened_index_hash.include? index #This index has been opened on a previous pass
           #begin
             price = ts.value_at(index, :close)
             time = ts.index2time(index)
@@ -204,11 +190,11 @@ class Backtester
           #end
           #TODO wipe all positions associated with the strategy if the strategy changes
           #TODO add support for short sales using the optional params arg at end
-          position = Position.open(ticker, entry_strategy, exit_strategy, scan, time, price, pass)
-          @entry_cache[ts.ticker_id] << index
+          position = Position.open(ts.ticker_id, entry_strategy, exit_strategy, scan, time, price, pass)
           entry_strategy.positions << position
           scan.positions << position
-          pass_count += 1
+          opened_index_hash[index] = true
+          count += 1
         end
       #rescue NoMethodError => e
       #  logger.info e.message unless e.message =~ /to_v/ or logger.nil?
@@ -218,7 +204,7 @@ class Backtester
 #        logger.info e.message
 #        logger.info e.backtrace
     #end
-    pass_count
+    count
   end
 
   def tstop(p, threshold_percent, options={})
@@ -333,6 +319,13 @@ class Backtester
 #       p = nil
 #     end
     p
+  end
+
+  #
+  # Reset the hash containing the indexes of all positions opened for a particular timeseries
+  #
+  def reset_position_index_hash
+    @opened_index_hash = { }
   end
 
   def truncate(symbol_or_array)

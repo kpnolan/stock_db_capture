@@ -91,13 +91,12 @@ class Timeseries
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
   attr_reader :expected_bar_count
 
-# def initialize(symbol_or_id, date1, date2=nil, time_resolution=1.day, options={})
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false
     initialize_state()
     @ticker_id = Ticker.resolve_id(symbol_or_id)
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
-    @symbol = Ticker.find(ticker_id).symbol
+    @symbol = Ticker.find(ticker_id, :select => :symbol).symbol
     if local_range.is_a? Range
       if local_range.begin.is_a?(Date) && local_range.end.is_a?(Date)
         @local_range = local_range.begin.to_time.change(:hour => 6, :min => 30)..local_range.end.to_time.change(:hour => 6, :min => 30)

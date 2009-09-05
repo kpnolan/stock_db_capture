@@ -44,12 +44,5 @@ module TableExtract
     end
   end
 
-  def form_conditions(ticker, btime, etime)
-    ticker_id = ticker_id(ticker)
-    #
-    # Tack on a extra day for the range to account for the way MySQL treats intraday betweens, i.e.
-    # between give you one day of intraday for 2 between days (exclusive range instead of inclusive)
-    #
-    { :ticker_id => ticker_id, :bartime => btime..(etime.end_of_day) }
-  end
+  def form_conditions(ticker, btime, etime); { :ticker_id => ticker_id(ticker), :bartime => btime..(etime.end_of_day) };  end
 end

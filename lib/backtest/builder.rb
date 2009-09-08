@@ -19,8 +19,8 @@ module Backtest
       @backtests = []
     end
 
-    def using(entry_strategy_name, exit_strategy_name, scan_name, &block)
-      @backtests << Backtester.new(entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
+    def using(trigger_strategy_name, entry_strategy_name, exit_strategy_name, scan_name, &block)
+      @backtests << Backtester.new(trigger_strategy_name, entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
     end
 
     def desc(string)

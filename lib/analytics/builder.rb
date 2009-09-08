@@ -31,6 +31,7 @@ module Analytics
 
     def initialize(options)
       @options = options
+      @triggers = []
       @openings = []
       @closings = []
       @openings = []
@@ -39,14 +40,9 @@ module Analytics
     end
 
     def find_stop_loss(); @stop_loss; end
-
-    def find_opening(name)
-      @openings.find { |o| o.name == name }
-    end
-
-    def find_closing(name)
-      @closings.find { |c| c.name == name }
-    end
+    def find_trigger(name); @triggers.find { |o| o.name == name }; end
+    def find_opening(name); @openings.find { |o| o.name == name }; end
+    def find_closing(name); @closings.find { |c| c.name == name }; end
 
     def has_pair?(entry_strategy_name, exit_strategy_name)
       find_opening(entry_strategy_name) && find_closing(exit_strategy_name)
@@ -60,6 +56,16 @@ module Analytics
       opening.params = params
       opening.block = block
       @openings << opening
+    end
+
+    def trigger_position(name, params={}, &block)
+      raise ArgumentError.new("Block missing for trigger position #{name}") unless block_given?
+      es = TriggerStrategy.create_or_update!(name, @descriptions.shift, params.to_yaml)
+      opening = OpenStruct.new
+      opening.name = name
+      opening.params = params
+      opening.block = block
+      @triggers << opening
     end
 
     def stop_loss(threshold, options={})

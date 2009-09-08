@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :trigger_strategies
+
   map.resources :exit_strategies
 
   map.resources :entry_strategies

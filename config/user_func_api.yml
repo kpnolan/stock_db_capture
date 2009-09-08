@@ -178,15 +178,25 @@ FinancialFunctions:
       GroupId: Volatility Measure
       OptionalInputArguments:
         OptionalInputArgument:
-          - DefaultValue: 14
-            Name: Time Period
+          - DefaultValue: .2
+            Name: alpha
             Range:
-              Maximum:  1000
-              Minimum: 2
+              Maximum: 1
+              Minimum: .01
+              SuggestedEnd: 1
+              SuggestedIncrement: .01
+              SuggestedStart: .25
+            ShortDescription: Alpha
+            Type: Double
+          - DefaultValue: 5
+            Name: Period
+            Range:
+              Maximum: 2
+              Minimum: 10000
               Precision: 2
-              SuggestedEnd: 252
-              SuggestedIncrement: 1
-              SuggestedStart: 5
+              SuggestedEnd: 2.0
+              SuggestedIncrement: .5
+              SuggestedStart: 2
             ShortDescription: Period for Smoothing
             Type: Integer
       OutputArguments:
@@ -264,3 +274,29 @@ FinancialFunctions:
           - Name: Close
             Type: Price
       ShortDescription: Momentum Percent
+    - Abbreviation: anchored_mom
+      CamelCaseName: AnchoredMom
+      GroupId: Momentum Indicators
+      OptionalInputArguments:
+        OptionalInputArgument:
+          DefaultValue: 0
+          Name: Sensitiviy
+          Range:
+            Maximum: 10
+            Minimum: 0
+            SuggestedEnd: 10
+            SuggestedIncrement: 1
+            SuggestedStart: 0
+          ShortDescription: Number of delta
+          Type: Integer
+      OutputArguments:
+        OutputArgument:
+          - Flags:
+              Flag: Dashed Line
+            Name: outMom
+            Type: Double Array
+      RequiredInputArguments:
+        RequiredInputArgument:
+          - Name: Close
+            Type: Price
+      ShortDescription: Momementum Relative to Reference Close

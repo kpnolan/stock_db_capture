@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090904191327
+# Schema version: 20090906181342
 #
 # Table name: entry_strategies
 #
@@ -14,7 +14,6 @@ require 'yaml'
 class EntryStrategy < ActiveRecord::Base
 
   has_many :positions, :dependent => :destroy
-  has_and_belongs_to_many :scans
 
   validates_presence_of :name
   validates_uniqueness_of :name
@@ -22,7 +21,6 @@ class EntryStrategy < ActiveRecord::Base
   before_save :clear_associations_if_dirty
 
   def clear_associations_if_dirty
-    scans.clear if changed?
     positions.clear if changed?
   end
 

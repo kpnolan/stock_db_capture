@@ -24,45 +24,60 @@ class Backtester
   extend TradingCalendar
 
   attr_accessor :ts, :result_hash, :meta_data_hash
-  attr_reader :scan_name, :es_name, :xs_name, :desc, :options, :post_process, :days_to_close, :opened_index_hash
-  attr_reader :entry_strategy, :exit_strategy, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
+  attr_reader :scan_name, :ts_name, :es_name, :xs_name, :desc, :options, :post_process, :days_to_close, :days_to_open, :triggered_index_hash
+  attr_reader :trigger_strategy, :entry_strategy, :exit_strategy, :trigger, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
   attr_reader :resolution, :logger
 
-  def initialize(entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
-    @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close,
-                                     :days_to_close => 30, :epass => 0..2, :reset => true
+  def initialize(trigger_strategy_name, entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
+    @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log => :basic,
+                                     :days_to_close => 30, :days_to_open => 5, :epass => 0..2, :reset => true
+    @ts_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xs_name = exit_strategy_name
     @scan_name = scan_name
     @desc = description
-    @days_to_close = @options[:days_to_close]
+    @days_to_close = self.options[:days_to_close]
+    @days_to_open = self.options[:days_to_open]
     @positions = []
     @post_process = block
     @resolution = self.options.delete :resolution
+    set_log_level(@options[:log])
 
-    raise BacktestException.new("Cannot find strategy: #{es_name.to_s} or #{xs_name}") unless $analytics.has_pair?(es_name, xs_name)
+    raise BacktestException.new("Cannot find strategy: #{ts_name.to_s}") if TriggerStrategy.find_by_name(ts_name).nil?
+    raise BacktestException.new("Cannot find strategy: #{es_name.to_s}") if EntryStrategy.find_by_name(es_name).nil?
+    raise BacktestException.new("Cannot find strategy: #{ex_name.to_s}") if ExitStrategy.find_by_name(xs_name).nil?
     raise BacktestException.new("Cannot find scan: #{scan_name.to_s}") if Scan.find_by_name(scan_name).nil?
   end
 
   def run(logger)
     @logger = logger
-    logger.info "\nProcessing backtest of #{:es_name} with #{:xs_name} against #{scan_name}"
+    logger.info "\nProcessing backtest of #{es_name} with #{xs_name} against #{scan_name}"
+    @trigger = $analytics.find_trigger(ts_name)
     @opening = $analytics.find_opening(es_name)
     @closing = $analytics.find_closing(xs_name)
     @stop_loss = $analytics.find_stop_loss
+    #
+    # Validate that all three strategies agree with what was passed into the "using(...)" statement
+    #
+    strategy_use = [:trigger, :opening, :closing]
+    strategy_names = [ts_name, es_name, xs_name ]
+    strategy_values = [ trigger, opening, closing ]
+    strategy_bindings = strategy_use.zip(strategy_names, strategy_values)
+    validate(strategy_bindings)
 
     @scan = Scan.find_by_name(scan_name)
+    @trigger_strategy = TriggerStrategy.find_by_name(ts_name)
     @entry_strategy = EntryStrategy.find_by_name(es_name)
     @exit_strategy = ExitStrategy.find_by_name(xs_name)
 
     truncate(options[:truncate]) unless options[:truncate].nil?
 
-    startt = Time.now
+    startt = global_startt = Time.now
 
     # FIXME when a backtest specifies a different set of options, e.g. (:price => :close) we should
     # FIXME invalidate any cached posistions (including and exspecially scans_strategies because the positions will have
     # FIXME totally different values
-    unless entry_strategy.scan_ids.include?(scan.id)
+    unless trigger_strategy.scan_ids.include?(scan.id)
       logger.info "Recomputing Positions"
       #
       # Grab tickers from scans and compute the date range from the scan dates or the options
@@ -71,30 +86,92 @@ class Backtester
       @tid_array = scan.tickers_ids
       sdate = options[:start_date] ? options[:start_date] : scan.start_date
       edate = options[:end_date] ? options[:end_date] : scan.end_date
-      @date_range = sdate..edate
-      #
-      # Foreach ticker in the population, create a timeseries for the date range given with the population
-      # and run the analysis given with the strategy on said timeseries
-
-      RubyProf.start  if options[:profile]
 
       #--------------------------------------------------------------------------------------------------------------------
-      # The is the open option loop -- all of it. The nitty gritty of trashold crossing is handeled by open_positions(...)
+      # Triggered Position loop. Iterates through a tickers in scan, executing the trigger block for each ticker. Since
+      # we're only using an RSI(14) as a triggering signal we execute the block three times varying (in effect) the threshold
+      # which, when crossed, tiggers a positioins. The three thresholds used are 20, 25, and 30. The way the thresholds are
+      # varied is a hack (FIXME), which should instead involve the use of three seperate trigger strategies instead of the
+      # bastardized one we use here.
       #-------------------------------------------------------------------------------------------------------------------
+      logger.info "Beginning trigger positions analysis..." if log? :basic
+      RubyProf.start  if options[:profile]
+
       count = 0
-      for tid in tid_array
-        ts = Timeseries.new(tid, date_range, resolution, options)
+      for ticker_id in tid_array
+        ts = Timeseries.new(ticker_id, sdate..edate, resolution, options)
         reset_position_index_hash()
         for pass in options[:epass]
-          count += open_positions(ts, opening.params, pass)
+          triggered_indexes = ts.instance_exec(trigger.params, pass, &trigger.block)
+          for index in triggered_indexes
+            next if triggered_index_hash.include? index #This index has been triggered on a previous pass
+            trigger_date, trigger_price = ts.closing_values_at(index)
+            debugger if trigger_date.nil? or trigger_price.nil?
+            position = Position.trigger(ts.ticker_id, trigger_date, trigger_price, pass)
+            trigger_strategy.positions << position
+            scan.positions << position
+            triggered_index_hash[index] = true
+            count += 1
+          end
         end
       end
-      entry_strategy.scans << scan      # record the fact we've process the openings for the entry strategy for this population
+      trigger_strategy.scans << scan  # record the fact we've processed the triggered positions for the trigger strategy for this population
+                                      # unless this is truncated we will scip this pass and to right into the close position piece
 
       endt = Time.now
       delta = endt - startt
-      deltam = delta/60.0
-      logger.info "#{count} positions opened -- elapsed time: #{deltam} minutes"
+      logger.info "#{count} positions triggered -- elapsed time: #{format_et(delta)}" if log? :basic
+
+      if options[:profile]
+        GC.disable
+        results = RubyProf.stop
+        GC.enable
+
+        File.open "#{RAILS_ROOT}/tmp/trigger-positions.prof", 'w' do |file|
+          RubyProf::CallTreePrinter.new(results).print(file)
+        end
+      end
+
+      #--------------------------------------------------------------------------------------------------------------------
+      # Open position pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
+      # whose mission it is to cull out losers that have been triggered and ones not likely to close.
+      #-------------------------------------------------------------------------------------------------------------------
+      logger.info "Beginning open positions analysis..."
+      RubyProf.start  if options[:profile]
+
+      startt = Time.now
+
+      count = 0
+      triggers = trigger_strategy.positions.find(:all, :conditions => { :scan_id => scan.id })
+      trig_count = triggers.length
+
+      for position in triggers
+        start_date = position.triggered_at
+        end_date = Position.trading_date_from(start_date, days_to_open)
+        ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, options.merge(:populate => true))
+
+        confirming_indexes = ts.instance_exec(opening.params, &opening.block)
+        unless confirming_indexes.empty?
+          index = confirming_indexes.first
+          entry_time, entry_price = ts.closing_values_at(index)
+          Position.open(position, entry_time, entry_price, options={})
+          logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
+                             count, trig_count, position.ticker.symbol,
+                             position.triggered_at.to_formatted_s(:ymd),
+                             position.entry_delay, position.trigger_price, positioin.entry_price,
+                             position.consumed_margin) if log? :entries
+          entry_strategy.positions << position
+          count += 1
+        else
+          logger.info format("Position %d of %d (%s) %s\t%s\t%3.2f\t%s\t%s",
+                             count, trig_count, position.triggered_at.to_formatted_s(:ymd),
+                             'NA', position.trigger_price, 'NA', 'NA'  ) if log? :entries
+        end
+      end
+
+      endt = Time.now
+      delta = endt - startt
+      logger.info "#{count} positions opened of #{trig_count} triggered -- elapsed time: #{format_et(delta)}" if log? :basic
 
       if options[:profile]
         GC.disable
@@ -106,17 +183,16 @@ class Backtester
         end
       end
     else
-      #TODO wipe all the scans associated with this position if position changed
       logger.info "Using CACHED positions"
     end
-    #
-    # Now closes the posisitons that we just opened by running the block associated with the backtest
-    # The purpose for "apply" kind of backtest is to open positions based upon the criterion given
-    # in the "analytics" section and then close them be evaluating the block associated with the "apply"
-    # If everybody does what they're supposed to do, we end up with a set of positions that have been opened
-    # and closed, giving the raw data for the analysis of the backtest
-    #
-    logger.info "Beginning close positions analysis..."
+
+    #--------------------------------------------------------------------------------------------------------------------
+    # Close position pass. Iterates through all positions opened by the previous pass closing them on (hopefully) a bar
+    # which a maximum (or close to it) profit. At present, opened positions are given 30 trading days to close whereup
+    # they are forcefully closes (usually at a significant loss). Any positions found with an incomplete set of bars is
+    # summarily logged and destroyed.
+    #-------------------------------------------------------------------------------------------------------------------
+    logger.info "Beginning close positions analysis..." if log? :basic
     startt = Time.now
 
     RubyProf.start if options[:profile]
@@ -126,19 +202,39 @@ class Backtester
 
     counter = 1
     for position in open_positions
-      p = close_position(position)
-      next if p.nil?
-      #if p.exit_date.nil?
-      #  logger.info format("Position %d of %d %s\t>30\t%3.2f\t???.??\t???.??\t???.??", counter, pos_count, p.entry_date.to_s(:short), p.entry_price)
-      #else
-      #  logger.info format("Position %d of %d %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s", counter, pos_count, p.entry_date.to_s(:short), p.days_held, p.entry_price, p.exit_price, p.nreturn*100.0, p.return, p.indicator.name )
-      #end
+      begin
+        max_exit_date = Position.trading_date_from(position.entry_date, days_to_close)
+        if max_exit_date > Date.today
+          ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
+          max_exit_date = ticker_max.localtime
+        end
+        ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution)
+        exit_time, indicator = ts.instance_exec(closing.params, &closing.block)
+        if exit_time.nil?
+          Position.close(position, max_exit_date, ts.value_at(max_exit_date, :close), :indicator => indicator, :closed => false)
+        else
+          Position.close(position, exit_time, ts.value_at(exit_time, :close), :indicator => indicator, :closed => true)
+        end
+        exit_strategy.positions << position
+        generate_stats(position) if options[:generate_stats]
+      rescue TimeseriesException => e
+        logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
+        position.destroy
+      end
+      logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
+                         counter, pos_count, position.ticker.symbol,
+                         position.entry_date.to_formatted_s(:ymd),
+                         position.days_held, position.entry_price, positioin.exit_price, position.nreturn*100.0,
+                         position.roi, position.indicator.name ) if log? :exits
       counter += 1
     end
+
     endt = Time.now
     delta = endt - startt
-    deltam = delta/60.0
-    logger.info "Backtest (close positions) elapsed time: #{deltam} minutes"
+    global_delta = endt - global_startt
+
+    logger.info "Backtest (close positions) elapsed time: #{format_et(delta)}" if log? :basic
+    logger.info "Total Backtest elapsed time: #{format_et(global_delta)}" if log? :basic
 
     if options[:profile]
       GC.disable
@@ -149,9 +245,10 @@ class Backtester
         RubyProf::CallTreePrinter.new(results).print(file)
       end
     end
-    #
-    # Perform stop loss analysis if it was specified in the analytics section of the backtest config
-    #
+
+    #--------------------------------------------------------------------------------------------------------------------
+    # Stop-loss pass. The nitty gritty of threshold crossing is handeled by tstop(...)
+    #-------------------------------------------------------------------------------------------------------------------
     unless stop_loss.nil? || stop_loss.threshold.to_f == 100.0
       logger.info "Beginning stop loss analysis..."
       startt = Time.now
@@ -162,49 +259,12 @@ class Backtester
       endt = Time.now
       delta = endt - startt
       deltam = delta/60.0
-      logger.info "Backtest (stop loss analysys) elapsed time: #{deltam} minutes"
+      logger.info "Backtest (stop loss analysys) elapsed time: #{deltam} minutes" if log? :basic
     end
     #
     # Call any post processing block specified
     #
     post_process.call(entry_strategy, exit_strategy, scan) if post_process
-  end
-  # Run the analysis associated with the strategy which returns a set of indexes for which analysis is true
-  # Convert this indexes to dates and open a position on that date at the openning price
-  # Remember all of the positions opened for the second part of the backtest, which is to close
-  # the open positions
-  def open_positions(ts, params, pass)
-      #begin
-        count = 0
-        open_indexes = ts.instance_exec(params, pass, &opening.block)
-        for index in open_indexes
-          next if opened_index_hash.include? index #This index has been opened on a previous pass
-          #begin
-            price = ts.value_at(index, :close)
-            time = ts.index2time(index)
-            debugger if time.nil?
-          #rescue Exception => e
-          #  debugger
-          #  puts e.to_s
-          #  next
-          #end
-          #TODO wipe all positions associated with the strategy if the strategy changes
-          #TODO add support for short sales using the optional params arg at end
-          position = Position.open(ts.ticker_id, entry_strategy, exit_strategy, scan, time, price, pass)
-          entry_strategy.positions << position
-          scan.positions << position
-          opened_index_hash[index] = true
-          count += 1
-        end
-      #rescue NoMethodError => e
-      #  logger.info e.message unless e.message =~ /to_v/ or logger.nil?
-      #rescue TimeseriesException => e
-      #  logger.info e.message unless e.message =~ /recorded history/ or logger.nil?
-#      rescue Exception => e
-#        logger.info e.message
-#        logger.info e.backtrace
-    #end
-    count
   end
 
   def tstop(p, threshold_percent, options={})
@@ -241,7 +301,7 @@ class Backtester
           ret = ((low - p.entry_price) / p.entry_price)
           nreturn *= -1.0 if p.short and nreturn != 0.0
           logger.info(format("%s\tentry: %3.2f max high: %3.2f low(exit): %3.2f on drop: %3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
-                              ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0))
+                              ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0)) if log? :stops
           p.update_attributes!(:exit_price => low, :exit_date => xtime,
                                :days_held => days_held, :nreturn => nreturn,
                                :exit_trigger => rratio, :stop_loss => true)
@@ -257,93 +317,43 @@ class Backtester
     end
     nil
   end
-
-  # Close a position opened during the first phase of the backtest
-  def close_position(p)
-    begin
-      options = self.options.reverse_merge :post_buffer => 0, :debug => true
-      start_date = p.entry_date.to_date
-      end_date = Backtester.trading_date_from(start_date, days_to_close)
-
-      ts = Timeseries.new(p.ticker_id, start_date..end_date, resolution, options)
-
-      result = ts.instance_exec(closing.params, &closing.block)
-
-      indicator, xtime, index = nil, nil, nil
-
-      case result
-      when Array      : xtime, indicator = result
-      when Numeric    : index = result
-      end
-
-      if index.nil? && xtime.nil?
-        days_held = days_to_close
-        edate = p.entry_date.to_date
-        xdate = Position.trading_date_from(edate, days_held)
-        xprice = ts.value_at(ts.index_range.begin+days_held, :close)
-        roi = (xprice - p.entry_price) / p.entry_price
-        rreturn = xprice/p.entry_price
-        logr = Math.log(rreturn.zero? ? 0 : rreturn)
-        nreturn = roi / days_held
-        p.update_attributes!(:exit_date => xdate, :exit_price => xprice, :roi => roi, #leave out closes so it defaults to NULL
-                             :days_held => days_to_close, :nreturn => nreturn, :indicator_id => Indicator.lookup(:unknown).id)
-      else
-        xprice = index ? ts.value_at(index, :close) : ts.value_at(ts.time2index(xtime), :close)
-        edate = p.entry_date.to_date
-        xdate = xtime ? xtime.to_date : ts.index2time(index)
-        debugger if xdate.nil?
-        days_held = Position.trading_days_between(edate, xdate)
-        roi = (xprice - p.entry_price) / p.entry_price
-        rreturn = xprice/p.entry_price
-        logr = Math.log(rreturn.zero? ? 0 : rreturn)
-        nreturn = days_held.zero? ? 0.0 : roi / days_held
-        nreturn *= -1.0 if p.short and nreturn != 0.0
-        indicator_id = Indicator.lookup(indicator).id
-        p.update_attributes!(:exit_price => xprice, :exit_date => xdate, :closed => true, :roi => roi,
-                             :days_held => days_held, :nreturn => nreturn, :indicator_id => indicator_id)
-      end
-
-      exit_strategy.positions << p
-      generate_stats(p) if options[:generate_stats]
-    rescue TimeseriesException => e
-      logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
-      p.destroy
-    end
-    # rescue ActiveRecord::RecordNotFound
-#       indicator = :unknown and retry
-#     rescue Exception => e
-#       logger.error "#{e.to_s} deleting position}" if logger
-#       logger.error p.inspect if logger
-#       p.strategies.delete_all
-#       p.delete
-#       p = nil
-#     end
-    p
-  end
-
   #
   # Reset the hash containing the indexes of all positions opened for a particular timeseries
   #
   def reset_position_index_hash
-    @opened_index_hash = { }
+    @triggered_index_hash = { }
   end
-
+  #
+  # Truncate all positions matching the current tigger, entry, or exit strategies or scan. Accepts either a single symbol or an array of symbols
+  #
   def truncate(symbol_or_array)
     symbol_or_array = [ symbol_or_array ] unless symbol_or_array.is_a? Array
+    count = 0
+    startt = Time.now
     symbol_or_array.each do |symbol|
+      name = send(symbol).name
+      logger.info "Begining truncate of #{name}..." if log? :basic
       case symbol
+      when :trigger_strategy then
+        count += trigger_strategy.positions.count
+        trigger_strategy.positions.clear
+        trigger_strategy.scans.clear
       when :entry_strategy then
+        count += entry_strategy.positions.count
         entry_strategy.positions.clear
-        entry_strategy.scans.clear
       when :exit_strategy then
+        count += exit_strategy.positions.count
         exit_strategy.positions.clear
       when :scan
+        count += scan.positions.count
         scan.positions.clear
-        scan.entry_strategies.clear
+        scan.trigger_strategies.clear
       else
         raise ArgumentError, ":truncate must take one or an array of the following: :entry_strategy, :exit_strategy, :scan"
       end
     end
+    delta = Time.now - startt
+    logger.info "Truncated #{count} positions in #{format_et(delta)}" if log? :basic
   end
 
   def generate_stats(position)
@@ -354,5 +364,39 @@ class Backtester
                            :macdfix => { :result => :macd_hist },
                            :rsi => { :result => :rsi },
                            :rvi => { :result => :rvi })
+  end
+
+  def set_log_level(flags)
+    options = %w{ none basic entries exits stops}.map(&:to_sym)
+    flags = [flags] unless flags.is_a? Array
+    unless flags.all? { |flag| options.member? flag }
+      flags.each do |flag|
+        unless options.member? flag
+          raise ArgumentError, "log level #{flags} is not one of the support options: #{options.join(', ')}"
+        end
+      end
+    end
+    @log_flags = flags
+  end
+
+  def log?(flag)
+    @log_flags.member? flag
+  end
+
+  def format_et(seconds)
+    if seconds > 60.0 and seconds < 120.0
+      format('%d minute and %d seconds', (seconds/60).floor, seconds.to_i % 60)
+    elsif seconds > 120.0
+      format('%d minutes and %d seconds', (seconds/60).floor, seconds.to_i % 60)
+    else
+      format('%2.2f seconds', seconds)
+    end
+  end
+
+  def validate(triples)
+    triples.each do |triple|
+      use, name, value = triple
+      raise ArgumentError, "#{use.capitalize} strategy #{name} do not have a value" if value.nil?
+    end
   end
 end

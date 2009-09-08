@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090904191327
+# Schema version: 20090906181342
 #
 # Table name: intra_snapshots
 #

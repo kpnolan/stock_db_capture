@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090904191327
+# Schema version: 20090906181342
 #
 # Table name: scans
 #
@@ -21,7 +21,7 @@ class Scan < ActiveRecord::Base
 
   has_many :positions, :dependent => :destroy
   has_and_belongs_to_many :tickers
-  has_and_belongs_to_many :entry_strategies
+  has_and_belongs_to_many :trigger_strategies
 
   validates_uniqueness_of :name
   validates_presence_of :name, :start_date, :end_date

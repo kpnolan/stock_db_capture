@@ -1,0 +1,13 @@
+%tr[trigger_strategy]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.name
+    = h trigger_strategy.name
+  %td.params
+    = h trigger_strategy.params
+  %td.description
+    = h trigger_strategy.description
+  %td.show
+    = link_to 'Show', object_path(trigger_strategy)
+  %td.edit
+    = link_to 'Edit', edit_object_path(trigger_strategy)
+  %td.destroy
+    = link_to 'Destroy', object_path(trigger_strategy), :confirm => 'Really destroy trigger_strategy?', :method => :delete

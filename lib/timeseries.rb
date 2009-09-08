@@ -40,8 +40,9 @@ class Timeseries
     end
 
     def time2index(date_or_time)
-      time = date_or_time.to_time.change(:hour => 6, :min => 30)
-      abs_index = TimeMap.time2index(time)
+      time = date_or_time.to_time
+      time = time.to_time.change(:hour => 6, :min => 30) unless time.zone.first == 'E'  #Eastern Time
+      abs_index = TimeMap.time2index(time, true)
       abs_index - first_index
     end
 
@@ -49,9 +50,9 @@ class Timeseries
       mbs = missing_bars()
       ranges = TimeMap.to_ranges(mbs)
       if ranges.length < mbs.length
-        raise TimeseriesException, "Missing bars on #{ranges.map{ |r| pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
+        raise TimeseriesException, "Missing bars from #{ranges.map{ |r| pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
       else
-        raise TimeseriesException, "Missing bars on #{mbs.map{ |t| t.to_formatted_s(:ymd)}.join(', ')} (#{mbs.length} trading days)"
+        raise TimeseriesException, "Missing bars from #{mbs.map{ |t| t.to_formatted_s(:ymd)}.join(', ')} (#{mbs.length} trading days)"
       end
     end
 
@@ -107,7 +108,7 @@ class Timeseries
     if local_range.is_a? Range
       if local_range.begin.is_a?(Date) && local_range.end.is_a?(Date)
         @local_range = local_range.begin.to_time.change(:hour => 6, :min => 30)..local_range.end.to_time.change(:hour => 6, :min => 30)
-      elsif local_range.begin.is_a?(Time) && local_range.end.is_a?(Time)
+      elsif local_range.begin.acts_like_time? && local_range.end.acts_like_time?
         @local_range = local_range.begin...local_range.end
       else
         raise ArgumentError, "local_range must be a Date, a Range of Dates or Times, or String"
@@ -306,7 +307,10 @@ class Timeseries
   #
   def offset_date(ref_date, offset)
     trading_day_count = ((1.day / bars_per_day ) * offset) /1.day
-    Timeseries.trading_date_from(ref_date, trading_day_count).to_time.change(:hour => 6, :min => 30)
+    new_date = Timeseries.trading_date_from(ref_date, trading_day_count)
+    return new_date if new_date.is_a? Date
+    new_date = new_date.change(:hour => 6, :min => 30) unless new_date.zone.first == 'E'  #Eastern Time
+    new_date
   end
 
   #
@@ -459,6 +463,12 @@ class Timeseries
       index
     end
   end
+  #
+  # Return the date and closing price for a time series index
+  #
+  def closing_values_at(index)
+    return index2time(index), value_at(index, :close)
+  end
 
   #
   # Returns a the value at an index location of a bar or result #FIXME this function is duplicated elswhere
@@ -467,8 +477,13 @@ class Timeseries
     slots.map { |s| value_hash[s][index]}
   end
 
-  def value_at(index, slot)
-    value_hash[slot][index]
+  def value_at(time_or_index, slot)
+    case time_or_index
+    when Time       : value_hash[slot][time2index(time_or_index)]
+    when Numeric    : value_hash[slot][time_or_index]
+    else
+      raise ArgumentError, "first arg must be a Time or a Fixnum, instead was #{time_or_index}"
+    end
   end
   #
   # Returns the time for a vector of index
@@ -531,24 +546,23 @@ class Timeseries
       end
     end
 
-    results = case options[:result]
-              when :keys  : pb.keys
-              when :memo  : pb
-              when :raw   : results
-              when :first : results.first
-              when :second : results.second
-              when :third : results.third
-              when :last  : results.first.last
-              when :last_of_third : results.third.last
-              when :array : results.first.to_a
-              when nil    : nil
-              else
-                if value_hash.keys.include? options[:result]
-                  value_hash[options[:result]]
-                else
-                  raise ArgumentError, "invalid value for :result => #{options[:result]}"
+    @reserved_options ||= %w{ keys memo raw first array }.inject({}) { |h, k| h[k.to_sym] = true; h }
+
+    if @reserved_options[options[:result]]
+      results = case options[:result]
+                when :keys  : pb.keys
+                when :memo  : pb
+                when :raw   : results
+                when :first : results.first
+                when :array : results.first.to_a
                 end
-              end
+    elsif value_hash.keys.include? options[:result]
+      value_hash[options[:result]]
+    elsif options[:result].nil?
+      nil
+    else
+      raise ArgumentError, "invalid value for :result => #{options[:result]}"
+    end
   end
 
   def update_last_bar(bar)

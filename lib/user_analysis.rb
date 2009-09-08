@@ -331,6 +331,7 @@ module UserAnalysis
     memoize_result(self, :lrsigma, index_range, options, result, :financebars)
   end
 
+
   def lr(options={ })
     options.reverse_merge! :time_period => 14
     period = options[:time_period] / 2
@@ -348,6 +349,19 @@ module UserAnalysis
     end
     result = [0, idx_range.begin, slopevec, chisq]
     memoize_result(self, :lr, index_range, options, result, :financebars)
+  end
+
+  def anchored_mom(options={})
+    idx_range = calc_indexes(nil)
+    momvec = []
+    today = idx_range.begin
+    reference_close = close[idx_range.begin]
+    while today < idx_range.end
+      momvec << (close[today] - reference_close)
+      today += 1
+    end
+    result = [0, idx_range.begin, momvec.to_gv]
+    memoize_result(self, :anchored_mom, index_range, options, result, :financebars)
   end
 
   def slope(options={ })

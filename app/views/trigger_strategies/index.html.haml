@@ -1,0 +1,10 @@
+%h1 Listing trigger_strategies
+%table
+  %tr.heading
+    %th Name
+    %th Params
+    %th Description
+
+  = render :partial => 'trigger_strategy', :collection => current_objects
+
+= link_to 'New trigger_strategy', new_object_path 

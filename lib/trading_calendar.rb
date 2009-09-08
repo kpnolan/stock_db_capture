@@ -75,7 +75,8 @@ module TradingCalendar
 
   def time2index(time, raise_exception=false)
     index = @@calendar[time.to_i]
-    raise ArgumentError, "#{time.to_date.to_s(:db)} not contained in Trading Calendar" if index.nil? and raise_exception
+    raise ArgumentError, "#{time} not contained in Trading Calendar" if index.nil? and raise_exception
+#    raise ArgumentError, "#{time.to_date.to_s(:db)} not contained in Trading Calendar" if index.nil? and raise_exception
     index
   end
 
@@ -123,7 +124,8 @@ module TradingCalendar
   #
   def trading_date_from(date_or_time, number)
     return date_or_time if number.zero?
-    time = date_or_time.to_time.change(:hour => 6, :min => 30)
+    time = date_or_time.to_time
+    time = time.change(:hour => 6, :min => 30) unless time.zone.first == 'E'  #Eastern Time
     base_index = time2index(time)
     offset_time = index2time(base_index+number)
     date_or_time.is_a?(Date) ? offset_time.to_date : offset_time
@@ -142,8 +144,12 @@ module TradingCalendar
   # FIXME this seem to be
   #
   def trading_day_count(date1, date2, inclusive=true)
-    index1 = time2index(date1.to_time.change(:hour => 6, :min => 30), true)
-    index2 = time2index(date2.to_time.change(:hour => 6, :min => 30), true)
+    time1 = date1.to_time
+    time2 = date2.to_time
+    time1 = time1.change(:hour => 6, :min => 30) unless time1.zone.first == 'E'  #Eastern Time
+    time2 = time2.change(:hour => 6, :min => 30) unless time2.zone.first == 'E'  #Eastern Time
+    index1 = time2index(time1, true)
+    index2 = time2index(time2, true)
     index2 - index1 + (inclusive ? 1 : 0)
   end
 

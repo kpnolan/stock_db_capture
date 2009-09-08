@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090904191327) do
+ActiveRecord::Schema.define(:version => 20090907025059) do
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
@@ -96,14 +96,6 @@ ActiveRecord::Schema.define(:version => 20090904191327) do
     t.string "params"
     t.string "description"
   end
-
-  create_table "entry_strategies_scans", :id => false, :force => true do |t|
-    t.integer "scan_id"
-    t.integer "entry_strategy_id"
-  end
-
-  add_index "entry_strategies_scans", ["scan_id"], :name => "scan_id"
-  add_index "entry_strategies_scans", ["entry_strategy_id"], :name => "entry_strategy_id"
 
   create_table "exchanges", :force => true do |t|
     t.string "symbol"
@@ -273,13 +265,17 @@ ActiveRecord::Schema.define(:version => 20090904191327) do
     t.boolean  "closed"
     t.integer  "entry_strategy_id"
     t.integer  "exit_strategy_id"
+    t.datetime "triggered_at"
+    t.integer  "trigger_strategy_id"
+    t.float    "trigger_price"
   end
 
-  add_index "positions", ["ticker_id", "scan_id", "entry_strategy_id", "exit_strategy_id", "entry_date"], :name => "unique_param_ids", :unique => true
+  add_index "positions", ["ticker_id", "scan_id", "trigger_strategy_id", "entry_strategy_id", "exit_strategy_id", "triggered_at"], :name => "unique_param_ids", :unique => true
   add_index "positions", ["ticker_id"], :name => "index_positions_on_portfolio_id_and_ticker_id"
   add_index "positions", ["scan_id"], :name => "scan_id"
   add_index "positions", ["entry_strategy_id"], :name => "entry_strategy_id"
   add_index "positions", ["exit_strategy_id"], :name => "exit_strategy_id"
+  add_index "positions", ["trigger_strategy_id"], :name => "trigger_strategy_id"
 
   create_table "positions08", :force => true do |t|
     t.integer  "ticker_id"
@@ -372,6 +368,14 @@ ActiveRecord::Schema.define(:version => 20090904191327) do
 
   add_index "scans_tickers", ["ticker_id"], :name => "ticker_id"
   add_index "scans_tickers", ["scan_id"], :name => "scan_id"
+
+  create_table "scans_trigger_strategies", :id => false, :force => true do |t|
+    t.integer "scan_id"
+    t.integer "trigger_strategy_id"
+  end
+
+  add_index "scans_trigger_strategies", ["scan_id"], :name => "scan_id"
+  add_index "scans_trigger_strategies", ["trigger_strategy_id"], :name => "trigger_strategy_id"
 
   create_table "sectors", :force => true do |t|
     t.string "name"
@@ -489,6 +493,14 @@ ActiveRecord::Schema.define(:version => 20090904191327) do
   add_index "tickers", ["name"], :name => "ticker_name_index"
   add_index "tickers", ["exchange_id"], :name => "exchange_id"
 
+  create_table "trigger_strategies", :force => true do |t|
+    t.string   "name"
+    t.string   "params"
+    t.string   "description"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
   create_table "watch_list", :force => true do |t|
     t.integer  "ticker_id"
     t.float    "target_price"
@@ -521,9 +533,6 @@ ActiveRecord::Schema.define(:version => 20090904191327) do
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
 
-  add_foreign_key "entry_strategies_scans", ["scan_id"], "scans", ["id"], :name => "entry_strategies_scans_ibfk_1"
-  add_foreign_key "entry_strategies_scans", ["entry_strategy_id"], "entry_strategies", ["id"], :name => "entry_strategies_scans_ibfk_2"
-
   add_foreign_key "factors", ["study_id"], "studies", ["id"], :name => "factors_ibfk_1"
   add_foreign_key "factors", ["indicator_id"], "indicators", ["id"], :name => "factors_ibfk_2"
 
@@ -535,6 +544,9 @@ ActiveRecord::Schema.define(:version => 20090904191327) do
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
+
+  add_foreign_key "scans_trigger_strategies", ["scan_id"], "scans", ["id"], :name => "scans_trigger_strategies_ibfk_1"
+  add_foreign_key "scans_trigger_strategies", ["trigger_strategy_id"], "trigger_strategies", ["id"], :name => "scans_trigger_strategies_ibfk_2"
 
   add_foreign_key "ta_specs", ["indicator_id"], "indicators", ["id"], :name => "ta_specs_ibfk_1"
 

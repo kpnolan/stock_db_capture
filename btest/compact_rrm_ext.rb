@@ -1,7 +1,7 @@
 analytics do
 
   desc "Find all places where RSI gooes heads upwards of 30"
-  open_position :rsi_open_14, :time_period => 14, :result => :first do |params, pass|
+  trigger_position :rsi_open_14, :time_period => 14, :result => :first do |params, pass|
     rsi_ary = rsi(params)
     indexes = under_threshold(20+pass*5, rsi_ary)
     #unless indexes.empty?
@@ -12,11 +12,18 @@ analytics do
     #end
   end
 
+  desc "Use an anchored momentum. I.e. Set the close at trigger ass the reference close and return the index of the " +
+       "first trading day with a close higher than the reference date. Should weed out losers on a downward trend"
+  open_position :relative_momentum, :result => :first do |params|
+    delta_closes = anchored_mom(params)
+    indexes = under_threshold(0.0, delta_closes)
+  end
+
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
   close_position :compact_rrm_14, :time_period => 14, :result => :first do |params|
-    close_crossing_value(:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :third),
-                         :rsi => params.merge(:threshold => 50, :direction => :under),
-                         :rvi => params.merge(:threshold => 50, :direction => :under))
+    close_crossing_value(:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :macd_hist),
+                         :rsi => params.merge(:threshold => 50, :direction => :under, :result => :rsi),
+                         :rvi => params.merge(:threshold => 50, :direction => :under, :result => :rvi))
   end
 
   desc "Close the position if the stop loss is 15% or greater"
@@ -45,8 +52,8 @@ end
 #   :price => :close                determines the price used for calculation
 #   :days_to_close                  max number of days to hold open a position before closing it forcefully
 #
-backtests(:generate_stats => false, :profile => false) do
-  using(:rsi_open_14, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
+backtests(:generate_stats => false, :profile => false, :truncate => :scan) do
+  using(:rsi_open_14, :relative_momentum, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
     #make_sheet(entry_strategy, exit_strategy, scan)
   end
 end

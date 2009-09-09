@@ -11,7 +11,7 @@
 
 class ExitStrategy < ActiveRecord::Base
 
-  has_many :positions, :dependent => :destroy
+  has_many :positions, :dependent => :nullify
 
   validates_presence_of :name
   validates_uniqueness_of :name

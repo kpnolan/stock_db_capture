@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090907025059) do
+ActiveRecord::Schema.define(:version => 20090909011746) do
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
@@ -369,14 +369,6 @@ ActiveRecord::Schema.define(:version => 20090907025059) do
   add_index "scans_tickers", ["ticker_id"], :name => "ticker_id"
   add_index "scans_tickers", ["scan_id"], :name => "scan_id"
 
-  create_table "scans_trigger_strategies", :id => false, :force => true do |t|
-    t.integer "scan_id"
-    t.integer "trigger_strategy_id"
-  end
-
-  add_index "scans_trigger_strategies", ["scan_id"], :name => "scan_id"
-  add_index "scans_trigger_strategies", ["trigger_strategy_id"], :name => "trigger_strategy_id"
-
   create_table "sectors", :force => true do |t|
     t.string "name"
   end
@@ -544,9 +536,6 @@ ActiveRecord::Schema.define(:version => 20090907025059) do
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
-
-  add_foreign_key "scans_trigger_strategies", ["scan_id"], "scans", ["id"], :name => "scans_trigger_strategies_ibfk_1"
-  add_foreign_key "scans_trigger_strategies", ["trigger_strategy_id"], "trigger_strategies", ["id"], :name => "scans_trigger_strategies_ibfk_2"
 
   add_foreign_key "ta_specs", ["indicator_id"], "indicators", ["id"], :name => "ta_specs_ibfk_1"
 

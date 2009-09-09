@@ -178,26 +178,15 @@ FinancialFunctions:
       GroupId: Volatility Measure
       OptionalInputArguments:
         OptionalInputArgument:
-          - DefaultValue: .2
-            Name: alpha
+          - DefaultValue: 14
+            Name: Time Period
             Range:
-              Maximum: 1
-              Minimum: .01
-              SuggestedEnd: 1
-              SuggestedIncrement: .01
-              SuggestedStart: .25
-            ShortDescription: Alpha
-            Type: Double
-          - DefaultValue: 5
-            Name: Period
-            Range:
-              Maximum: 2
-              Minimum: 10000
-              Precision: 2
-              SuggestedEnd: 2.0
-              SuggestedIncrement: .5
-              SuggestedStart: 2
-            ShortDescription: Period for Smoothing
+              Maximum: 252
+              Minimum: 2
+              SuggestedEnd: 2
+              SuggestedIncrement: 1
+              SuggestedStart: 5
+            ShortDescription: TimePeriod
             Type: Integer
       OutputArguments:
         OutputArgument:

@@ -83,7 +83,7 @@ class Position < ActiveRecord::Base
       nreturn = days_held.zero? ? 0.0 : roi / days_held
       nreturn *= -1.0 if position.short and nreturn != 0.0
       indicator_id = Indicator.lookup(options[:indicator]).id
-      closed = options[:closed]
+      closed = options[:closed] == false ? nil : options[:closed]
 
       position.update_attributes!(:exit_price => exit_price, :exit_date => exit_date, :roi => roi,
                                   :days_held => days_held, :nreturn => nreturn, :indicator_id => indicator_id, :logr => logr,

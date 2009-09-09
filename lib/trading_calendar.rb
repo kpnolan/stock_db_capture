@@ -127,7 +127,7 @@ module TradingCalendar
     time = date_or_time.to_time
     time = time.change(:hour => 6, :min => 30) unless time.zone.first == 'E'  #Eastern Time
     base_index = time2index(time)
-    offset_time = index2time(base_index+number)
+    offset_time = index2time(base_index+number, true)
     date_or_time.is_a?(Date) ? offset_time.to_date : offset_time
   end
 

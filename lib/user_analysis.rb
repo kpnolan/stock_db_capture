@@ -207,21 +207,26 @@ module UserAnalysis
     today += 1
     outidx += 1
 
-    while today <= idx_range.end
-      prev9vec = price.subvector(today-9, 9)
-      sd = prev9vec.sd
-      if price[today] > price[today-1]
-        up, dn = sd, 0.0
-      else
-        dn, up = sd, 0.0
+    begin
+      while today <= idx_range.end
+        prev9vec = price.subvector(today-9, 9)
+        sd = prev9vec.sd
+        if price[today] > price[today-1]
+          up, dn = sd, 0.0
+        else
+          dn, up = sd, 0.0
+        end
+        emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
+        emaNeg = (emaNeg * n1 + dn)/n
+        if today > idx_range.begin        # start outputing points once were past the preamble
+          out[outidx] = 100.0 * (emaPos / (emaPos + emaNeg))
+          outidx += 1
+        end
+        today += 1
       end
-      emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
-      emaNeg = (emaNeg * n1 + dn)/n
-      if today > idx_range.begin        # start outputing points once were past the preamble
-        out[outidx] = 100.0 * (emaPos / (emaPos + emaNeg))
-        outidx += 1
-      end
-      today += 1
+    rescue Exception => e
+      puts "today: #{today} price.len: #{price.len} idx_range.end: #{idx_range.end} out.len: #{out.len}"
+      raise
     end
     out
   end

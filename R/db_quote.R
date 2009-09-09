@@ -96,7 +96,7 @@ get.position.series <-
   x = fetch(res, n = -1)
   dbDisconnect(con)
 
-  print(paste("min/max MACD:", min(x$macd_hist), '/', max(x$macd_hist)))
+  x$macd_hist = x$macd_hist * 10.0
 
   names(x) <- gsub("\\.", "", names(x))
   nser <- pmatch(indicators, names(x)[-1]) + 1
@@ -222,7 +222,7 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
 do.positions <-
   function(type="normal") {
     if ( type == "normal" ) {
-      pos = get.positions(order="order by date")
+      pos = get.positions(order="order by triggered_at, ticker_id")
     } else if ( type == "losers" ) {
       pos = get.positions(where="where year(entry_date) = 2009 and roi < 0 and closed is not null", order="order by roi")
     } else if ( type == "winners" ) {
@@ -239,9 +239,9 @@ do.positions <-
 strategy=""
 
 get.positions <-
-  function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, entry_date", where="") {
+  function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, triggered_at", where="") {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select positions.id as id, symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
+    sql <- paste("select positions.id as id, symbol, date(triggered_at) as tdate, date(entry_date) as edate, date(exit_date) as xdate, trigger_price as tprice, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
                  "on tickers.id = ticker_id", where, strategy, order)
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
@@ -257,8 +257,10 @@ plot.positions <-
     ids = x$id
     syms = x$symbol
     closed = x$closed
+    tdates = x$tdate
     edates = x$edate
     xdates = x$xdate
+    tprices = x$tprice
     eprices = x$eprice
     xprices = x$xprice
     rois = x$roi
@@ -270,17 +272,24 @@ plot.positions <-
       split.screen(c(2,1))
 
     for ( i in 1:length(syms) )  {
+      if ( is.na(edates[i]) )
+        next
+
       symbol = syms[i]
+      tdate = as.Date(tdates[i])
       edate = as.Date(edates[i])
       xdate = as.Date(xdates[i])
+      tprice = tprices[i]
       eprice = eprices[i]
       xprice = xprices[i]
+
       roi = rois[i]
       days_held = dh[i]
       edate14 = edate - 14
       xdate14 = xdate + 14
 
       q = get.db.quote(symbol, start=edate14, end=xdate14, retclass="ts", quiet=TRUE)
+      tjdate <- unclass(julian(tdate, origin = as.Date(origin)))
       ejdate <- unclass(julian(edate, origin = as.Date(origin)))
       xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
       days = xjdate-ejdate
@@ -297,6 +306,11 @@ plot.positions <-
         abline(fit, col='purple')
       }
 
+      x0 = tjdate
+      y0 = tprice
+      x1 = tjdate
+      y1 = tprice+.01
+      arrows(x0, y0, x1, y1, col='yellow')
       x0 = ejdate
       y0 = eprice
       x1 = ejdate
@@ -313,7 +327,6 @@ plot.positions <-
       if ( !ps.empty() && !is.na(xdate) ) {
         screen(2)
         pos.stats = get.position.series(ids[i], retclass="its")
-        pos.stats[, "macd_hist"] = pos.stats[, "macd_hist"] * scale
         plot(pos.stats)
       }
       ask()

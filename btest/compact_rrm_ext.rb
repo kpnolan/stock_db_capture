@@ -4,19 +4,20 @@ analytics do
   trigger_position :rsi_open_14, :time_period => 14, :result => :first do |params, pass|
     rsi_ary = rsi(params)
     indexes = under_threshold(20+pass*5, rsi_ary)
-    #unless indexes.empty?
-    #  macd_hist = macdfix(:results => :third)
-    #  indexes.select { |idx| macd_hist[idx-outidx] >= 0.0 }
-    #else
-    #  []
-    #end
   end
 
-  desc "Use an anchored momentum. I.e. Set the close at trigger ass the reference close and return the index of the " +
+  desc "Use an anchored momentum. I.e. Set the close at trigger as the reference close and return the index of the " +
        "first trading day with a close higher than the reference date. Should weed out losers on a downward trend"
-  open_position :relative_momentum, :result => :first do |params|
-    delta_closes = anchored_mom(params)
-    indexes = under_threshold(0.0, delta_closes)
+  open_position :macd_relative_momentum, :result => :first do |params|
+    macd_hist = macdfix(:result => :macd_hist).to_a
+    #log_result(:macd_hist)
+    if (index = macd_hist.index { |val| val >= 0.0 })
+      #log_result("matched at: #{index}")
+      [index+outidx]
+    else
+      delta_closes = anchored_mom(params)
+      indexes = under_threshold(0.0, delta_closes)
+    end
   end
 
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
@@ -52,8 +53,8 @@ end
 #   :price => :close                determines the price used for calculation
 #   :days_to_close                  max number of days to hold open a position before closing it forcefully
 #
-backtests(:generate_stats => false, :profile => false, :truncate => :scan) do
-  using(:rsi_open_14, :relative_momentum, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
+backtests(:generate_stats => true, :profile => false) do
+  using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
     #make_sheet(entry_strategy, exit_strategy, scan)
   end
 end

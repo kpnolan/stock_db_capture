@@ -30,7 +30,7 @@ class Backtester
 
   def initialize(trigger_strategy_name, entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log => :basic,
-                                     :days_to_close => 30, :days_to_open => 5, :epass => 0..2, :reset => true
+                                     :days_to_close => 30, :days_to_open => 5, :epass => 0..2
     @ts_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xs_name = exit_strategy_name
@@ -43,15 +43,15 @@ class Backtester
     @resolution = self.options.delete :resolution
     set_log_level(@options[:log])
 
-    raise BacktestException.new("Cannot find strategy: #{ts_name.to_s}") if TriggerStrategy.find_by_name(ts_name).nil?
-    raise BacktestException.new("Cannot find strategy: #{es_name.to_s}") if EntryStrategy.find_by_name(es_name).nil?
-    raise BacktestException.new("Cannot find strategy: #{ex_name.to_s}") if ExitStrategy.find_by_name(xs_name).nil?
-    raise BacktestException.new("Cannot find scan: #{scan_name.to_s}") if Scan.find_by_name(scan_name).nil?
+    raise BacktestException.new("Cannot find strategy: #{ts_name}") if TriggerStrategy.find_by_name(ts_name).nil?
+    raise BacktestException.new("Cannot find strategy: #{es_name}") if EntryStrategy.find_by_name(es_name).nil?
+    raise BacktestException.new("Cannot find strategy: #{ex_name}") if ExitStrategy.find_by_name(xs_name).nil?
+    raise BacktestException.new("Cannot find scan: #{scan_name}") if Scan.find_by_name(scan_name).nil?
   end
 
   def run(logger)
     @logger = logger
-    logger.info "\nProcessing backtest of #{es_name} with #{xs_name} against #{scan_name}"
+    logger.info "\nProcessing backtest with a #{ts_name} trigger and #{es_name} entry with #{xs_name} exit against #{scan_name}"
     @trigger = $analytics.find_trigger(ts_name)
     @opening = $analytics.find_opening(es_name)
     @closing = $analytics.find_closing(xs_name)
@@ -63,7 +63,7 @@ class Backtester
     strategy_names = [ts_name, es_name, xs_name ]
     strategy_values = [ trigger, opening, closing ]
     strategy_bindings = strategy_use.zip(strategy_names, strategy_values)
-    validate(strategy_bindings)
+    validate_config(strategy_bindings)
 
     @scan = Scan.find_by_name(scan_name)
     @trigger_strategy = TriggerStrategy.find_by_name(ts_name)
@@ -77,29 +77,28 @@ class Backtester
     # FIXME when a backtest specifies a different set of options, e.g. (:price => :close) we should
     # FIXME invalidate any cached posistions (including and exspecially scans_strategies because the positions will have
     # FIXME totally different values
-    unless trigger_strategy.scan_ids.include?(scan.id)
-      logger.info "Recomputing Positions"
-      #
-      # Grab tickers from scans and compute the date range from the scan dates or the options
-      # passed in to the constructor (they win)
-      #
-      @tid_array = scan.tickers_ids
-      sdate = options[:start_date] ? options[:start_date] : scan.start_date
-      edate = options[:end_date] ? options[:end_date] : scan.end_date
+    #
+    # Grab tickers from scans and compute the date range from the scan dates or the options
+    # passed in to the constructor (they win)
+    #
+    @tid_array = scan.tickers_ids
+    sdate = options[:start_date] ? options[:start_date] : scan.start_date
+    edate = options[:end_date] ? options[:end_date] : scan.end_date
 
-      #--------------------------------------------------------------------------------------------------------------------
-      # Triggered Position loop. Iterates through a tickers in scan, executing the trigger block for each ticker. Since
-      # we're only using an RSI(14) as a triggering signal we execute the block three times varying (in effect) the threshold
-      # which, when crossed, tiggers a positioins. The three thresholds used are 20, 25, and 30. The way the thresholds are
-      # varied is a hack (FIXME), which should instead involve the use of three seperate trigger strategies instead of the
-      # bastardized one we use here.
-      #-------------------------------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------------------------------
+    # TRIGGERED POSITION pass. Iterates through a tickers in scan, executing the trigger block for each ticker. Since
+    # we're only using an RSI(14) as a triggering signal we execute the block three times varying (in effect) the threshold
+    # which, when crossed, tiggers a positioins. The three thresholds used are 20, 25, and 30. The way the thresholds are
+    # varied is a hack (FIXME), which should instead involve the use of three seperate trigger strategies instead of the
+    # bastardized one we use here.
+    #-------------------------------------------------------------------------------------------------------------------
+    if trigger_strategy.positions.count.zero?
       logger.info "Beginning trigger positions analysis..." if log? :basic
       RubyProf.start  if options[:profile]
 
       count = 0
       for ticker_id in tid_array
-        ts = Timeseries.new(ticker_id, sdate..edate, resolution, options)
+        ts = Timeseries.new(ticker_id, sdate..edate, resolution, options.merge(:logger => logger))
         reset_position_index_hash()
         for pass in options[:epass]
           triggered_indexes = ts.instance_exec(trigger.params, pass, &trigger.block)
@@ -115,8 +114,6 @@ class Backtester
           end
         end
       end
-      trigger_strategy.scans << scan  # record the fact we've processed the triggered positions for the trigger strategy for this population
-                                      # unless this is truncated we will scip this pass and to right into the close position piece
 
       endt = Time.now
       delta = endt - startt
@@ -131,24 +128,28 @@ class Backtester
           RubyProf::CallTreePrinter.new(results).print(file)
         end
       end
+    else
+      logger.info "Using pre-generated triggers..." if log? :basic
+    end
 
-      #--------------------------------------------------------------------------------------------------------------------
-      # Open position pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
-      # whose mission it is to cull out losers that have been triggered and ones not likely to close.
-      #-------------------------------------------------------------------------------------------------------------------
+    #--------------------------------------------------------------------------------------------------------------------
+    # OPEN POSITION pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
+    # whose mission it is to cull out losers that have been triggered and ones not likely to close.
+    #-------------------------------------------------------------------------------------------------------------------
+    if entry_strategy.positions.count.zero?
       logger.info "Beginning open positions analysis..."
       RubyProf.start  if options[:profile]
 
       startt = Time.now
 
       count = 0
-      triggers = trigger_strategy.positions.find(:all, :conditions => { :scan_id => scan.id })
+      triggers = trigger_strategy.positions.find(:all, :conditions => { :scan_id => scan.id }, :order => 'triggered_at, ticker_id')
       trig_count = triggers.length
 
       for position in triggers
         start_date = position.triggered_at
         end_date = Position.trading_date_from(start_date, days_to_open)
-        ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, options.merge(:populate => true))
+        ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, options.merge(:logger => logger))
 
         confirming_indexes = ts.instance_exec(opening.params, &opening.block)
         unless confirming_indexes.empty?
@@ -183,68 +184,75 @@ class Backtester
         end
       end
     else
-      logger.info "Using CACHED positions"
+      logger.info "Using pre-computed entries..."
     end
 
     #--------------------------------------------------------------------------------------------------------------------
-    # Close position pass. Iterates through all positions opened by the previous pass closing them on (hopefully) a bar
+    # CLOSE POSITION pass. Iterates through all positions opened by the previous pass closing them on (hopefully) a bar
     # which a maximum (or close to it) profit. At present, opened positions are given 30 trading days to close whereup
     # they are forcefully closes (usually at a significant loss). Any positions found with an incomplete set of bars is
     # summarily logged and destroyed.
     #-------------------------------------------------------------------------------------------------------------------
-    logger.info "Beginning close positions analysis..." if log? :basic
-    startt = Time.now
+    if exit_strategy.positions.count.zero?
+      logger.info "Beginning close positions analysis..." if log? :basic
+      startt = Time.now
 
-    RubyProf.start if options[:profile]
+      RubyProf.start if options[:profile]
 
-    open_positions = entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id })
-    pos_count = open_positions.length
+      open_positions = entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id })
+      pos_count = open_positions.length
 
-    counter = 1
-    for position in open_positions
-      begin
-        max_exit_date = Position.trading_date_from(position.entry_date, days_to_close)
-        if max_exit_date > Date.today
-          ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
-          max_exit_date = ticker_max.localtime
+      counter = 1
+      for position in open_positions
+        begin
+          max_exit_date = Position.trading_date_from(position.entry_date, days_to_close)
+          if max_exit_date > Date.today
+            ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
+            max_exit_date = ticker_max.localtime
+          end
+          ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, options.merge(:logger => logger))
+          exit_time, indicator = ts.instance_exec(closing.params, &closing.block)
+          if exit_time.nil?
+            Position.close(position, max_exit_date, ts.value_at(max_exit_date, :close), :indicator => indicator, :closed => false)
+          else
+            Position.close(position, exit_time, ts.value_at(exit_time, :close), :indicator => indicator, :closed => true)
+          end
+          exit_strategy.positions << position
+        rescue TimeseriesException => e
+          logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
+          position.destroy
         end
-        ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution)
-        exit_time, indicator = ts.instance_exec(closing.params, &closing.block)
-        if exit_time.nil?
-          Position.close(position, max_exit_date, ts.value_at(max_exit_date, :close), :indicator => indicator, :closed => false)
-        else
-          Position.close(position, exit_time, ts.value_at(exit_time, :close), :indicator => indicator, :closed => true)
-        end
-        exit_strategy.positions << position
-        generate_stats(position) if options[:generate_stats]
-      rescue TimeseriesException => e
-        logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
-        position.destroy
+        logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
+                           counter, pos_count, position.ticker.symbol,
+                           position.entry_date.to_formatted_s(:ymd),
+                           position.days_held, position.entry_price, positioin.exit_price, position.nreturn*100.0,
+                           position.roi, position.indicator.name ) if log? :exits
+        counter += 1
       end
-      logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
-                         counter, pos_count, position.ticker.symbol,
-                         position.entry_date.to_formatted_s(:ymd),
-                         position.days_held, position.entry_price, positioin.exit_price, position.nreturn*100.0,
-                         position.roi, position.indicator.name ) if log? :exits
-      counter += 1
+
+      endt = Time.now
+      delta = endt - startt
+
+      logger.info "Backtest (close positions) elapsed time: #{format_et(delta)}" if log? :basic
+
+      if options[:profile]
+        GC.disable
+        results = RubyProf.stop
+        GC.enable
+
+        File.open "#{RAILS_ROOT}/tmp/close-position.prof", 'w' do |file|
+          RubyProf::CallTreePrinter.new(results).print(file)
+        end
+      end
+    else
+      logger.info "Using pre-computed exits..."
     end
+    generate_stats(exit_strategy.positions) if self.options[:generate_stats]
 
     endt = Time.now
-    delta = endt - startt
     global_delta = endt - global_startt
-
-    logger.info "Backtest (close positions) elapsed time: #{format_et(delta)}" if log? :basic
     logger.info "Total Backtest elapsed time: #{format_et(global_delta)}" if log? :basic
 
-    if options[:profile]
-      GC.disable
-      results = RubyProf.stop
-      GC.enable
-
-      File.open "#{RAILS_ROOT}/tmp/close-position.prof", 'w' do |file|
-        RubyProf::CallTreePrinter.new(results).print(file)
-      end
-    end
 
     #--------------------------------------------------------------------------------------------------------------------
     # Stop-loss pass. The nitty gritty of threshold crossing is handeled by tstop(...)
@@ -323,49 +331,58 @@ class Backtester
   def reset_position_index_hash
     @triggered_index_hash = { }
   end
-  #
+  #--------------------------------------------------------------------------------------------------------------------
   # Truncate all positions matching the current tigger, entry, or exit strategies or scan. Accepts either a single symbol or an array of symbols
-  #
+  #--------------------------------------------------------------------------------------------------------------------
   def truncate(symbol_or_array)
     symbol_or_array = [ symbol_or_array ] unless symbol_or_array.is_a? Array
-    count = 0
+    total_count = count = 0
     startt = Time.now
     symbol_or_array.each do |symbol|
       name = send(symbol).name
       logger.info "Begining truncate of #{name}..." if log? :basic
       case symbol
-      when :trigger_strategy then
-        count += trigger_strategy.positions.count
-        trigger_strategy.positions.clear
-        trigger_strategy.scans.clear
-      when :entry_strategy then
-        count += entry_strategy.positions.count
-        entry_strategy.positions.clear
-      when :exit_strategy then
-        count += exit_strategy.positions.count
-        exit_strategy.positions.clear
-      when :scan
-        count += scan.positions.count
-        scan.positions.clear
-        scan.trigger_strategies.clear
+      when :trigger_strategy then  trigger_strategy.positions.clear unless (count = trigger_strategy.positions.count).zero?
+      when :entry_strategy   then  entry_strategy.positions.clear unless (count = entry_strategy.positions.count).zero?
+      when :exit_strategy    then  exit_strategy.positions.clear unless (count = exit_strategy.positaions.count).zero?
+      when :scan             then  scan.positions.clear unless (count = scan.positions.count).zero?
       else
-        raise ArgumentError, ":truncate must take one or an array of the following: :entry_strategy, :exit_strategy, :scan"
+        raise ArgumentError, ":truncate must take one or an array of the following: :trigger_strategy, :entry_strategy, :exit_strategy or :scan"
       end
+      total_count += count
     end
     delta = Time.now - startt
-    logger.info "Truncated #{count} positions in #{format_et(delta)}" if log? :basic
+    logger.info "Truncated #{total_count} positions in #{format_et(delta)}" if log? :basic
   end
 
-  def generate_stats(position)
-    start_date = Position.trading_date_from(position.entry_date, -10)
-    end_date = Position.trading_date_from(position.exit_date, 10)
-    ts = Timeseries.new(position.ticker_id, start_date..end_date, 1.day, :post_buffer => 0)
-    ts.compute_and_persist(position,
-                           :macdfix => { :result => :macd_hist },
-                           :rsi => { :result => :rsi },
-                           :rvi => { :result => :rvi })
+  #--------------------------------------------------------------------------------------------------------------------
+  # Geerate statistics recorded are given by the params given to the function compute_and_persist
+  #--------------------------------------------------------------------------------------------------------------------
+  def generate_stats(positions)
+    logger.info "Beginning indicator statistics generatian..."
+    startt = Time.now
+    for position in positions
+      start_date = Position.trading_date_from(position.triggered_at, -10)
+      end_date = Position.trading_date_from(position.exit_date, 10)
+      if end_date > Date.today
+        ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
+        end_date = ticker_max.localtime
+      end
+      ts = Timeseries.new(position.ticker_id, start_date..end_date, 1.day, :post_buffer => 0)
+      ts.compute_and_persist(position,
+                             :macdfix => { :result => :macd_hist },
+                             :rsi => { :result => :rsi },
+                             :rvi => { :result => :rvi })
+    end
+    endt = Time.now
+    delta = endt-startt
+    logger.info "Generate Position Statitics took #{format_et(delta)}" if log? :basic
   end
 
+  #--------------------------------------------------------------------------------------------------------------------
+  # set the leel of the type (not the importance) of the log messages output types are:
+  #     basic, entries, exis,
+  #--------------------------------------------------------------------------------------------------------------------
   def set_log_level(flags)
     options = %w{ none basic entries exits stops}.map(&:to_sym)
     flags = [flags] unless flags.is_a? Array
@@ -383,6 +400,10 @@ class Backtester
     @log_flags.member? flag
   end
 
+  #--------------------------------------------------------------------------------------------------------------------
+  # fromat elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
+  # Future revs where we backtest an entire decade we will, no doubt include hours as part of the time base
+  #--------------------------------------------------------------------------------------------------------------------
   def format_et(seconds)
     if seconds > 60.0 and seconds < 120.0
       format('%d minute and %d seconds', (seconds/60).floor, seconds.to_i % 60)
@@ -393,10 +414,14 @@ class Backtester
     end
   end
 
-  def validate(triples)
+
+  #--------------------------------------------------------------------------------------------------------------------
+  # validates the values of
+  #--------------------------------------------------------------------------------------------------------------------
+  def validate_config(triples)
     triples.each do |triple|
       use, name, value = triple
-      raise ArgumentError, "#{use.capitalize} strategy #{name} do not have a value" if value.nil?
+      raise ArgumentError, "#{use.to_s.capitalize} strategy #{name} do not have a value" if value.nil?
     end
   end
 end

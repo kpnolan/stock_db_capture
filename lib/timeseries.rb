@@ -27,8 +27,8 @@ class Timeseries
     def initialize(begin_time, end_time, timevec)
       @begin_time = begin_time
       @end_time = end_time
-      @first_index = TimeMap.time2index(begin_time)
-      @last_index = TimeMap.time2index(end_time)
+      @first_index = TimeMap.time2index(begin_time, true)
+      @last_index = TimeMap.time2index(end_time, true)
       @timevec = timevec
       raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless !timevec.empty? && timevec.first.acts_like_time?
       report_missing_bars() if timevec.length <  last_index - first_index + 1
@@ -97,7 +97,7 @@ class Timeseries
   attr_reader :begin_time, :end_time, :pre_offset, :post_offset, :utc_offset, :resolution, :options
   attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
-  attr_reader :expected_bar_count
+  attr_reader :expected_bar_count, :logger
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false
@@ -105,6 +105,10 @@ class Timeseries
     @ticker_id = Ticker.resolve_id(symbol_or_id)
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     @symbol = Ticker.find(ticker_id, :select => :symbol).symbol
+    #
+    # FIXME !!! We need a way of trapping ranges who go beyond recorded bars and if we allow this, the adjustments have to propigate throughout the
+    # entire time mapping system (which they are currently NOT doing, resulting in surprises at the boundary conditions
+    #
     if local_range.is_a? Range
       if local_range.begin.is_a?(Date) && local_range.end.is_a?(Date)
         @local_range = local_range.begin.to_time.change(:hour => 6, :min => 30)..local_range.end.to_time.change(:hour => 6, :min => 30)
@@ -129,6 +133,7 @@ class Timeseries
     set_enum_attrs(attrs)
     @stride = options[:stride].nil? ? 1 :  options[:stride]
     @stride_offset = options[:stride_offset].nil? ? 0 : options[:stride_offset]
+    @logger = options[:logger]
     raise ArgumentError, "Stride offset with no stride makes no sense also stride_offset must be < stride" if stride && stride_offset >= stride
     self.options.reverse_merge!(DEFAULT_OPTIONS[model])
     @pre_offset = -1
@@ -323,7 +328,7 @@ class Timeseries
 
   def map_local_range()
     @begin_index = time2index(local_range.begin)
-    @end_index = time2index(local_range.end)
+    @end_index = time2index(local_range.end)  # FIXME this gives an unreachable index causing Exceptions down the line...
     @index_range = begin_index..end_index
   end
 
@@ -336,7 +341,10 @@ class Timeseries
     @post_offset = options[:post_buffer]
     @begin_time = pre_offset.zero? ? local_range.begin : offset_date(local_range.begin, -pre_offset)
     @end_time = post_offset.zero? ? local_range.end : offset_date(local_range.end, post_offset)
-    @end_time = Time.now if @end_time > Time.now
+    if @end_time > Date.today
+      ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => ticker_id } )
+      @end_time = ticker_max.localtime
+    end
     @expected_bar_count =  Timeseries.trading_day_count(begin_time, end_time) * bars_per_day
   end
   #
@@ -524,6 +532,14 @@ class Timeseries
     true
   end
 
+  def log_result(result_name)
+    result_vec = vector_for(result_name)
+    timvec = self.timevec[index_range]
+    timevec.each_with_index do |time, i|
+      logger.info("#{symbol} #{time.to_formatted_s(:ymd)}: #{format('%2.2f', result_vec[i])}")
+    end
+  end
+
   #
   # When a TA method is applied to a timeseries, we keep the results around for later, plus any meta-data
   #
@@ -546,7 +562,7 @@ class Timeseries
       end
     end
 
-    @reserved_options ||= %w{ keys memo raw first array }.inject({}) { |h, k| h[k.to_sym] = true; h }
+    @reserved_options ||= %w{ keys memo raw first array third }.inject({}) { |h, k| h[k.to_sym] = true; h }
 
     if @reserved_options[options[:result]]
       results = case options[:result]
@@ -555,6 +571,7 @@ class Timeseries
                 when :raw   : results
                 when :first : results.first
                 when :array : results.first.to_a
+                when :third : results.third
                 end
     elsif value_hash.keys.include? options[:result]
       value_hash[options[:result]]

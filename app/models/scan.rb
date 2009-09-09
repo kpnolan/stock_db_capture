@@ -21,7 +21,6 @@ class Scan < ActiveRecord::Base
 
   has_many :positions, :dependent => :destroy
   has_and_belongs_to_many :tickers
-  has_and_belongs_to_many :trigger_strategies
 
   validates_uniqueness_of :name
   validates_presence_of :name, :start_date, :end_date

@@ -55,6 +55,6 @@ end
 #
 backtests(:generate_stats => true, :profile => false) do
   using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :macd_2009) do |entry_strategy, exit_strategy, scan|
-    #make_sheet(entry_strategy, exit_strategy, scan)
+    make_sheet(nil, nil, :compact_rrm_14, :macd_2009, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true, :year => 2009)
   end
 end

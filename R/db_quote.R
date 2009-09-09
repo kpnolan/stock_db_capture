@@ -189,35 +189,6 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   }
 }
 
-## get.positions <-
-##   function( origin = "1899-12-30", quote=c("entry_price", "exit_price")) {
-##     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-##     sql <- paste("select symbol, date(entry_date) as entry_date, date(exit_date) as exit_date, entry_price, exit_price from positions left outer join tickers",
-##                  "on tickers.id = ticker_id order by symbol, entry_date")
-##     res = dbSendQuery(con, sql)
-##     x = fetch(res, n = -1)
-##     if ( nrow(x) == 0 ) {
-##       cat("Positions table is empty")
-##       return(FALSE);
-##     }
-##     nser <- pmatch(quote, names(x))
-##     n <- nrow(x)
-
-##     edat <- as.Date(as.character(x[, 2]), "%Y-%m-%d")
-##     xdat <- as.Date(as.character(x[, 3]), "%Y-%m-%d")
-
-##     ejdat <- unclass(julian(edat, origin = as.Date(origin)))
-##     xjdat <- unclass(julian(xdat, origin = as.Date(origin)))
-##     sdate <- ejdat - 7
-##     endate <- xjdat + 7
-##     ind
-##     ind <- as.vector(c(sdate, endate))
-##     y <- matrix(NA, nrow = max(ind), ncol = length(nser))
-##     y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
-##     colnames(y) <- names(x)[nser]
-##     y <- y[, seq_along(nser), drop = drop]
-##     return(ts(y, start = e, end = jdat[1]))
-##   }
 
 do.positions <-
   function(type="normal") {

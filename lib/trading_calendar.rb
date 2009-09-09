@@ -124,9 +124,8 @@ module TradingCalendar
   #
   def trading_date_from(date_or_time, number)
     return date_or_time if number.zero?
-    time = date_or_time.to_time
-    time = time.change(:hour => 6, :min => 30) unless time.zone.first == 'E'  #Eastern Time
-    base_index = time2index(time)
+    time = date_or_time.to_time.localtime.change(:hour => 6, :min => 30)
+    base_index = time2index(time, true)
     offset_time = index2time(base_index+number, true)
     date_or_time.is_a?(Date) ? offset_time.to_date : offset_time
   end
@@ -144,10 +143,8 @@ module TradingCalendar
   # FIXME this seem to be
   #
   def trading_day_count(date1, date2, inclusive=true)
-    time1 = date1.to_time
-    time2 = date2.to_time
-    time1 = time1.change(:hour => 6, :min => 30) unless time1.zone.first == 'E'  #Eastern Time
-    time2 = time2.change(:hour => 6, :min => 30) unless time2.zone.first == 'E'  #Eastern Time
+    time1 = date1.to_time.localtime.change(:hour => 6, :min => 30)
+    time2 = date2.to_time.localtime.change(:hour => 6, :min => 30)
     index1 = time2index(time1, true)
     index2 = time2index(time2, true)
     index2 - index1 + (inclusive ? 1 : 0)
@@ -184,13 +181,11 @@ module TradingCalendar
   end
   #
   # return the zero-based index of the time given the period in minutes of
-  # a trading day. For example index of 9:30 would be 6 if the period was 30 minutes
+  # a trading day. For example index of 10AM (local time) would be 7 if the period was 30 minutes
   #
   def ttime2index(time, period)
-    tstr = time.strftime("%m/%d/%Y %H:%M %z")
-    d = Date._strptime(tstr, "%m/%d/%Y %H:%M")
-    t = Time.local(d[:year], d[:mon], d[:mday], 6, 30, 0, 0)
-    delta = time - t
+    base_time = time.localtime.change(:hour => 6, :min => 30)
+    delta = time.locatime - base_time
     index = (delta / resolution).to_i
   end
 

@@ -18,15 +18,15 @@ module ExcelSimulationDumper
   # make_sheet() will select all positions while make_sheet(:rsi_open_14) will include a position with that entry strategy. Each non-nil
   # further constrains the match.
   #
-  def make_sheet(entry_strategy=nil, exit_strategy=nil, scan=nil, options={})
+  def make_sheet(trigger_strategy=nil, entry_strategy=nil, exit_strategy=nil, scan=nil, options={})
     options.reverse_merge! :values => [:high, :low], :pre_days => 0, :post_days => 30, :keep => false, :log => 'make_sheet'
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{options[:log]}.log")) if options[:log]
 
-    args = validate_args(entry_strategy, exit_strategy, scan)
+    args = validate_args(trigger_strategy, entry_strategy, exit_strategy, scan)
     conditions = build_conditions(args)
 
     csv_suffix = args.last.nil? ? options[:year] : args.last.name
-    csv_suffix += '-' unless csv_suffix.nil?
+    csv_suffix = '-' + csv_suffix unless csv_suffix.nil?
     FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
       csv << make_header_row(options)
       positions = Position.find(:all, :conditions => conditions)
@@ -81,9 +81,9 @@ module ExcelSimulationDumper
     row
   end
 
-  def validate_args(entry_strategy, exit_strategy, scan)
+  def validate_args(trigger_strategy, entry_strategy, exit_strategy, scan)
     arg_num = 1
-    args = [:entry_strategy, :exit_strategy, :scan].map do |sym|
+    args = [:trigger_strategy, :entry_strategy, :exit_strategy, :scan].map do |sym|
       name = sym.to_s
       arg = eval(name)
       model = name.classify.constantize

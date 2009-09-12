@@ -27,19 +27,20 @@ class Scan < ActiveRecord::Base
 
   before_save :clear_associations_if_dirty
 
-  class << self
-    def find_by_name(keyword_or_string)
-      first(:conditions => { :name => keyword_or_string.to_s.downcase})
-    end
-  end
-
   def clear_associations_if_dirty
     tickers.clear if changed?
-    entry_strategies.clear if changed?
   end
 
-  def population_ids(repopulate=false)
-    tickers_ids(repopulate)
+  def population_ids(repopulate=false, options={})
+    logger = options[:logger]
+    logger.info "Beginning population scan: #{name}..." if logger
+    startt = Time.now
+
+    ids = tickers_ids(repopulate, logger)
+
+    delta = Time.now - startt
+    logger.info "Matched #{tickers.count} tickers in #{Scan.format_et(delta)}" if logger
+    return ids
   end
 
   def adjusted_start()
@@ -47,8 +48,9 @@ class Scan < ActiveRecord::Base
   end
 
   # TODO find a better name for this method
-  def tickers_ids(repopulate=false)
-    count = "count(*) = #{total_bars(adjusted_start, end_date)}"
+  def tickers_ids(repopulate=false, logger=nil)
+    count = "count(*) = 379"   # !!!!!!!!!!!!!! TAKE ME OUT !!!!!!!!!!!!!!!!!!!!!!!!
+#    count = "count(*) = #{total_bars(adjusted_start, end_date)}"
     order = self.order_by ? " ORDER BY #{self.order_by}" : ''
     having = conditions ? "HAVING #{conditions} and #{count}" : "HAVING #{count}"
 
@@ -56,18 +58,39 @@ class Scan < ActiveRecord::Base
           "date(bartime) BETWEEN '#{adjusted_start.to_s(:db)}' AND '#{end_date.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     if repopulate || tickers.empty?
-      $logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if $logger
+      logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if logger
       tickers.delete_all
-      @population_ids = Scan.connection.select_values(sql)
-      self.ticker_ids = @population_ids.map(&:to_i)
+      @tids = Scan.connection.select_values(sql)
+      if @tids.empty?
+        logger.error("No tickers returned from scan #{name}, SQL stmt:") if logger
+        logger.error(sql) if logger
+      end
+      self.ticker_ids = @tids.map(&:to_i)
       ticker_ids
     else
-      $logger.info "Using *CACHED* values for scan #{name}" if $logger
+      logger.info "Using *CACHED* values for scan #{name}" if logger
       ticker_ids
     end
   end
 
-  def matching_ids(repopulate=false)
+  class << self
+    def find_by_name(keyword_or_string)
+      first(:conditions => { :name => keyword_or_string.to_s.downcase})
+    end
 
+    #--------------------------------------------------------------------------------------------------------------------
+    # fromat elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
+    # Future revs where we backtest an entire decade we will, no doubt include hours as part of the time base
+    # FIXME!! this should really be in a utilities module that get's extended in this class!!
+    #--------------------------------------------------------------------------------------------------------------------
+    def format_et(seconds)
+      if seconds > 60.0 and seconds < 120.0
+        format('%d minute and %d seconds', (seconds/60).floor, seconds.to_i % 60)
+      elsif seconds > 120.0
+        format('%d minutes and %d seconds', (seconds/60).floor, seconds.to_i % 60)
+      else
+        format('%2.2f seconds', seconds)
+      end
+    end
   end
 end

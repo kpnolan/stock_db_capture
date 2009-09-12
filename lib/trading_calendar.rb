@@ -130,6 +130,17 @@ module TradingCalendar
     date_or_time.is_a?(Date) ? offset_time.to_date : offset_time
   end
 
+  def print_trading_dates_between(date1, date2)
+    start_index, end_index = trading_date_indexes(date1, date2)
+    range = start_index..end_index
+    count = 1
+    range.each do |index|
+      date = index2time(index).to_date
+      puts "#{count} #{date}"
+      count += 1
+    end
+  end
+
   #
   # return the total bars between the two days, multiplied by the given
   # bars_per_day
@@ -148,6 +159,14 @@ module TradingCalendar
     index1 = time2index(time1, true)
     index2 = time2index(time2, true)
     index2 - index1 + (inclusive ? 1 : 0)
+  end
+
+  def trading_date_indexes(date1, date2)
+    time1 = date1.to_time.localtime.change(:hour => 6, :min => 30)
+    time2 = date2.to_time.localtime.change(:hour => 6, :min => 30)
+    index1 = time2index(time1, true)
+    index2 = time2index(time2, true)
+    return index1, index2
   end
 
   #

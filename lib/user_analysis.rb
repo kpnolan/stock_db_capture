@@ -369,6 +369,19 @@ module UserAnalysis
     memoize_result(self, :anchored_mom, index_range, options, result, :financebars)
   end
 
+  def anchored_rsi(options={})
+    idx_range = calc_indexes(nil)
+    rsivec = []
+    today = idx_range.begin
+    reference_close = close[idx_range.begin]
+    while today < idx_range.end
+      momvec << (close[today] - reference_close)
+      today += 1
+    end
+    result = [0, idx_range.begin, momvec.to_gv]
+    memoize_result(self, :anchored_mom, index_range, options, result, :financebars)
+  end
+
   def slope(options={ })
     options.reverse_merge! :time_period => 5
     n = options[:time_period]

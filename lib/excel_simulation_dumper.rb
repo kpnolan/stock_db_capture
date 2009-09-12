@@ -45,8 +45,8 @@ module ExcelSimulationDumper
         row << exit_price
         row << days_held
         row << pos.stop_loss == 1 ? 'TRUE' : 'FALSE'
-        range_start = trading_date_from(entry_date, -options[:pre_days])
-        range_end = trading_date_from(pos.entry_date, options[:post_days])
+        range_start = Timeseries.trading_date_from(entry_date, -options[:pre_days])
+        range_end = Timeseries.trading_date_from(pos.entry_date, options[:post_days])
         begin
           ts = Timeseries.new(symbol, range_start..range_end, 1.day, :populate => true, :pre_buffer => 0)
         rescue TimeseriesException => e

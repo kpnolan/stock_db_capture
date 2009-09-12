@@ -97,6 +97,8 @@ get.position.series <-
   dbDisconnect(con)
 
   x$macd_hist = x$macd_hist * 10.0
+  print(max(x$rsi))
+  print(max(x$rvi))
 
   names(x) <- gsub("\\.", "", names(x))
   nser <- pmatch(indicators, names(x)[-1]) + 1
@@ -189,10 +191,14 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   }
 }
 
+do.winners <- function() { do.positions("winners") }
+do.losers  <- function() { do.positions("losers") }
+do.non     <- function() { do.positions("non") }
+do.all     <- function() { do.positions("all") }
 
 do.positions <-
-  function(type="normal") {
-    if ( type == "normal" ) {
+  function(type) {
+    if ( type == "all" ) {
       pos = get.positions(order="order by triggered_at, ticker_id")
     } else if ( type == "losers" ) {
       pos = get.positions(where="where year(entry_date) = 2009 and roi < 0 and closed is not null", order="order by roi")

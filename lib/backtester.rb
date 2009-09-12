@@ -70,7 +70,7 @@ class Backtester
     @entry_strategy = EntryStrategy.find_by_name(es_name)
     @exit_strategy = ExitStrategy.find_by_name(xs_name)
 
-    truncate(options[:truncate]) unless options[:truncate].nil?
+    truncate(self.options[:truncate]) unless self.options[:truncate].nil?
 
     startt = global_startt = Time.now
 
@@ -81,9 +81,8 @@ class Backtester
     # Grab tickers from scans and compute the date range from the scan dates or the options
     # passed in to the constructor (they win)
     #
-    @tid_array = scan.tickers_ids
-    sdate = options[:start_date] ? options[:start_date] : scan.start_date
-    edate = options[:end_date] ? options[:end_date] : scan.end_date
+    sdate = self.options[:start_date] ? self.options[:start_date] : scan.start_date
+    edate = self.options[:end_date] ? self.options[:end_date] : scan.end_date
 
     #--------------------------------------------------------------------------------------------------------------------
     # TRIGGERED POSITION pass. Iterates through a tickers in scan, executing the trigger block for each ticker. Since
@@ -92,15 +91,16 @@ class Backtester
     # varied is a hack (FIXME), which should instead involve the use of three seperate trigger strategies instead of the
     # bastardized one we use here.
     #-------------------------------------------------------------------------------------------------------------------
-    if trigger_strategy.positions.count.zero?
+
+    if trigger_strategy.positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
       logger.info "Beginning trigger positions analysis..." if log? :basic
-      RubyProf.start  if options[:profile]
+      RubyProf.start  if self.options[:profile]
 
       count = 0
-      for ticker_id in tid_array
-        ts = Timeseries.new(ticker_id, sdate..edate, resolution, options.merge(:logger => logger))
+      for ticker_id in scan.population_ids(false, :logger => logger)
+        ts = Timeseries.new(ticker_id, sdate..edate, resolution, self.options.merge(:logger => logger))
         reset_position_index_hash()
-        for pass in options[:epass]
+        for pass in self.options[:epass]
           triggered_indexes = ts.instance_exec(trigger.params, pass, &trigger.block)
           for index in triggered_indexes
             next if triggered_index_hash.include? index #This index has been triggered on a previous pass
@@ -119,7 +119,7 @@ class Backtester
       delta = endt - startt
       logger.info "#{count} positions triggered -- elapsed time: #{format_et(delta)}" if log? :basic
 
-      if options[:profile]
+      if self.options[:profile]
         GC.disable
         results = RubyProf.stop
         GC.enable
@@ -131,14 +131,14 @@ class Backtester
     else
       logger.info "Using pre-generated triggers..." if log? :basic
     end
-
     #--------------------------------------------------------------------------------------------------------------------
     # OPEN POSITION pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
     # whose mission it is to cull out losers that have been triggered and ones not likely to close.
     #-------------------------------------------------------------------------------------------------------------------
-    if entry_strategy.positions.count.zero?
+
+    if entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
       logger.info "Beginning open positions analysis..."
-      RubyProf.start  if options[:profile]
+      RubyProf.start  if self.options[:profile]
 
       startt = Time.now
 
@@ -149,13 +149,13 @@ class Backtester
       for position in triggers
         start_date = position.triggered_at
         end_date = Position.trading_date_from(start_date, days_to_open)
-        ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, options.merge(:logger => logger))
+        ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, self.options.merge(:logger => logger))
 
         confirming_indexes = ts.instance_exec(opening.params, &opening.block)
         unless confirming_indexes.empty?
           index = confirming_indexes.first
           entry_time, entry_price = ts.closing_values_at(index)
-          Position.open(position, entry_time, entry_price, options={})
+          Position.open(position, entry_time, entry_price)
           logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
                              count, trig_count, position.ticker.symbol,
                              position.triggered_at.to_formatted_s(:ymd),
@@ -174,7 +174,7 @@ class Backtester
       delta = endt - startt
       logger.info "#{count} positions opened of #{trig_count} triggered -- elapsed time: #{format_et(delta)}" if log? :basic
 
-      if options[:profile]
+      if self.options[:profile]
         GC.disable
         results = RubyProf.stop
         GC.enable
@@ -193,11 +193,11 @@ class Backtester
     # they are forcefully closes (usually at a significant loss). Any positions found with an incomplete set of bars is
     # summarily logged and destroyed.
     #-------------------------------------------------------------------------------------------------------------------
-    if exit_strategy.positions.count.zero?
+    if exit_strategy.positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
       logger.info "Beginning close positions analysis..." if log? :basic
       startt = Time.now
 
-      RubyProf.start if options[:profile]
+      RubyProf.start if self.options[:profile]
 
       open_positions = entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id })
       pos_count = open_positions.length
@@ -210,7 +210,7 @@ class Backtester
             ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
             max_exit_date = ticker_max.localtime
           end
-          ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, options.merge(:logger => logger))
+          ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, self.options.merge(:logger => logger))
           exit_time, indicator = ts.instance_exec(closing.params, &closing.block)
           if exit_time.nil?
             Position.close(position, max_exit_date, ts.value_at(max_exit_date, :close), :indicator => indicator, :closed => false)
@@ -235,7 +235,7 @@ class Backtester
 
       logger.info "Backtest (close positions) elapsed time: #{format_et(delta)}" if log? :basic
 
-      if options[:profile]
+      if self.options[:profile]
         GC.disable
         results = RubyProf.stop
         GC.enable
@@ -269,10 +269,21 @@ class Backtester
       deltam = delta/60.0
       logger.info "Backtest (stop loss analysys) elapsed time: #{deltam} minutes" if log? :basic
     end
-    #
-    # Call any post processing block specified
-    #
-    post_process.call(entry_strategy, exit_strategy, scan) if post_process
+
+    #--------------------------------------------------------------------------------------------------------------------
+    # Post processing which not only includes make_sheet(...)
+    #-------------------------------------------------------------------------------------------------------------------
+    if post_process
+      logger.info "Beginning post processing (make_sheet)..." if log? :basic
+      startt = Time.now
+
+      post_process.call(entry_strategy, exit_strategy, scan) if post_process
+
+      endt = Time.now
+      delta = endt - startt
+
+      logger.info "Post processing (make_sheet) elapsed time: #{format_et(delta)}" if log? :basic
+    end
   end
 
   def tstop(p, threshold_percent, options={})

@@ -49,8 +49,7 @@ class Scan < ActiveRecord::Base
 
   # TODO find a better name for this method
   def tickers_ids(repopulate=false, logger=nil)
-    count = "count(*) = 379"   # !!!!!!!!!!!!!! TAKE ME OUT !!!!!!!!!!!!!!!!!!!!!!!!
-#    count = "count(*) = #{total_bars(adjusted_start, end_date)}"
+    count = "count(*) = #{trading_day_count(adjusted_start, end_date)}"
     order = self.order_by ? " ORDER BY #{self.order_by}" : ''
     having = conditions ? "HAVING #{conditions} and #{count}" : "HAVING #{count}"
 

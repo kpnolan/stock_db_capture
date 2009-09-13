@@ -73,16 +73,15 @@ module TradingCalendar
     1 << time.wday | 0x3E == 0x3E && !@@holidays[time.to_i]
   end
 
-  def time2index(time, raise_exception=false)
+  def time2index(time, round=0)
     index = @@calendar[time.to_i]
-    raise ArgumentError, "#{time} not contained in Trading Calendar" if index.nil? and raise_exception
-#    raise ArgumentError, "#{time.to_date.to_s(:db)} not contained in Trading Calendar" if index.nil? and raise_exception
-    index
+    raise ArgumentError, "#{time} not contained in Trading Calendar" if index.nil?
+    trading_day?(time) ? index : index + round
   end
 
-  def index2time(index, raise_exception=true)
+  def index2time(index)
     time = Time.at(@@invert_calendar[index])
-    raise ArgumentError, "Trading Day Index #{index} not found in Trading Calendar" if time.nil? and raise_exception
+    raise ArgumentError, "Trading Day Index #{index} not found in Trading Calendar" if time.nil?
     time
   end
 
@@ -91,23 +90,6 @@ module TradingCalendar
   #
   def trading_day?(time)
     1 << time.wday | 0x3E == 0x3E && !@@holidays[time.to_i]
-  end
-  #
-  # returns and array of times (6:30AM local) of the trading dates (inclusive by default) between two times
-  #
-  def trading_days(time1, time2, inclusive=true)
-    validate_times(time1, time2)
-    sec1 = time1.to_i
-    sec2 = time2.to_i
-    times = returning [] do |timevec|
-      (sec1..sec2).step(1.day) do |seconds|
-        time = Time.at(seconds)
-        timevec << time if trading_day?(time)
-      end
-    end
-    # The range was inclusive, but the iteration was exclusive
-    #times << time2 if inclusive and trading_day?(time2)
-    times
   end
   #
   # Number of trading days in the given year. If year is less than 25, add 2000 to the year
@@ -125,20 +107,9 @@ module TradingCalendar
   def trading_date_from(date_or_time, number)
     return date_or_time if number.zero?
     time = date_or_time.to_time.localtime.change(:hour => 6, :min => 30)
-    base_index = time2index(time, true)
-    offset_time = index2time(base_index+number, true)
+    base_index = time2index(time)
+    offset_time = index2time(base_index+number)
     date_or_time.is_a?(Date) ? offset_time.to_date : offset_time
-  end
-
-  def print_trading_dates_between(date1, date2)
-    start_index, end_index = trading_date_indexes(date1, date2)
-    range = start_index..end_index
-    count = 1
-    range.each do |index|
-      date = index2time(index).to_date
-      puts "#{count} #{date}"
-      count += 1
-    end
   end
 
   #
@@ -156,19 +127,42 @@ module TradingCalendar
   def trading_day_count(date1, date2, inclusive=true)
     time1 = date1.to_time.localtime.change(:hour => 6, :min => 30)
     time2 = date2.to_time.localtime.change(:hour => 6, :min => 30)
-    index1 = time2index(time1, true)
-    index2 = time2index(time2, true)
+    index1 = time2index(time1)
+    index2 = time2index(time2, -1)
     index2 - index1 + (inclusive ? 1 : 0)
   end
 
-  def trading_date_indexes(date1, date2)
+  def trading_dates(date1, date2)
     time1 = date1.to_time.localtime.change(:hour => 6, :min => 30)
     time2 = date2.to_time.localtime.change(:hour => 6, :min => 30)
-    index1 = time2index(time1, true)
-    index2 = time2index(time2, true)
-    return index1, index2
+    index1 = time2index(time1)
+    index2 = time2index(time2, -1)
+    returning [] do |date_vec|
+      (index1..index2).each do |index|
+        date_vec << index2time(index)
+      end
+    end
   end
-
+  #
+  # returns and array of times (6:30AM local) of the trading dates (inclusive by default) between two times
+  #
+  def trading_days(date1, date2, inclusive=true)
+    time1 = date1.to_time.localtime.change(:hour => 6, :min => 30)
+    time2 = date2.to_time.localtime.change(:hour => 6, :min => 30)
+    sec1 = time1.to_i
+    sec2 = time2.to_i
+    times = returning [] do |timevec|
+      (sec1..sec2).step(1.day) do |seconds|
+        seconds -= DST_CORRECTION if Time.at(seconds).dst?
+        time = Time.at(seconds)
+#        puts time.to_date if trading_day?(time)
+        timevec << time if trading_day?(time)
+      end
+    end
+    # The range was inclusive, but the iteration was exclusive
+    #times << time2 if inclusive and trading_day?(time2)
+    times
+  end
   #
   # return the number of tradings days (exclusive) between the two dates
   #

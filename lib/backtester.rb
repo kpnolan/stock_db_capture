@@ -147,26 +147,31 @@ class Backtester
       trig_count = triggers.length
 
       for position in triggers
-        start_date = position.triggered_at
-        end_date = Position.trading_date_from(start_date, days_to_open)
-        ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, self.options.merge(:logger => logger))
+        begin
+          start_date = position.triggered_at
+          end_date = Position.trading_date_from(start_date, days_to_open)
+          ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, self.options.merge(:logger => logger))
 
-        confirming_indexes = ts.instance_exec(opening.params, &opening.block)
-        unless confirming_indexes.empty?
-          index = confirming_indexes.first
-          entry_time, entry_price = ts.closing_values_at(index)
-          Position.open(position, entry_time, entry_price)
-          logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
-                             count, trig_count, position.ticker.symbol,
-                             position.triggered_at.to_formatted_s(:ymd),
-                             position.entry_delay, position.trigger_price, positioin.entry_price,
-                             position.consumed_margin) if log? :entries
-          entry_strategy.positions << position
-          count += 1
-        else
-          logger.info format("Position %d of %d (%s) %s\t%s\t%3.2f\t%s\t%s",
-                             count, trig_count, position.triggered_at.to_formatted_s(:ymd),
-                             'NA', position.trigger_price, 'NA', 'NA'  ) if log? :entries
+          confirming_indexes = ts.instance_exec(opening.params, &opening.block)
+          unless confirming_indexes.empty?
+            index = confirming_indexes.first
+            entry_time, entry_price = ts.closing_values_at(index)
+            Position.open(position, entry_time, entry_price)
+            logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
+                               count, trig_count, position.ticker.symbol,
+                               position.triggered_at.to_formatted_s(:ymd),
+                               position.entry_delay, position.trigger_price, positioin.entry_price,
+                               position.consumed_margin) if log? :entries
+            entry_strategy.positions << position
+            count += 1
+          else
+            logger.info format("Position %d of %d (%s) %s\t%s\t%3.2f\t%s\t%s",
+                               count, trig_count, position.triggered_at.to_formatted_s(:ymd),
+                               'NA', position.trigger_price, 'NA', 'NA'  ) if log? :entries
+          end
+        rescue TimeseriesException => e
+          logger.error(e.to_s)
+          position.destroy
         end
       end
 

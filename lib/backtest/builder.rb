@@ -29,11 +29,11 @@ module Backtest
 
     def run(logger)
       backtests.each do |backtest|
-        begin
+        #begin
           backtest.run(logger)
-        rescue Exception => e
-          logger.error("FATAL error: #{e.to_s}")
-        end
+        #rescue Exception => e
+        #  logger.error("FATAL error: #{e.to_s}")
+        #end
       end
     end
   end

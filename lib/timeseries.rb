@@ -27,8 +27,8 @@ class Timeseries
     def initialize(begin_time, end_time, timevec)
       @begin_time = begin_time
       @end_time = end_time
-      @first_index = TimeMap.time2index(begin_time, true)
-      @last_index = TimeMap.time2index(end_time, true)
+      @first_index = TimeMap.time2index(begin_time)
+      @last_index = TimeMap.time2index(end_time, -1)
       @timevec = timevec
       raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless !timevec.empty? && timevec.first.acts_like_time?
       report_missing_bars() if timevec.length <  last_index - first_index + 1
@@ -39,10 +39,10 @@ class Timeseries
       raise ArgumentError, "index [#{index}] is ouside of the range of bars, the maximum of which is #{timevec.length-1}"
     end
 
-    def time2index(date_or_time)
+    def time2index(date_or_time, round=0)
       time = date_or_time.to_time
-      time = time.to_time.change(:hour => 6, :min => 30) unless time.zone.first == 'E'  #Eastern Time
-      abs_index = TimeMap.time2index(time, true)
+      time = time.to_time.localtime.change(:hour => 6, :min => 30)
+      abs_index = TimeMap.time2index(time, round)
       abs_index - first_index
     end
 
@@ -328,7 +328,7 @@ class Timeseries
 
   def map_local_range()
     @begin_index = time2index(local_range.begin)
-    @end_index = time2index(local_range.end)  # FIXME this gives an unreachable index causing Exceptions down the line...
+    @end_index = time2index(local_range.end, -1)  # FIXME this gives an unreachable index causing Exceptions down the line...
     @index_range = begin_index..end_index
   end
 
@@ -462,9 +462,9 @@ class Timeseries
   #
   # Maps the time or data to the specific index in the vector for the sample associated with that date/time
   #
-  def time2index(time)
+  def time2index(time, round=0)
     if model == DailyBar
-      time_map.time2index(time)
+      time_map.time2index(time, round)
     elsif (index = time_map[time.to_i]).nil?
       raise ArgumentError, "Cannot find index matching rgw time: #{time}"
     else

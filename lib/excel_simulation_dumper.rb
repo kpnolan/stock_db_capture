@@ -30,53 +30,67 @@ module ExcelSimulationDumper
     FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
       csv << make_header_row(options)
       positions = Position.find(:all, :conditions => conditions)
-      positions.each do |pos|
-        symbol = pos.ticker.symbol
-        entry_date =   pos.entry_date.to_date.to_s
-        exit_date =    pos.exit_date.nil? ? '': pos.exit_date.to_date.to_s
-        entry_price =  pos.entry_price
-        exit_price =   pos.exit_price.nil? ? '': pos.exit_price
-        days_held =    pos.days_held.nil? ? '' : pos.days_held
-        row = []
-        row << symbol
-        row << entry_date
-        row << exit_date
-        row << entry_price
-        row << exit_price
-        row << days_held
-        row << pos.stop_loss == 1 ? 'TRUE' : 'FALSE'
-        range_start = Timeseries.trading_date_from(entry_date, -options[:pre_days])
-        range_end = Timeseries.trading_date_from(pos.entry_date, options[:post_days])
-        begin
-          ts = Timeseries.new(symbol, range_start..range_end, 1.day, :populate => true, :pre_buffer => 0)
-        rescue TimeseriesException => e
-          logger.error("Position skipped #{e.to_s}")
-          next
-        end
-        ts.set_enum_attrs(options[:values])
-        logger.info("#{symbol}\t#{entry_date.to_s}\t#{ts.length}") if logger
-        ts.each { |vec| vec.each { |e| row << e } }
-        csv << row
-        csv.flush
-      end
+      positions.each { |position| csv << field_row(position, options) }
+      csv.flush
     end
     true
+  end
+
+  def field_row(position, options)
+    returning [] do |row|
+      symbol        = position.ticker.symbol
+      trigger_date  = position.triggered_at.to_formatted_s(:ymd)
+      entry_date    = unless_nil(position.entry_date, :to_formatted_s, :ymd)
+      exit_date     = unless_nil(position.exit_date, :to_formatted_s, :ymd)
+      trigger_price = position.trigger_price
+      entry_price   = unless_nil(position.entry_price, :to_s)
+      exit_price    = unless_nil(position.exit_price, :to_s)
+      days_held     = unless_nil(position.days_held, :to_s)
+      closed        = position.closed ? 'TRUE' : 'FALSE'
+      row << symbol
+      row << trigger_date
+      row << entry_date
+      row << exit_date
+      row << trigger_price
+      row << entry_price
+      row << exit_price
+      row << days_held
+      row << closed
+      range_start = Timeseries.trading_date_from(position.triggered_at, -options[:pre_days])
+      range_end = Timeseries.trading_date_from(position.triggered_at, options[:post_days])
+      begin
+        ts = Timeseries.new(symbol, range_start..range_end, 1.day, :populate => true, :pre_buffer => 0)
+        options[:values].each do |val|
+          row.concat(ts.value_hash[val][ts.index_range])
+        end
+      rescue TimeseriesException => e
+        logger.error("Position skipped #{e.to_s}")
+      end
+    end
+  end
+
+  def unless_nil(var, method, *args)
+    var.nil? ? '' : var.send(method, *args)
   end
 
   def make_header_row(options)
     row = []
     vals = options[:values]
     idx = 0
-    range = (0-options[:pre_days])..options[:post_days]
+    range = (-options[:pre_days])..options[:post_days]
     row << 'symbol'
+    row << 'trigger-date'
     row << 'entry-date'
     row << 'exit-date'
+    row << 'trigger-price'
     row << 'entry-price'
     row << 'exit-price'
     row << 'days-held'
-    row << 'stop-loss'
-    range.to_a.each do |idx|
-      vals.each { |v| row << "#{v.to_s}#{idx}" }
+    row << 'closed'
+    vals.each do |val|
+      range.to_a.each do |idx|
+        row << "#{val}#{idx}"
+      end
     end
     row
   end

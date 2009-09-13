@@ -4,11 +4,13 @@ require 'rubygems'
 require 'faster_csv'
 require 'rbgsl'
 
+require 'set'
+
 module ExcelSimulationDumper
 
   extend TradingCalendar
 
-  OCHLV = [:date, :opening, :high, :low, :close, :volume, :logr]
+  OCHLV = [:opening, :close, :high, :low, :volume]
 
   attr_reader :logger
 
@@ -19,8 +21,14 @@ module ExcelSimulationDumper
   # further constrains the match.
   #
   def make_sheet(trigger_strategy=nil, entry_strategy=nil, exit_strategy=nil, scan=nil, options={})
-    options.reverse_merge! :values => [:high, :low], :pre_days => 0, :post_days => 30, :keep => false, :log => 'make_sheet'
+    options.reverse_merge! :values => OCHLV, :pre_days => 0, :post_days => 30, :keep => false, :log => 'make_sheet'
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{options[:log]}.log")) if options[:log]
+
+    #
+    # TODO what happens if an indicator is supplied twice (or anything for that matter)
+    #
+    core_values = OCHLV.to_set
+    options[:indicators] = (options[:values].to_set - core_values).to_a
 
     args = validate_args(trigger_strategy, entry_strategy, exit_strategy, scan)
     conditions = build_conditions(args)
@@ -29,7 +37,7 @@ module ExcelSimulationDumper
     csv_suffix = '-' + csv_suffix unless csv_suffix.nil?
     FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
       csv << make_header_row(options)
-      positions = Position.find(:all, :conditions => conditions)
+      positions = Position.find(:all, :conditions => conditions, :include => :ticker, :order => 'tickers.symbol, triggered_at')
       positions.each { |position| csv << field_row(position, options) }
       csv.flush
     end
@@ -59,9 +67,17 @@ module ExcelSimulationDumper
       range_start = Timeseries.trading_date_from(position.triggered_at, -options[:pre_days])
       range_end = Timeseries.trading_date_from(position.triggered_at, options[:post_days])
       begin
-        ts = Timeseries.new(symbol, range_start..range_end, 1.day, :populate => true, :pre_buffer => 0)
+        indicators = options[:indicators]
+        ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => 0)
+        @indicators_valid ||= indicators.all? { |method| ts.respond_to? method }
+        report_unsupported_methods(ts, indicaors) unless @indicators_valid
+        compute_indicators(ts, indicators)
         options[:values].each do |val|
-          row.concat(ts.value_hash[val][ts.index_range])
+          if indicators.include? val
+            row.concat(ts.value_hash[val].to_a)
+          else
+            row.concat(ts.value_hash[val][ts.index_range])
+          end
         end
       rescue TimeseriesException => e
         logger.error("Position skipped #{e.to_s}")
@@ -124,6 +140,16 @@ module ExcelSimulationDumper
     fkeys = non_nils.map { |ar| ar.class.to_s.foreign_key }.map(&:to_sym)
     pairs = fkeys.zip(non_nils.map { |ar| ar.id })
     pairs.inject({}) { |h, p| h[p.first] = p.last; h }
+  end
+
+  def report_unsupported_methods(ts, methods)
+    invalid_methods = methods.reject { |method| ts.respond_to? method }
+    raise ArgumentError, "the following indicators are not supported #{invalid_methods.join(', ')}"
+  end
+
+  def compute_indicators(ts, indicators)
+    indicators.each { |indicator| ts.send(indicator) }
+    indicators
   end
 end
 

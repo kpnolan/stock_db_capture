@@ -6,7 +6,7 @@ require 'rbgsl'
 
 module CsvDumper
 
-  OCHLV = [:date, :opening, :high, :low, :close, :volume]
+  OCHLV = [:bartime, :opening, :high, :low, :close, :volume]
 
   include GSL
 

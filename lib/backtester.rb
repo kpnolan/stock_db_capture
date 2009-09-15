@@ -291,56 +291,6 @@ class Backtester
     end
   end
 
-  def tstop(p, threshold_percent, options={})
-    options.reverse_merge! :resolution => 30.minutes, :max_days => 30
-    tratio = threshold_percent / 100.0
-    etime = p.entry_date
-    # determine if this position was entered during trading hours or at the end of the day
-    # if so, calculate the bar_index (based upon resolution) of that day, or start with
-    # the following day at index 0
-    if etime.in_trade? && !etime.eod?
-      sindex = ttime2index(etime, res)
-      edate = p.entry_date.to_date
-    else
-      sindex = 0
-      edate = Backtester.trading_date_from(etime.to_date, 1)
-    end
-    max_date = p.exit_date.nil? ? Backtester.trading_date_from(edate, options[:max_days]) : p.exit_date.to_date
-    etime = p.entry_date
-    # grab a timeseries at the given resolution from the entry date (or following day)
-    # through the number of specified trailing days
-    begin
-      ts = Timeseries.new(p.ticker.symbol, edate..max_date, options[:resolution])
-      max_high = p.entry_price
-      while sindex < ts.length
-        high, low = ts.values_at(sindex, :high, :low)
-        max_high = max_high > high ? max_high : high
-        if (rratio = (max_high - low) / max_high) > tratio
-          xtime = ts.index2time(sindex)
-          xdate = xtime.to_date
-          edate = p.entry_date.to_date
-          days_held = Position.trading_day_count(edate, xdate)
-          nreturn = ((low - p.entry_price) / p.entry_price) if days_held.zero?
-          nreturn = ((low - p.entry_price) / p.entry_price) / days_held if days_held > 0
-          ret = ((low - p.entry_price) / p.entry_price)
-          nreturn *= -1.0 if p.short and nreturn != 0.0
-          logger.info(format("%s\tentry: %3.2f max high: %3.2f low(exit): %3.2f on drop: %3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
-                              ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0)) if log? :stops
-          p.update_attributes!(:exit_price => low, :exit_date => xtime,
-                               :days_held => days_held, :nreturn => nreturn,
-                               :exit_trigger => rratio, :stop_loss => true)
-
-          break;
-        end
-        sindex += 1
-      end
-    rescue TimeseriesException => e
-      logger.info e.to_s
-    rescue Exception => e
-      logger.info e.to_s
-    end
-    nil
-  end
   #
   # Reset the hash containing the indexes of all positions opened for a particular timeseries
   #
@@ -412,12 +362,15 @@ class Backtester
     @log_flags = flags
   end
 
+  #--------------------------------------------------------------------------------------------------------------------
+  # Predicate which determines whether a particular event should be logged by the contents of the @log_flags array
+  #--------------------------------------------------------------------------------------------------------------------
   def log?(flag)
     @log_flags.member? flag
   end
 
   #--------------------------------------------------------------------------------------------------------------------
-  # fromat elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
+  # format elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
   # Future revs where we backtest an entire decade we will, no doubt include hours as part of the time base
   #--------------------------------------------------------------------------------------------------------------------
   def format_et(seconds)
@@ -432,12 +385,68 @@ class Backtester
 
 
   #--------------------------------------------------------------------------------------------------------------------
-  # validates the values of
+  # validates the values of the three trigger based strategies
   #--------------------------------------------------------------------------------------------------------------------
   def validate_config(triples)
     triples.each do |triple|
       use, name, value = triple
       raise ArgumentError, "#{use.to_s.capitalize} strategy #{name} do not have a value" if value.nil?
     end
+  end
+
+  #--------------------------------------------------------------------------------------------------------------------
+  # First attempt at a stop-loss algorithm that mimics the stop-losses which can be placed on orders at the time the are
+  # bought and/or applied and modified later. Early tests indicated that this type of loss protection did more harm than
+  # good targetting many otherwise profitable trades
+  #--------------------------------------------------------------------------------------------------------------------
+  def tstop(p, threshold_percent, options={})
+    options.reverse_merge! :resolution => 30.minutes, :max_days => 30
+    tratio = threshold_percent / 100.0
+    etime = p.entry_date
+    # determine if this position was entered during trading hours or at the end of the day
+    # if so, calculate the bar_index (based upon resolution) of that day, or start with
+    # the following day at index 0
+    if etime.in_trade? && !etime.eod?
+      sindex = ttime2index(etime, res)
+      edate = p.entry_date.to_date
+    else
+      sindex = 0
+      edate = Backtester.trading_date_from(etime.to_date, 1)
+    end
+    max_date = p.exit_date.nil? ? Backtester.trading_date_from(edate, options[:max_days]) : p.exit_date.to_date
+    etime = p.entry_date
+    # grab a timeseries at the given resolution from the entry date (or following day)
+    # through the number of specified trailing days
+    begin
+      ts = Timeseries.new(p.ticker.symbol, edate..max_date, options[:resolution])
+      max_high = p.entry_price
+      while sindex < ts.length
+        high, low = ts.values_at(sindex, :high, :low)
+        max_high = max_high > high ? max_high : high
+        if (rratio = (max_high - low) / max_high) > tratio
+          xtime = ts.index2time(sindex)
+          xdate = xtime.to_date
+          edate = p.entry_date.to_date
+          days_held = Position.trading_day_count(edate, xdate)
+          nreturn = ((low - p.entry_price) / p.entry_price) if days_held.zero?
+          nreturn = ((low - p.entry_price) / p.entry_price) / days_held if days_held > 0
+          ret = ((low - p.entry_price) / p.entry_price)
+          nreturn *= -1.0 if p.short and nreturn != 0.0
+          logger.info(format("%s\tentry: %3.2f max high: %3.2f low(exit): %3.2f on drop: %3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
+                              ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0)) if log? :stops
+          p.update_attributes!(:exit_price => low, :exit_date => xtime,
+                               :days_held => days_held, :nreturn => nreturn,
+                               :exit_trigger => rratio, :stop_loss => true)
+
+          break;
+        end
+        sindex += 1
+      end
+    rescue TimeseriesException => e
+      logger.info e.to_s
+    rescue Exception => e
+      logger.info e.to_s
+    end
+    nil
   end
 end

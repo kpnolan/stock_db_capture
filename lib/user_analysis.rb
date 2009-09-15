@@ -373,13 +373,13 @@ module UserAnalysis
     idx_range = calc_indexes(nil)
     rsivec = []
     today = idx_range.begin
-    reference_close = close[idx_range.begin]
+    reference_rsi = rsi[idx_range.begin]
     while today < idx_range.end
-      momvec << (close[today] - reference_close)
+      rsivec << (rsi[today] - reference_rsi)
       today += 1
     end
-    result = [0, idx_range.begin, momvec.to_gv]
-    memoize_result(self, :anchored_mom, index_range, options, result, :financebars)
+    result = [0, idx_range.begin, rsivec.to_gv]
+    memoize_result(self, :anchored_rsi, index_range, options, result, :financebars)
   end
 
   def slope(options={ })

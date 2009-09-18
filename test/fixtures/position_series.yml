@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090906181342
+# Schema version: 20090916020242
 #
 # Table name: position_series
 #

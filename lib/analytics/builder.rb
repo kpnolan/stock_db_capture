@@ -31,21 +31,32 @@ module Analytics
 
     def initialize(options)
       @options = options
-      @triggers = []
+      @etriggers = []
+      @xtriggers = []
       @openings = []
       @closings = []
-      @openings = []
       @stop_loss = nil
       @descriptions = []
     end
 
     def find_stop_loss(); @stop_loss; end
-    def find_trigger(name); @triggers.find { |o| o.name == name }; end
+    def find_etrigger(name); @etriggers.find { |o| o.name == name }; end
+    def find_xtrigger(name); @xtriggers.find { |o| o.name == name }; end
     def find_opening(name); @openings.find { |o| o.name == name }; end
     def find_closing(name); @closings.find { |c| c.name == name }; end
 
     def has_pair?(entry_strategy_name, exit_strategy_name)
       find_opening(entry_strategy_name) && find_closing(exit_strategy_name)
+    end
+
+    def entry_trigger(name, params={}, &block)
+      raise ArgumentError.new("Block missing for open position #{name}") unless block_given?
+      et = EntryTrigger.create_or_update!(name, @descriptions.shift, params.to_yaml)
+      etrigger = OpenStruct.new
+      etrigger.name = name
+      etrigger.params = params
+      etrigger.block = block
+      @etriggers << etrigger
     end
 
     def open_position(name, params={}, &block)
@@ -58,22 +69,14 @@ module Analytics
       @openings << opening
     end
 
-    def trigger_position(name, params={}, &block)
-      raise ArgumentError.new("Block missing for trigger position #{name}") unless block_given?
-      es = TriggerStrategy.create_or_update!(name, @descriptions.shift, params.to_yaml)
-      opening = OpenStruct.new
-      opening.name = name
-      opening.params = params
-      opening.block = block
-      @triggers << opening
-    end
-
-    def stop_loss(threshold, options={})
-      raise ArgumentError, "Threshdold must a percentage between between 0 and 100" unless (0.0..100.0).include? threshold.to_f
-      sloss = OpenStruct.new
-      sloss.threshold = threshold.to_f
-      sloss.options = options
-      @stop_loss = sloss
+    def exit_trigger(name, params={}, &block)
+      raise ArgumentError.new("Block missing for open position #{name}") unless block_given?
+      et = ExitTrigger.create_or_update!(name, @descriptions.shift, params.to_yaml)
+      xtrigger = OpenStruct.new
+      xtrigger.name = name
+      xtrigger.params = params
+      xtrigger.block = block
+      @xtriggers << xtrigger
     end
 
     def close_position(name, params={}, &block)
@@ -84,6 +87,14 @@ module Analytics
       closing.params = params
       closing.block = block
       @closings << closing
+    end
+
+    def stop_loss(threshold, options={})
+      raise ArgumentError, "Threshdold must a percentage between between 0 and 100" unless (0.0..100.0).include? threshold.to_f
+      sloss = OpenStruct.new
+      sloss.threshold = threshold.to_f
+      sloss.options = options
+      @stop_loss = sloss
     end
 
     def desc(string)

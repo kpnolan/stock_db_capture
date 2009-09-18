@@ -1,0 +1,59 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  ticker_id: 1
+  ettime: 2009-09-15 19:02:42
+  etprice: 1.5
+  etind_id: 1
+  etival: 1.5
+  xttime: 2009-09-15 19:02:42
+  xtprice: 1.5
+  xtind_id: 1
+  xtival: 1.5
+  entry_date: 2009-09-15 19:02:42
+  entry_price: 1.5
+  entry_ival: 1.5
+  exit_date: 2009-09-15 19:02:42
+  exit_price: 1.5
+  exit_ival: 1.5
+  days_held: 1
+  nreturn: 1.5
+  scan_id: 1
+  logr: 1.5
+  short: false
+  closed: false
+  entry_pass: 1
+  roi: 1.5
+  entry_trigger_id: 1
+  entry_strategy_id: 1
+  exit_trigger_id: 1
+  exit_strategy_id: 1
+
+two:
+  ticker_id: 1
+  ettime: 2009-09-15 19:02:42
+  etprice: 1.5
+  etind_id: 1
+  etival: 1.5
+  xttime: 2009-09-15 19:02:42
+  xtprice: 1.5
+  xtind_id: 1
+  xtival: 1.5
+  entry_date: 2009-09-15 19:02:42
+  entry_price: 1.5
+  entry_ival: 1.5
+  exit_date: 2009-09-15 19:02:42
+  exit_price: 1.5
+  exit_ival: 1.5
+  days_held: 1
+  nreturn: 1.5
+  scan_id: 1
+  logr: 1.5
+  short: false
+  closed: false
+  entry_pass: 1
+  roi: 1.5
+  entry_trigger_id: 1
+  entry_strategy_id: 1
+  exit_trigger_id: 1
+  exit_strategy_id: 1

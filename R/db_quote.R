@@ -2,11 +2,28 @@ require(RMySQL)
 require(tseries)
 require(gtools)
 
+get.histo <-
+  function(value, scan)
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_development")
+    sql <- paste("select ", value, " from positions left outer join scans on scans.id = scan_id where name = '", scan ,"'", sep="")
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    if ( nrow(x) == 0 ) {
+      cat("Returned data is empty. Check SQL\n")
+      return(FALSE);
+    }
+    main = paste("Histogram of", value, "for scan: ", scan)
+    xlab = value
+    dbDisconnect(con)
+    h = hist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
+  }
+
 
 get.id.quote <-
-function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
-          method = NULL, origin = "1899-12-30",
-          retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
+  function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
+            method = NULL, origin = "1899-12-30",
+            retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
 {
   if (missing(start))
     start <- "2000-01-02"
@@ -313,12 +330,11 @@ plot.positions <-
       }
     }
     par(op)
-}
-
+  }
 
 
 get.snap.quote <-
-function (instrument, date, drop=FALSE,  quote = c("Open", "High", "Low", "Close"), retclass="ts")
+  function (instrument, date, drop=FALSE,  quote = c("Open", "High", "Low", "Close"), retclass="ts")
 {
   if (missing(date))
     date <- format(Sys.Date(), "%Y-%m-%d")

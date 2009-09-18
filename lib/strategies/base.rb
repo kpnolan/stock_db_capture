@@ -31,6 +31,7 @@ module Strategies
         props.reverse_merge! :result => :first
         raise ArgumentError, "properties has must include :threshold}" unless props.has_key? :threshold
         values = send(meth, props)
+
         case props[:direction]
         when :under : time_array << props[:time] = index2time(under_threshold(props[:threshold], values).first)
         when :over : time_array << props[:time] = index2time(over_threshold(props[:threshold], values).first)
@@ -48,7 +49,7 @@ module Strategies
         end
       end
       ta_props.each_pair do |meth, props|
-        return min_time, meth if props[:time] == min_time
+        return min_time, meth, result_at(min_time, props[:result]) if props[:time] == min_time
       end
       debugger
     end

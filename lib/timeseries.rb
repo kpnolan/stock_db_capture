@@ -93,7 +93,7 @@ class Timeseries
                      IntraDayBar => { :sample_resolution => [ 30.minutes ], :non_attrs => [ :period, :delta, :seq ] },
                      Snapshot => { :sample_resolution => [ 1.minute ], :non_attrs => [ :secmid ] } }
 
-  attr_reader :symbol, :ticker_id, :model, :value_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
+  attr_reader :symbol, :ticker_id, :model, :value_hash, :result_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
   attr_reader :begin_time, :end_time, :pre_offset, :post_offset, :utc_offset, :resolution, :options
   attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
@@ -169,7 +169,7 @@ class Timeseries
   def outidx
     @index_range.begin
   end
-
+  alias result_offset outidx
   #
   # The method was added as a convenience method for generating Lewis's spreadsheets. The idea was that he
   # could select a subset of the values in a bar for reporting on the timesheet. It's basically a hack
@@ -485,7 +485,27 @@ class Timeseries
     slots.map { |s| value_hash[s][index]}
   end
 
-  def value_at(time_or_index, slot)
+  #
+  # Return the result element corresponding to the input vector index *index*.
+  # FIXME We really need a better way of delaying with two index values, e.g. one for results and one for bar values. We need to unify them at some
+  # point or (gag) invent an offseted array class which tracks offsets and does the right thing.
+  #
+ def result_at(time_or_index, slot)
+   begin
+     case time_or_index
+     when Time       : result_hash[slot][time2index(time_or_index)-result_offset]
+     when Numeric    : result_hash[slot][time_or_index-result_offset]
+     when NilClass   : nil
+     else
+       raise ArgumentError, "first arg must be a Time or a Fixnum, instead was #{time_or_index}"
+     end
+   rescue Exception => e
+     logger.error "can't find index #{time_or_index} @ slot: #{slot}: #{e.to_s}"
+     return -0.0
+   end
+ end
+
+ def value_at(time_or_index, slot)
     case time_or_index
     when Time       : value_hash[slot][time2index(time_or_index)]
     when Numeric    : value_hash[slot][time_or_index]
@@ -548,8 +568,7 @@ class Timeseries
     outidx = results.shift
     pb = AnalResults.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
     @derived_values << pb
-    value_hash.merge! pb.result_hash
-
+    result_hash.merge! pb.result_hash
 
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
@@ -573,8 +592,8 @@ class Timeseries
                 when :array : results.first.to_a
                 when :third : results.third
                 end
-    elsif value_hash.keys.include? options[:result]
-      value_hash[options[:result]]
+    elsif result_hash.keys.include? options[:result]
+      result_hash[options[:result]]
     elsif options[:result].nil?
       nil
     else
@@ -668,7 +687,7 @@ class Timeseries
 #  end
 
   def initialize_state
-    @value_hash = {}
+    @value_hash, @result_hash = {}, {}
     @derived_values,  @attrs = [], []
     @timevec = []
     @utc_offset = Time.now.utc_offset

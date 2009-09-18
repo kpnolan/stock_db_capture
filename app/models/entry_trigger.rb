@@ -1,7 +1,7 @@
 # == Schema Information
 # Schema version: 20090916020242
 #
-# Table name: exit_strategies
+# Table name: entry_triggers
 #
 #  id          :integer(4)      not null, primary key
 #  name        :string(255)
@@ -9,7 +9,9 @@
 #  description :string(255)
 #
 
-class ExitStrategy < ActiveRecord::Base
+require 'yaml'
+
+class EntryTrigger < ActiveRecord::Base
 
   has_many :positions, :dependent => :nullify
 
@@ -42,3 +44,4 @@ class ExitStrategy < ActiveRecord::Base
     end
   end
 end
+

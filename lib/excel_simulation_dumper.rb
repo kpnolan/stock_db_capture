@@ -20,7 +20,7 @@ module ExcelSimulationDumper
   # make_sheet() will select all positions while make_sheet(:rsi_open_14) will include a position with that entry strategy. Each non-nil
   # further constrains the match.
   #
-  def make_sheet(trigger_strategy=nil, entry_strategy=nil, exit_strategy=nil, scan=nil, options={})
+  def make_sheet(entry_trigger=nil, entry_strategy=nil, exit_trigger=nil, exit_strategy=nil, scan=nil, options={})
     options.reverse_merge! :values => OCHLV, :pre_days => 0, :post_days => 30, :keep => false, :log => 'make_sheet'
     @logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{options[:log]}.log")) if options[:log]
 
@@ -37,7 +37,7 @@ module ExcelSimulationDumper
     csv_suffix = '-' + csv_suffix unless csv_suffix.nil?
     FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
       csv << make_header_row(options)
-      positions = Position.find(:all, :conditions => conditions, :include => :ticker, :order => 'tickers.symbol, triggered_at')
+      positions = Position.find(:all, :conditions => conditions, :include => :ticker, :order => 'tickers.symbol, ettime')
       positions.each { |position| csv << field_row(position, options) }
       csv.flush
     end
@@ -47,7 +47,7 @@ module ExcelSimulationDumper
   def field_row(position, options)
     returning [] do |row|
       symbol        = position.ticker.symbol
-      trigger_date  = position.triggered_at.to_formatted_s(:ymd)
+      trigger_date  = position.ettime.to_formatted_s(:ymd)
       entry_date    = unless_nil(position.entry_date, :to_formatted_s, :ymd)
       exit_date     = unless_nil(position.exit_date, :to_formatted_s, :ymd)
       trigger_price = position.trigger_price
@@ -64,8 +64,8 @@ module ExcelSimulationDumper
       row << exit_price
       row << days_held
       row << closed
-      range_start = Timeseries.trading_date_from(position.triggered_at, -options[:pre_days])
-      range_end = Timeseries.trading_date_from(position.triggered_at, options[:post_days])
+      range_start = Timeseries.trading_date_from(position.ettime, -options[:pre_days])
+      range_end = Timeseries.trading_date_from(position.ettime, options[:post_days])
       begin
         indicators = options[:indicators]
         ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => 0)

@@ -19,6 +19,30 @@ get.histo <-
     h = hist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
   }
 
+get.histo2d <-
+  function(value1, value2, scan)
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_development")
+    sql <- paste("select ", value1,",", value2, " from positions left outer join scans on scans.id = scan_id where name = '", scan ,"'", sep="")
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    if ( nrow(x) == 0 ) {
+      cat("Returned data is empty. Check SQL\n")
+      return(FALSE);
+    }
+    main = paste("Histogram of", value1, "+", value2, "for scan: ", scan)
+    xlab = value1
+    ylab = value2
+    dbDisconnect(con)
+    h2d = hist2d(x[, value1], x[, value2], main=main, xlab=xlab)
+    write.table(h2d, "/work/railsapps/stock_db_capture/R/h2d.tsv")
+#    persp( h2d$x, h2d$y, h2d$counts,
+#          ticktype="detailed", theta=30, phi=30,
+#          expand=0.5, shade=0.5, col="cyan", ltheta=-30)
+#    contour( h2d$x, h2d$y, h2d$counts, nlevels=4)
+#                   col=gray((4:0)/4) )
+   }
+
 
 get.id.quote <-
   function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),

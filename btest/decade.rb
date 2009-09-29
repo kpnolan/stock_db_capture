@@ -36,7 +36,7 @@ analytics do
     rsi_ary = rsi(params).to_a
     exit_rsi = rsi_ary.shift
     index = monotonic_sequence(exit_rsi, rsi_ary)
-    index == :max ? index_range.end : index - 1
+    index = (index == :max ? index_range.end : [index_range.begin, index-1].max)
     exit_date, exit_price = closing_values_at(index)
     if exit_date < position.xttime
       debugger
@@ -53,7 +53,7 @@ end
 populations do
   liquid = "min(volume) >= 100000"
   $scan_names = returning [] do |scan_vec|
-    (2008..2008).each do |year|
+    (2001..2008).each do |year|
       start_date = Date.civil(year, 1, 1)
       scan_name = "year_#{year}".to_sym
       end_date = start_date + 1.year - 1.day
@@ -66,8 +66,9 @@ end
 
 backtests(:generate_stats => false, :profile => false, :truncate => :scan) do
   $scan_names.each do |scan_name|
-  using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :lagged_rsi_difference, scan_name) do |entry_strategy, exit_strategy, scan|
-     # make_sheet(nil, nil, nil, nil, scan_name, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true)
+  using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :lagged_rsi_difference, scan_name) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
+#      make_sheet(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true)
+      make_sheet(nil, nil, nil, nil, scan, :values => [:close], :pre_days => 1, :post_days => 40, :keep => true)
     end
   end
 end

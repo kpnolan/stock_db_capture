@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20090917220410) do
+ActiveRecord::Schema.define(:version => 20090924181907) do
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
@@ -226,6 +226,25 @@ ActiveRecord::Schema.define(:version => 20090917220410) do
     t.string "symbol", :limit => 8
   end
 
+  create_table "orders", :force => true do |t|
+    t.string   "txn",              :limit => 3, :null => false
+    t.string   "type",             :limit => 3, :null => false
+    t.string   "expiration",       :limit => 3, :null => false
+    t.integer  "quantity"
+    t.datetime "placed_at"
+    t.datetime "filled_at"
+    t.float    "activation_price"
+    t.float    "order_price"
+    t.float    "fill_price"
+    t.integer  "ticker_id",                     :null => false
+    t.integer  "position_id"
+    t.integer  "sim_position_id"
+  end
+
+  add_index "orders", ["ticker_id"], :name => "ticker_id"
+  add_index "orders", ["position_id"], :name => "position_id"
+  add_index "orders", ["sim_position_id"], :name => "sim_position_id"
+
   create_table "plot_attributes", :force => true do |t|
     t.string   "name"
     t.integer  "ticker_id"
@@ -346,6 +365,26 @@ ActiveRecord::Schema.define(:version => 20090917220410) do
     t.string "name"
   end
 
+  create_table "sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.integer  "position_id"
+  end
+
+  add_index "sim_positions", ["eorder_id"], :name => "eorder_id"
+  add_index "sim_positions", ["xorder_id"], :name => "xorder_id"
+  add_index "sim_positions", ["ticker_id"], :name => "ticker_id"
+  add_index "sim_positions", ["position_id"], :name => "position_id"
+
   create_table "snapshots", :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "bartime"
@@ -439,6 +478,10 @@ ActiveRecord::Schema.define(:version => 20090917220410) do
   add_index "tda_positions", ["xstrategy_id"], :name => "xstrategy_id"
   add_index "tda_positions", ["watch_list_id"], :name => "tda_positions_ibfk_4"
 
+  create_table "tickerids", :id => false, :force => true do |t|
+    t.integer "ticker_id"
+  end
+
   create_table "tickers", :force => true do |t|
     t.string  "symbol",      :limit => 8
     t.integer "exchange_id"
@@ -495,6 +538,10 @@ ActiveRecord::Schema.define(:version => 20090917220410) do
 
   add_foreign_key "intra_snapshots", ["ticker_id"], "tickers", ["id"], :name => "intra_snapshots_ibfk_1"
 
+  add_foreign_key "orders", ["sim_position_id"], "sim_positions", ["id"], :name => "orders_ibfk_3"
+  add_foreign_key "orders", ["ticker_id"], "tickers", ["id"], :name => "orders_ibfk_1"
+  add_foreign_key "orders", ["position_id"], "positions", ["id"], :name => "orders_ibfk_2"
+
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
 
   add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_1"
@@ -508,6 +555,11 @@ ActiveRecord::Schema.define(:version => 20090917220410) do
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
+
+  add_foreign_key "sim_positions", ["eorder_id"], "orders", ["id"], :name => "sim_positions_ibfk_1"
+  add_foreign_key "sim_positions", ["xorder_id"], "orders", ["id"], :name => "sim_positions_ibfk_2"
+  add_foreign_key "sim_positions", ["ticker_id"], "tickers", ["id"], :name => "sim_positions_ibfk_3"
+  add_foreign_key "sim_positions", ["position_id"], "positions", ["id"], :name => "sim_positions_ibfk_4"
 
   add_foreign_key "ta_specs", ["indicator_id"], "indicators", ["id"], :name => "ta_specs_ibfk_1"
 

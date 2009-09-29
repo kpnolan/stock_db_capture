@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090916020242
+# Schema version: 20090924181907
 #
 # Table name: positions
 #
@@ -59,6 +59,22 @@ class Position < ActiveRecord::Base
     (entry_price - et_price)/et_price
   end
 
+  def xtdays_held
+    Position.trading_days_between(entry_date, xttime)
+  end
+
+  def xtroi
+    (xtprice - entry_price) / entry_price
+  end
+
+  def exit_delta
+    exit_price - xtprice
+  end
+
+  def exit_days_held
+    Position.trading_days_between(xttime, exit_date)
+  end
+
   class << self
 
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
@@ -73,7 +89,7 @@ class Position < ActiveRecord::Base
 
     def trigger_exit(position, trigger_time, trigger_price, indicator, ival, options={})
       begin
-        ind_id = indicator.nil? ? nil : Indicator.lookup(indicator)
+        ind_id = indicator.nil? ? nil : Indicator.lookup(indicator).id
         closed = options[:closed]
         ival = nil if ival.nil? or ival.nan?
         pos = position.update_attributes!(:xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed)

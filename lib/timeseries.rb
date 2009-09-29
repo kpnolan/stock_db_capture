@@ -24,14 +24,16 @@ class Timeseries
 
     extend TradingCalendar
 
-    def initialize(begin_time, end_time, timevec)
+    def initialize(begin_time, end_time, timevec, options={ })
+      @options = options.reverse_merge :missing_bar_proc => lambda { |mbar_sec_ary| report_missing_bars(mbar_sec_ary) }
       @begin_time = begin_time
       @end_time = end_time
       @first_index = TimeMap.time2index(begin_time)
       @last_index = TimeMap.time2index(end_time, -1)
       @timevec = timevec
       raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless !timevec.empty? && timevec.first.acts_like_time?
-      report_missing_bars() if timevec.length <  last_index - first_index + 1
+      missing_bar_proc = @options[:missing_bar_proc]
+      missing_bar_proc.call(missing_bars()) if timevec.length <  last_index - first_index + 1
     end
 
     def index2time(index)
@@ -46,14 +48,9 @@ class Timeseries
       abs_index - first_index
     end
 
-    def report_missing_bars()
-      mbs = missing_bars()
+    def report_missing_bars(mbs)
       ranges = TimeMap.to_ranges(mbs)
-      if ranges.length < mbs.length
-        raise TimeseriesException, "Missing bars from #{ranges.map{ |r| pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
-      else
-        raise TimeseriesException, "Missing bars from #{mbs.map{ |t| t.to_formatted_s(:ymd)}.join(', ')} (#{mbs.length} trading days)"
-      end
+      raise TimeseriesException, "Missing bars from #{ranges.map{ |r| pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
     end
 
     def missing_bars()
@@ -67,9 +64,14 @@ class Timeseries
     end
 
     def pretty_range(range)
-      begin_str = range.begin.to_formatted_s(:ymd)
-      end_str = range.end.to_formatted_s(:ymd)
-      "#{begin_str}..#{end_str}"
+      case range
+        when Range then
+        begin_str = range.begin.to_formatted_s(:ymd)
+        end_str = range.end.to_formatted_s(:ymd)
+        "#{begin_str}..#{end_str}"
+      else
+        range.to_formatted_s(:ymd)
+      end
     end
   end
 
@@ -426,7 +428,9 @@ class Timeseries
     @timevec = value_hash[:bartime]
     if model == DailyBar
       begin
-        @time_map = TimeMap.new(begin_time, end_time, timevec)
+        mb_proc = @options.delete :missing_bar_proc
+        options = mb_proc.nil? ? { } : { :missing_bar_proc => mb_proc }
+        @time_map = TimeMap.new(begin_time, end_time, timevec, options)
       rescue TimeseriesException => e
         raise TimeseriesException, "#{e.message} for #{symbol}"
       end

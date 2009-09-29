@@ -61,9 +61,34 @@ module Interpolate
     nil
   end
 
+  def generate_missing_bar_file()
+    FasterCSV.open(File.join(RAILS_ROOT, 'tmp', 'missing_dates.csv'), "w") do |csv|
+      tickers = DailyBar.find(:all, :select => :ticker_id, :group => :ticker_id, :include => :ticker, :order => 'tickers.symbol')
+      for ticker in tickers
+        ticker_id = ticker.ticker_id
+        min_time, max_time = first_and_last_bartime(ticker_id)
+        begin
+          missing_bar_fcn = lambda do |missing_bars_times|
+            date_strings = missing_bars_times.map { |time| time.to_formatted_s(:ymd) }
+            date_strings.unshift(Ticker.find(ticker_id).symbol)
+            csv << date_strings
+          end
+          ts = Timeseries.new(ticker_id, min_time..max_time, 1.day, :populate => true, :missing_bar_proc => missing_bar_fcn)
+        rescue TimeseriesException => e
+          puts e.to_s
+        end
+        ts = nil
+      end
+    end
+    true
+  end
+
   def read_symbols()
     symbols = FasterCSV.read(File.join(RAILS_ROOT, 'tmp', 'missing_date.csv')).map(&:first).sort
   end
+
+  def first_and_last_bartime(ticker_id)
+    [ DailyBar.minimum(:bartime, :conditions => { :ticker_id => ticker_id }),
+      DailyBar.maximum(:bartime, :conditions => { :ticker_id => ticker_id }) ]
+  end
 end
-
-

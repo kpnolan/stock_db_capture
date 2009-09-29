@@ -28,7 +28,6 @@ module Strategies
     def close_crossing_value(ta_props)
       time_array = []
       ta_props.each_pair do |meth, props|
-        props.reverse_merge! :result => :first
         raise ArgumentError, "properties has must include :threshold}" unless props.has_key? :threshold
         values = send(meth, props)
 

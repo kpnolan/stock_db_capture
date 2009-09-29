@@ -33,8 +33,8 @@ class Backtester
   attr_reader :resolution, :logger
 
   def initialize(entry_trigger_name, entry_strategy_name, exit_trigger_name, exit_strategy_name, scan_name, description, options, &block)
-    @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log => :basic,
-                                     :days_to_close => 30, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10
+    @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
+                                     :days_to_close => 40, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10
     @et_name = entry_trigger_name
     @es_name = entry_strategy_name
     @xt_name = exit_trigger_name
@@ -47,7 +47,7 @@ class Backtester
     @positions = []
     @post_process = block
     @resolution = self.options.delete :resolution
-    set_log_level(@options[:log])
+    set_log_level(@options[:log_flags])
 
     raise BacktestException.new("Cannot find strategy: #{et_name}") if EntryTrigger.find_by_name(et_name).nil?
     raise BacktestException.new("Cannot find strategy: #{es_name}") if EntryStrategy.find_by_name(es_name).nil?
@@ -122,7 +122,7 @@ class Backtester
 
       endt = Time.now
       delta = endt - startt
-      logger.info "#{count} positions triggered -- elapsed time: #{format_et(delta)}" if log? :basic
+      logger.info "#{count} positions triggered -- elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
       if self.options[:profile]
         GC.disable
@@ -142,7 +142,7 @@ class Backtester
     #-------------------------------------------------------------------------------------------------------------------
 
     if entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
-      logger.info "Beginning open positions analysis..."
+      logger.info "Beginning open positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
 
       startt = Time.now
@@ -182,7 +182,7 @@ class Backtester
 
       endt = Time.now
       delta = endt - startt
-      logger.info "#{count} positions opened of #{trig_count} triggered -- elapsed time: #{format_et(delta)}" if log? :basic
+      logger.info "#{count} positions opened of #{trig_count} triggered -- elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
       if self.options[:profile]
         GC.disable
@@ -238,20 +238,15 @@ class Backtester
         logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
                            counter, pos_count, position.ticker.symbol,
                            position.entry_date.to_formatted_s(:ymd),
-                           position.days_held, position.entry_price, position.exit_price, 0.0,
-                           position.roi, position.indicator.name ) if log? :exits
-        logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
-                           counter, pos_count, position.ticker.symbol,
-                           position.entry_date.to_formatted_s(:ymd),
-                           position.days_held, position.entry_price, position.exit_price, position.nreturn*100.0,
-                           position.roi, position.indicator.name ) if log? :exits
+                           position.xtdays_held, position.entry_price, position.xtprice, 0.0,
+                           position.xtroi, position.indicator.name ) if log? :exits
         counter += 1
       end
 
       endt = Time.now
       delta = endt - startt
 
-      logger.info "Backtest (exit trigger analysis) elapsed time: #{format_et(delta)}" if log? :basic
+      logger.info "Exit trigger analysis elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
       if self.options[:profile]
         GC.disable
@@ -285,6 +280,7 @@ class Backtester
       pos_count = open_positions.length
 
       counter = 1
+      log_counter = 0
       for position in open_positions
         begin
           p = position
@@ -295,6 +291,7 @@ class Backtester
           end
           ts = Timeseries.new(position.ticker_id, position.xttime..max_exit_date, resolution, self.options.merge(:logger => logger))
           index = ts.instance_exec(position, closing_decl.params, &closing_decl.block)
+
           unless index.nil?
             closing_time, closing_price = ts.closing_values_at(index)
             max_rsi = ts.result_at(index, :rsi)
@@ -308,25 +305,24 @@ class Backtester
 
           if position.exit_date > position.xttime
             xtival = position.xtival.nil? ? -0.00 : position.xtival.abs > 100.0 ? -0.00 : position.xtival
-            logger.info format("Position %d of %d (%s)\t%s %s\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
+            logger.info("\t\t\t\t\t\tDH\tXTROI\tDELTA\tROI\tXTIVAL\tRSI") if log?(:closures) and log_counter % 50 == 0
+            logger.info format("Position %d of %d (%s)\t%s\t%d\t%3.2f%%\t%3.2f\t%3.2f%%\t%3.2f\t%3.2f\t%s",
                                counter, pos_count, position.ticker.symbol,
-                               position.xttime.to_formatted_s(:ymd), position.exit_date.to_formatted_s(:ymd),
-                               position.xtprice, position.exit_price,
-                               xtival , position.exit_ival, position.xtind.name)
+                               position.xttime.to_formatted_s(:ymd), position.exit_days_held,
+                               position.xtroi*100, position.exit_delta, position.roi*100,
+                               xtival , position.exit_ival, position.xtind.name) if log? :closures
+            log_counter += 1 if log? :closures
           elsif position.exit_date < position.xttime
             xtival = position.xtival.nil? ? -0.00 : position.xtival.abs > 100.0 ? -0.00 : position.xtival
             logger.info format("!!!Position %d of %d (%s)\t%s %s\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
                                counter, pos_count, position.ticker.symbol,
                                position.xttime.to_formatted_s(:ymd), position.exit_date.to_formatted_s(:ymd),
                                position.xtprice, position.exit_price,
-                               xtival , position.exit_ival, position.xtind.name)
+                               xtival , position.exit_ival, position.xtind.name) if log? :closures
           end
-          logger.info format("Position %d of %d (%s)\t%s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
-                             counter, pos_count, position.ticker.symbol,
-                             position.entry_date.to_formatted_s(:ymd),
-                             position.days_held, position.entry_price, position.exit_price, position.nreturn*100.0,
-                             position.roi, position.indicator.name ) if log? :closures
-
+        rescue TimeseriesException => e
+          logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
+          position.destroy
         end
         counter += 1
       end
@@ -335,7 +331,7 @@ class Backtester
     endt = Time.now
     delta = endt - startt
 
-    logger.info "Backtest (optimize close analysis) elapsed time: #{format_et(delta)}" if log? :basic
+    logger.info "Backtest (optimize close analysis) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
     #-----------------------------------------------------------------------------------------------------------------
     # Generate statistics to support positions
@@ -344,7 +340,7 @@ class Backtester
 
     endt = Time.now
     global_delta = endt - global_startt
-    logger.info "Total Backtest elapsed time: #{format_et(global_delta)}" if log? :basic
+    logger.info "Total Backtest elapsed time: #{Backtester.format_et(global_delta)}" if log? :basic
 
 
     #--------------------------------------------------------------------------------------------------------------------
@@ -370,12 +366,12 @@ class Backtester
       logger.info "Beginning post processing (make_sheet)..." if log? :basic
       startt = Time.now
 
-      post_process.call(entry_strategy, exit_strategy, scan) if post_process
+      post_process.call(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan) if post_process
 
       endt = Time.now
       delta = endt - startt
 
-      logger.info "Post processing (make_sheet) elapsed time: #{format_et(delta)}" if log? :basic
+      logger.info "Post processing (make_sheet) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
     end
   end
 
@@ -407,7 +403,7 @@ class Backtester
       total_count += count
     end
     delta = Time.now - startt
-    logger.info "Truncated #{total_count} positions in #{format_et(delta)}" if log? :basic
+    logger.info "Truncated #{total_count} positions in #{Backtester.format_et(delta)}" if log? :basic
   end
 
   #--------------------------------------------------------------------------------------------------------------------
@@ -431,7 +427,7 @@ class Backtester
     end
     endt = Time.now
     delta = endt-startt
-    logger.info "Generate Position Statitics took #{format_et(delta)}" if log? :basic
+    logger.info "Generate Position Statitics took #{Backtester.format_et(delta)}" if log? :basic
   end
 
   #--------------------------------------------------------------------------------------------------------------------
@@ -439,12 +435,12 @@ class Backtester
   #     basic, entries, exis,
   #--------------------------------------------------------------------------------------------------------------------
   def set_log_level(flags)
-    options = %w{ none basic entries exits stops}.map(&:to_sym)
-    flags = [flags] unless flags.is_a? Array
+    options = %w{none basic entries exits closures}.map(&:to_sym)
+    flags = Array.wrap(flags)
     unless flags.all? { |flag| options.member? flag }
       flags.each do |flag|
         unless options.member? flag
-          raise ArgumentError, "log level #{flags} is not one of the support options: #{options.join(', ')}"
+          raise ArgumentError, "log level :#{flag} is not one of the support options: #{options.join(', ')}"
         end
       end
     end
@@ -462,7 +458,7 @@ class Backtester
   # format elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
   # Future revs where we backtest an entire decade we will, no doubt include hours as part of the time base
   #--------------------------------------------------------------------------------------------------------------------
-  def format_et(seconds)
+  def Backtester.format_et(seconds)
     if seconds > 60.0 and seconds < 120.0
       format('%d minute and %d seconds', (seconds/60).floor, seconds.to_i % 60)
     elsif seconds > 120.0

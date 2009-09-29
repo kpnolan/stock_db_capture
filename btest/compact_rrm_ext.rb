@@ -36,7 +36,7 @@ analytics do
     rsi_ary = rsi(params).to_a
     exit_rsi = rsi_ary.shift
     index = monotonic_sequence(exit_rsi, rsi_ary)
-    index == :max ? index_range.end : index - 1
+    index = (index == :max ? index_range.end : [index_range.begin, index-1].max)
     exit_date, exit_price = closing_values_at(index)
     if exit_date < position.xttime
       debugger
@@ -54,11 +54,11 @@ populations do
   # Find the lastest daily bar in the DB (using IBM as the guiney pig)
   latest_bar_date = DailyBar.maximum(:bartime, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" ).to_date
   # end date keeps advancing as long as their 30 trading days which is the max hold time
-  end_date = Population.trading_date_from(latest_bar_date, -30)
+  end_date = Population.trading_date_from(latest_bar_date, -40)
 
   liquid = "min(volume) >= 100000"
   desc "Population of all stocks with a minimum valume of 100000"
-  scan 'macd_2009', :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
+  scan 'year_2009', :start_date => '1/2/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
 end
 
 # Validate options are:
@@ -71,8 +71,9 @@ end
 #   :price => :close                determines the price used for calculation
 #   :days_to_close                  max number of days to hold open a position before closing it forcefully
 #
-backtests(:generate_stats => false, :profile => false, :truncate => :exit_strategy) do
-  using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :lagged_rsi_difference, :macd_2009) do |entry_strategy, exit_strategy, scan|
-    #make_sheet(nil, nil, :compact_rrm_14, :macd_2009, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true, :year => 2009)
+backtests(:generate_stats => false, :profile => false, :truncate => :scan) do
+  using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :lagged_rsi_difference, :year_2009) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
+      make_sheet(nil, nil, nil, nil, :year_2009, :values => [:close], :pre_days => 1, :post_days => 40, :keep => true)
+
   end
 end

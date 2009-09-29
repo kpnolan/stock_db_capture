@@ -28,6 +28,7 @@ module Backtest
     end
 
     def run(logger)
+      startt = Time.now
       backtests.each do |backtest|
         #begin
           backtest.run(logger)
@@ -35,6 +36,9 @@ module Backtest
         #  logger.error("FATAL error: #{e.to_s}")
         #end
       end
+      endt = Time.now
+      delta = endt - startt
+      logger.info "#{backtests.length} Backtests run -- elapsed time: #{Backtester.format_et(delta)}"
     end
   end
 end

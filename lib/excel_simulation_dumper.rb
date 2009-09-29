@@ -30,7 +30,7 @@ module ExcelSimulationDumper
     core_values = OCHLV.to_set
     options[:indicators] = (options[:values].to_set - core_values).to_a
 
-    args = validate_args(trigger_strategy, entry_strategy, exit_strategy, scan)
+    args = validate_args(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan)
     conditions = build_conditions(args)
 
     csv_suffix = args.last.nil? ? options[:year] : args.last.name
@@ -38,7 +38,7 @@ module ExcelSimulationDumper
     FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
       csv << make_header_row(options)
       positions = Position.find(:all, :conditions => conditions, :include => :ticker, :order => 'tickers.symbol, ettime')
-      positions.each { |position| csv << field_row(position, options) }
+      positions.each { |position| csv << field_row(position, options) unless position.entry_date.nil? }
       csv.flush
     end
     true
@@ -47,20 +47,24 @@ module ExcelSimulationDumper
   def field_row(position, options)
     returning [] do |row|
       symbol        = position.ticker.symbol
-      trigger_date  = position.ettime.to_formatted_s(:ymd)
+      etrigger_date  = position.ettime.to_formatted_s(:ymd)
       entry_date    = unless_nil(position.entry_date, :to_formatted_s, :ymd)
+      xtrigger_date = position.xttime.to_formatted_s(:ymd)
       exit_date     = unless_nil(position.exit_date, :to_formatted_s, :ymd)
-      trigger_price = position.trigger_price
+      etrigger_price = position.etprice
       entry_price   = unless_nil(position.entry_price, :to_s)
+      xtrigger_price = unless_nil(position.xtprice, :to_s)
       exit_price    = unless_nil(position.exit_price, :to_s)
       days_held     = unless_nil(position.days_held, :to_s)
       closed        = position.closed ? 'TRUE' : 'FALSE'
       row << symbol
-      row << trigger_date
+      row << etrigger_date
       row << entry_date
+      row << xtrigger_date
       row << exit_date
-      row << trigger_price
+      row << etrigger_price
       row << entry_price
+      row << xtrigger_price
       row << exit_price
       row << days_held
       row << closed
@@ -68,13 +72,14 @@ module ExcelSimulationDumper
       range_end = Timeseries.trading_date_from(position.ettime, options[:post_days])
       begin
         indicators = options[:indicators]
-        ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => 0)
+        populate = indicators.empty?
+        ts = Timeseries.new(symbol, range_start..range_end, 1.day, :pre_buffer => 0, :populate => populate)
         @indicators_valid ||= indicators.all? { |method| ts.respond_to? method }
         report_unsupported_methods(ts, indicaors) unless @indicators_valid
         compute_indicators(ts, indicators)
         options[:values].each do |val|
           if indicators.include? val
-            row.concat(ts.value_hash[val].to_a)
+            row.concat(ts.result_hash[val].to_a)
           else
             row.concat(ts.value_hash[val][ts.index_range])
           end
@@ -97,9 +102,11 @@ module ExcelSimulationDumper
     row << 'symbol'
     row << 'trigger-date'
     row << 'entry-date'
+    row << 'exit-trigger-date'
     row << 'exit-date'
     row << 'trigger-price'
     row << 'entry-price'
+    row << 'exit-trigger-price'
     row << 'exit-price'
     row << 'days-held'
     row << 'closed'
@@ -111,9 +118,9 @@ module ExcelSimulationDumper
     row
   end
 
-  def validate_args(trigger_strategy, entry_strategy, exit_strategy, scan)
+  def validate_args(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan)
     arg_num = 1
-    args = [:trigger_strategy, :entry_strategy, :exit_strategy, :scan].map do |sym|
+    args = [:entry_trigger, :entry_strategy, :exit_trigger, :exit_strategy, :scan].map do |sym|
       name = sym.to_s
       arg = eval(name)
       model = name.classify.constantize
@@ -139,7 +146,7 @@ module ExcelSimulationDumper
     non_nils = args.compact
     fkeys = non_nils.map { |ar| ar.class.to_s.foreign_key }.map(&:to_sym)
     pairs = fkeys.zip(non_nils.map { |ar| ar.id })
-    pairs.inject({}) { |h, p| h[p.first] = p.last; h }
+    attrs = pairs.inject({}) { |h, p| h[p.first] = p.last; h }
   end
 
   def report_unsupported_methods(ts, methods)

@@ -42,6 +42,9 @@ module TradingSimulator
       end
     end
 
+    def position_shortfall()
+
+    end
   end
 
 end

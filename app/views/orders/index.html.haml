@@ -1,0 +1,18 @@
+%h1 Listing orders
+%table
+  %tr.heading
+    %th Txn
+    %th Type
+    %th Expiration
+    %th Quantity
+    %th Placed At
+    %th Filled At
+    %th Activation Price
+    %th Order Price
+    %th Fill Price
+    %th Ticker
+    %th Position
+
+  = render :partial => 'order', :collection => current_objects
+
+= link_to 'New order', new_object_path 

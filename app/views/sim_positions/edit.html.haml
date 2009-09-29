@@ -1,0 +1,12 @@
+%h1 Editing Sim Position
+
+= error_messages_for :sim_position
+
+%fieldset
+  - smart_form_for(current_object) do |f|
+    = render :partial => "form", :locals => {:f => f}
+    %p= f.submit "Update"
+
+= link_to 'Show', object_path
+|
+= link_to 'Back', objects_path

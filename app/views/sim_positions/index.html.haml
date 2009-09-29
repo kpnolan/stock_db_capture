@@ -1,0 +1,19 @@
+%h1 Listing sim_positions
+%table
+  %tr.heading
+    %th Entry Date
+    %th Exit Date
+    %th Quantity
+    %th Entry Price
+    %th Exit Price
+    %th Nreturn
+    %th Roi
+    %th Days Held
+    %th Eorder
+    %th Xorder
+    %th Ticker
+    %th Position
+
+  = render :partial => 'sim_position', :collection => current_objects
+
+= link_to 'New sim_position', new_object_path 

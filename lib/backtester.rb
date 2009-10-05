@@ -28,6 +28,10 @@ class Backtester
   attr_reader :trigger_strategy, :entry_strategy, :exit_strategy, :trigger, :opening, :closing, :scan, :stop_loss, :tid_array, :date_range
   attr_reader :resolution, :logger
 
+  #--------------------------------------------------------------------------------------------------------------------
+  # A Backtester object is created for every instance of a using(...) statement with the args of that statement along
+  # with global values that are set in the backtests(...) block
+  #--------------------------------------------------------------------------------------------------------------------
   def initialize(trigger_strategy_name, entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log => :basic,
                                      :days_to_close => 30, :days_to_open => 5, :epass => 0..2
@@ -48,6 +52,11 @@ class Backtester
     raise BacktestException.new("Cannot find strategy: #{ex_name}") if ExitStrategy.find_by_name(xs_name).nil?
     raise BacktestException.new("Cannot find scan: #{scan_name}") if Scan.find_by_name(scan_name).nil?
   end
+
+  #--------------------------------------------------------------------------------------------------------------------
+  # Run is called for every instance of a using(...) after the backtester object has config statement in the
+  # been initialized form the backtests(...) block and using(...) statement.
+  #--------------------------------------------------------------------------------------------------------------------
 
   def run(logger)
     @logger = logger
@@ -84,6 +93,7 @@ class Backtester
     sdate = self.options[:start_date] ? self.options[:start_date] : scan.start_date
     edate = self.options[:end_date] ? self.options[:end_date] : scan.end_date
 
+
     #--------------------------------------------------------------------------------------------------------------------
     # TRIGGERED POSITION pass. Iterates through a tickers in scan, executing the trigger block for each ticker. Since
     # we're only using an RSI(14) as a triggering signal we execute the block three times varying (in effect) the threshold
@@ -131,6 +141,7 @@ class Backtester
     else
       logger.info "Using pre-generated triggers..." if log? :basic
     end
+ 
     #--------------------------------------------------------------------------------------------------------------------
     # OPEN POSITION pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
     # whose mission it is to cull out losers that have been triggered and ones not likely to close.
@@ -191,7 +202,7 @@ class Backtester
     else
       logger.info "Using pre-computed entries..."
     end
-
+
     #--------------------------------------------------------------------------------------------------------------------
     # CLOSE POSITION pass. Iterates through all positions opened by the previous pass closing them on (hopefully) a bar
     # which a maximum (or close to it) profit. At present, opened positions are given 30 trading days to close whereup
@@ -258,7 +269,7 @@ class Backtester
     global_delta = endt - global_startt
     logger.info "Total Backtest elapsed time: #{format_et(global_delta)}" if log? :basic
 
-
+
     #--------------------------------------------------------------------------------------------------------------------
     # Stop-loss pass. The nitty gritty of threshold crossing is handeled by tstop(...)
     #-------------------------------------------------------------------------------------------------------------------
@@ -297,6 +308,7 @@ class Backtester
   def reset_position_index_hash
     @triggered_index_hash = { }
   end
+
   #--------------------------------------------------------------------------------------------------------------------
   # Truncate all positions matching the current tigger, entry, or exit strategies or scan. Accepts either a single symbol or an array of symbols
   #--------------------------------------------------------------------------------------------------------------------
@@ -346,7 +358,7 @@ class Backtester
   end
 
   #--------------------------------------------------------------------------------------------------------------------
-  # set the leel of the type (not the importance) of the log messages output types are:
+  # set the log of the type (not the importance) of the log messages output types are:
   #     basic, entries, exis,
   #--------------------------------------------------------------------------------------------------------------------
   def set_log_level(flags)
@@ -393,7 +405,7 @@ class Backtester
       raise ArgumentError, "#{use.to_s.capitalize} strategy #{name} do not have a value" if value.nil?
     end
   end
-
+
   #--------------------------------------------------------------------------------------------------------------------
   # First attempt at a stop-loss algorithm that mimics the stop-losses which can be placed on orders at the time the are
   # bought and/or applied and modified later. Early tests indicated that this type of loss protection did more harm than

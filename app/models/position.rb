@@ -52,7 +52,7 @@ class Position < ActiveRecord::Base
   extend TradingCalendar
 
   def entry_delay
-    Posiion.trading_days_between(entry_date, ettime)
+    Position.trading_days_between(entry_date, ettime)
   end
 
   def consumed_margin

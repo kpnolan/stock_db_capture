@@ -32,6 +32,10 @@ class Backtester
   attr_reader :opening, :closing, :scan, :stop_loss, :tid_array, :date_range, :rsi_id
   attr_reader :resolution, :logger
 
+  #--------------------------------------------------------------------------------------------------------------------
+  # A Backtester object is created for every instance of a using(...) statement with the args of that statement along
+  # with global values that are set in the backtests(...) block
+  #--------------------------------------------------------------------------------------------------------------------
   def initialize(entry_trigger_name, entry_strategy_name, exit_trigger_name, exit_strategy_name, scan_name, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
                                      :days_to_close => 40, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10
@@ -55,7 +59,11 @@ class Backtester
     raise BacktestException.new("Cannot find strategy: #{xs_name}") if ExitStrategy.find_by_name(xs_name).nil?
     raise BacktestException.new("Cannot find scan: #{scan_name}") if Scan.find_by_name(scan_name).nil?
   end
-
+
+  #--------------------------------------------------------------------------------------------------------------------
+  # Run is called for every instance of a using(...) after the backtester object has config statement in the
+  # been initialized form the backtests(...) block and using(...) statement.
+  #--------------------------------------------------------------------------------------------------------------------
   def run(logger)
     @logger = logger
     logger.info "\nProcessing backtest with a #{et_name} entry trigger and #{es_name} entry with #{xt_name} trigger and #{xs_name} exit against #{scan_name}"
@@ -85,7 +93,7 @@ class Backtester
     #
     sdate = self.options[:start_date] ? self.options[:start_date] : scan.start_date
     edate = self.options[:end_date] ? self.options[:end_date] : scan.end_date
-
+
     #--------------------------------------------------------------------------------------------------------------------
     # TRIGGERED POSITION pass. Iterates through a tickers in scan, executing the trigger block for each ticker. Since
     # we're only using an RSI(14) as a triggering signal we execute the block three times varying (in effect) the threshold
@@ -93,7 +101,6 @@ class Backtester
     # varied is a hack (FIXME), which should instead involve the use of three seperate trigger strategies instead of the
     # bastardized one we use here.
     #-------------------------------------------------------------------------------------------------------------------
-
     if entry_trigger.positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
       logger.info "Beginning trigger positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
@@ -136,11 +143,11 @@ class Backtester
     else
       logger.info "Using pre-generated triggers..." if log? :basic
     end
+
     #--------------------------------------------------------------------------------------------------------------------
     # OPEN POSITION pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
     # whose mission it is to cull out losers that have been triggered and ones not likely to close.
     #-------------------------------------------------------------------------------------------------------------------
-
     if entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
       logger.info "Beginning open positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
@@ -196,7 +203,7 @@ class Backtester
     else
       logger.info "Using pre-computed entries..."
     end
-
+
     #--------------------------------------------------------------------------------------------------------------------
     # TRIGGERED EXIT pass. Iterates through all positions opened by the previous pass applying an exitting strategy based upon
     # crossing a certain threshold of one or more indicators. This is NOT intended to be an optimizing close, rather it records the
@@ -260,6 +267,7 @@ class Backtester
     else
       logger.info "Using pre-computed exits..."
     end
+
     #--------------------------------------------------------------------------------------------------------------------
     # CLOSE POSITION pass. Once a position has crossed  a exit threshold it is further processed to seek an optimal close,
     # not just the point at which an arbritary threshold was crossed. This is usually done by followin an indicator as it rises and
@@ -332,7 +340,7 @@ class Backtester
     delta = endt - startt
 
     logger.info "Backtest (optimize close analysis) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
-
+
     #-----------------------------------------------------------------------------------------------------------------
     # Generate statistics to support positions
     #-----------------------------------------------------------------------------------------------------------------
@@ -341,8 +349,6 @@ class Backtester
     endt = Time.now
     global_delta = endt - global_startt
     logger.info "Total Backtest elapsed time: #{Backtester.format_et(global_delta)}" if log? :basic
-
-
     #--------------------------------------------------------------------------------------------------------------------
     # Stop-loss pass. The nitty gritty of threshold crossing is handeled by tstop(...)
     #-------------------------------------------------------------------------------------------------------------------
@@ -358,7 +364,6 @@ class Backtester
       deltam = delta/60.0
       logger.info "Backtest (stop loss analysys) elapsed time: #{deltam} minutes" if log? :basic
     end
-
     #--------------------------------------------------------------------------------------------------------------------
     # Post processing which not only includes make_sheet(...)
     #-------------------------------------------------------------------------------------------------------------------
@@ -381,6 +386,7 @@ class Backtester
   def reset_position_index_hash
     @triggered_index_hash = { }
   end
+
   #--------------------------------------------------------------------------------------------------------------------
   # Truncate all positions matching the current tigger, entry, or exit strategies or scan. Accepts either a single symbol or an array of symbols
   #--------------------------------------------------------------------------------------------------------------------
@@ -405,7 +411,6 @@ class Backtester
     delta = Time.now - startt
     logger.info "Truncated #{total_count} positions in #{Backtester.format_et(delta)}" if log? :basic
   end
-
   #--------------------------------------------------------------------------------------------------------------------
   # Geerate statistics recorded are given by the params given to the function compute_and_persist
   #--------------------------------------------------------------------------------------------------------------------
@@ -429,7 +434,7 @@ class Backtester
     delta = endt-startt
     logger.info "Generate Position Statitics took #{Backtester.format_et(delta)}" if log? :basic
   end
-
+
   #--------------------------------------------------------------------------------------------------------------------
   # set the leel of the type (not the importance) of the log messages output types are:
   #     basic, entries, exis,
@@ -446,14 +451,12 @@ class Backtester
     end
     @log_flags = flags
   end
-
   #--------------------------------------------------------------------------------------------------------------------
   # Predicate which determines whether a particular event should be logged by the contents of the @log_flags array
   #--------------------------------------------------------------------------------------------------------------------
   def log?(flag)
     @log_flags.member? flag
   end
-
   #--------------------------------------------------------------------------------------------------------------------
   # format elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
   # Future revs where we backtest an entire decade we will, no doubt include hours as part of the time base
@@ -467,8 +470,6 @@ class Backtester
       format('%2.2f seconds', seconds)
     end
   end
-
-
   #--------------------------------------------------------------------------------------------------------------------
   # validates the values of the three trigger based strategies
   #--------------------------------------------------------------------------------------------------------------------
@@ -478,7 +479,7 @@ class Backtester
       raise ArgumentError, "#{use.to_s.capitalize} strategy #{name} do not have a value" if value.nil?
     end
   end
-
+
   #--------------------------------------------------------------------------------------------------------------------
   # First attempt at a stop-loss algorithm that mimics the stop-losses which can be placed on orders at the time the are
   # bought and/or applied and modified later. Early tests indicated that this type of loss protection did more harm than

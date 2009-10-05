@@ -556,11 +556,15 @@ class Timeseries
     true
   end
 
-  def log_result(result_name)
-    result_vec = vector_for(result_name)
-    timvec = self.timevec[index_range]
-    timevec.each_with_index do |time, i|
-      logger.info("#{symbol} #{time.to_formatted_s(:ymd)}: #{format('%2.2f', result_vec[i])}")
+  def log_result(symbol_or_string)
+    case symbol_or_string
+    when Symbol then
+      result_vec = result_for(symbol_or_string)
+      timvec = self.timevec[index_range]
+      timevec.each_with_index do |time, i|
+        logger.info("#{symbol} #{time.to_formatted_s(:ymd)}: #{format('%2.2f', result_vec[i])}")
+      end
+    when String then logger.info("#{symbol}: #{symbol_or_string}")
     end
   end
 

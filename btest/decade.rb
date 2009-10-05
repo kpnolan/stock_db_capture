@@ -58,7 +58,8 @@ populations do
       scan_name = "year_#{year}".to_sym
       end_date = start_date + 1.year - 1.day
       desc "Population of all stocks with a minimum valume of 100000 in #{start_date.year}"
-      scan scan_name, :start_date =>  start_date, :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
+      scan scan_name, :start_date =>  start_date, :end_date => end_date,
+                      :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
       scan_vec << scan_name
     end
   end

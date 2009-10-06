@@ -1,7 +1,7 @@
 # MySql Version
 development:
   adapter: mysql
-  database: active_trader_production
+  database: active_trader_development
   encoding: utf8
   username: kevin
   password: Troika3.

@@ -41,7 +41,7 @@ module LoadBars
   end
 
   def tickers_with_bad_symbols
-    sql = "select symbol,min(date),max(date) from daily_closes left outer join tickers on ticker_id = tickers.id where symbol regexp '^[A-Z]*-P[A-Z]+$' group by ticker_id order by symbol"
+    sql = "select symbol,min(date),max(date) from daily_bars left outer join tickers on ticker_id = tickers.id where symbol regexp '^[A-Z]*-P[A-Z]+$' group by ticker_id order by symbol"
     DailyClose.connection.select_rows(sql)
   end
 

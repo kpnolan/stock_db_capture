@@ -174,23 +174,25 @@ module TradingCalendar
   # Convert an Array of Time/Dates to an Array of Ranges of consecutive trading days
   #
   def to_ranges(date_or_time_array)
-    array = date_or_time_array.compact.uniq.sort
-    ranges = []
-    if !array.empty?
-      # Initialize the left and right endpoints of the range
-      left, right = array.first, nil
+    array = date_or_time_array.compact.sort.uniq
+    return [] if array.empty?
+    returning [] do |ranges|
+      left, right = array.shift, nil
       array.each do |obj|
-        # If the right endpoint is set and obj is not equal to right's successor
-        # then we need to create a range.
-        if right && obj != trading_date_from(right, 1)
-          ranges << Range.new(left,right)
-          left = obj
+        case
+        when right && obj == trading_date_from(right, 1) : right = obj
+        when right && left != right : ranges << Range.new(left, right); left = right = obj;
+        else
+          ranges << left; left = right = obj
         end
-        right = obj
       end
-      ranges << Range.new(left,right)
+      if right && left != right
+        ranges << Range.new(left, right)
+      else
+        ranges << left
+      end
+      ranges
     end
-    ranges
   end
   #
   # return the zero-based index of the time given the period in minutes of

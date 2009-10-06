@@ -1,20 +1,19 @@
 # == Schema Information
-# Schema version: 20090906181342
+# Schema version: 20090924181907
 #
-# Table name: trigger_strategies
+# Table name: entry_triggers
 #
 #  id          :integer(4)      not null, primary key
 #  name        :string(255)
 #  params      :string(255)
 #  description :string(255)
-#  created_at  :datetime
-#  updated_at  :datetime
 #
 
-class TriggerStrategy < ActiveRecord::Base
+require 'yaml'
 
-  has_many :positions, :dependent => :destroy
-  has_and_belongs_to_many :scans
+class EntryTrigger < ActiveRecord::Base
+
+  has_many :positions, :dependent => :nullify
 
   validates_presence_of :name
   validates_uniqueness_of :name
@@ -22,7 +21,6 @@ class TriggerStrategy < ActiveRecord::Base
   before_save :clear_associations_if_dirty
 
   def clear_associations_if_dirty
-    scans.clear if changed?
     positions.clear if changed?
   end
 
@@ -46,5 +44,4 @@ class TriggerStrategy < ActiveRecord::Base
     end
   end
 end
-
 

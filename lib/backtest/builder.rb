@@ -19,8 +19,13 @@ module Backtest
       @backtests = []
     end
 
-    def using(trigger_strategy_name, entry_strategy_name, exit_strategy_name, scan_name, &block)
-      @backtests << Backtester.new(trigger_strategy_name, entry_strategy_name, exit_strategy_name, scan_name, description, options, &block)
+    def using(entry_trigger_name, entry_strategy_name, exit_trigger_name, exit_strategy_name, scan_name, &block)
+      @backtests << Backtester.new(entry_trigger_name,
+                                   entry_strategy_name,
+                                   exit_trigger_name,
+                                   exit_strategy_name,
+                                   scan_name,
+                                   description, options, &block)
     end
 
     def desc(string)
@@ -28,13 +33,17 @@ module Backtest
     end
 
     def run(logger)
+      startt = Time.now
       backtests.each do |backtest|
-        #begin
+        begin
           backtest.run(logger)
-        #rescue Exception => e
-        #  logger.error("FATAL error: #{e.to_s}")
-        #end
+        rescue Exception => e
+          logger.error("FATAL error: #{e.to_s}")
+        end
       end
+      endt = Time.now
+      delta = endt - startt
+      logger.info "#{backtests.length} Backtests run -- elapsed time: #{Backtester.format_et(delta)}"
     end
   end
 end

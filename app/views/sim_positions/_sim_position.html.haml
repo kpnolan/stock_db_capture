@@ -1,0 +1,31 @@
+%tr[sim_position]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.entry_date
+    = h sim_position.entry_date
+  %td.exit_date
+    = h sim_position.exit_date
+  %td.quantity
+    = h sim_position.quantity
+  %td.entry_price
+    = h sim_position.entry_price
+  %td.exit_price
+    = h sim_position.exit_price
+  %td.nreturn
+    = h sim_position.nreturn
+  %td.roi
+    = h sim_position.roi
+  %td.days_held
+    = h sim_position.days_held
+  %td.eorder_id
+    = lkup sim_position.eorder
+  %td.xorder_id
+    = lkup sim_position.xorder
+  %td.ticker_id
+    = lkup sim_position.ticker
+  %td.position_id
+    = lkup sim_position.position
+  %td.show
+    = link_to 'Show', object_path(sim_position)
+  %td.edit
+    = link_to 'Edit', edit_object_path(sim_position)
+  %td.destroy
+    = link_to 'Destroy', object_path(sim_position), :confirm => 'Really destroy sim_position?', :method => :delete

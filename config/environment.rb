@@ -83,6 +83,8 @@ require 'timeseries'
 require 'excel_simulation_dumper'
 require 'ruby-debug'
 
+require 'interpolate'
+include Interpolate
 #
 # Monkey patched convenience method to convert a string in date fmt to a local time
 #
@@ -95,6 +97,7 @@ require 'ruby-debug'
 ETZ = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
 extend TradingCalendar
 include ExcelSimulationDumper
+
 
 # ARGV is empty when launching from script/console and script/server (and presumabily passenger) AND
 # ARGV[0] contains the name of the rake task otherwise. Since, at this point, we don't have any rake

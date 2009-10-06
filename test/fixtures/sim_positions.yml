@@ -1,0 +1,48 @@
+# == Schema Information
+# Schema version: 20090924181907
+#
+# Table name: sim_positions
+#
+#  id          :integer(4)      not null, primary key
+#  entry_date  :datetime
+#  exit_date   :datetime
+#  quantity    :integer(4)
+#  entry_price :float
+#  exit_price  :float
+#  nreturn     :float
+#  roi         :float
+#  days_held   :integer(4)
+#  eorder_id   :integer(4)
+#  xorder_id   :integer(4)
+#  ticker_id   :integer(4)
+#  position_id :integer(4)
+#
+
+one:
+  id: 1
+  entry_date: 2009-09-24 11:02:06
+  exit_date: 2009-09-24 11:02:06
+  quantity: 1
+  entry_price: 1.5
+  exit_price: 1.5
+  nreturn: 1.5
+  roi: 1.5
+  days_held: 1
+  eorder_id: 1
+  xorder_id: 1
+  ticker_id: 
+  position_id: 1
+two:
+  id: 2
+  entry_date: 2009-09-24 11:02:06
+  exit_date: 2009-09-24 11:02:06
+  quantity: 1
+  entry_price: 1.5
+  exit_price: 1.5
+  nreturn: 1.5
+  roi: 1.5
+  days_held: 1
+  eorder_id: 1
+  xorder_id: 1
+  ticker_id: 
+  position_id: 1

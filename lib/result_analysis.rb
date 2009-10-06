@@ -14,7 +14,12 @@ module ResultAnalysis
 
   VALID_OPS = [:gt, :lt, :ge, :le, :eq]
 
-  attr_accessor :mode                                         # this will be used to optimize the where into first or something
+  attr_accessor :mode              # this will be used to optimize the where into first or something
+
+  def monotonic_sequence(max, vec)
+    index = vec.find_index { |n| n < max || (max = n) && false }
+    index.nil? ? :max : index + outidx
+  end
 
   def over_threshold(threshold, vec)
     unless (indexes = threshold_crossing(threshold, vec, :gt)).nil?

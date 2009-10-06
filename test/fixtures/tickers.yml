@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090906181342
+# Schema version: 20090924181907
 #
 # Table name: tickers
 #

@@ -1,0 +1,11 @@
+%h1 Listing splits
+%table
+  %tr.heading
+    %th Ticker
+    %th Date
+    %th From
+    %th To
+
+  = render :partial => 'splits', :collection => current_objects
+
+= link_to 'New splits', new_object_path 

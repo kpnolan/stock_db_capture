@@ -5,3 +5,4 @@ class TimeseriesException < Exception
     super
   end
 end
+

@@ -649,7 +649,7 @@ if $0 == __FILE__
   $options.helpMsg = nil
   $options.symbol = nil
   $options.quote_class = YahooFinance::StandardQuote
-  $options.historical_days = 90
+  $options.historical_days = 1
   $options.historical_type
 
   CLIOpts.parse( ARGV, $options )

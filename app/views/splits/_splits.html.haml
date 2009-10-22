@@ -1,0 +1,15 @@
+%tr[splits]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.ticker_id
+    = lkup splits.ticker
+  %td.date
+    = h splits.date
+  %td.from
+    = h splits.from
+  %td.to
+    = h splits.to
+  %td.show
+    = link_to 'Show', object_path(splits)
+  %td.edit
+    = link_to 'Edit', edit_object_path(splits)
+  %td.destroy
+    = link_to 'Destroy', object_path(splits), :confirm => 'Really destroy splits?', :method => :delete

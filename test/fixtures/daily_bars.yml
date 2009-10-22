@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090924181907
+# Schema version: 20091016185148
 #
 # Table name: daily_bars
 #
@@ -12,6 +12,9 @@
 #  logr      :float
 #  low       :float
 #  bartime   :datetime
+#  adj_close :float
+#  bardate   :date
+#  source    :string(1)
 #
 
 one:

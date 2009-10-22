@@ -1,3 +1,39 @@
+# == Schema Information
+# Schema version: 20091016185148
+#
+# Table name: btest_positions
+#
+#  id                :integer(4)      not null, primary key
+#  ticker_id         :integer(4)
+#  ettime            :datetime
+#  etprice           :float
+#  etival            :float
+#  xttime            :datetime
+#  xtprice           :float
+#  xtival            :float
+#  entry_date        :datetime
+#  entry_price       :float
+#  entry_ival        :float
+#  exit_date         :datetime
+#  exit_price        :float
+#  exit_ival         :float
+#  days_held         :integer(4)
+#  nreturn           :float
+#  logr              :float
+#  short             :boolean(1)
+#  closed            :boolean(1)
+#  entry_pass        :integer(4)
+#  roi               :float
+#  num_shares        :integer(4)
+#  etind_id          :integer(4)
+#  xtind_id          :integer(4)
+#  entry_trigger_id  :integer(4)
+#  entry_strategy_id :integer(4)
+#  exit_trigger_id   :integer(4)
+#  exit_strategy_id  :integer(4)
+#  scan_id           :integer(4)
+#
+
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
 
 one:

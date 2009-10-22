@@ -82,9 +82,8 @@ require 'convert_talib_meta_info'
 require 'timeseries'
 require 'excel_simulation_dumper'
 require 'ruby-debug'
+require 'yahoo_finance/split_parser'
 
-require 'interpolate'
-include Interpolate
 #
 # Monkey patched convenience method to convert a string in date fmt to a local time
 #
@@ -115,13 +114,13 @@ include ExcelSimulationDumper
 
 #ts(:ibm, '1/1/2009'.to_date..'7/1/2009'.to_date, 1.day, :populate => true)
 
-  #$sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
+#$sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
   #$qt = $sw.qt
 
   def lookup(symbol, start_date, end_date=nil, options={})
     options.reverse_merge! :interval => 1.day.seconds
     begin
-      $qs ||= TdAmeritrade::QuoteServer.new
+      $qs ||= GoogleFinance::QuoteServer.new
       start_date = start_date.is_a?(Date) ? start_date : Date.parse(start_date)
       end_date = end_date.nil? ? start_date : end_date.is_a?(Date) ? end_date : Date.parse(end_date)
       if options[:interval] == 1.day.seconds

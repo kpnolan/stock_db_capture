@@ -9,6 +9,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'date'
+require 'missing_bar_exception'
 
 class Time
   def bod?; hour == 6 && min == 30;end
@@ -20,20 +21,28 @@ class Timeseries
 
   class TimeMap
 
-    attr_reader :first_index, :last_index,  :begin_time, :end_time, :timevec
+    attr_reader :options, :first_index, :last_index,  :begin_time, :end_time, :timevec, :missing_ranges
 
     extend TradingCalendar
 
     def initialize(begin_time, end_time, timevec, options={ })
-      @options = options.reverse_merge :missing_bar_proc => lambda { |mbar_sec_ary| report_missing_bars(mbar_sec_ary) }
+      @options = options.reverse_merge :missing_bar_error => :report
       @begin_time = begin_time
       @end_time = end_time
       @first_index = TimeMap.time2index(begin_time)
       @last_index = TimeMap.time2index(end_time, -1)
       @timevec = timevec
+      @missing_ranges = []
       raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless !timevec.empty? && timevec.first.acts_like_time?
       missing_bar_proc = @options[:missing_bar_proc]
-      missing_bar_proc.call(missing_bars()) if timevec.length <  last_index - first_index + 1
+      if timevec.length <  last_index - first_index + 1
+        case options[:missing_bar_error]
+        when :report then report_missing_bars(missing_bars())
+        when :ignore then save_ranges(missing_bars())
+        else
+          raise ArgumentError, ':missing_bar_error can be :report or :ignore'
+        end
+      end
     end
 
     def index2time(index)
@@ -48,9 +57,16 @@ class Timeseries
       abs_index - first_index
     end
 
+    def save_ranges(mbs)
+      ranges = TimeMap.to_ranges(mbs)
+      @missing_ranges = ranges.map do |time_or_range|
+        time_or_range.is_a?(Time) ? time_or_range..time_or_range : time_or_range
+      end
+    end
+
     def report_missing_bars(mbs)
       ranges = TimeMap.to_ranges(mbs)
-      raise TimeseriesException, "Missing bars from #{ranges.map{ |r| pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
+      raise MissingBarException, "Missing bars from #{ranges.map{ |r| TimeMpa.pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
     end
 
     def missing_bars()
@@ -63,7 +79,7 @@ class Timeseries
       (first_index..last_index).to_a.map { |index| TimeMap.index2time(index).to_i }
     end
 
-    def pretty_range(range)
+    def TimeMap.pretty_range(range)
       case range
         when Range then
         begin_str = range.begin.to_formatted_s(:ymd)
@@ -102,7 +118,7 @@ class Timeseries
   attr_reader :expected_bar_count, :logger
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
-    @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false
+    @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false, :missing_bar_error => :report
     initialize_state()
     @ticker_id = Ticker.resolve_id(symbol_or_id)
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
@@ -254,6 +270,14 @@ class Timeseries
   end
 
   #
+  # Return and array of ranges for the misssing bars in the timesers
+  #
+  def missing_ranges()
+    return [] if @time_map.nil?
+    @time_map.missing_ranges()
+  end
+
+  #
   # Clears the objects retaining the results of prior TA calles
   #
   def clear_results
@@ -313,6 +337,7 @@ class Timeseries
   # Compute the calendar date to be given to the DB to grab the selected data range plus any pre-buffering
   #
   def offset_date(ref_date, offset)
+    return ref_date if offset.zero?
     trading_day_count = ((1.day / bars_per_day ) * offset) /1.day
     new_date = Timeseries.trading_date_from(ref_date, trading_day_count)
     return new_date if new_date.is_a? Date
@@ -328,12 +353,35 @@ class Timeseries
     compute_timestamps(begin_time, end_time)
   end
 
+  #
+  # Maps the start and end dates to indexes gotten from the timevec map
+  #
   def map_local_range()
     @begin_index = time2index(local_range.begin)
     @end_index = time2index(local_range.end, -1)  # FIXME this gives an unreachable index causing Exceptions down the line...
     @index_range = begin_index..end_index
   end
-
+  #
+  # reset the date range for this timeseries, fetching more data if necessary
+  #
+  def reset_date_range(start_date, end_date)
+    if start_date.is_a?(Date) && end_date.is_a?(Date)
+        @local_range = start_date.to_time.change(:hour => 6, :min => 30)..end_date.to_time.change(:hour => 6, :min => 30)
+    elsif local_range.begin.acts_like_time? && local_range.end.acts_like_time?
+      @local_range = start_date...end_date
+    else
+      raise ArgumentError, "args must either be dates or times"
+    end
+    saved_begin_time, saved_end_time = begin_time, end_time
+    calculate_fill_indexes(pre_offset)
+    if begin_time < saved_begin_time or end_time > saved_end_time
+      logger.info "reloading Timeseries #{symbol} #{begin_time.to_formatted_s(:ymd)} < #{saved_begin_time.to_formatted_s(:ymd)} OR "+
+                  "#{end_time.to_formatted_s(:ymd)} > #{saved_end_time.to_formatted_s(:ymd)}"
+      raw_populate()
+    else
+      map_local_range()
+    end
+  end
   #
   # Expand or contact the indexes based upon the requirements of any technical indicator
   # using this timeseries
@@ -341,8 +389,8 @@ class Timeseries
   def calculate_fill_indexes(pre_buffer)
     @pre_offset = pre_buffer.nil? ? options[:pre_buffer] : pre_buffer
     @post_offset = options[:post_buffer]
-    @begin_time = pre_offset.zero? ? local_range.begin : offset_date(local_range.begin, -pre_offset)
-    @end_time = post_offset.zero? ? local_range.end : offset_date(local_range.end, post_offset)
+    @begin_time = offset_date(local_range.begin, -pre_offset)
+    @end_time = offset_date(local_range.end, post_offset)
     if @end_time > Date.today
       ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => ticker_id } )
       @end_time = ticker_max.localtime
@@ -381,7 +429,7 @@ class Timeseries
     raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
       "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
     # We should only get here if we are not accessing DailyBars, otherwise that would have been caught earlier
-    raise TimeseriesException, "Missing #{missing_bar_count} bars for #{symbol}" if missing_bar_count > 0
+    raise TimeseriesException, "Missing #{missing_bar_count} bars for #{symbol}" if missing_bar_count > 0 unless options[:missing_bar_error] == :ignore
 
     if stride > 1
       new_hash = { }
@@ -428,9 +476,7 @@ class Timeseries
     @timevec = value_hash[:bartime]
     if model == DailyBar
       begin
-        mb_proc = @options.delete :missing_bar_proc
-        options = mb_proc.nil? ? { } : { :missing_bar_proc => mb_proc }
-        @time_map = TimeMap.new(begin_time, end_time, timevec, options)
+        @time_map = TimeMap.new(begin_time, end_time, timevec, :missing_bar_error => options[:missing_bar_error])
       rescue TimeseriesException => e
         raise TimeseriesException, "#{e.message} for #{symbol}"
       end

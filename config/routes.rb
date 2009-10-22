@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :splits
+
   map.resources :sim_positions
 
   map.resources :orders

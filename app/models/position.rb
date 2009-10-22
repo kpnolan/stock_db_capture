@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090924181907
+# Schema version: 20091016185148
 #
 # Table name: positions
 #
@@ -46,7 +46,6 @@ class Position < ActiveRecord::Base
   belongs_to :scan
   belongs_to :etind, :class_name => 'Indicator'
   belongs_to :xtind, :class_name => 'Indicator'
-
   has_many :position_series, :dependent => :delete_all
 
   extend TradingCalendar
@@ -121,6 +120,11 @@ class Position < ActiveRecord::Base
                                   :days_held => days_held, :nreturn => nreturn, :logr => logr,
                                   :closed => closed)
       position
+    end
+
+    def persist()
+      Position.connection.execute('drop table if exits btest_positions')
+      Position.connection.execute('create table if not exist btest_positions select * from positions where closed = 1')
     end
   end
 end

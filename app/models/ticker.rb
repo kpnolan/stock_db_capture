@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090924181907
+# Schema version: 20091016185148
 #
 # Table name: tickers
 #
@@ -21,6 +21,7 @@ class Ticker < ActiveRecord::Base
   has_many :daily_bars,         :dependent => :protect
   has_many :intrday_bars,       :dependent => :protect
   has_many :positions,          :dependent => :protect
+  has_many :splits,             :dependent => :protect
 
   validates_presence_of :symbol
 
@@ -64,6 +65,8 @@ class Ticker < ActiveRecord::Base
         nil
       end
     end
+
+
 
     def lookup(symbol)
       ticker = find(:first, :conditions => { :symbol => symbol.to_s.upcase })

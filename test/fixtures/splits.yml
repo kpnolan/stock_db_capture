@@ -1,0 +1,24 @@
+# == Schema Information
+# Schema version: 20091016185148
+#
+# Table name: splits
+#
+#  id        :integer(4)      not null, primary key
+#  ticker_id :integer(4)
+#  date      :date
+#  from      :integer(4)
+#  to        :integer(4)
+#
+
+one:
+  id: 1
+  ticker_id: 1
+  date: 2009-10-16
+  from: 1
+  to: 1
+two:
+  id: 2
+  ticker_id: 1
+  date: 2009-10-16
+  from: 1
+  to: 1

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090924181907
+# Schema version: 20091016185148
 #
 # Table name: daily_bars
 #
@@ -12,6 +12,9 @@
 #  logr      :float
 #  low       :float
 #  bartime   :datetime
+#  adj_close :float
+#  bardate   :date
+#  source    :string(1)
 #
 
 require 'date'
@@ -48,6 +51,7 @@ class DailyBar < ActiveRecord::Base
       end_date = end_date.class == String ? Date.parse(end_date) : end_date
       @@qs ||= TdAmeritrade::QuoteServer.new()
       bars = @@qs.dailys_for(symbol, start_date, end_date)
+      #puts "#{symbol} #{bars.length} bars"
       bars.each { |bar| create_bar(symbol, bar) }
     end
 
@@ -58,10 +62,11 @@ class DailyBar < ActiveRecord::Base
       attrs[:ticker_id] = ticker_id
       attrs[:volume] = attrs[:volume].to_i
       attrs[:bartime] = attrs[:bartime].change(:hour => 6, :min => 30)
+      attrs[:bardate] = bartime.to_date
       begin
         create! attrs
       rescue Exception => e
-        puts "#{attrs[:date]}:#{e.to_s}"
+        puts "#{symbol} #{attrs[:bartime]}:#{e.to_s}"
       end
     end
 

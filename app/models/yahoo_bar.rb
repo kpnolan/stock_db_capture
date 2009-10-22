@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20090924181907
+# Schema version: 20091016185148
 #
 # Table name: yahoo_bars
 #
@@ -12,13 +12,15 @@
 #  logr      :float
 #  low       :float
 #  bartime   :datetime
+#  adj_close :float
+#  bardate   :date
 #
 
 require 'date'
 
 class YahooBar < ActiveRecord::Base
 
-  # this is the order of the data fields returned from TDAmeritrade for a PriceHistory request
+  # this is the order of the data fields returned from TDAmeritrade for a Yahoo request
   COLUMN_ORDER = [ :opening, :high, :low, :close, :volume, :adj_close ]
 
   belongs_to :ticker
@@ -50,17 +52,15 @@ class YahooBar < ActiveRecord::Base
       bars.each { |bar| create_bar(symbol, bar) }
     end
 
-    def create_bar(symbol, bar_ary)
+    def create_bar(symbol, ticker_id, bar_ary)
       bar = bar_ary.dup
-      ticker_id = Ticker.find_by_symbol(symbol).id
       datestr = bar.shift
       attrs = COLUMN_ORDER.inject({}) { |h, col| h[col] = bar.shift.to_f; h }
       date = Date.parse(datestr)
       bartime = date.to_time.localtime.change(:hour => 6, :min => 30)
       attrs[:bartime] = bartime
-      attrs[:volume] = attrs[:volume].to_i
+      attrs[:bardate] = bartime.to_date
       attrs[:ticker_id] = ticker_id
-      attrs[:volume] = attrs[:volume].to_i
       begin
         create! attrs
       rescue Exception => e

@@ -44,7 +44,7 @@ LIBRUBYARG_SHARED = -Wl,-R -Wl,$(libdir) -L$(libdir)
 LIBRUBYARG_STATIC = -l$(RUBY_SO_NAME)-static
 
 RUBY_EXTCONF_H = 
-CFLAGS   =  -fPIC -mtune=native -march=native -O3 -pipe $(cflags) 
+CFLAGS   =  -fPIC -march=amdfam10 -mtune=amdfam10 -pipe $(cflags) 
 INCFLAGS = -I. -I. -I/usr/local/lib/ruby/1.8/x86_64-linux -I. -I../include
 DEFS     = 
 CPPFLAGS =  -I/usr/local/include/ta-lib   

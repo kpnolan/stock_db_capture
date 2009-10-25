@@ -9,7 +9,6 @@
 #  close     :float
 #  high      :float
 #  volume    :integer(4)
-#  logr      :float
 #  low       :float
 #  bartime   :datetime
 #  adj_close :float

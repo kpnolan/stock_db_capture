@@ -9,7 +9,6 @@
 #  close     :float
 #  high      :float
 #  volume    :integer(4)
-#  logr      :float
 #  low       :float
 #  bartime   :datetime
 #  adj_close :float
@@ -26,6 +25,7 @@ class YahooBar < ActiveRecord::Base
   belongs_to :ticker
 
   extend TableExtract
+  extend BarUtils
 
   def symbol=(value) ;  end
   def last_trade_date=(value) ;  end
@@ -37,19 +37,20 @@ class YahooBar < ActiveRecord::Base
     def time_convert ; 'to_time' ;  end
     def time_class ; Time ;  end
     def time_res; 1.day; end
+    def source_id; 'Y'; end
 
     def find_loss(ticker_id, entry_date, exit_date, ratio)
       sql = "select date(bartime), high, low from yahoo_bars where date between '#{entry_date.to_s(:db)}' and '#{exit_date.to_s(:db)}' "+
-            "and ticker_id = #{ticker_id} group by date having ((high - low) / high) > #{ratio} order by bartime"
+        "and ticker_id = #{ticker_id} group by date having ((high - low) / high) > #{ratio} order by bartime"
       rows = connection.select_rows(sql)
     end
 
-    def load_history(symbol, start_date, end_date)
-      start_date = start_date.class == String ? Date.parse(start_date) : start_date
-      end_date = end_date.class == String ? Date.parse(end_date) : end_date
-      @@qs ||= YahooFinance::QuoteServer.new()
-      bars = @@qs.dailys_for(symbol, start_date, end_date)
-      bars.each { |bar| create_bar(symbol, bar) }
+    def update(logger)
+      update_bars(logger, YahooFinance::QuoteServer.new(:logger => logger), self.to_s.tableize)
+    end
+
+    def load(logger)
+      load_bars(logger, YahooFinance::QuoteServer.new(:logger => logger), self.to_s.tableize)
     end
 
     def create_bar(symbol, ticker_id, bar_ary)

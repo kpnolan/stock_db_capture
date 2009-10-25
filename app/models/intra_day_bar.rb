@@ -23,6 +23,7 @@ class IntraDayBar < ActiveRecord::Base
 
   belongs_to :ticker
 
+  extend BarUtils
   extend TradingCalendar
   extend TableExtract
   extend Plot
@@ -37,9 +38,36 @@ class IntraDayBar < ActiveRecord::Base
     def time_class ; Time ;  end
     def time_res; 30.minutes; end
 
-    def load_tda_history(symbol, start_date, end_date, resolution=30)
-      start_date = start_date.class == String ? Date.parse(start_date) : start_date
-      end_date = end_date.class == String ? Date.parse(end_date) : end_date
+    def update(logger)
+      end_date = latest_date()
+      tuples = tickers_with_lagging_intraday(end_date)
+      count = 1
+      chunk = Splitter.new(tuples)
+      for tuple in chunk
+        symbol, max_date = tuple
+        max_date = max_date.to_date
+        td = trading_day_count(max_date, end_date)
+        next if td.zero?
+        start_date = max_date + 1.day
+        begin
+          logger.info "(#{chunk.id}) updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{chunk.length}"
+          load_symbol(symbol, start_date, end_date)
+        rescue Net::HTTPServerException => e
+          if e.to_s.split.first == '400'
+            ticker = Ticker.find_by_symbol(symbol)
+            ticker.increment! :retry_count if ticker
+            ticker.toggle! :active if ticker.retry_count == 12
+          end
+        rescue ActiveRecord::StatementInvalid => e
+          logger.error("Duplicate symbol/time #{symbol} skipping...")
+        rescue Exception => e
+          logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
+        end
+        count += 1
+      end
+    end
+
+    def load_symbol(symbol, start_date, end_date, resolution=30)
       @@qs ||= TdAmeritrade::QuoteServer.new()
       @period = resolution
       @accum_volume = 0
@@ -57,14 +85,15 @@ class IntraDayBar < ActiveRecord::Base
       attrs[:ticker_id] = ticker_id
       attrs[:volume] = attrs[:volume].to_i * 100
       attrs[:period] = @period
+      attrs[:bardate] = attrs[:bartime].to_date
 
-      if attrs[:bartime].to_date == @last_date
+      if attrs[:bardate] == @last_date
         @accum_volume += attrs[:volume]
         attrs[:delta] = attrs[:close] - @last_close
         attrs[:accum_volume] = @accum_volume
       else
         @seq = 0
-        @last_date= attrs[:bartime].to_date
+        @last_date= attrs[:bardate]
         @last_close = prior_close(ticker_id, @last_date)
         @accum_volume = attrs[:volume]
         attrs[:accum_volume] = @accum_volume
@@ -88,7 +117,7 @@ class IntraDayBar < ActiveRecord::Base
 
     def prior_close(ticker_id, cur_date)
       last_daily_bar_date = trading_date_from(cur_date, -1)
-      dc = DailyBar.find(:first, :conditions => [ 'ticker_id = ? AND date(bartime) = ?', ticker_id, last_daily_bar_date])
+      dc = DailyBar.find(:first, :conditions => [ 'ticker_id = ? AND bardate = ?', ticker_id, last_daily_bar_date])
       dc.nil? ? nil : dc.close
     end
   end

@@ -9,7 +9,6 @@
 #  close     :float
 #  high      :float
 #  volume    :integer(4)
-#  logr      :float
 #  low       :float
 #  bartime   :datetime
 #  adj_close :float
@@ -26,6 +25,8 @@ class DailyBar < ActiveRecord::Base
 
   belongs_to :ticker
 
+  extend TradingCalendar
+  extend BarUtils
   extend TableExtract
   extend Plot
 
@@ -46,12 +47,67 @@ class DailyBar < ActiveRecord::Base
       rows = connection.select_rows(sql)
     end
 
+    def load(logger)
+      ticker_ids = tickers_with_no_history('daily_bars')
+      max = ticker_ids.length
+      start_date = Date.civil(1999, 1, 1)
+      end_date = latest_date()
+      chunk = Splitter.new(ticker_ids)
+      count = 0
+      for ticker_id in chunk do
+        ticker = Ticker.find(ticker_id)
+        symbol = ticker.symbol
+        next if symbol.nil?
+        begin
+          logger.info "(#{chunk.id}) loading #{symbol}\t#{count} of #{chunk.length}"
+          load_tda_history(symbol, start_date, end_date)
+        rescue Net::HTTPServerException => e
+          if e.to_s.split.first == '400'
+            logger.info "No data found for #{symbol}"
+            ticker.increment! :retry_count if ticker
+            ticker.toggle! :active if ticker.retry_count == 12
+          end
+        rescue Exception => e
+          logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
+        end
+        count += 1
+      end
+    end
+
+    def update_partial(logger, tuples)
+      count = 1
+      end_date = latest_date()
+      chunk = Splitter.new(tuples)
+      for tuple in chunk
+        symbol, max_date = tuple
+        max_date = max_date.to_date
+        td = trading_day_count(max_date, end_date)
+        next if td.zero?
+        start_date = max_date + 1.day
+        begin
+          logger.info "(#{chunk.id}) loading #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{chunk.length}"
+          load_tda_history(symbol, start_date, end_date)
+        rescue Net::HTTPServerException => e
+          if e.to_s.split.first == '400'
+            ticker = Ticker.find_by_symbol(symbol)
+            ticker.increment! :retry_count if ticker
+            ticker.toggle! :active if ticker.retry_count == 12
+          end
+        rescue Exception => e
+          logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
+        end
+        count += 1
+      end
+    end
+
+    def update(logger)
+      tuples = tickers_with_lagging_history(self.to_s.tableize)
+      update_partial(logger, tuples)
+    end
+
     def load_tda_history(symbol, start_date, end_date)
-      start_date = start_date.class == String ? Date.parse(start_date) : start_date
-      end_date = end_date.class == String ? Date.parse(end_date) : end_date
       @@qs ||= TdAmeritrade::QuoteServer.new()
       bars = @@qs.dailys_for(symbol, start_date, end_date)
-      #puts "#{symbol} #{bars.length} bars"
       bars.each { |bar| create_bar(symbol, bar) }
     end
 
@@ -62,7 +118,7 @@ class DailyBar < ActiveRecord::Base
       attrs[:ticker_id] = ticker_id
       attrs[:volume] = attrs[:volume].to_i
       attrs[:bartime] = attrs[:bartime].change(:hour => 6, :min => 30)
-      attrs[:bardate] = bartime.to_date
+      attrs[:bardate] = attrs[:bartime].to_date
       begin
         create! attrs
       rescue Exception => e

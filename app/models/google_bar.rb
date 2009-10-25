@@ -9,7 +9,6 @@
 #  close     :float
 #  high      :float
 #  volume    :integer(4)
-#  logr      :float
 #  low       :float
 #  bartime   :datetime
 #  bardate   :date
@@ -25,6 +24,7 @@ class GoogleBar < ActiveRecord::Base
   belongs_to :ticker
 
   extend TableExtract
+  extend BarUtils
 
   def symbol=(value) ;  end
   def last_trade_date=(value) ;  end
@@ -36,13 +36,14 @@ class GoogleBar < ActiveRecord::Base
     def time_convert ; 'to_time' ;  end
     def time_class ; Time ;  end
     def time_res; 1.day; end
+    def source_id; 'G'; end
 
-    def load_history(symbol, start_date, end_date)
-      start_date = start_date.class == String ? Date.parse(start_date) : start_date
-      end_date = end_date.class == String ? Date.parse(end_date) : end_date
-      @@qs ||= GoogleFinance::QuoteServer.new()
-      bars = @@qs.dailys_for(symbol, start_date, end_date)
-      bars.each { |bar| create_bar(symbol, bar) }
+    def load(logger)
+      load_bars(logger, GoogleFinance::QuoteServer.new(:logger => logger), self.to_s.tableize)
+    end
+
+    def update(logger)
+      update_bars(logger, GoogleFinance::QuoteServer.new(), self.to_s.tableize)
     end
 
     def create_bar(symbol, ticker_id, bar_ary)

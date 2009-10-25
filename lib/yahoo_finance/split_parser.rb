@@ -4,21 +4,27 @@ require 'open-uri'
 module YahooFinance
   class SplitParser
 
-    attr_reader :symbol, :options, :re
+    attr_reader :symbol, :options, :re, :logger
 
     def initialize(symbol, options={})
       @symbol = symbol
       @options= options
+      @logger = options[:logger]
       @re = Regexp.new('\[(\d+):(\d+)\]')
     end
 
     def construct_url(symbol)
-      "http://finance.yahoo.com/q/bc?s=#{symbol}&t=my"
+      ("http://finance.yahoo.com/q/bc?s=#{symbol}&t=my")
     end
 
     def splits()
       url = construct_url(symbol.upcase)
-      doc = Nokogiri::HTML(open(url))
+      begin
+        doc = Nokogiri::HTML(open(url))
+      rescue Exception => e
+        logger.error("#{e.class}: #{e.to_s} on #{url}") if logger
+        retry unless url.include? ' '
+      end
       returning [] do |splits|
         doc.search("//table[@class='yfnc_datamodoutline1']//center/nobr").each do |node|
           puts "#{symbol} #{node.content}" if options[:debug]

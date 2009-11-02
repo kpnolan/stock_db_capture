@@ -33,6 +33,7 @@ class Timeseries
       @last_index = TimeMap.time2index(end_time, -1)
       @timevec = timevec
       @missing_ranges = []
+      breakpoint if timevec.nil?
       raise ArgumentError, "Time Vecotor is wrong type: #{timevec.first.class}, does not act like time" unless !timevec.empty? && timevec.first.acts_like_time?
       missing_bar_proc = @options[:missing_bar_proc]
       if timevec.length <  last_index - first_index + 1
@@ -66,7 +67,7 @@ class Timeseries
 
     def report_missing_bars(mbs)
       ranges = TimeMap.to_ranges(mbs)
-      raise MissingBarException, "Missing bars from #{ranges.map{ |r| TimeMpa.pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
+      raise MissingBarException, "Missing bars from #{ranges.map{ |r| TimeMap.pretty_range(r)}.join(', ')} (#{mbs.length} trading days)"
     end
 
     def missing_bars()
@@ -154,9 +155,8 @@ class Timeseries
     @logger = options[:logger]
     raise ArgumentError, "Stride offset with no stride makes no sense also stride_offset must be < stride" if stride && stride_offset >= stride
     self.options.reverse_merge!(DEFAULT_OPTIONS[model])
-    @pre_offset = -1
     remember_params(:none)
-    calc_indexes(nil) if self.options[:populate]
+    populate() if self.options[:populate]
   end
   #
   # return a string summarizing the contents of this Timeseries
@@ -362,9 +362,17 @@ class Timeseries
     @index_range = begin_index..end_index
   end
   #
+  # compute the local range w/o side-effects
+  #
+  def compute_local_range()
+    begin_index = time2index(local_range.begin)
+    end_index = time2index(local_range.end, -1)  # FIXME this gives an unreachable index causing Exceptions down the line...
+    begin_index..end_index
+  end
+  #
   # reset the date range for this timeseries, fetching more data if necessary
   #
-  def reset_date_range(start_date, end_date)
+  def reset_local_range(start_date, end_date)
     if start_date.is_a?(Date) && end_date.is_a?(Date)
         @local_range = start_date.to_time.change(:hour => 6, :min => 30)..end_date.to_time.change(:hour => 6, :min => 30)
     elsif local_range.begin.acts_like_time? && local_range.end.acts_like_time?
@@ -372,12 +380,11 @@ class Timeseries
     else
       raise ArgumentError, "args must either be dates or times"
     end
-    saved_begin_time, saved_end_time = begin_time, end_time
-    calculate_fill_indexes(pre_offset)
-    if begin_time < saved_begin_time or end_time > saved_end_time
-      logger.info "reloading Timeseries #{symbol} #{begin_time.to_formatted_s(:ymd)} < #{saved_begin_time.to_formatted_s(:ymd)} OR "+
-                  "#{end_time.to_formatted_s(:ymd)} > #{saved_end_time.to_formatted_s(:ymd)}"
-      raw_populate()
+    if local_range.begin < begin_time or local_range.end > end_time
+      logger.info "reloading Timeseries #{symbol} #{begin_time.to_formatted_s(:ymd)} < #{local_range.begin.to_formatted_s(:ymd)} OR "+
+                  "#{end_time.to_formatted_s(:ymd)} > #{local_range.end.to_formatted_s(:ymd)}"
+      populate(pre_buffer)
+      puts "repopulating timeseries on reset_local_range #{start_date}..#{end_date}"
     else
       map_local_range()
     end
@@ -404,12 +411,11 @@ class Timeseries
   #
   def populate(pre_offset=nil)
     if pre_offset.nil?
-      calculate_fill_indexes(nil)
+      calculate_fill_indexes(pre_offset)
       raw_populate()
     elsif pre_offset == @pre_offset           # Nothing need to change -- new data set bounded the same
       return self.index_range
     elsif pre_offset < @pre_offset
-      calculate_fill_indexes(pre_offset)
       map_local_range()
     else
       calculate_fill_indexes(pre_offset)
@@ -421,6 +427,7 @@ class Timeseries
   #
   def raw_populate()
     @value_hash = model.general_vectors(ticker_id, attrs, begin_time, end_time)
+    raise DelistedStockException(symbol) if @value_hash.empty?
     @populated = true
     push_bar(@last_bar) if @last_bar
     compute_timestamps(begin_time, end_time)
@@ -501,10 +508,14 @@ class Timeseries
   # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
 
   def calc_indexes(lookback_fcn=nil, *args)
-    pre_offset = params_changed?(lookback_fcn, *args) ? calc_prefetch(lookback_fcn, *args) : @pre_offset
+    pre_offset = calc_prefetch(lookback_fcn, *args)
+    #pre_offset = params_changed?(lookback_fcn, *args) ? calc_prefetch(lookback_fcn, *args) : @pre_offset
     index_range = populate(pre_offset)
     begin_index = index_range.begin
     @output_offset = begin_index >= (ms = Timeseries.minimal_samples(lookback_fcn, *args)) ? 0 : ms - begin_index
+    if @output_offset > 0
+      debugger
+    end
     raise ArgumentError, "Only subset of Date Range available for #{symbol}, pre-buffer at least #{@output_offset} more bars" if @output_offset > 0
     remember_params(lookback_fcn, *args)
     return index_range

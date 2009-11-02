@@ -19,6 +19,25 @@ get.histo <-
     h = hist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
   }
 
+get.histo2d.all <-
+  function(value1, value2, limit=20.0)
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    sql <- paste("select ", value1,",", value2, " from positions where entry_price < ", limit, sep="")
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    if ( nrow(x) == 0 ) {
+      cat("Returned data is empty. Check SQL\n")
+      return(FALSE);
+    }
+    main = paste("Histogram of", value1, "+", value2)
+    xlab = value1
+    ylab = value2
+    dbDisconnect(con)
+    h2d = hist2d(x[, value1], x[, value2], main=main, xlab=xlab)
+    x
+  }
+
 get.histo2d <-
   function(value1, value2, scan)
   {

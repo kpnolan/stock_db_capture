@@ -33,7 +33,7 @@ module Backtest
     end
 
     # Doing a shift reduces the amount of garbage because we lose one off a global list each iter
-    def run(logger)
+    def prun(logger)
       startt = Time.now
       pid_map = { }
       until backtests.empty?
@@ -52,7 +52,8 @@ module Backtest
                 raise e
               end
             rescue Exception => e
-              if e.to_s =~ /Lost connection/ || e.to_s =~ /away/
+              if e.to_s =~ /Lost connection/ || e.to_s =~ /away/ || e.to_s =~ /all_hashes/ || e.to_s =~ /missing attribute/ ||
+                  e.to_s =~ /case_insensitve/
                 ActiveRecord::Base.establish_connection
                 puts "re-establishing connection for #{backtest.scan_name}"
                 sleep(1)
@@ -71,6 +72,23 @@ module Backtest
       bad_status_ary = Process.waitall.find_all { |pair| pair.last.exit_status != 0 }
       puts bad_status_ary.inspect
 
+      endt = Time.now
+      delta = endt - startt
+      logger.info "#{backtests.length} Backtests run -- elapsed time: #{Backtester.format_et(delta)}"
+    end
+
+    def run(logger)
+      startt = Time.now
+      until backtests.empty?
+        unless (backtest = backtests.shift).nil?
+        #  begin
+            backtest.run(logger)
+        #  rescue Exception => e
+        #    puts "FATAL error: (#{backtest.scan_name}) #{e.class}: #{e.to_s}"
+        #    exit(1)
+        #  end
+        end
+      end
       endt = Time.now
       delta = endt - startt
       logger.info "#{backtests.length} Backtests run -- elapsed time: #{Backtester.format_et(delta)}"

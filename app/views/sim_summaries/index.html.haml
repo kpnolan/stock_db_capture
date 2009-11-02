@@ -1,0 +1,12 @@
+%h1 Listing sim_summaries
+%table
+  %tr.heading
+    %th Sim Date
+    %th Positions Held
+    %th Positions Available
+    %th Portfolio Value
+    %th Cash Balance
+
+  = render :partial => 'sim_summary', :collection => current_objects
+
+= link_to 'New sim_summary', new_object_path 

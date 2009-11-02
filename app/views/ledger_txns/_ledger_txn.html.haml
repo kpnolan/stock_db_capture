@@ -1,0 +1,17 @@
+%tr[ledger_txn]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.amount
+    = h ledger_txn.amount
+  %td.date
+    = h ledger_txn.date
+  %td.type
+    = h ledger_txn.type
+  %td.order_id
+    = lkup ledger_txn.order
+  %td.msg
+    = h ledger_txn.msg
+  %td.show
+    = link_to 'Show', object_path(ledger_txn)
+  %td.edit
+    = link_to 'Edit', edit_object_path(ledger_txn)
+  %td.destroy
+    = link_to 'Destroy', object_path(ledger_txn), :confirm => 'Really destroy ledger_txn?', :method => :delete

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: tickers
 #
@@ -13,6 +13,7 @@
 #  etf         :boolean(1)
 #  sector_id   :integer(4)
 #  industry_id :integer(4)
+#  delisted    :boolean(1)
 #
 
 class Ticker < ActiveRecord::Base

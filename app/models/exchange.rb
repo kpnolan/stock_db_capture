@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: exchanges
 #

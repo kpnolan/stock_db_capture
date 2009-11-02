@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: intra_day_bars
 #
@@ -15,6 +15,7 @@
 #  accum_volume :integer(4)
 #  delta        :float
 #  seq          :integer(4)
+#  bardate      :date
 #
 
 class IntraDayBar < ActiveRecord::Base
@@ -27,9 +28,6 @@ class IntraDayBar < ActiveRecord::Base
   extend TradingCalendar
   extend TableExtract
   extend Plot
-
-  def symbol=(value) ;  end
-  def last_trade_date=(value) ;  end
 
   class << self
 

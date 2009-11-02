@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: btest_positions
 #
@@ -75,6 +75,10 @@ class BtestPosition < ActiveRecord::Base
   end
 
   class << self
+
+    def entry_on(date)
+      find.all(:conditions => ['date(entry_date) = ?', date])
+    end
 
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
       begin

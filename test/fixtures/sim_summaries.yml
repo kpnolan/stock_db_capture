@@ -1,0 +1,27 @@
+# == Schema Information
+# Schema version: 20091029212126
+#
+# Table name: sim_summaries
+#
+#  id                  :integer(4)      not null, primary key
+#  sim_date            :date
+#  positions_held      :integer(4)
+#  positions_available :integer(4)
+#  portfolio_value     :float
+#  cash_balance        :float
+#
+
+one:
+  id: 1
+  sim_date: 2009-10-29
+  positions_held: 1
+  positions_available: 1
+  portfolio_value: 1.5
+  cash_balance: 1.5
+two:
+  id: 2
+  sim_date: 2009-10-29
+  positions_held: 1
+  positions_available: 1
+  portfolio_value: 1.5
+  cash_balance: 1.5

@@ -1,4 +1,8 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :sim_summaries
+
+  map.resources :ledger_txns
+
   map.resources :splits
 
   map.resources :sim_positions

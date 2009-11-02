@@ -1,24 +1,41 @@
 #!/usr/bin/env ./script/runner
 
+require 'optparse'
 require 'backtester'
 
 proc_count = 1
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage backtest [options] config_file"
+  options[:parallel] = false
 
-if ARGV.empty?
-   puts "Usage: ./script/backtest <backtest config file>"
-   exit()
+  opts.on('-p', '--[no-]-parallel', "Parallelize") do |p|
+    options[:parallel] = p
+  end
+  opts.on('-h', '--help', 'Display this screen') do
+    pus opts
+    exit
+  end
 end
+
+optparse.parse!
+puts 'Running in parallel' if options[:parallel]
+puts 'Running in sequentially' unless options[:parallel]
 
 require File.dirname(__FILE__) + "/../btest/#{ARGV[0]}.rb"
 
 logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{ARGV[0]}_backtest.log"))
 
 #begin
-  $backtester.run(logger)
+  $backtester.prun(logger) if options[:parallel]
+  $backtester.run(logger) unless options[:parallel]
 #rescue => e
 #  puts e.message
 #  raise BacktestException.new("Backtest cancelled because of previous errors")
 #end
+
+# Local Variables:
+# mode:ruby
+# End:
 
 
 

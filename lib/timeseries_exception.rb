@@ -6,3 +6,8 @@ class TimeseriesException < Exception
   end
 end
 
+class DelistedStockException < TimeseriesException
+  def initialize(symbol)
+    super(symbol+' has been delisted')
+  end
+end

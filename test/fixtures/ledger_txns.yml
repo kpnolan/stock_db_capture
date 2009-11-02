@@ -1,0 +1,28 @@
+# == Schema Information
+# Schema version: 20091029212126
+#
+# Table name: ledger_txns
+#
+#  id       :integer(4)      not null, primary key
+#  amount   :float
+#  date     :datetime
+#  txn_type :integer(4)
+#  order_id :integer(4)
+#  balance  :float
+#  msg      :string(255)
+#
+
+one:
+  id: 1
+  amount: 1.5
+  date: 2009-10-26 13:46:37
+  type: 1
+  order_id: 1
+  msg: MyString
+two:
+  id: 2
+  amount: 1.5
+  date: 2009-10-26 13:46:37
+  type: 1
+  order_id: 1
+  msg: MyString

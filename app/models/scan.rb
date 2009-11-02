@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: scans
 #
@@ -13,6 +13,7 @@
 #  table_name  :string(255)
 #  order_by    :string(255)
 #  prefetch    :integer(4)
+#  postfetch   :integer(4)
 #
 
 class Scan < ActiveRecord::Base
@@ -48,14 +49,19 @@ class Scan < ActiveRecord::Base
     prefetch.is_a?(Numeric) ? trading_date_from(start_date, -prefetch.to_i) : start_date
   end
 
+  def adjusted_end()
+    postfetch.is_a?(Numeric) ? trading_date_from(end_date, postfetch.to_i) : end_date
+  end
+
   # TODO find a better name for this method
   def tickers_ids(repopulate=false, logger=nil)
-    count = "count(*) = #{trading_day_count(adjusted_start, end_date)}"
+    count = "count(*) = #{trading_day_count(adjusted_start, adjusted_end)}"
     order = self.order_by ? " ORDER BY #{self.order_by}" : ''
     having = conditions ? "HAVING #{conditions} and #{count}" : "HAVING #{count}"
 
     sql = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +
-          "date(bartime) BETWEEN '#{adjusted_start.to_s(:db)}' AND '#{end_date.to_s(:db)}' " +
+          'delisted <> 1 AND ' +
+          "bardate BETWEEN '#{adjusted_start.to_s(:db)}' AND '#{adjusted_end.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
     if repopulate || tickers.empty?
       logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if logger

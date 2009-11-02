@@ -1,0 +1,11 @@
+%h1 Viewing Ledger Txn
+
+%fieldset
+  - smart_form_for(current_object, :readonly => true) do |f|
+    = render :partial => "form", :locals => {:f => f}
+
+= link_to 'Edit', edit_object_path
+|
+= link_to 'Destroy', object_path, :confirm => 'Really destroy ledger_txn?', :method => :delete
+|
+= link_to 'Back', objects_path

@@ -12,19 +12,25 @@ namespace :active_trader do
   desc "Update Intra Day Bars"
   task :update_intraday => :environment do
     logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_intraday.log'))
-    update_intraday_history(logger)
+    update_intraday(logger)
   end
 
-  desc "Update DailyBars"
+  desc "Load TDA"
+  task :load_TDA => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_TDA.log'))
+    load_TDA(logger)
+  end
+
+  desc "Update TDA"
   task :update_tda => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_history.log'))
-    update_daily_history(logger)
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_TDA.log'))
+    update_TDA(logger)
   end
 
-  desc "Load a decade's worth of daily bars"
-  task :load_dailys => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_dailys.log'))
-    load_all_dailys(logger)
+  desc "Mark Delisted TDA"
+  task :mark_delisted => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'detect_delisting.log'))
+    detect_delisted(logger)
   end
 
   #  desc "Load TDA Stocks"
@@ -32,6 +38,36 @@ namespace :active_trader do
   #    #@logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'tda_symbol_load.log'))
   #    load_tda_symbols()
   #  end
+
+  desc "Load Yahoo"
+  task :load_yahoo => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_yahoo.log'))
+    load_yahoo(logger)
+  end
+
+  desc "Update Yahoo"
+  task :update_yahoo => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_yahoo.log'))
+    update_yahoo(logger)
+  end
+
+  desc "Load Google"
+  task :load_google => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_google.log'))
+    load_google(logger)
+  end
+
+  desc "Update Google Dailys"
+  task :update_google => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_google.log'))
+    update_google(logger)
+  end
+
+  desc "Update Splits"
+  task :load_splits => :environment do
+    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'splits.log'))
+    load_splits(logger)
+  end
 
   desc "Backfill missing bars"
   task :backfill => :environment do
@@ -56,21 +92,8 @@ namespace :active_trader do
     Ticker.connection.execute('update tickers set locked = 0')
   end
 
-  desc "Update Yahoo"
-  task :update_yahoo => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'yahoo_bars.log'))
-    update_yahoo_history(logger)
-  end
-
-  desc "Update Google Dailys"
-  task :update_google => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'google_bars.log'))
-    load_google_history(logger)
-  end
-
-  desc "Update Splits"
-  task :load_splits => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'splits.log'))
-    load_splits(logger)
+  desc "Run Simulator"
+  task :simulate => :environment do
+    Sim::SystemMgr.run()
   end
 end

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: intra_day_bars
 #
@@ -15,6 +15,7 @@
 #  accum_volume :integer(4)
 #  delta        :float
 #  seq          :integer(4)
+#  bardate      :date
 #
 
 one:

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: daily_bars
 #
@@ -63,9 +63,8 @@ class DailyBar < ActiveRecord::Base
           load_tda_history(symbol, start_date, end_date)
         rescue Net::HTTPServerException => e
           if e.to_s.split.first == '400'
-            logger.info "No data found for #{symbol}"
-            ticker.increment! :retry_count if ticker
-            ticker.toggle! :active if ticker.retry_count == 12
+            logger.info "No data found for #{symbol} (#{e.to_s}) delisting..."
+            ticker.update_attribute(:delisted, true) if ticker
           end
         rescue Exception => e
           logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")

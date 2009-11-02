@@ -16,33 +16,19 @@ module LoadBars
     DailyBar.connection.execute(sql)
   end
 
-  def update_daily_history(logger)
-    DailyBar.update(logger)
-  end
+  def load_TDA(logger); DailyBar.load(logger);  end
+  def update_TDA(logger); DailyBar.update(logger);  end
+  def detect_delisted(logger); DailyBar.load(logger); end
 
-  def update_yahoo_history(logger)
-    YahooBar.update(logger)
-  end
+  def load_yahoo(logger); YahooBar.load(logger); end
+  def update_yahoo(logger); YahooBar.update(logger); end
 
-  def update_google_history(logger)
-    GoogleBar.update(logger)
-  end
+  def load_google(logger); GoogleBar.load(logger);  end
+  def update_google(logger); GoogleBar.update(logger); end
 
-  def update_intraday_history(logger)
-    IntraDayBar.update(logger)
-  end
+  def update_intraday(logger); IntraDayBar.update(logger); end
 
-  def load_splits(logger)
-    Split.load(logger)
-  end
-
-  def set_inactive_with_no_history
-    ids = tickers_with_no_history('daily_bars')
-    ids.each do |id|
-      ticker = Ticker.find id
-      ticker.update_attribute(:active, false)
-    end
-  end
+  def load_splits(logger); Split.load(logger); end
 
   def backfill_seq()
     sql = "select id, bartime from intra_day_bars where seq is null"

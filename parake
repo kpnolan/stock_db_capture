@@ -1,0 +1,9 @@
+#!/bin/bash
+((i = 0))
+while (( i < $2 ))
+do
+  echo rake $1
+  nice rake $1 PROC_ID=$i PROC_CNT=$2 &
+  ((i += 1))
+done
+echo $2 Spawned

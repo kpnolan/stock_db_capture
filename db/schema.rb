@@ -9,7 +9,7 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091016185148) do
+ActiveRecord::Schema.define(:version => 20091029212126) do
 
   create_table "btest_positions", :force => true do |t|
     t.integer  "ticker_id"
@@ -89,13 +89,15 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.float    "close"
     t.float    "high"
     t.integer  "volume"
-    t.float    "logr"
     t.float    "low"
     t.datetime "bartime"
     t.float    "adj_close"
+    t.date     "bardate"
+    t.string   "source",    :limit => 1
   end
 
   add_index "daily_bars", ["ticker_id", "bartime"], :name => "index_daily_bars_on_ticker_id_and_bartime", :unique => true
+  add_index "daily_bars", ["ticker_id", "bardate"], :name => "ticker_id_and_bardate", :unique => true
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -167,6 +169,20 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
   add_index "factors", ["study_id", "indicator_id", "result"], :name => "myfields_idx", :unique => true
   add_index "factors", ["indicator_id"], :name => "indicator_id"
 
+  create_table "google_bars", :force => true do |t|
+    t.integer  "ticker_id"
+    t.float    "opening"
+    t.float    "close"
+    t.float    "high"
+    t.integer  "volume"
+    t.float    "low"
+    t.datetime "bartime"
+    t.date     "bardate"
+  end
+
+  add_index "google_bars", ["ticker_id", "bartime"], :name => "ticker_id_and_bartime", :unique => true
+  add_index "google_bars", ["ticker_id", "bardate"], :name => "ticker_id_and_bardate", :unique => true
+
   create_table "historical_attributes", :force => true do |t|
     t.string "name"
   end
@@ -204,6 +220,7 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.integer  "accum_volume"
     t.float    "delta"
     t.integer  "seq"
+    t.date     "bardate"
   end
 
   add_index "intra_day_bars", ["ticker_id", "bartime"], :name => "ticker_id_and_start_time", :unique => true
@@ -220,6 +237,17 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
   end
 
   add_index "intra_snapshots", ["ticker_id"], :name => "ticker_id"
+
+  create_table "ledger_txns", :force => true do |t|
+    t.float    "amount"
+    t.datetime "date"
+    t.integer  "txn_type"
+    t.integer  "order_id"
+    t.float    "balance"
+    t.string   "msg"
+  end
+
+  add_index "ledger_txns", ["order_id"], :name => "order_id"
 
   create_table "legacy_watch_list", :force => true do |t|
     t.integer  "ticker_id"
@@ -259,23 +287,9 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.string "symbol", :limit => 8
   end
 
-  create_table "new_daily_bars", :force => true do |t|
-    t.integer  "ticker_id"
-    t.float    "opening"
-    t.float    "close"
-    t.float    "high"
-    t.integer  "volume"
-    t.float    "logr"
-    t.float    "low"
-    t.datetime "bartime"
-    t.float    "adj_close"
-  end
-
-  add_index "new_daily_bars", ["ticker_id", "bartime"], :name => "index_daily_bars_on_ticker_id_and_bartime", :unique => true
-
   create_table "orders", :force => true do |t|
     t.string   "txn",              :limit => 3, :null => false
-    t.string   "type",             :limit => 3, :null => false
+    t.string   "otype",            :limit => 3, :null => false
     t.string   "expiration",       :limit => 3, :null => false
     t.integer  "quantity"
     t.datetime "placed_at"
@@ -388,6 +402,52 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.integer "ticker_id"
   end
 
+  create_table "saved_intra_day", :force => true do |t|
+    t.integer  "ticker_id"
+    t.integer  "period"
+    t.datetime "bartime"
+    t.float    "opening"
+    t.float    "close"
+    t.float    "high"
+    t.float    "low"
+    t.integer  "volume"
+    t.integer  "accum_volume"
+    t.float    "delta"
+    t.integer  "seq"
+    t.date     "bardate"
+  end
+
+  create_table "saved_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+  end
+
   create_table "scans", :force => true do |t|
     t.string  "name"
     t.date    "start_date"
@@ -398,6 +458,7 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.string  "table_name"
     t.string  "order_by"
     t.integer "prefetch"
+    t.integer "postfetch"
   end
 
   create_table "scans_tickers", :id => false, :force => true do |t|
@@ -432,6 +493,14 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
   add_index "sim_positions", ["ticker_id"], :name => "ticker_id"
   add_index "sim_positions", ["position_id"], :name => "position_id"
 
+  create_table "sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+  end
+
   create_table "snapshots", :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "bartime"
@@ -450,6 +519,7 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.date    "date"
     t.integer "from"
     t.integer "to"
+    t.date    "created_on"
   end
 
   add_index "splits", ["ticker_id", "date"], :name => "index_splits_on_ticker_id_and_date", :unique => true
@@ -544,6 +614,7 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.boolean "etf"
     t.integer "sector_id"
     t.integer "industry_id"
+    t.boolean "delisted",                 :default => false
   end
 
   add_index "tickers", ["symbol"], :name => "index_tickers_on_symbol", :unique => true
@@ -596,13 +667,14 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
     t.float    "close"
     t.float    "high"
     t.integer  "volume"
-    t.float    "logr"
     t.float    "low"
     t.datetime "bartime"
     t.float    "adj_close"
+    t.date     "bardate"
   end
 
   add_index "yahoo_bars", ["ticker_id", "bartime"], :name => "ticker_id_and_bartime", :unique => true
+  add_index "yahoo_bars", ["ticker_id", "bardate"], :name => "ticker_id_and_bardate", :unique => true
 
   add_foreign_key "derived_values", ["ticker_id"], "tickers", ["id"], :name => "derived_values_ibfk_1"
   add_foreign_key "derived_values", ["derived_value_type_id"], "derived_value_types", ["id"], :name => "derived_values_ibfk_2"
@@ -611,6 +683,8 @@ ActiveRecord::Schema.define(:version => 20091016185148) do
   add_foreign_key "factors", ["indicator_id"], "indicators", ["id"], :name => "factors_ibfk_2"
 
   add_foreign_key "intra_snapshots", ["ticker_id"], "tickers", ["id"], :name => "intra_snapshots_ibfk_1"
+
+  add_foreign_key "ledger_txns", ["order_id"], "orders", ["id"], :name => "ledger_txns_ibfk_1"
 
   add_foreign_key "orders", ["ticker_id"], "tickers", ["id"], :name => "orders_ibfk_1"
   add_foreign_key "orders", ["sim_position_id"], "sim_positions", ["id"], :name => "orders_ibfk_3"

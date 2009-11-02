@@ -40,7 +40,7 @@ class Backtester
   def initialize(trigger_strategy_name, entry_strategy_name, exit_trigger_name, exit_strategy_name, scan_name, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
                                      :days_to_close => 30, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10,
-                                     :pre_buffer => 127, :post_buffer => 30
+                                     :pre_buffer => 127, :post_buffer => 30, :repopulate => true
     @et_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xt_name = exit_trigger_name
@@ -109,31 +109,30 @@ class Backtester
       @rsi_id ||= Indicator.lookup(:rsi).id
 
       count = 0
-      for ticker_id in scan.population_ids(false, :logger => logger)
+      for ticker_id in scan.population_ids(options[:repopulate], :logger => logger)
         begin
-          ts = Timeseries.new(ticker_id, sdate..edate, resolution, self.options.merge(:logger => logger, :populate => true))
+          ts = Timeseries.new(ticker_id, sdate..edate, resolution, self.options.merge(:logger => logger))
+          reset_position_index_hash()
+          for pass in self.options[:epass]
+            triggered_indexes = ts.instance_exec(etrigger_decl.params, pass, &etrigger_decl.block)
+            for index in triggered_indexes
+              next if triggered_index_hash.include? index #This index has been triggered on a previous pass
+              trigger_date, trigger_price = ts.closing_values_at(index)
+              trigger_ival = ts.result_at(index, :rsi)          # We are assuming here that an rsi is the only entry trigger indicators, which may no always be
+              # the case
+              debugger if trigger_date.nil? or trigger_price.nil?
+              position = BtestPosition.trigger_entry(ts.ticker_id, trigger_date, trigger_price, rsi_id, trigger_ival, pass)
+              logger.info "Triggered #{ts.symbol} on #{trigger_date.to_formatted_s(:ymd)} at $#{trigger_price}" if log? :triggers
+              entry_trigger.btest_positions << position
+              scan.btest_positions << position
+              map_position_ts(position, ts)
+              triggered_index_hash[index] = true
+              ts.clear_results()
+              count += 1
+            end
+          end
         rescue TimeseriesException => e
           logger.info "#{e.to_s} -- SKIPPING Ticker"
-          next
-        end
-        reset_position_index_hash()
-        for pass in self.options[:epass]
-          triggered_indexes = ts.instance_exec(etrigger_decl.params, pass, &etrigger_decl.block)
-          for index in triggered_indexes
-            next if triggered_index_hash.include? index #This index has been triggered on a previous pass
-            trigger_date, trigger_price = ts.closing_values_at(index)
-            trigger_ival = ts.result_at(index, :rsi)          # We are assuming here that an rsi is the only entry trigger indicators, which may no always be
-            # the case
-            debugger if trigger_date.nil? or trigger_price.nil?
-            position = BtestPosition.trigger_entry(ts.ticker_id, trigger_date, trigger_price, rsi_id, trigger_ival, pass)
-            logger.info "Triggered #{ts.symbol} on #{trigger_date.to_formatted_s(:ymd)} at $#{trigger_price}" if log? :triggers
-            entry_trigger.btest_positions << position
-            scan.btest_positions << position
-            map_position_ts(position, ts)
-            triggered_index_hash[index] = true
-            ts.clear_results()
-            count += 1
-          end
         end
       end
 
@@ -171,8 +170,8 @@ class Backtester
         begin
           start_date = position.ettime
           end_date = BtestPosition.trading_date_from(start_date, days_to_open)
-          if ts = timeseries_for(position.id)
-            ts.reset_date_range(start_date, end_date)
+          if ts = timeseries_for(position)
+            ts.reset_local_range(start_date, end_date)
           else
             ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, self.options.merge(:logger => logger))
           end
@@ -247,11 +246,12 @@ class Backtester
             ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
             max_exit_date = ticker_max.localtime
           end
-          if ts = timeseries_for(position.id)
-            ts.reset_date_range(start_date, max_exit_date)
+          if ts = timeseries_for(position)
+            ts.reset_local_range(position.entry_date, max_exit_date)
           else
             ts_options = { :pre_buffer => Timeseries.prefetch_bars(:rsi, 14), :logger => logger } # FIXME prefetch bars should be dynamic
             ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, self.options.merge(ts_options))
+            puts "new timeseries to #{position.entry_date.to_s(:db)} through #{max_exit_date.to_s(:db)}"
           end
           exit_time, indicator, ival = ts.instance_exec(xtrigger_decl.params, &xtrigger_decl.block)
           unless exit_time.nil?
@@ -322,8 +322,8 @@ class Backtester
             ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
             max_exit_date = ticker_max.localtime
           end
-          if ts = timeseries_for(position.id)
-            ts.reset_date_range(start_date, max_exit_date)
+          if ts = timeseries_for(position)
+            ts.reset_local_range(position.xttime, max_exit_date)
           else
             ts = Timeseries.new(position.ticker_id, position.xttime..max_exit_date, resolution, self.options.merge(:logger => logger))
           end
@@ -525,7 +525,7 @@ class Backtester
   # retrieve the timeseries for this positions that was stored in the prior method
   #--------------------------------------------------------------------------------------------------------------------
   def timeseries_for(position)
-    position_ts_map[position[:id]]
+    position_ts_map[position.id]
   end
 
   #--------------------------------------------------------------------------------------------------------------------

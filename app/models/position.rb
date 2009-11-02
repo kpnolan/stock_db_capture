@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091016185148
+# Schema version: 20091029212126
 #
 # Table name: positions
 #
@@ -48,6 +48,8 @@ class Position < ActiveRecord::Base
   belongs_to :xtind, :class_name => 'Indicator'
   has_many :position_series, :dependent => :delete_all
 
+  named_scope :cheap, :conditions => { :entry_price => (1.0..15.0) }
+
   extend TradingCalendar
 
   def entry_delay
@@ -75,6 +77,10 @@ class Position < ActiveRecord::Base
   end
 
   class << self
+
+    def pool_size_on_date(clock)
+      count(:conditions => ['date(entry_date) = ?', clock.to_date])
+    end
 
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
       begin
@@ -122,9 +128,17 @@ class Position < ActiveRecord::Base
       position
     end
 
+    def exiting_positions(date)
+      find(:all, :conditions => ['date(positions.exit_date) = ?', date.to_date])
+    end
+
     def persist()
       Position.connection.execute('drop table if exits btest_positions')
       Position.connection.execute('create table if not exist btest_positions select * from positions where closed = 1')
+    end
+
+    def find_by_date(field, date, options={})
+      find(:all, { :conditions => ["date(#{field.to_s}) = ?", date]}.merge(options))
     end
   end
 end

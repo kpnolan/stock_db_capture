@@ -52,35 +52,39 @@ end
 
 populations do
   liquid = "min(volume) >= 100000"
-  $scan_names = returning [] do |scan_vec|
-    (2001..2008).each do |year|
-      start_date = Date.civil(year, 1, 1)
-      scan_name = "year_#{year}".to_sym
-      end_date = start_date + 1.year - 1.day
-      desc "Population of all stocks with a minimum valume of 100000 in #{start_date.year}"
+#   $scan_names = returning [] do |scan_vec|
+#     (2001..2008).each do |year|
+#       start_date = Date.civil(year, 1, 1)
+#       scan_name = "year_#{year}".to_sym
+#       end_date = start_date + 1.year - 1.day
+#       desc "Population of all stocks with a minimum valume of 100000 in #{start_date.year}"
 
-      scan scan_name, :start_date =>  start_date, :end_date => end_date,
-                      :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9),
-                      :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
-                      :order_by => 'tickers.symbol'
-      scan_vec << scan_name
-    end
-  end
+#       scan scan_name, :start_date =>  start_date, :end_date => end_date,
+#                       :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9),
+#                       :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
+#                       :order_by => 'tickers.symbol'
+#       scan_vec << scan_name
+#     end
+#   end
   # For 2009, since it's incomplete we have to do compute the scan differently by...
   # ...find the lastest daily bar in the DB (using IBM as the guiney pig)
   latest_bar_date = DailyBar.maximum(:bartime, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" ).to_date
   # end date keeps advancing as long as their 30 trading days which is the max hold time
   end_date = Population.trading_date_from(latest_bar_date, -30)
   desc "Population of all stocks with a minimum valume of 100000 from 2009-1-1 to #{end_date}"
-  scan 'year_2009', :start_date => '1/1/2009', :end_date => end_date, :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9)
+  scan 'year_2009', :start_date => '1/1/2009', :end_date => end_date,
+                    :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
+                    :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9), :postfetch => 30
+  $scan_names = []
   $scan_names << 'year_2009'
 end
 
-backtests(:generate_stats => false, :profile => false, :truncate => :scan, :log_flags => [:basic]) do
+backtests(:generate_stats => false, :profile => false, :truncate => :scan, :repopulate => true, :log_flags => [:basic],
+           :prefetch => Timeseries.prefetch_bars(:macdfix, 9), :postfetch => 30, :populate => true) do
   $scan_names.each do |scan_name|
   using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :lagged_rsi_difference, scan_name) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
 #      make_sheet(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true)
-      make_sheet(nil, nil, nil, nil, scan, :values => [:close], :pre_days => 1, :post_days => 40, :keep => true)
+      make_sheet(nil, nil, nil, nil, scan, :values => [:close], :pre_days => 1, :post_days => 30, :keep => true)
     end
   end
 end

@@ -1,0 +1,12 @@
+%h1 Listing ledger_txns
+%table
+  %tr.heading
+    %th Amount
+    %th Date
+    %th Type
+    %th Order
+    %th Msg
+
+  = render :partial => 'ledger_txn', :collection => current_objects
+
+= link_to 'New ledger_txn', new_object_path 

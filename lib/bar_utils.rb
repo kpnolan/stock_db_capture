@@ -47,7 +47,7 @@ module BarUtils
   end
 
   def tickers_with_lagging_history(table)
-    sql = "select symbol, max(date(bartime)) from #{table} left outer join tickers on tickers.id = ticker_id  group by ticker_id having max(date(bartime)) < '#{latest_date.to_s(:db)}' order by symbol"
+    sql = "select symbol, max(bardate) from #{table} left outer join tickers on tickers.id = ticker_id  group by ticker_id having max(bardate) < '#{latest_date.to_s(:db)}' order by symbol"
     DailyBar.connection.select_rows(sql)
   end
 
@@ -129,7 +129,7 @@ module BarUtils
       next if symbol.include? '-'
       max_date = Date.parse(max_date)
       start_date = max_date + 1.day
-      td = trading_day_count(start_date, end_date)
+      td = BarUtils.trading_day_count(start_date, end_date)
       next if td.zero?
       ticker = Ticker.lookup(symbol)
       bars = qs.dailys_for(symbol, start_date, end_date)

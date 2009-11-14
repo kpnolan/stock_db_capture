@@ -67,7 +67,6 @@ class SmartFormBuilder < ActionView::Helpers::FormBuilder
     else
       choices = tclass.send(:find, :all, :order => order ? order : :id).collect { |o| [o.name, o.id] }
     end
-    debugger
     select(field_name, choices, {}, html_options.reverse_merge(:class => self.options[:field_class]))
   end
 

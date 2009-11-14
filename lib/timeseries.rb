@@ -381,9 +381,9 @@ class Timeseries
       raise ArgumentError, "args must either be dates or times"
     end
     if local_range.begin < begin_time or local_range.end > end_time
-      logger.info "reloading Timeseries #{symbol} #{begin_time.to_formatted_s(:ymd)} < #{local_range.begin.to_formatted_s(:ymd)} OR "+
-                  "#{end_time.to_formatted_s(:ymd)} > #{local_range.end.to_formatted_s(:ymd)}"
-      populate(pre_buffer)
+      logger.info "reloading Timeseries #{symbol} #{local_range.begin.to_formatted_s(:ymd)} < #{begin_time.to_formatted_s(:ymd)} *OR* "+
+                  "#{local_range.end.to_formatted_s(:ymd)} > #{end_time.to_formatted_s(:ymd)}"
+      populate()
       puts "repopulating timeseries on reset_local_range #{start_date}..#{end_date}"
     else
       map_local_range()
@@ -411,7 +411,7 @@ class Timeseries
   #
   def populate(pre_offset=nil)
     if pre_offset.nil?
-      calculate_fill_indexes(pre_offset)
+      calculate_fill_indexes(nil)
       raw_populate()
     elsif pre_offset == @pre_offset           # Nothing need to change -- new data set bounded the same
       return self.index_range
@@ -427,7 +427,7 @@ class Timeseries
   #
   def raw_populate()
     @value_hash = model.general_vectors(ticker_id, attrs, begin_time, end_time)
-    raise DelistedStockException(symbol) if @value_hash.empty?
+    raise DelistedStockException.new(symbol) if @value_hash.empty?
     @populated = true
     push_bar(@last_bar) if @last_bar
     compute_timestamps(begin_time, end_time)

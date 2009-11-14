@@ -48,16 +48,16 @@ class Position < ActiveRecord::Base
   belongs_to :xtind, :class_name => 'Indicator'
   has_many :position_series, :dependent => :delete_all
 
-  named_scope :cheap, :conditions => { :entry_price => (1.0..15.0) }
+  named_scope :cheap15, :conditions => { :entry_price => (1.0..15.0) }
+  named_scope :cheap30, :conditions => { :entry_price => (1.0..30.0) }
+  named_scope :normal, :order => 'entry_price asc'
+  named_scope :loser, :order => 'roi asc'
+  named_scope :winner, :order => 'roi desc'
 
   extend TradingCalendar
 
   def entry_delay
     Position.trading_days_between(entry_date, ettime)
-  end
-
-  def consumed_margin
-    (entry_price - et_price)/et_price
   end
 
   def xtdays_held

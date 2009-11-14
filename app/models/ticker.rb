@@ -18,6 +18,8 @@
 
 class Ticker < ActiveRecord::Base
   belongs_to :exchange
+  belongs_to :sector
+  belongs_to :industry
   has_one  :current_listing,    :dependent => :destroy
   has_many :daily_bars,         :dependent => :protect
   has_many :intrday_bars,       :dependent => :protect

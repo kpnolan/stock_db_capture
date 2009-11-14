@@ -3,7 +3,9 @@
 require 'rubygems'
 require 'log_returns'
 require 'load_bars'
+require 'bar_utils'
 
+extend BarUtils
 extend LoadBars
 extend LogReturns
 
@@ -69,22 +71,22 @@ namespace :active_trader do
     load_splits(logger)
   end
 
-  desc "Backfill missing bars"
-  task :backfill => :environment do
-    #@logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'backfill.log'))
-    backfill_missing_bars()
-  end
-
   desc "Fill Missing Bars"
   task :fill_missing_bars => :environment do
+    model = ENV['MODEL'].nil? ? GoogleBar : ENV['MODEL']
+    start_date = ENV['START'].nil? ? nil : Date.parse( ENV['START'])
+    end_date = ENV['END'].nil? ? nil : Date.parse( ENV['END'])
     logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'backfill.log'))
     fill_missing_bars(logger)
   end
 
   desc "Report missing bars"
   task :report_missing_bars => :environment do
+    model = ENV['MODEL'].nil? ? GoogleBar : ENV['MODEL']
+    start_date = ENV['START'].nil? ? nil : Date.parse( ENV['START'])
+    end_date = ENV['END'].nil? ? nil : Date.parse( ENV['END'])
     logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'missing_bars.log'))
-    report_missing_bars(logger)
+    report_missing_bars(logger, model, start_date, end_date)
   end
 
   desc "Clear locks on Tickers"

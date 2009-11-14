@@ -32,6 +32,7 @@ class Backtester
   attr_reader :opening, :closing, :scan, :stop_loss, :tid_array, :date_range, :rsi_id
   attr_reader :position_ts_map
   attr_reader :resolution, :logger
+  attr_reader :chunk_id
 
   #--------------------------------------------------------------------------------------------------------------------
   # A Backtester object is created for every instance of a using(...) statement with the args of that statement along
@@ -39,8 +40,8 @@ class Backtester
   #--------------------------------------------------------------------------------------------------------------------
   def initialize(trigger_strategy_name, entry_strategy_name, exit_trigger_name, exit_strategy_name, scan_name, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
-                                     :days_to_close => 30, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10,
-                                     :pre_buffer => 127, :post_buffer => 30, :repopulate => true
+                                     :days_to_close => 20, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10,
+                                     :pre_buffer => 127, :post_buffer => 20, :repopulate => true
     @et_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xt_name = exit_trigger_name
@@ -66,10 +67,11 @@ class Backtester
   # Run is called for every instance of a using(...) after the backtester object has config statement in the
   # been initialized form the backtests(...) block and using(...) statement.
   #--------------------------------------------------------------------------------------------------------------------
-  def run(logger)
+  def run(chunk_id, logger)
     @logger = logger
-    logger.info "\nProcessing backtest with a #{et_name} entry trigger and #{es_name} entry with #{xt_name} trigger and #{xs_name} exit against #{scan_name}"
+    logger.info "\n(#{chunk_id}) Processing backtest with a #{et_name} entry trigger and #{es_name} entry with #{xt_name} trigger and #{xs_name} exit against #{scan_name}"
 
+    @chunk_id       = chunk_id
     @etrigger_decl  = $analytics.find_etrigger(et_name)
     @opening_decl   = $analytics.find_opening(es_name)
     @xtrigger_decl  = $analytics.find_xtrigger(xt_name)
@@ -104,7 +106,7 @@ class Backtester
     # bastardized one we use here.
     #-------------------------------------------------------------------------------------------------------------------
     if entry_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
-      logger.info "Beginning trigger positions analysis..." if log? :basic
+      logger.info "(#{chunk_id}) Beginning trigger positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
       @rsi_id ||= Indicator.lookup(:rsi).id
 
@@ -127,7 +129,7 @@ class Backtester
               scan.btest_positions << position
               map_position_ts(position, ts)
               triggered_index_hash[index] = true
-              ts.clear_results()
+              ts.clear_results() unless ts.nil?
               count += 1
             end
           end
@@ -138,7 +140,7 @@ class Backtester
 
       endt = Time.now
       delta = endt - startt
-      logger.info "#{count} positions triggered -- elapsed time: #{Backtester.format_et(delta)}" if log? :basic
+      logger.info "(#{chunk_id}) #{count} positions triggered -- elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
       if self.options[:profile]
         GC.disable
@@ -158,11 +160,12 @@ class Backtester
     # whose mission it is to cull out losers that have been triggered and ones not likely to close.
     #-------------------------------------------------------------------------------------------------------------------
     if entry_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
-      logger.info "Beginning open positions analysis..." if log? :basic
+      logger.info "(#{chunk_id}) Beginning open positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
 
       startt = Time.now
       count = 0
+      duplicate_entries = 0
       triggers = entry_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id }, :order => 'ettime, ticker_id')
       trig_count = triggers.length
 
@@ -200,13 +203,17 @@ class Backtester
           logger.error(e.to_s)
           remove_from_position_map(position)
           BtestPosition.delete position.id
+        rescue ActiveRecord::StatementInvalid
+          duplicate_entries += 1
+          #logger.error("Duplicate entry for #{position.ticker.symbol} tigger: #{position.ettime.to_formatted_s(:ymd)} entry: #{entry_time.to_formatted_s(:ymd)}")
         end
         ts.clear_results unless ts.nil?
       end
 
       endt = Time.now
       delta = endt - startt
-      logger.info "#{count} positions opened of #{trig_count} triggered -- elapsed time: #{Backtester.format_et(delta)}" if log? :basic
+      logger.info "(#{chunk_id}) #{duplicate_entries} duplicate entries merged" if log? :basic
+      logger.info "(#{chunk_id}) #{count} positions opened of #{trig_count} triggered -- elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
       if self.options[:profile]
         GC.disable
@@ -230,7 +237,7 @@ class Backtester
     # summarily logged and destroyed.
     #-------------------------------------------------------------------------------------------------------------------
     if exit_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
-      logger.info "Beginning exit trigger analysis..." if log? :basic
+      logger.info "(#{chunk_id}) Beginning exit trigger analysis..." if log? :basic
       startt = Time.now
 
       RubyProf.start if self.options[:profile]
@@ -251,7 +258,6 @@ class Backtester
           else
             ts_options = { :pre_buffer => Timeseries.prefetch_bars(:rsi, 14), :logger => logger } # FIXME prefetch bars should be dynamic
             ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, self.options.merge(ts_options))
-            puts "new timeseries to #{position.entry_date.to_s(:db)} through #{max_exit_date.to_s(:db)}"
           end
           exit_time, indicator, ival = ts.instance_exec(xtrigger_decl.params, &xtrigger_decl.block)
           unless exit_time.nil?
@@ -265,7 +271,7 @@ class Backtester
           remove_from_position_map(position)
           BtestPosition.delete position.id
         end
-        ts.clear_results()
+        ts.clear_results() unless ts.nil?
         logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
                            counter, pos_count, position.ticker.symbol,
                            position.entry_date.to_formatted_s(:ymd),
@@ -277,7 +283,7 @@ class Backtester
       endt = Time.now
       delta = endt - startt
 
-      logger.info "Exit trigger analysis elapsed time: #{Backtester.format_et(delta)}" if log? :basic
+      logger.info "(#{chunk_id}) Exit trigger analysis elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
       if self.options[:profile]
         GC.disable
@@ -303,7 +309,7 @@ class Backtester
     # to our profit.
     #-------------------------------------------------------------------------------------------------------------------
     if exit_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
-      logger.info "Beginning close position optimization analysis..." if log? :basic
+      logger.info "(#{chunk_id}) Beginning close position optimization analysis..." if log? :basic
       startt = Time.now
 
       RubyProf.start if self.options[:profile]
@@ -344,7 +350,7 @@ class Backtester
             remove_from_position_map(position)
             BtestPosition.delete position.id
           end
-          ts.clear_results()
+          ts.clear_results() unless ts.nil?
 
           if position.exit_date > position.xttime
             xtival = position.xtival.nil? ? -0.00 : position.xtival.abs > 100.0 ? -0.00 : position.xtival
@@ -374,7 +380,7 @@ class Backtester
 
     endt = Time.now
     delta = endt - startt
-    logger.info "Backtest (optimize close analysis) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
+    logger.info "(#{chunk_id}) Backtest (optimize close analysis) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
     #-----------------------------------------------------------------------------------------------------------------
     # Persist the closed positions to the disk resident Positions table by walking through the positions in the
@@ -384,10 +390,10 @@ class Backtester
 
     columns = BtestPosition.columns.map(&:name)
     columns.delete 'id'
-
-    position_ids = position_ts_map.keys.sort.uniq
+    #sql = "insert into positions select #{columns.join(',')} from btest_positions where scan_id = #{scan.id} and exit_date is not null"
+    position_ids = scan.btest_position_ids
     for position_id in position_ids
-      if (position = BtestPosition.find(position_id)) && position.closed
+      if (position = BtestPosition.find_by_id(position_id)) && position.exit_date
         attrs = columns.inject({}) { |h,k| h[k] = position[k]; h }
         Position.create! attrs
       end
@@ -406,7 +412,7 @@ class Backtester
 
     endt = Time.now
     global_delta = endt - global_startt
-    logger.info "Total Backtest elapsed time: (scan_name) #{Backtester.format_et(global_delta)}" if log? :basic
+    logger.info "(#{chunk_id}) Total Backtest elapsed time: (#{scan_name}) #{Backtester.format_et(global_delta)}" if log? :basic
     #--------------------------------------------------------------------------------------------------------------------
     # Stop-loss pass. The nitty gritty of threshold crossing is handeled by tstop(...)
     #-------------------------------------------------------------------------------------------------------------------
@@ -426,7 +432,7 @@ class Backtester
     # Post processing which not only includes make_sheet(...)
     #-------------------------------------------------------------------------------------------------------------------
     if post_process
-      logger.info "Beginning post processing (make_sheet)..." if log? :basic
+      logger.info "(#{chunk_id}) Beginning post processing (make_sheet)..." if log? :basic
       startt = Time.now
 
       post_process.call(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan) if post_process
@@ -434,7 +440,7 @@ class Backtester
       endt = Time.now
       delta = endt - startt
 
-      logger.info "Post processing (make_sheet) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
+      logger.info "(#{chunk_id}) Post processing (make_sheet) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
     end
   end
 
@@ -455,11 +461,11 @@ class Backtester
 
     symbol_or_array.each do |symbol|
       name = send(symbol).name
-      logger.info "Begining truncate of #{name}..." if log? :basic
+      logger.info "(#{chunk_id}) Begining truncate of #{name}..." if log? :basic
       case symbol
       when :entry_trigger then
         count += entry_trigger.positions.count
-        count ++ entry_trigger.btest_positions.count
+        count += entry_trigger.btest_positions.count
         entry_trigger.positions.clear
         entry_trigger.btest_positions.clear
       when :entry_strategy then
@@ -488,13 +494,13 @@ class Backtester
       total_count += count
     end
     delta = Time.now - startt
-    logger.info "Truncated #{total_count} positions in #{Backtester.format_et(delta)}" if log? :basic
+    logger.info "(#{chunk_id}) Truncated #{total_count} positions in #{Backtester.format_et(delta)}" if log? :basic
   end
   #--------------------------------------------------------------------------------------------------------------------
   # Geerate statistics recorded are given by the params given to the function compute_and_persist
   #--------------------------------------------------------------------------------------------------------------------
   def generate_stats(positions)
-    logger.info "Beginning indicator statistics generatian..."
+    logger.info "(#{chunk_id}) Beginning indicator statistics generatian..."
     startt = Time.now
     for position in positions
       start_date = BtestPosition.trading_date_from(position.ettime, -10)
@@ -511,14 +517,15 @@ class Backtester
     end
     endt = Time.now
     delta = endt-startt
-    logger.info "Generate Position Statitics took #{Backtester.format_et(delta)}" if log? :basic
+    logger.info "(#{chunk_id}) Generate Position Statitics took #{Backtester.format_et(delta)}" if log? :basic
   end
 
   #--------------------------------------------------------------------------------------------------------------------
   # add a mapping between a positions and it's associated timeseries
   #--------------------------------------------------------------------------------------------------------------------
   def map_position_ts(position, timeseries)
-    self.position_ts_map[position.id] = timeseries
+    # FIXME !!! commented this line out because recycling timeseries is broken
+    #self.position_ts_map[position.id] = timeseries
   end
 
   #--------------------------------------------------------------------------------------------------------------------

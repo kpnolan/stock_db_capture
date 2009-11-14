@@ -1,3 +1,9 @@
-= f.text_field :symbol
+= f.text_field :symbol, :size => 5
 = f.table_select :exchange_id, :value => :symbol
 = f.text_field :name
+= f.text_field :retry_count
+= f.table_select :sector_id
+= f.table_select :industry_id
+= f.check_box :etf
+= f.check_box :active
+= f.check_box :delisted

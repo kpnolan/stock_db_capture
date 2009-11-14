@@ -16,6 +16,25 @@
 #  ticker_id        :integer(4)      not null
 #  sim_position_id  :integer(4)
 #
+
+# == Schema Information
+# Schema version: 20091029212126
+#
+# Table name: orders
+#
+#  id               :integer(4)      not null, primary key
+#  txn              :string(3)       not null
+#  otype            :string(3)       not null
+#  expiration       :string(3)       not null
+#  quantity         :integer(4)
+#  placed_at        :datetime
+#  filled_at        :datetime
+#  activation_price :float
+#  order_price      :float
+#  fill_price       :float
+#  ticker_id        :integer(4)      not null
+#  sim_position_id  :integer(4)
+#
 require 'ostruct'
 
 class Order < ActiveRecord::Base

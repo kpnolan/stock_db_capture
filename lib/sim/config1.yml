@@ -1,0 +1,30 @@
+- scenario1:
+    system_mgr:
+      start_date: 2000-1-1
+      end_date: 2009-11-2
+    portfolio_mgr:
+      portfolio_size: 20
+    order_processor:
+      order_charge: 7.00
+      max_order_amount: 10000.00
+      min_order_amount: 10000.00
+      entry_slippage: close
+      exit_slippage: close
+    money_mgr:
+      initial_balance: 200000.00
+      minimum_balance: 10000.00
+- scenario2:
+    system_mgr:
+      start_date: 2000-1-1
+      end_date: 2009-11-2
+    portfolio_mgr:
+      portfolio_size: 20
+    order_processor:
+      order_charge: 7.00
+      max_order_amount: 10000.00
+      min_order_amount: 10000.00
+      entry_slippage: close
+      exit_slippage: close
+    money_mgr:
+      initial_balance: 200000.00
+      minimum_balance: 10000.00

@@ -59,7 +59,7 @@ module Trading
     end
 
     #
-    # The routines automatically opens a position upon a theshold crossing
+    # The routines automatically opens a position upon a threshold crossing
     #
     def open_at_crossing
       count = 0

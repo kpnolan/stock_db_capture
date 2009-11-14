@@ -1,19 +1,22 @@
 module Sim
   class OrderProcessor < Subsystem
 
-    def initialize(sm)
-      super(sm, self.class)
+    def initialize(sm, cm)
+      super(sm, cm, self.class)
     end
 
-    def min_order_amount(); cval(:min_order_amount).to_i; end
-    def max_order_amount(); cval(:min_order_amount).to_i; end
-    def order_charge(); cval(:order_charge).to_f; end
+    def min_order_amount(); @moa ||= cval(:min_order_amount).to_f; end
+    def max_order_amount(); @xoa ||= cval(:max_order_amount).to_f; end
+    def order_charge(); @oc ||= cval(:order_charge).to_f; end
 
     def buy(position)
       if min_order_amount() < funds_available()
-      order = Order.make_buy(position.ticker.id, position.entry_price, clock,
-                             :order_ceiling => max_order_amount, :funds_available => funds_available, :order_charge => order_charge)
+        order = Order.make_buy(position.ticker.id, position.entry_price, clock,
+                               :order_ceiling => max_order_amount, :funds_available => funds_available, :order_charge => order_charge)
         execute(order, :position_id => position.id)
+        inc_opened_positions()
+      else
+        puts "No BUY: #{min_order_amount()} > #{funds_available()}"
       end
     end
 
@@ -27,7 +30,7 @@ module Sim
         $el.log_event(order)
         $el.log_event(txn)
         $el.log_event(sim_position)
-        $el.sep
+        #$el.sep
       when 'SEL'
         txn = credit(order.order_price, clock, :order_id => order.id, :msg => msg)
         order.save!
@@ -35,7 +38,7 @@ module Sim
         $el.log_event(txn)
         order.sim_position.close(order)
         $el.log_event(order.sim_position)
-        $el.sep
+        #$el.sep
       end
     end
 

@@ -48,3 +48,17 @@ function number_format( number, decimals, dec_point, thousands_sep ) {
 
     return s + (j ? i.substr(0, j) + t : "") + i.substr(j).replace(/(\d{3})(?=\d)/g, "$1" + t) + (c ? d + Math.abs(n - i).toFixed(c).slice(2) : "");
 }
+
+function submitViaEnter(evt) {
+    evt = (evt) ? evt : event;
+    var target = (evt.target) ? evt.target : evt.srcElement;
+    var form = target.form;
+    var charCode = (evt.charCode) ? evt.charCode :
+        ((evt.which) ? evt.which : evt.keyCode);
+    if (charCode == 13) {
+        form.submit();
+        return false;
+        }
+    }
+    return true;
+}

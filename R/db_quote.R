@@ -3,10 +3,14 @@ require(tseries)
 require(gtools)
 
 get.histo <-
-  function(value, scan)
+  function(value, table='positions', scale='lin', scan='')
   {
-    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_development")
-    sql <- paste("select ", value, " from positions left outer join scans on scans.id = scan_id where name = '", scan ,"'", sep="")
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    if ( scan == '' ) {
+      sql <- paste("select ", value, " from ", table, " where exit_date is not null", sep="")
+    } else {
+      sql <- paste("select ", value, " from positions left outer join scans on scans.id = scan_id where closed = 1 and name = '", scan ,"'", sep="")
+    }
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
     if ( nrow(x) == 0 ) {
@@ -16,8 +20,64 @@ get.histo <-
     main = paste("Histogram of", value, "for scan: ", scan)
     xlab = value
     dbDisconnect(con)
-    h = hist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
+    if ( scale == 'log' )
+      h = logHist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
+    else
+      h = hist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
   }
+
+get.rejects <-
+  function()
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    sql <- "select date, total, rejected, (rejected/total)*100.0 as percent from position_stats order by date"
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    dbDisconnect(con)
+    x
+  }
+
+
+get.rejected.ts <-
+  function(retclass = c("zoo", "its", "ts"), origin = "1899-12-30", drop = FALSE)
+  {
+    x = get.rejects()
+    if ( nrow(x) == 0 ) {
+      cat("Returned data is empty. Check SQL\n")
+      return(FALSE);
+    }
+    n <- nrow(x)
+    nser = names(x)[2:3]
+
+    dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+
+    if (retclass == "ts") {
+      jdat <- unclass(julian(dat, origin = as.Date(orign)))
+      ind <- jdat - jdat[n] + 1
+      y <- matrix(NA, nrow = max(ind), ncol = length(nser))
+      y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
+      colnames(y) <- names(x)[nser]
+      y <- y[, seq_along(nser), drop = drop]
+      return(ts(y, start = jdat[n], end = jdat[1]))
+    }
+    else {
+      x <- as.matrix(x[, nser, drop = FALSE])
+      rownames(x) <- NULL
+      y <- zoo(x, dat)
+      y <- y[, seq_along(nser), drop = drop]
+      if (retclass == "its") {
+        if ("package:its" %in% search() || require("its", quietly = TRUE)) {
+          index(y) <- as.POSIXct(index(y))
+          y <- its::as.its(y)
+        }
+        else {
+          warning("package its could not be loaded: zoo series returned")
+        }
+      }
+      return(y)
+    }
+  }
+
 
 get.histo2d.all <-
   function(value1, value2, limit=20.0)
@@ -259,13 +319,13 @@ do.all     <- function() { do.positions("all") }
 do.positions <-
   function(type) {
     if ( type == "all" ) {
-      pos = get.positions(order="order by triggered_at, ticker_id")
+      pos = get.positions(order="order by ettime, ticker_id")
     } else if ( type == "losers" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and roi < 0 and closed is not null", order="order by roi")
+      pos = get.positions(where="where year(entry_date) = 2009 and roi < 0 and exit_date is not null", order="order by roi")
     } else if ( type == "winners" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and roi > 0 and closed is not null", order="order by roi desc")
+      pos = get.positions(where="where year(entry_date) = 2009 and roi > 0 and exit_date is not null", order="order by roi desc")
     } else if ( type == "non" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and closed is null", order="order by roi")
+      pos = get.positions(where="where year(entry_date) = 2009 and exit_date is null", order="order by roi")
     } else {
       print("invalid arg")
     }
@@ -278,7 +338,7 @@ strategy=""
 get.positions <-
   function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, triggered_at", where="") {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select positions.id as id, symbol, date(triggered_at) as tdate, date(entry_date) as edate, date(exit_date) as xdate, trigger_price as tprice, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
+    sql <- paste("select positions.id as id, symbol, date(ettime) as tdate, date(entry_date) as edate, date(exit_date) as xdate, etprice as tprice, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
                  "on tickers.id = ticker_id", where, strategy, order)
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)

@@ -1,11 +1,7 @@
 module Sim
-  class ConfigurationMgr < Subsystem
-    attr_reader :master_config
-    def initialize(sm)
-      super(sm, self.class)
-    end
+  class ConfigurationMgr
 
-    def init_config()
+    def initialize()
       @master_config = YAML.load_file(File.join(RAILS_ROOT, 'lib', 'sim', 'config.yml'))
     end
 

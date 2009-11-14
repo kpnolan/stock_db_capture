@@ -1,8 +1,17 @@
 module Sim
   class PortfolioMgr < Subsystem
 
-    def initialize(sm)
-      super(sm, self.class)
+    attr_reader :min_balance, :reinvest_factor, :order_limit, :portfolio_size
+
+    def initialize(sm, cm)
+      super(sm, cm, self.class)
+      @reinvest_factor = cval(:reinvest_percent) / 100.0
+      @portfolio_size = cval(:portfolio_size)
+    end
+
+    def post_dispatch_hook()
+      @min_balance = minimum_balance()
+      @order_limit = max_order_amount()
     end
 
     def open_position_count()
@@ -18,15 +27,15 @@ module Sim
     end
 
     def pool_size()
-      Position.pool_size_on_date(sysdate())
-    end
-
-    def max_portfolio_size()
-      cval(:portfolio_size).to_i
+      Position.normal.pool_size_on_date(sysdate())
     end
 
     def num_vacancies()
-      max_portfolio_size() - open_position_count()
+      if current_balance() > min_balance
+        [current_balance() * reinvest_factor / order_limit,  portfolio_size - open_position_count(), 0].max
+      else
+        0
+      end
     end
 
     def market_value(date)

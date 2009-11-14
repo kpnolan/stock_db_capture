@@ -5,6 +5,14 @@
     = lkup ticker.exchange, 'symbol'
   %td.listing
     = h ticker.name
+  %td.sector_id
+    = lkup ticker.sector
+  %td.industry_id
+    = lkup ticker.industry
+  %td.flags
+    = format_flags(ticker)
+  %td.retr_count
+    = h ticker.retry_count
   %td.listing
     = link_to 'Listing', :controller => 'current_listing', :action => 'show', :ticker_id => ticker.id
   %td.show

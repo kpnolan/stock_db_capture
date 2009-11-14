@@ -50,10 +50,6 @@ class BtestPosition < ActiveRecord::Base
 
   extend TradingCalendar
 
-  def consumed_margin
-    (entry_price - etprice)/etprice
-  end
-
   def xtdays_held
     Position.trading_days_between(entry_date, xttime)
   end
@@ -109,8 +105,9 @@ class BtestPosition < ActiveRecord::Base
     #
     def open(position, entry_time, entry_price, options={})
       short = options[:short]
-      return nil unless find(:first, :conditions => { :ticker_id => position.ticker_id, :entry_date => entry_time }).nil?
-      position.update_attributes!(:entry_price => entry_price, :entry_date => entry_time, :num_shares => 1, :short => short)
+      cmargin = (entry_price - position.etprice)/position.etprice
+      position.update_attributes!(:entry_price => entry_price, :entry_date => entry_time,
+                                  :num_shares => 1, :short => short, :consumed_margin => cmargin)
       position
     end
 

@@ -4,23 +4,34 @@ module Sim
     extend Forwardable
     include CurrentMethod
 
-    def_delegators :@system_mgr, :clock, :sysdate, :error, :info
-    def_delegators :@system_mgr, :config_hash
-    def_delegators :@system_mgr, :buy, :sell
-    def_delegators :@system_mgr, :credit, :debit, :funds_available, :current_balance
-    def_delegators :@system_mgr, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value
-    def_delegators :@system_mgr, :sell_mature_positions
+    attr_accessor :sm, :cm, :op, :mm, :pm, :ch, :pc
 
-    attr_reader :system_mgr, :config
+    def_delegators :@sm, :clock, :sysdate, :error, :info, :inc_opened_positions
+    def_delegators :@op, :buy, :sell, :max_order_amount
+    def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance
+    def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value
+    def_delegators :@ch, :find_candiates
+    def_delegators :@pc, :sell_mature_positions
+    def_delegators :@cm, :config_hash
 
-    def initialize(sm, klass)
-      @system_mgr = sm
+    attr_reader :config
+
+    def initialize(sm, cm, klass)
+      self.sm = sm
+      self.cm = cm
       @subclass = klass
-      init_config()
     end
 
-    def init_config()
-      @config = system_mgr.config_hash(@subclass)
+    def init_dispatch()
+      self.pm = sm.pm
+      self.op = sm.op
+      self.mm = sm.mm
+      self.ch = sm.ch
+      self.pc = sm.pc
+    end
+
+    def config
+      @config ||= config_hash(@subclass)
     end
 
     def cval(key)
@@ -28,11 +39,11 @@ module Sim
     end
 
     def info(msg)
-      @system_mgr.info(@subclass, calling_method(), msg)
+      sm.info(@subclass, calling_method(), msg)
     end
 
     def error(msg)
-      @system_mgr.error(@subclass, calling_method(), msg)
+      sm.error(@subclass, calling_method(), msg)
     end
   end
 end

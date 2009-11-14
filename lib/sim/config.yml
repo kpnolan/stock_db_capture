@@ -1,8 +1,12 @@
 system_mgr:
+  prefix:                           # the string prefixed to reports
   start_date: 2000-1-1
-  end_date: 2009-9-30
+  end_date: 2009-11-2
+  log: [SimSummary]
+  output: [SimSummary, SimPosition]
 portfolio_mgr:
   portfolio_size: 20
+  reinvest_percent: 50              # Set this to zero to not reinvest (then the portfolio size drives entries)
 order_processor:
   order_charge: 7.00
   max_order_amount: 10000.00
@@ -11,4 +15,4 @@ order_processor:
   exit_slippage: close
 money_mgr:
   initial_balance: 200000.00
-  minimum_balance: 10000.00
+  minimum_balance: 10000.00         # this will affect the cash drawdowns, heavy hammer, but it works

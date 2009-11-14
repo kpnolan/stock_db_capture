@@ -21,6 +21,7 @@ class ExitTrigger < ActiveRecord::Base
 
   def clear_associations_if_dirty
     positions.clear if changed?
+    btest_positions.clear if changed?
   end
 
   # Convert the yaml formatted hash of params back into a hash

@@ -1,18 +1,21 @@
 system_mgr:
   prefix:                           # the string prefixed to reports
-  start_date: 2000-1-1
-  end_date: 2009-11-2
-  log: [SimSummary]
-  output: [SimSummary, SimPosition]
+  start_date: 2000-1-1              # This represents the minima
+  end_date: 2009-11-2               # This represents the maxima
+  log: [SimSummary, SimPositions]   # These are the only values it can take. If you don't look at a log file it just wastes time
+                                    # generating one so don't specify want you don't look at
+  output: [SimSummary, SimPosition] # When I get to it, these will generate .csv files. It's only for convenience since the exact
+                                    # same information can be retrieved from the database in exactly the same way as you've done this b4
 portfolio_mgr:
-  portfolio_size: 20
+  portfolio_size: 20                # Max portfolio size if you're not reinvesting. Try 50 and see what happens
   reinvest_percent: 50              # Set this to zero to not reinvest (then the portfolio size drives entries)
 order_processor:
-  order_charge: 7.00
-  max_order_amount: 10000.00
+  order_charge: 7.00                # This is what you said an order costs. For every order generated this value is added to the
+                                    # amount of the order
+  max_order_amount: 10000.00        # Dollars. You said the max order (and min order) is $10K. Change this and see what happens.
   min_order_amount: 10000.00
-  entry_slippage: close
-  exit_slippage: close
+  entry_slippage: close             # I only support close (which mean no slippage). Other values could be "high"
+  exit_slippage: close              # I only support close (which mean no slippage). Other values could be "low"
 money_mgr:
-  initial_balance: 200000.00
-  minimum_balance: 10000.00         # this will affect the cash drawdowns, heavy hammer, but it works
+  initial_balance: 200000.00        # My understand is we start with 200K. Change it to 500K and see what happens.
+  minimum_balance: 10000.00         # I will not generate orders if there is not at least this much in the cash balance.

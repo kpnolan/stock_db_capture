@@ -37,6 +37,81 @@ get.rejects <-
     x
   }
 
+draw.down <-
+  function()
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    sql <- "select sim_date as date, portfolio_value + cash_balance as total from save_sim_summaries order by sim_date"
+    res = dbSendQuery(con, sql)
+    fr = fetch(res, n = -1)
+    if ( nrow(fr) == 0 ) {
+      cat("Returned data is empty. Check SQL\n")
+      return(FALSE);
+    }
+    dbDisconnect(con)
+    x = ts(fr$total, start=c(2000, 2), frequency=252)
+
+    main = "Max Draw Down"
+    ylab = "Market Value + Cash"
+    mdd = maxDrawDown(x)
+    plot(x,main=main, ylab=ylab)
+    grid()
+    segments(time(x)[mdd$from], x[mdd$from], time(x)[mdd$to], x[mdd$from])
+    segments(time(x)[mdd$from], x[mdd$to], time(x)[mdd$to], x[mdd$to])
+    mid = time(x)[(mdd$from + mdd$to)/2]
+    arrows(mid, x[mdd$from], mid, x[mdd$to], col = 2)
+  }
+
+
+sim.summary.ts <-
+    function(retclass = c("zoo", "its", "ts"), origin = "1899-12-30", quote=c("total"), drop = FALSE)
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    sql <- "select sim_date as date, portfolio_value + cash_balance as total from sim_summaries order by sim_date"
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    if ( nrow(x) == 0 ) {
+      cat("Returned data is empty. Check SQL\n")
+      return(FALSE);
+    }
+    return(x)
+    nser <- pmatch(quote, names(x)[-1]) + 1
+    n <- nrow(x)
+
+    main = "Simulation Timeseries"
+    xlab = value
+    dbDisconnect(con)
+
+    dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+
+    if (retclass == "ts") {
+      jdat <- unclass(julian(dat, origin = as.Date(dat[1])))
+      ind <- jdat - jdat[1] + 1
+      y <- matrix(NA, nrow = max(ind), ncol = length(nser))
+      y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
+      colnames(y) <- names(x)[nser]
+      y <- y[, seq_along(nser), drop = drop]
+      return(ts(y, start = jdat[1], end = jdat[n]))
+    }
+    else {
+      x <- as.matrix(x[, nser, drop = FALSE])
+      rownames(x) <- NULL
+      y <- zoo(x, dat)
+      y <- y[, seq_along(nser), drop = drop]
+      if (retclass == "its") {
+        if ("package:its" %in% search() || require("its", quietly = TRUE)) {
+          index(y) <- as.POSIXct(index(y))
+          y <- its::as.its(y)
+        }
+        else {
+          warning("package its could not be loaded: zoo series returned")
+        }
+      }
+      return(y)
+    }
+  }
+
+
 
 get.rejected.ts <-
   function(retclass = c("zoo", "its", "ts"), origin = "1899-12-30", drop = FALSE)
@@ -129,7 +204,7 @@ get.id.quote <-
             retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
 {
   if (missing(start))
-    start <- "2000-01-02"
+    start <- "2009-01-02"
   if (missing(end))
     end <- format(Sys.Date() - 1, "%Y-%m-%d")
   retclass <- match.arg(retclass)
@@ -137,7 +212,7 @@ get.id.quote <-
   end <- as.Date(end)
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
   sql <- paste("select bartime, opening as Open, high as High, low as Low, close as Close from intra_day_bars left outer join tickers ",
-    " on tickers.id = ticker_id where symbol = '", instrument, "' and date(start_date) >= '", start, "' and date(start_date) <= '", end, "' order by bartime desc", sep="")
+    " on tickers.id = ticker_id where symbol = '", instrument, "' and bardate between '", start, "' and '", end, "' order by bartime desc", sep="")
   res = dbSendQuery(con, sql)
   x = fetch(res, n = -1)
   dbDisconnect(con)

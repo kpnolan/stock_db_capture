@@ -56,8 +56,8 @@ draw.down <-
     mdd = maxDrawDown(x)
     plot(x,main=main, ylab=ylab)
     grid()
-    segments(time(x)[mdd$from]-1, x[mdd$from], time(x)[mdd$to]+1, x[mdd$from])
-    segments(time(x)[mdd$from]-1, x[mdd$to], time(x)[mdd$to]+1, x[mdd$to])
+    segments(time(x)[mdd$from]-0.25, x[mdd$from], time(x)[mdd$to]+0.25, x[mdd$from])
+    segments(time(x)[mdd$from]-0.25, x[mdd$to], time(x)[mdd$to]+0.25, x[mdd$to])
     mid = time(x)[(mdd$from + mdd$to)/2]
     arrows(mid, x[mdd$from], mid, x[mdd$to], col = 2)
   }
@@ -176,7 +176,7 @@ get.histo2d.all <-
 get.histo2d <-
   function(value1, value2, scan)
   {
-    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_development")
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
     sql <- paste("select ", value1,",", value2, " from positions left outer join scans on scans.id = scan_id where name = '", scan ,"'", sep="")
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)

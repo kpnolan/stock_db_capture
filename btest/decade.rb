@@ -14,6 +14,7 @@ analytics do
   # on a downward trend
   desc 'Open triggered positions with a positive MACD or positive momentum'
   open_position :macd_relative_momentum, :result => :first do |params|
+# UNCOMMENT THESE LINES TO GET FILTER POSITIONS
 #    macd_hist = macdfix(:result => :macd_hist).to_a
 #    if (index = macd_hist.index { |val| val >= 0.0 })
 #      [index+result_offset]
@@ -21,7 +22,7 @@ analytics do
 #      delta_closes = anchored_mom(params)
 #      indexes = under_threshold(0.0, delta_closes)
 #    end
-    [begin_index]
+    [begin_index]   # COMMENT THIS LINE OUT TO GET FILTERED POSITIONS
   end
 
   #-----------------------------------------------------------------------------------------------------------------

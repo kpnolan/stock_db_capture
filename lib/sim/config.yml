@@ -3,7 +3,7 @@ system_mgr:
   start_date: 2000-1-1              # This represents the minima
   end_date: 2009-11-2               # This represents the maxima
   log: [SimSummary, SimPositions]   # These are the only values it can take. If you don't look at a log file it just wastes time
-                                    # generating one so don't specify want you don't look at
+                                    # generating one so don't specify what you don't look at
   output: [SimSummary, SimPosition] # When I get to it, these will generate .csv files. It's only for convenience since the exact
                                     # same information can be retrieved from the database in exactly the same way as you've done this b4
 portfolio_mgr:

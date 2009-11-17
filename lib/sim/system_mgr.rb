@@ -14,14 +14,14 @@ module Sim
     def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value, :open_position_count
     def_delegators :@ch, :find_candidates
     def_delegators :@pc, :sell_mature_positions
+    def_delegators :@rg, :generate_reports
 
     attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population
     attr_accessor :positions_closed, :positions_opened, :positions_opened
-    attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc
+    attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg
 
-    def initialize()
-      self.cm = ConfigurationMgr.new # must be first!!
-      @config = cm.config_hash(self.class)
+    def initialize(options)
+      self.cm = ConfigurationMgr.new(options) # must be first!!
 
       @subsystems = []
       @subsystems << self.pm = PortfolioMgr.new(self, cm)
@@ -29,6 +29,7 @@ module Sim
       @subsystems << self.mm = MoneyMgr.new(self, cm)
       @subsystems << self.ch = Chooser.new(self, cm)
       @subsystems << self.pc = PositionCloser.new(self, cm)
+      @subsystems << self.rg = ReportGenerater(self, cm)
 
       subsystems.each { |ss| ss.init_dispatch() }
       subsystems.each { |ss| ss.post_dispatch_hook() if ss.respond_to? :post_dispatch_hook }
@@ -38,7 +39,7 @@ module Sim
       @start_date = cval(:start_date).to_date
       @end_date = cval(:end_date).to_date
       @clock = start_date.to_time.localtime.change(:hour => 6, :min => 30)
-      @population = cval(:population)
+      @population = cval(:position_table)
       raise ArgumentError, "population was not specified in config.yml file" if population.nil?
 
       log_levels = cval(:log).map { |name| name.constantize }
@@ -62,7 +63,7 @@ module Sim
     end
 
     def cval(key)
-      config[key.to_s]
+      cm.options.send(:key)
     end
 
     def increment_date()
@@ -126,6 +127,7 @@ module Sim
         reset()
         sysmgr = SystemMgr.new()
         sysmgr.sim_loop()
+        generate_reports()
         $el.log_event("Positions Opened: #{positions_opened}")
         $el.log_event("Positions Closed: #{positions_closed}")
       end

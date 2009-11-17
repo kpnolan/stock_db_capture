@@ -7,6 +7,7 @@ module Sim
     include CurrentMethod
 
     attr_accessor :sm, :cm, :op, :mm, :pm, :ch, :pc
+    attr_reader :subclass
 
     def_delegators :@sm, :clock, :sysdate, :error, :info, :inc_opened_positions
     def_delegators :@op, :buy, :sell, :max_order_amount
@@ -14,9 +15,6 @@ module Sim
     def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value
     def_delegators :@ch, :find_candiates
     def_delegators :@pc, :sell_mature_positions
-    def_delegators :@cm, :config_hash
-
-    attr_reader :config
 
     def initialize(sm, cm, klass)
       self.sm = sm
@@ -32,20 +30,16 @@ module Sim
       self.pc = sm.pc
     end
 
-    def config
-      @config ||= config_hash(@subclass)
-    end
-
     def cval(key)
-      config[key.to_s]
+      cm.options.send(key)
     end
 
     def info(msg)
-      sm.info(@subclass, calling_method(), msg)
+      sm.info(subclass, calling_method(), msg)
     end
 
     def error(msg)
-      sm.error(@subclass, calling_method(), msg)
+      sm.error(subclass, calling_method(), msg)
     end
   end
 end

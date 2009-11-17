@@ -4,62 +4,87 @@
 
 require 'optparse'
 require 'ostruct'
+require 'pp'
+require 'date'
 
 options = OpenStruct.new
+
 optparse = OptionParser.new do |opts|
   opts.banner = "Usage simulate [options]"
 
-  opts.on('-P', '--prefix [STRING]', "prefix STRING to output csv files") do |p|
+  opts.on('-P', '--prefix STRING', "prefix STRING to output csv files") do |p|
     options.prefix = p
   end
 
-  opts.on('-o', '--output [summary,positions,all]', "what to output summary (one row per day), positions (one row per position, all (both) ") do |o|
+  opts.on('-o', '--output summary,positions', Array, "list of what to output summary (one row per day), positions (one row per position") do |o|
     options.output = o
   end
 
-  opts.on('-s', '--start_date [DATE]', "start the simulation on DATE") do |d|
+  opts.on('-s', '--start_date DATE', "start the simulation on DATE (defaults to 1/1/2000") do |d|
     options.start = Date.parse(d)
   end
 
-  opts.on('-e', '--end_date [DATE]', "simulate up to DATE") do |d|
-    options.end = d || Date.parse(d)
+  opts.on('-e', '--end_date DATE', "simulate up to DATE (defaults to last bar in DB)") do |d|
+    options.end = Date.parse(d)
   end
 
-  opts.on('-l', '--log-level [level]', "log level can be 0, 1, 2 for none, summary, or detailed repsectively") do |l|
-    options.log = l || l.to_i
+  opts.on('-l', '--log-level LEVEL', "log level can be 0, 1, 2 for none, summary, or detailed repsectively (defaults to 0)") do |l|
+    options.log = l.to_i
   end
 
-  opts.on('-p', '--portfolio-size [num positions]', "The max number of positions allowed in the portfolio") do |ps|
-    options.size = ps || ps.to_i
+  opts.on('-p', '--portfolio-size NUM_POSITIONS', "The max number of positions allowed in the portfolio (defaults to min_balance/order_amount)") do |ps|
+    options.portfolio_size = ps.to_i
   end
 
-  opts.on('-r', '--reinvest-percent [percent]', "Percentage of the cash on hand to reinvest") do |p|
-    options.reinvest = p || ps.to_i
+  opts.on('-r', '--reinvest-percent NUMBER', Float, "Percentage of the cash on hand to reinvest") do |p|
+    options.reinvest_percent = ps.to_f
   end
 
-  opts.on('-a', '--order-amount [dollars]', "The amount, in dollars, spent for every position, ") do |os|
-    options.order_amount = os || os.to_i
+  opts.on('-a', '--order-amount NUMBER', Float, "The dollar limit spent for every position, the more expensive the stock the fewer the shares for that position") do |os|
+    options.order_amount = os
   end
 
-  opts.on('-i', '--initial-balance [dollars]', "The starting cash balance of the portfolio") do |i|
-    options.balance = i || i.to_f
+  opts.on('-i', '--initial-balance NUMBER', Float, "The starting cash balance of the portfolio") do |i|
+    options.initial_balance = i
   end
 
+  opts.on('-m', '--minimum-balance NUMBER', Float, "The cash balance below which orders will not be generated") do |m|
+    options.minimum_balance = m
+  end
 
+  opts.on('-E', '--entry-slippage close|high', "The way slippage on buy orders is computed. close=none, high=use the high price of the last bar of the day") do |s|
+    options.entry_slippage = s
+  end
 
+  opts.on('-X', '--exit-slippage close|low', "The way slippage on sell orders is computed. close=none, low=use the low price of the last bar of the day") do |s|
+    options.entry_slippage = s
+  end
+
+  opts.on('-C', '--order-charge NUMBER', Float, "The cost of and order (defaults to 7.00 dollars)") do |c|
+    options.order_charge = m
+  end
+
+  opts.on('-T', '--position-table filtered|unfiltered', "The name of the position table in the DB containing the source population of positions") do |t|
+    options.position_table = t
+    raise ArgumentError, '--position-table can take only the values "filtered" or "unfiltered" (no default)' if t != 'filtered' or t != 'unfiltered'
+  end
 
   opts.on('-h', '--help', 'Display this screen') do
     puts opts
+    puts <<-EOS
+
+The --portfolio-size and the --reinvest-percent options are mutually exclusive. When --reinvest-percent is given
+the portfolio size will continue to grow as the cash balance grows. The percentage determines how much of the
+cash balance is reinvested into the portfolio, growing it in number of positions. Specify a --portfolio-size if
+you want to keep the portfolio size static at the given number of positions. Hence the cash balance will continue
+to grow as positions are sold. The only slippage currently implemented is "close", meaning no slippage.
+EOS
     exit
   end
 end
 
 optparse.parse!
-puts "Running #{options[:parallel]} processes"
-options[:parallel].times do |proc_id|
-  puts "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} &"
-  system "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} &"
-end
+pp options
 
 # Local Variables:
 # mode:ruby

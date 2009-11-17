@@ -67,6 +67,10 @@ class SimPosition < ActiveRecord::Base
     exit_date || entry_date
   end
 
+  def symbol
+    ticker.symbol
+  end
+
   def to_s()
     if exit_date.nil?
       format('OPEN %s %d shares@$%3.2f', ticker.symbol, quantity, entry_price)

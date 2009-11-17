@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 indicators(:ema) do
   indicator :ema, :time_period => 5
   indicator :ema, :time_period => 14

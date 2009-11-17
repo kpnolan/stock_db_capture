@@ -35,6 +35,9 @@
 #  ticker_id        :integer(4)      not null
 #  sim_position_id  :integer(4)
 #
+
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'ostruct'
 
 class Order < ActiveRecord::Base

@@ -13,6 +13,8 @@
 #  iteration   :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class Study < ActiveRecord::Base
   has_many :factors, :dependent => :delete_all
   has_many :study_results, :through => :factors, :dependent => :delete_all

@@ -26,6 +26,8 @@
 #  watch_list_id :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class TdaPosition < ActiveRecord::Base
   belongs_to :ticker
   #belongs_to :strategy, :foreign_key => :estrategy_id

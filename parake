@@ -1,4 +1,5 @@
 #!/bin/bash
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 ((i = 0))
 while (( i < $2 ))
 do

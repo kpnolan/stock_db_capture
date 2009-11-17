@@ -11,6 +11,8 @@
 #  value                 :float
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class DerivedValue < ActiveRecord::Base
   belongs_to :derived_value_type
 end

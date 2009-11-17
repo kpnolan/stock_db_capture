@@ -11,6 +11,8 @@
 #  seq        :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class TaSeries < ActiveRecord::Base
   belongs_to :ticker
   belongs_to :ta_spec

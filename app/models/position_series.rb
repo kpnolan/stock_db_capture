@@ -10,6 +10,8 @@
 #  value        :float
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class PositionSeries < ActiveRecord::Base
   belongs_to :position
   belongs_to :indicator

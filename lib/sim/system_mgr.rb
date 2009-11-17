@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'ostruct'
 
 module Sim
@@ -13,8 +15,8 @@ module Sim
     def_delegators :@ch, :find_candidates
     def_delegators :@pc, :sell_mature_positions
 
-    attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :positions_opened, :positions_closed
-    attr_accessor :positions_closed, :positions_opened
+    attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population
+    attr_accessor :positions_closed, :positions_opened, :positions_opened
     attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc
 
     def initialize()
@@ -36,6 +38,8 @@ module Sim
       @start_date = cval(:start_date).to_date
       @end_date = cval(:end_date).to_date
       @clock = start_date.to_time.localtime.change(:hour => 6, :min => 30)
+      @population = cval(:population)
+      raise ArgumentError, "population was not specified in config.yml file" if population.nil?
 
       log_levels = cval(:log).map { |name| name.constantize }
       $el = EventLogger.instance()
@@ -53,6 +57,7 @@ module Sim
     end
 
     def db_init()
+      Position.set_table_name(poulation + '_positions')
       credit(initial_balance(), clock, :msg => "Initial Balance")
     end
 

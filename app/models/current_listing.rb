@@ -38,6 +38,8 @@
 #  weeks52_change_percent_from_high        :float
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class CurrentListing < ActiveRecord::Base
   belongs_to :ticker
 

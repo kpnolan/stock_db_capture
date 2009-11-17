@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 study(:rfamily, :increment => :redo) do
   desc "Study the relationships between the favorite 'r' indicators and nreturn and close"
   factor :rsi, :time_period => 14

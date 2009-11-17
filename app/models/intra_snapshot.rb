@@ -14,6 +14,8 @@
 #  volume    :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class IntraSnapshot < ActiveRecord::Base
   COLUMN_ORDER = [:close, :high, :low, :opening, :volume, :start_time]
   HOURS_AT_3PM = 15

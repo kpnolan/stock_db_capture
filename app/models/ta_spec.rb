@@ -8,6 +8,8 @@
 #  time_period  :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class TaSpec < ActiveRecord::Base
   belongs_to :indicator
 

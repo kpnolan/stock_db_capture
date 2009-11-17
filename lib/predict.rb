@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 module Predict
   def linear(xvec, yvec, xval)
     x = xvec.is_a?(Array) ? xvec.to_gv : xvec

@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'yahoo_finance/yahoofinance'
 
 module YahooFinance

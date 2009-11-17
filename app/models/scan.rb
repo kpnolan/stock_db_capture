@@ -16,6 +16,8 @@
 #  postfetch   :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class Scan < ActiveRecord::Base
 
   include TradingCalendar

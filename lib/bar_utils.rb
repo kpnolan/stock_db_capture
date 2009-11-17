@@ -146,6 +146,12 @@ module BarUtils
     count
   end
 
+  def init_logger(filename)
+    path = File.join(RAILS_ROOT, 'log', filename.to_s+'.log')
+    system("cat /dev/null > #{path}")
+    logger = ActiveSupport::BufferedLogger.new(path)
+  end
+
   class Splitter
     attr_reader :id, :sub_array
     def initialize(id_array)

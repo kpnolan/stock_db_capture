@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 module Holidays
 
   FROM1980 = [ '1980-01-01', '1980-02-18', '1980-04-04', '1980-05-26', '1980-07-04',

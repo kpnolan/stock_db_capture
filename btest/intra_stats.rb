@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 daily_params = { :resolution => 1.day }
 intra_params = { :resolution => 30.minutes, :stride => 13, :stride_offset => 0, :pre_buffer => 0, :post_buffer => 0 }
 

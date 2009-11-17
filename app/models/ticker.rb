@@ -16,6 +16,8 @@
 #  delisted    :boolean(1)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class Ticker < ActiveRecord::Base
   belongs_to :exchange
   belongs_to :sector

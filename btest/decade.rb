@@ -1,3 +1,5 @@
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 analytics do
 
   #-----------------------------------------------------------------------------------------------------------------
@@ -15,14 +17,14 @@ analytics do
   desc 'Open triggered positions with a positive MACD or positive momentum'
   open_position :macd_relative_momentum, :result => :first do |params|
 # UNCOMMENT THESE LINES TO GET FILTER POSITIONS
-#    macd_hist = macdfix(:result => :macd_hist).to_a
-#    if (index = macd_hist.index { |val| val >= 0.0 })
-#      [index+result_offset]
-#    else
-#      delta_closes = anchored_mom(params)
-#      indexes = under_threshold(0.0, delta_closes)
-#    end
-    [begin_index]   # COMMENT THIS LINE OUT TO GET FILTERED POSITIONS
+    macd_hist = macdfix(:result => :macd_hist).to_a
+    if (index = macd_hist.index { |val| val >= 0.0 })
+      [index+result_offset]
+    else
+      delta_closes = anchored_mom(params)
+      indexes = under_threshold(0.0, delta_closes)
+    end
+#    [begin_index]   # COMMENT THIS LINE OUT TO GET FILTERED POSITIONS
   end
 
   #-----------------------------------------------------------------------------------------------------------------
@@ -55,7 +57,7 @@ end
 populations do
   liquid = "min(volume) >= 75000"
    $scan_names = returning [] do |scan_vec|
-     (2000..2008).each do |year|
+     (2000..1999).each do |year|
        start_date = Date.civil(year, 1, 1)
        scan_name = "year_#{year}".to_sym
        end_date = start_date + 1.year - 1.day

@@ -13,6 +13,8 @@
 #  pos_closed          :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class SimSummary < ActiveRecord::Base
 
   validates_presence_of :sim_date, :positions_held, :positions_available, :portfolio_value, :cash_balance, :pos_opened, :pos_closed

@@ -1,0 +1,66 @@
+#!/usr/bin/env ruby
+
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
+require 'optparse'
+require 'ostruct'
+
+options = OpenStruct.new
+optparse = OptionParser.new do |opts|
+  opts.banner = "Usage simulate [options]"
+
+  opts.on('-P', '--prefix [STRING]', "prefix STRING to output csv files") do |p|
+    options.prefix = p
+  end
+
+  opts.on('-o', '--output [summary,positions,all]', "what to output summary (one row per day), positions (one row per position, all (both) ") do |o|
+    options.output = o
+  end
+
+  opts.on('-s', '--start_date [DATE]', "start the simulation on DATE") do |d|
+    options.start = Date.parse(d)
+  end
+
+  opts.on('-e', '--end_date [DATE]', "simulate up to DATE") do |d|
+    options.end = d || Date.parse(d)
+  end
+
+  opts.on('-l', '--log-level [level]', "log level can be 0, 1, 2 for none, summary, or detailed repsectively") do |l|
+    options.log = l || l.to_i
+  end
+
+  opts.on('-p', '--portfolio-size [num positions]', "The max number of positions allowed in the portfolio") do |ps|
+    options.size = ps || ps.to_i
+  end
+
+  opts.on('-r', '--reinvest-percent [percent]', "Percentage of the cash on hand to reinvest") do |p|
+    options.reinvest = p || ps.to_i
+  end
+
+  opts.on('-a', '--order-amount [dollars]', "The amount, in dollars, spent for every position, ") do |os|
+    options.order_amount = os || os.to_i
+  end
+
+  opts.on('-i', '--initial-balance [dollars]', "The starting cash balance of the portfolio") do |i|
+    options.balance = i || i.to_f
+  end
+
+
+
+
+  opts.on('-h', '--help', 'Display this screen') do
+    puts opts
+    exit
+  end
+end
+
+optparse.parse!
+puts "Running #{options[:parallel]} processes"
+options[:parallel].times do |proc_id|
+  puts "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} &"
+  system "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} &"
+end
+
+# Local Variables:
+# mode:ruby
+# End:

@@ -18,6 +18,8 @@
 #  bardate      :date
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class IntraDayBar < ActiveRecord::Base
 
   COLUMN_ORDER = [:close, :high, :low, :opening, :volume, :bartime]

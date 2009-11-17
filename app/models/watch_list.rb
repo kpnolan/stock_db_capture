@@ -30,6 +30,8 @@
 #  opened_on         :date
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class WatchList < ActiveRecord::Base
   set_table_name 'watch_list'
 

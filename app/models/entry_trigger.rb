@@ -9,6 +9,8 @@
 #  description :string(255)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'yaml'
 
 class EntryTrigger < ActiveRecord::Base

@@ -16,6 +16,8 @@
 #  secmid       :integer(4)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 class Snapshot < ActiveRecord::Base
   belongs_to :ticker
 

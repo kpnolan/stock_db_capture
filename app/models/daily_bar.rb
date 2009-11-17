@@ -16,6 +16,8 @@
 #  source    :string(1)
 #
 
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
 require 'date'
 
 class DailyBar < ActiveRecord::Base

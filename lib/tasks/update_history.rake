@@ -13,25 +13,25 @@ namespace :active_trader do
 
   desc "Update Intra Day Bars"
   task :update_intraday => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_intraday.log'))
+    logger = init_logger(:update_intraday)
     update_intraday(logger)
   end
 
   desc "Load TDA"
-  task :load_TDA => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_TDA.log'))
+  task :load_tda => :environment do
+    logger = init_logger(:load_tda)
     load_TDA(logger)
   end
 
   desc "Update TDA"
   task :update_tda => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_TDA.log'))
+    logger = init_logger(:update_tda)
     update_TDA(logger)
   end
 
   desc "Mark Delisted TDA"
   task :mark_delisted => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'detect_delisting.log'))
+    logger = init_logger(:mark_delisted)
     detect_delisted(logger)
   end
 
@@ -43,31 +43,31 @@ namespace :active_trader do
 
   desc "Load Yahoo"
   task :load_yahoo => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_yahoo.log'))
+    logger = init_logger(:load_yahoo)
     load_yahoo(logger)
   end
 
   desc "Update Yahoo"
   task :update_yahoo => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_yahoo.log'))
+    logger = init_logger(:update_yahoo)
     update_yahoo(logger)
   end
 
   desc "Load Google"
   task :load_google => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'load_google.log'))
+    logger = init_logger(:load_google)
     load_google(logger)
   end
 
   desc "Update Google Dailys"
   task :update_google => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'update_google.log'))
+    logger = init_logger(:update_google)
     update_google(logger)
   end
 
   desc "Update Splits"
   task :load_splits => :environment do
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'splits.log'))
+    logger = init_logger(:load_splits)
     load_splits(logger)
   end
 
@@ -76,7 +76,7 @@ namespace :active_trader do
     model = ENV['MODEL'].nil? ? GoogleBar : ENV['MODEL']
     start_date = ENV['START'].nil? ? nil : Date.parse( ENV['START'])
     end_date = ENV['END'].nil? ? nil : Date.parse( ENV['END'])
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'backfill.log'))
+    logger = init_logger(:fill_missing_bars)
     fill_missing_bars(logger)
   end
 
@@ -85,7 +85,7 @@ namespace :active_trader do
     model = ENV['MODEL'].nil? ? GoogleBar : ENV['MODEL']
     start_date = ENV['START'].nil? ? nil : Date.parse( ENV['START'])
     end_date = ENV['END'].nil? ? nil : Date.parse( ENV['END'])
-    logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'missing_bars.log'))
+    logger = init_logger(:missing_bars)
     report_missing_bars(logger, model, start_date, end_date)
   end
 

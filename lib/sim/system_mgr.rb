@@ -3,6 +3,11 @@
 require 'ostruct'
 
 module Sim
+
+  def Sim.run(options)
+    SystemMgr.run(options)
+  end
+
   class SystemMgr
 
     extend TradingCalendar
@@ -21,7 +26,11 @@ module Sim
     attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg
 
     def initialize(options)
-      self.cm = ConfigurationMgr.new(options) # must be first!!
+      prefix = options.prefix ? options.prefix+'_' : ''
+
+      @logger =  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', prefix+'simulator.log'))
+
+      self.cm = ConfigurationMgr.new(self, options) # must be first!!
 
       @subsystems = []
       @subsystems << self.pm = PortfolioMgr.new(self, cm)
@@ -29,12 +38,10 @@ module Sim
       @subsystems << self.mm = MoneyMgr.new(self, cm)
       @subsystems << self.ch = Chooser.new(self, cm)
       @subsystems << self.pc = PositionCloser.new(self, cm)
-      @subsystems << self.rg = ReportGenerater(self, cm)
+      @subsystems << self.rg = ReportGenerator.new(self, cm)
 
       subsystems.each { |ss| ss.init_dispatch() }
       subsystems.each { |ss| ss.post_dispatch_hook() if ss.respond_to? :post_dispatch_hook }
-
-      @logger =  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', 'simulator.log'))
 
       @start_date = cval(:start_date).to_date
       @end_date = cval(:end_date).to_date
@@ -42,7 +49,14 @@ module Sim
       @population = cval(:position_table)
       raise ArgumentError, "population was not specified in config.yml file" if population.nil?
 
-      log_levels = cval(:log).map { |name| name.constantize }
+      log_levels = case cval(:log)
+                     when 0 : []
+                     when 1 : [SimSumary]
+                     when 2 : [SimSummay, SimPosition]
+                   else
+                     [SimSummay, SimPosition]
+                   end
+
       $el = EventLogger.instance()
       $el.set_levels(log_levels)
 
@@ -58,12 +72,12 @@ module Sim
     end
 
     def db_init()
-      Position.set_table_name(poulation + '_positions')
+      Position.set_table_name(population + '_positions')
       credit(initial_balance(), clock, :msg => "Initial Balance")
     end
 
     def cval(key)
-      cm.options.send(:key)
+      cm.options.send(key)
     end
 
     def increment_date()
@@ -105,6 +119,11 @@ module Sim
       market_value() + current_balance()
     end
 
+    def log(msg)
+      logger.info(msg)
+      logger.flush()
+    end
+
     def info(subsystem, method, msg)
       logger.info("#{subsystem}:#{method} -- #{msg}")
     end
@@ -123,11 +142,11 @@ module Sim
         SimPosition.connection.execute("SET FOREIGN_KEY_CHECKS = 1")
       end
 
-      def run()
+      def run(options)
         reset()
-        sysmgr = SystemMgr.new()
+        sysmgr = SystemMgr.new(options)
         sysmgr.sim_loop()
-        generate_reports()
+        sysmgr.generate_reports()
         $el.log_event("Positions Opened: #{positions_opened}")
         $el.log_event("Positions Closed: #{positions_closed}")
       end

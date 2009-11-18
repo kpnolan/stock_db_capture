@@ -1,5 +1,4 @@
 #!/usr/bin/env ruby
-
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'optparse'
@@ -28,7 +27,7 @@ optparse = OptionParser.new do |opts|
     options.end = Date.parse(d)
   end
 
-  opts.on('-l', '--log-level LEVEL', "log level can be 0, 1, 2 for none, summary, or detailed repsectively (defaults to 0)") do |l|
+  opts.on('-l', '--log-level LEVEL', "log level can be 0, 1 or 2 for none, summary, or detailed repsectively (defaults to 0)") do |l|
     options.log = l.to_i
   end
 
@@ -36,7 +35,7 @@ optparse = OptionParser.new do |opts|
     options.portfolio_size = ps.to_i
   end
 
-  opts.on('-r', '--reinvest-percent NUMBER', Float, "Percentage of the cash on hand to reinvest") do |p|
+  opts.on('-r', '--reinvest-percent NUMBER', Float, "Percentage of the cash on hand to reinvest defaults to 0") do |p|
     options.reinvest_percent = ps.to_f
   end
 
@@ -66,7 +65,7 @@ optparse = OptionParser.new do |opts|
 
   opts.on('-T', '--position-table filtered|unfiltered', "The name of the position table in the DB containing the source population of positions") do |t|
     options.position_table = t
-    raise ArgumentError, '--position-table can take only the values "filtered" or "unfiltered" (no default)' if t != 'filtered' or t != 'unfiltered'
+    raise ArgumentError, '--position-table can take only the values "filtered" or "unfiltered" (no default)' if t != 'filtered' and t != 'unfiltered'
   end
 
   opts.on('-h', '--help', 'Display this screen') do
@@ -84,7 +83,10 @@ EOS
 end
 
 optparse.parse!
-pp options
+
+require '../config/environment.rb'
+require 'sim/system_mgr'
+Sim.run(options)
 
 # Local Variables:
 # mode:ruby

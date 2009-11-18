@@ -57,7 +57,7 @@ end
 populations do
   liquid = "min(volume) >= 75000"
    $scan_names = returning [] do |scan_vec|
-     (2000..1999).each do |year|
+     (2000..2008).each do |year|
        start_date = Date.civil(year, 1, 1)
        scan_name = "year_#{year}".to_sym
        end_date = start_date + 1.year - 1.day

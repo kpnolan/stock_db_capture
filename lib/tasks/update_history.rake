@@ -93,9 +93,4 @@ namespace :active_trader do
   task :clear_locks => :environment do
     Ticker.connection.execute('update tickers set locked = 0')
   end
-
-  desc "Run Simulator"
-  task :simulate => :environment do
-    Sim::SystemMgr.run()
-  end
 end

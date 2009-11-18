@@ -6,11 +6,11 @@ module Sim
     extend Forwardable
     include CurrentMethod
 
-    attr_accessor :sm, :cm, :op, :mm, :pm, :ch, :pc
+    attr_accessor :sm, :cm, :op, :mm, :pm, :ch, :pc, :rg
     attr_reader :subclass
 
-    def_delegators :@sm, :clock, :sysdate, :error, :info, :inc_opened_positions
-    def_delegators :@op, :buy, :sell, :max_order_amount
+    def_delegators :@sm, :clock, :sysdate, :error, :info, :log, :inc_opened_positions
+    def_delegators :@op, :buy, :sell, :order_amount
     def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance
     def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value
     def_delegators :@ch, :find_candiates
@@ -28,10 +28,15 @@ module Sim
       self.mm = sm.mm
       self.ch = sm.ch
       self.pc = sm.pc
+      self.rg = sm.rg
     end
 
     def cval(key)
       cm.options.send(key)
+    end
+
+    def log(msg)
+      sm.log(msg)
     end
 
     def info(msg)

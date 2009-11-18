@@ -13,7 +13,7 @@ module Sim
     def buy(position)
       if order_amount() < funds_available()
         order = Order.make_buy(position.ticker.id, position.entry_price, clock,
-                               :order_ceiling => max_order_amount, :funds_available => funds_available, :order_charge => order_charge)
+                               :order_ceiling => order_amount, :funds_available => funds_available, :order_charge => order_charge)
         execute(order, :position_id => position.id)
         inc_opened_positions()
       else

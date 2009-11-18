@@ -40,7 +40,7 @@ class SimPosition < ActiveRecord::Base
     end
 
     def exiting_positions(date)
-      find(:all, :include => :position, :conditions => ['date(positions.exit_date) = ?', date] )
+      find(:all, :include => :position, :conditions => ["date(#{Position.table_name}.exit_date) = ?", date] )
     end
 
     def open_positions()

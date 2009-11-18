@@ -1,21 +1,14 @@
-system_mgr:
-  prefix:                           # the string prefixed to reports
-  start_date: 2000-1-1              # This represents the minima
-  end_date: 2009-11-2               # This represents the maxima
-  log: [SimSummary, SimPositions]   # These are the only values it can take. If you don't look at a log file it just wastes time
-                                    # generating one so don't specify what you don't look at
-  output: [SimSummary, SimPosition] # When I get to it, these will generate .csv files. It's only for convenience since the exact
-                                    # same information can be retrieved from the database in exactly the same way as you've done this b4
-portfolio_mgr:
-  portfolio_size: 20                # Max portfolio size if you're not reinvesting. Try 50 and see what happens
-  reinvest_percent: 50              # Set this to zero to not reinvest (then the portfolio size drives entries)
-order_processor:
-  order_charge: 7.00                # This is what you said an order costs. For every order generated this value is added to the
-                                    # amount of the order
-  max_order_amount: 10000.00        # Dollars. You said the max order (and min order) is $10K. Change this and see what happens.
-  min_order_amount: 10000.00
-  entry_slippage: close             # I only support close (which mean no slippage). Other values could be "high"
-  exit_slippage: close              # I only support close (which mean no slippage). Other values could be "low"
-money_mgr:
-  initial_balance: 200000.00        # My understand is we start with 200K. Change it to 500K and see what happens.
-  minimum_balance: 10000.00         # I will not generate orders if there is not at least this much in the cash balance.
+prefix:                           # the string prefixed to reports
+start_date: 2000-1-1              # This represents the minima
+end_date: 2009-11-2               # This represents the maxima
+log: 0                            # 0 means don't generate any log files with speeds up the simulator. Only increate the log factor two view logs you actually watch
+output: ['summary', 'positions']  # Output both the simmary (one row per day) and positions (one row per position)
+portfolio_size: 20                # Max portfolio size if you're not reinvesting. Try 50 and see what happens
+reinvest_percent: 50               # Set this to zero to not reinvest (then the portfolio size drives entries)
+order_charge: 7.00                # This is what you said an order costs. For every order generated this value is added to the
+                                  # amount of the order
+order_amount: 10000.00            # Dollars. You said the max order (and min order) is $10K. Change this and see what happens.
+entry_slippage: close             # I only support close (which mean no slippage). Other values could be "high"
+exit_slippage: close              # I only support close (which mean no slippage). Other values could be "low"
+initial_balance: 200000.00        # My understand is we start with 200K. Change it to 500K and see what happens.
+minimum_balance: 10000.00         # I will not generate orders if there is not at least this much in the cash balance.

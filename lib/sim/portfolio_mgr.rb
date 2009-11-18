@@ -13,7 +13,7 @@ module Sim
 
     def post_dispatch_hook()
       @min_balance = minimum_balance()
-      @order_limit = max_order_amount()
+      @order_limit = order_amount()
     end
 
     def open_position_count()
@@ -33,7 +33,7 @@ module Sim
     end
 
     def num_vacancies()
-      if current_balance() > min_balance
+      if current_balance() > minimum_balance
         [current_balance() * reinvest_factor / order_limit,  portfolio_size - open_position_count(), 0].max
       else
         0

@@ -72,7 +72,8 @@ optparse = OptionParser.new do |opts|
     puts opts
     puts <<-EOS
 
-Arguments are defaulting in the following priority 1) command line 2) ~/.satvatr/simulate.yml 3) config.yml in lib/sim.
+Arguments values have the following precedence in the following priority
+    1) command line 2) ~/.satvatr/simulate.yml 3) config.yml in stock_db_capture/lib/sim.
 The --portfolio-size and the --reinvest-percent options are mutually exclusive. When --reinvest-percent is given
 the portfolio size will continue to grow as the cash balance grows. The percentage determines how much of the
 cash balance is reinvested into the portfolio, growing it in number of positions. Specify a --portfolio-size if

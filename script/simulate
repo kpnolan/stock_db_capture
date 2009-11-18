@@ -36,7 +36,7 @@ optparse = OptionParser.new do |opts|
   end
 
   opts.on('-r', '--reinvest-percent NUMBER', Float, "Percentage of the cash on hand to reinvest defaults to 0") do |p|
-    options.reinvest_percent = ps.to_f
+    options.reinvest_percent = p.to_f
   end
 
   opts.on('-a', '--order-amount NUMBER', Float, "The dollar limit spent for every position, the more expensive the stock the fewer the shares for that position") do |os|

@@ -40,10 +40,10 @@ get.rejects <-
   }
 
 draw.down <-
-  function()
+  function(table='sim_summaries', origin=c(2000,1))
   {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- "select sim_date as date, portfolio_value + cash_balance as total from save_sim_summaries order by sim_date"
+    sql <- paste("select sim_date as date, portfolio_value + cash_balance as total from", table,"order by sim_date")
     res = dbSendQuery(con, sql)
     fr = fetch(res, n = -1)
     if ( nrow(fr) == 0 ) {
@@ -51,17 +51,18 @@ draw.down <-
       return(FALSE);
     }
     dbDisconnect(con)
-    x = ts(fr$total, start=c(2000, 2), frequency=252)
+    x = ts(fr$total, start=origin, frequency=252)
 
-    main = "Max Draw Down"
+    mdd = maxdrawdown(x)
+    main = paste("Max Draw Down: $", format(mdd$maxdrawdown, big.mark=','), sep='')
     ylab = "Market Value + Cash"
-    mdd = maxDrawDown(x)
     plot(x,main=main, ylab=ylab)
     grid()
     segments(time(x)[mdd$from]-0.25, x[mdd$from], time(x)[mdd$to]+0.25, x[mdd$from])
     segments(time(x)[mdd$from]-0.25, x[mdd$to], time(x)[mdd$to]+0.25, x[mdd$to])
     mid = time(x)[(mdd$from + mdd$to)/2]
     arrows(mid, x[mdd$from], mid, x[mdd$to], col = 2)
+    mdd
   }
 
 

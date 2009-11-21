@@ -5,7 +5,7 @@ module Trading
 
     class StrategyException < Exception
       def initialize(msg)
-        super(msg)
+        super
       end
     end
 

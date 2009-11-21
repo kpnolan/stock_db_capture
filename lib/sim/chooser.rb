@@ -1,28 +1,26 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'set'
+
 module Sim
   class Chooser < Subsystem
 
-    attr_reader :pool_behavior
+    attr_reader :pool_behavior, :include_set
 
     def initialize(sm, cm)
       super(sm, cm, self.class)
-      @scopes = {}
-      #add_scopes()
-    end
+       @include_set = cval(:included_symbols) && Set.new(cval(:included_symbols).map(&:upcase))
+     end
 
-    def add_scopes()
-      add_scope(:cheap15, Position.scoped(:conditions => { :entry_price => 1.0..15.0 }))
-      add_scope(:cheap30, Position.scoped(:conditions => { :entry_price => 1.0..30.0 }))
-    end
-
-    def add_scope(name, scope)
-      @scopes[name] = scope
-    end
-
-    def find_candidates(date, count)
-      pool = Position.normal.find_by_date(:entry_date, date, :limit => count)
-      pool
+     def find_candidates(date, count)
+      pool = Position.filtered(cval(:filter_predicate)).ordered(cval(:sort_by)).find_by_date(:entry_date, date, :limit => count)
+      if include_set
+        symbol_set = Set.new(pool.map { |p| p.ticker.symbol })
+        intersection = symbol_set & include_set
+        pool.delete_if { |p| not intersection.include?(p.ticker.symbol) }
+      else
+        pool
+      end
     end
   end
 end

@@ -83,6 +83,11 @@ module TechnicalAnalysis
         unstable = (ratio*26+1).ceil
         set_unstable_period(:ema, unstable)
         minimal_samples(to_lookback(base_indicator), *args)
+      when :macdext then
+        ratio = 1.75
+        unstable = (ratio*13+1).ceil
+        set_unstable_period(:ema, unstable)
+        minimal_samples(to_lookback(base_indicator), *args)
       when :mom then
         minimal_samples(to_lookback(base_indicator), *args)
       else

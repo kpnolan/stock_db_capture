@@ -395,7 +395,11 @@ class Backtester
     for position_id in position_ids
       if (position = BtestPosition.find_by_id(position_id)) && position.exit_date
         attrs = columns.inject({}) { |h,k| h[k] = position[k]; h }
-        Position.create! attrs
+        begin
+          Position.create! attrs
+        rescue ActiveRecord::StatementInvalid
+          logger.error("Duplicate entry for #{position.ticker.symbol} tigger: #{position.entry_date.to_formatted_s(:ymd)}")
+        end
       end
     end
     position_ids.each { |id| BtestPosition.delete id } # clean up after ourselves

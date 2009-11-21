@@ -50,11 +50,9 @@ class Position < ActiveRecord::Base
   belongs_to :xtind, :class_name => 'Indicator'
   has_many :position_series, :dependent => :delete_all
 
-  named_scope :cheap15, :conditions => { :entry_price => (1.0..15.0) }
-  named_scope :cheap30, :conditions => { :entry_price => (1.0..30.0) }
-  named_scope :normal, :order => 'entry_price asc'
-  named_scope :loser, :order => 'roi asc'
-  named_scope :winner, :order => 'roi desc'
+  named_scope :filtered, lambda { |*pred| { :conditions => pred.first } }
+  named_scope :ordered,  lambda { |*sort| { :order => sort.first } }
+  named_scope :on_date,  lambda { |clock| { :conditions => ['date(entry_date) = ?', clock.to_date] } }
 
   extend TradingCalendar
 
@@ -79,10 +77,6 @@ class Position < ActiveRecord::Base
   end
 
   class << self
-
-    def pool_size_on_date(clock)
-      count(:conditions => ['date(entry_date) = ?', clock.to_date])
-    end
 
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
       begin

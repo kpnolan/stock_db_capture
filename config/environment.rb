@@ -83,6 +83,7 @@ require 'timeseries'
 require 'excel_simulation_dumper'
 require 'ruby-debug'
 require 'yahoo_finance/split_parser'
+#require 'trading_calendar'
 
 #
 # Monkey patched convenience method to convert a string in date fmt to a local time

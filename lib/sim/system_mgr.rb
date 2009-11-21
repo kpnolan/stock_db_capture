@@ -22,7 +22,7 @@ module Sim
     def_delegators :@rg, :generate_reports
 
     attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population
-    attr_accessor :positions_closed, :positions_opened, :positions_opened
+    attr_accessor :positions_closed, :positions_opened
     attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg
 
     def initialize(options)
@@ -49,16 +49,7 @@ module Sim
       @population = cval(:position_table)
       raise ArgumentError, "population was not specified in config.yml file" if population.nil?
 
-      log_levels = case cval(:log)
-                     when 0 : []
-                     when 1 : [SimSumary]
-                     when 2 : [SimSummay, SimPosition]
-                   else
-                     [SimSummay, SimPosition]
-                   end
-
-      $el = EventLogger.instance()
-      $el.set_levels(log_levels)
+      $el = EventLogger.new(cm)
 
       db_init()
     end
@@ -72,12 +63,16 @@ module Sim
     end
 
     def db_init()
+      count = Position.filtered(cval(:filter_predicate)).ordered(cval(:sort_by)).count
+      puts "#{count} positions matched filtering criteria"
+      tables = Position.connection.select_values('show tables')
+      raise ArgumentError, "unknown positions table #{population}_positions" unless tables.include? "#{population}_positions"
       Position.set_table_name(population + '_positions')
       credit(initial_balance(), clock, :msg => "Initial Balance")
     end
 
     def cval(key)
-      cm.options.send(key)
+      cm.cval(key)
     end
 
     def increment_date()
@@ -147,8 +142,8 @@ module Sim
         sysmgr = SystemMgr.new(options)
         sysmgr.sim_loop()
         sysmgr.generate_reports()
-        $el.log_event("Positions Opened: #{positions_opened}")
-        $el.log_event("Positions Closed: #{positions_closed}")
+        sysmgr.log("Positions Opened: #{sysmgr.positions_opened}")
+        sysmgr.log("Positions Closed: #{sysmgr.positions_closed}")
       end
     end
   end

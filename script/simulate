@@ -2,6 +2,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'optparse'
+require 'optparse/date'
 require 'ostruct'
 require 'pp'
 require 'date'
@@ -11,7 +12,7 @@ options = OpenStruct.new
 optparse = OptionParser.new do |opts|
   opts.banner = "Usage simulate [options]"
 
-  opts.on('-P', '--prefix STRING', "prefix STRING to output csv files") do |p|
+  opts.on('-P', '--prefix STRING', "prefix STRING to output csv files (defaults to the value of -T)") do |p|
     options.prefix = p
   end
 
@@ -19,24 +20,24 @@ optparse = OptionParser.new do |opts|
     options.output = o
   end
 
-  opts.on('-s', '--start_date DATE', "start the simulation on DATE (defaults to 1/1/2000") do |d|
-    options.start = Date.parse(d)
+  opts.on('-s', '--start_date DATE', Date, "start the simulation on DATE (defaults to 1/1/2000") do |d|
+    options.start_date = d
   end
 
-  opts.on('-e', '--end_date DATE', "simulate up to DATE (defaults to last bar in DB)") do |d|
-    options.end = Date.parse(d)
+  opts.on('-e', '--end_date DATE', Date, "simulate up to DATE (defaults to last bar in DB)") do |d|
+    options.end_date = d
   end
 
-  opts.on('-l', '--log-level LEVEL', "log level can be 0, 1 or 2 for none, summary, or detailed repsectively (defaults to 0)") do |l|
-    options.log = l.to_i
+  opts.on('-l', '--log-level LEVEL', Integer, "log level can be 0, 1 or 2 for none, summary, or detailed repsectively (defaults to 0)") do |l|
+    options.log_level = l
   end
 
-  opts.on('-p', '--portfolio-size NUM_POSITIONS', "The max number of positions allowed in the portfolio (defaults to min_balance/order_amount)") do |ps|
-    options.portfolio_size = ps.to_i
+  opts.on('-p', '--portfolio-size NUM_POSITIONS', Integer, "The max number of positions allowed in the portfolio (defaults to min_balance/order_amount)") do |ps|
+    options.portfolio_size = ps
   end
 
   opts.on('-r', '--reinvest-percent NUMBER', Float, "Percentage of the cash on hand to reinvest defaults to 0") do |p|
-    options.reinvest_percent = p.to_f
+    options.reinvest_percent = p
   end
 
   opts.on('-a', '--order-amount NUMBER', Float, "The dollar limit spent for every position, the more expensive the stock the fewer the shares for that position") do |os|
@@ -65,20 +66,34 @@ optparse = OptionParser.new do |opts|
 
   opts.on('-T', '--position-table filtered|unfiltered', "The name of the position table in the DB containing the source population of positions") do |t|
     options.position_table = t
-    raise ArgumentError, '--position-table can take only the values "filtered" or "unfiltered" (no default)' if t != 'filtered' and t != 'unfiltered'
+  end
+
+  opts.on('-S', '--sort-by string', "The and expression which is value for the 'order by' component of the position query") do |s|
+    options.sort_by = s
+  end
+
+  opts.on('-P', '--filter-predicate string', "SQL string defining the WHERE condition applied to the position query") do |p|
+    options.filter_predicate = p
   end
 
   opts.on('-h', '--help', 'Display this screen') do
     puts opts
     puts <<-EOS
 
-Arguments values have the following precedence in the following priority
-    1) command line 2) ~/.satvatr/simulate.yml 3) config.yml in stock_db_capture/lib/sim.
-The --portfolio-size and the --reinvest-percent options are mutually exclusive. When --reinvest-percent is given
-the portfolio size will continue to grow as the cash balance grows. The percentage determines how much of the
-cash balance is reinvested into the portfolio, growing it in number of positions. Specify a --portfolio-size if
-you want to keep the portfolio size static at the given number of positions. Hence the cash balance will continue
-to grow as positions are sold. The only slippage currently implemented is "close", meaning no slippage.
+Arguments values have the following precedence in the following priority 1)
+command line 2) ~/.satvatr/simulate.yml 3) config.yml in
+stock_db_capture/lib/sim.  The --portfolio-size and the --reinvest-percent
+options are mutually exclusive. When --reinvest-percent is given the
+portfolio size will continue to grow as the cash balance grows. The
+percentage determines how much of the cash balance is reinvested into the
+portfolio, growing it in number of positions. Specify a --portfolio-size if
+you want to keep the portfolio size static at the given number of
+positions. Hence the cash balance will continue to grow as positions are
+sold. The only slippage currently implemented is "close", meaning no
+slippage.  The values can be used as filters or as sorting elements are the
+following: etprice, etival, xtprice, xtival, entry_date entry_price,
+exit_date, exit_price, days_held, nreturn, roi, consumed_margin.
+
 EOS
     exit
   end

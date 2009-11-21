@@ -33,5 +33,9 @@ module Sim
       sm.log("Config Values for Simulation are: \n\n")
       sm.log(pp_s(options.marshal_dump))
     end
+
+    def cval(key)
+      options.send(key)
+    end
   end
 end

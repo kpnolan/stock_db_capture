@@ -1,7 +1,7 @@
 %h1 Listing tickers
 
 - form_tag(find_tickers_path, :method => :get) do
-  = text_field_with_auto_complete :ticker, :symbol, :size => 4, :onkeypress="return submitViaEnter(event)"
+  = text_field_with_auto_complete :ticker, :symbol, :size => 4, :onkeypress => "return submitViaEnter(event)"
   = submit_tag 'Find'
 
 %table

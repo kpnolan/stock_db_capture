@@ -7,7 +7,7 @@ module Sim
 
     def initialize(sm, cm)
       super(sm, cm, self.class)
-      @reinvest_factor = cval(:reinvest_percent) / 100.0
+      @reinvest_factor = cval(:reinvest_percent) && cval(:reinvest_percent) / 100.0
       @portfolio_size = cval(:portfolio_size)
     end
 
@@ -29,12 +29,15 @@ module Sim
     end
 
     def pool_size()
-      Position.normal.pool_size_on_date(sysdate())
+      Position.filtered(cval(:filter_predicate)).on_date(clock).count()
     end
 
     def num_vacancies()
-      if current_balance() > minimum_balance
-        [current_balance() * reinvest_factor / order_limit,  portfolio_size - open_position_count(), 0].max
+      available_balance = current_balance() - min_balance
+      if reinvest_factor && reinvest_factor > 0
+        available_balance * reinvest_factor / order_limit
+      elsif portfolio_size && portfolio_size > 0
+        [portfolio_size - open_position_count(), available_balance / order_limit].min
       else
         0
       end

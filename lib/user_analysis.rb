@@ -1,5 +1,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'timeseries_exception'
+
 include GSL
 
 module UserAnalysis
@@ -171,6 +173,8 @@ module UserAnalysis
   def rvi(options={})
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    raise TimeseriesException, "#{symbol}: length(#{high.len}) < range.end(#{idx_range.end})" if high.len < idx_range.end
+
     options = options.merge :idx_range => idx_range
     out = ( rvi_wilder(high, options) + rvi_wilder(low, options)).scale(0.5)
     result = [0, idx_range.begin, out]

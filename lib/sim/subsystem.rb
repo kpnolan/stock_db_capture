@@ -32,7 +32,7 @@ module Sim
     end
 
     def cval(key)
-      cm.options.send(key)
+      cm.cval(key)
     end
 
     def log(msg)

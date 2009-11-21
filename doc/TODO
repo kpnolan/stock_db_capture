@@ -1,0 +1,2 @@
+* Run another daily bar merge from google/yahoo to insert missing bars
+* Verify that Lewis's nephew's 9/14 daily bars where folding in to the daily_bars table

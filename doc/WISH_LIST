@@ -1,0 +1,5 @@
+* Keep one-minute bars for symbols which pass the scans
+* Change "liquid" statements in decade to compute dollar*volume and then use this as a threshold for the scan
+* Ability to specify expressions to the simulator that modify the chooser thresholds based upon things like available cash.
+* Ability to detect daily_bar ouliers and replace with google/yohoo data
+  ** Could be used to detect splits and update the back-update the daily bars table with split info

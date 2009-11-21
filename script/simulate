@@ -94,6 +94,12 @@ slippage.  The values can be used as filters or as sorting elements are the
 following: etprice, etival, xtprice, xtival, entry_date entry_price,
 exit_date, exit_price, days_held, nreturn, roi, consumed_margin.
 
+Examples:
+
+  ./simulate -T filtered --filter-predicate 'entry_price > 5' --sort-by entry_price
+  ./simulate -T unfiltered -i 500000 --filter-predicate 'days-held < 15' -sort-by days_held
+  ./simulate -T alt_filtered -s 2009-1-1 -e 2009-10-31 -P 2009-Q3
+
 EOS
     exit
   end

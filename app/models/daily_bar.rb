@@ -34,7 +34,7 @@ class DailyBar < ActiveRecord::Base
 
   def symbol=(value) ;  end
   def last_trade_date=(value) ;  end
-  def time(); date; end
+  def dollar_volume(); close*volume; end
 
   class << self
 

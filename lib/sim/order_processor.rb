@@ -11,7 +11,11 @@ module Sim
     end
 
     def order_amount(); @oa ||= cval(:order_amount); end
-    def order_charge(); @oc ||= cval(:order_charge).to_f; end
+    def order_charge(); @oc ||= cval(:order_charge); end
+
+    def dynamic_buy(position)
+      binding = create_binding(position)
+    end
 
     def buy(position)
       if order_amount() < funds_available()

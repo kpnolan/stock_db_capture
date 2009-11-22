@@ -72,7 +72,7 @@ optparse = OptionParser.new do |opts|
     options.sort_by = s
   end
 
-  opts.on('-P', '--filter-predicate string', "SQL string defining the WHERE condition applied to the position query") do |p|
+  opts.on('-F', '--filter-predicate string', "SQL string defining the WHERE condition applied to the position query") do |p|
     options.filter_predicate = p
   end
 

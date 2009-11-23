@@ -9,7 +9,7 @@ module Sim
     attr_accessor :sm, :cm, :op, :mm, :pm, :ch, :pc, :rg
     attr_reader :subclass
 
-    def_delegators :@sm, :clock, :sysdate, :error, :info, :log, :inc_opened_positions
+    def_delegators :@sm, :clock, :sysdate, :error, :info, :log
     def_delegators :@op, :buy, :sell, :order_amount
     def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance
     def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value

@@ -1,2 +1,5 @@
 * Run another daily bar merge from google/yahoo to insert missing bars
 * Verify that Lewis's nephew's 9/14 daily bars where folding in to the daily_bars table
+* Test volume column in simulator positions .csv file
+* Run simulations comparing alt_filtered to filtered positions.
+* Add options to use temporary tables when running positions

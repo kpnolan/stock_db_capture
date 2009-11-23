@@ -22,7 +22,7 @@ class SimSummary < ActiveRecord::Base
 
   class << self
     def truncate()
-      connection.execute("truncate #{self.to_s.tableize}")
+      connection.execute("truncate #{table_name}")
     end
   end
 

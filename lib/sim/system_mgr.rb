@@ -22,7 +22,7 @@ module Sim
     def_delegators :@rg, :generate_reports
 
     attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population
-    attr_accessor :positions_closed, :positions_opened
+    attr_accessor :positions_closed, :positions_opened, :total_opened, :total_closed
     attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg
 
     def initialize(options)
@@ -47,19 +47,18 @@ module Sim
       @end_date = cval(:end_date).to_date
       @clock = start_date.to_time.localtime.change(:hour => 6, :min => 30)
       @population = cval(:position_table)
-      raise ArgumentError, "population was not specified in config.yml file" if population.nil?
+      raise ArgumentError, "population was not specified in on the command line or defaulted" if population.nil?
 
+      @total_opened, @total_closed = 0,0
       $el = EventLogger.new(cm)
 
       db_init()
     end
 
     def reset_daily_stats()
+      self.total_opened += positions_opened
+      self.total_closed += positions_closed
       self.positions_closed, self.positions_opened = 0, 0
-    end
-
-    def inc_opened_positions()
-      self.positions_opened += 1
     end
 
     def db_init()
@@ -69,6 +68,12 @@ module Sim
       raise ArgumentError, "unknown positions table #{population}_positions" unless tables.include? "#{population}_positions"
       Position.set_table_name(population + '_positions')
       credit(initial_balance(), clock, :msg => "Initial Balance")
+      if cva(:use_temp_tables)
+        SimPosition.connection.execute('CREATE TEMPORARY TABLE temp_sim_positions LIKE sim_positions')
+        SimPosition.set_table_name 'temp_sim_positions'
+        SimSummary.connection.execute('CREATE TEMPORARY TABLE temp_sim_summaries LIKE sim_summaries')
+        SimSummary.set_table_name 'temp_sim_summaries'
+      end
     end
 
     def cval(key)
@@ -142,8 +147,8 @@ module Sim
         sysmgr = SystemMgr.new(options)
         sysmgr.sim_loop()
         sysmgr.generate_reports()
-        sysmgr.log("Positions Opened: #{sysmgr.positions_opened}")
-        sysmgr.log("Positions Closed: #{sysmgr.positions_closed}")
+        sysmgr.log("Total Positions Opened: #{sysmgr.total_opened}")
+        sysmgr.log("Total Positions Closed: #{sysmgr.total_closed}")
       end
     end
   end

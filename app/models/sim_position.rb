@@ -34,6 +34,11 @@ class SimPosition < ActiveRecord::Base
 
   extend TradingCalendar
 
+  def volume()
+    day_before = SimPosition.trading_date_from(entry_date, -1)
+    (bar = DailyBar.find_by_ticker_and_date(ticker_id, day_before.to_date)) && bar.volume
+  end
+
   class << self
     def open_position_count()
       count(:conditions => { :exit_date => nil} )
@@ -59,7 +64,7 @@ class SimPosition < ActiveRecord::Base
     end
 
     def truncate()
-      connection.execute("truncate #{self.to_s.tableize}")
+      connection.execute("truncate #{table_name}")
     end
   end
 

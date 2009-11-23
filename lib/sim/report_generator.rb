@@ -23,7 +23,7 @@ module Sim
       end
 
       if cval(:output).include? 'positions'
-        cols = [:symbol, :entry_date, :exit_date, :entry_price, :exit_price, :quantity, :nreturn, :roi, :days_held]
+        cols = [:symbol, :entry_date, :exit_date, :entry_price, :exit_price, :quantity, :volume, :nreturn, :roi, :days_held]
         extra = { :entry_date => :to_date, :exit_date => :to_date }
         heading = cols.map { |c| c.to_s.humanize.titleize }
         FasterCSV.open(prefix+'sim_positions.csv', "w") do |csv|

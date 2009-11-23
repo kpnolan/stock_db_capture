@@ -127,6 +127,10 @@ class DailyBar < ActiveRecord::Base
       end
     end
 
+    def find_by_ticker_and_date(ticker_id, date)
+      first :conditions => { :ticker_id => ticker_id, :bardate => date }
+    end
+
     def catchup_to_date(date=nil)
       date = date.nil? ? Date.today : date
       sql = "select ticker_id, symbol, max(date(bartime)) as max from daily_bars " +

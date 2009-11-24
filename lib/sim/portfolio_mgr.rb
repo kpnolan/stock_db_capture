@@ -44,7 +44,7 @@ module Sim
     end
 
     def market_value(date)
-      sql = "select sum(close*quantity) from sim_positions join daily_bars using(ticker_id) where bardate = '#{date.to_s(:db)}' and exit_date is null"
+      sql = "select sum(close*quantity) from #{SimPosition.table_name} join daily_bars using(ticker_id) where bardate = '#{date.to_s(:db)}' and exit_date is null"
       SimPosition.connection.select_value(sql).to_f
     end
   end

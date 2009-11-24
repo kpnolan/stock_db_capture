@@ -56,8 +56,8 @@ module Sim
     end
 
     def reset_daily_stats()
-      self.total_opened += positions_opened
-      self.total_closed += positions_closed
+#      self.total_opened += positions_opened
+#      self.total_closed += positions_closed
       self.positions_closed, self.positions_opened = 0, 0
     end
 
@@ -68,7 +68,7 @@ module Sim
       raise ArgumentError, "unknown positions table #{population}_positions" unless tables.include? "#{population}_positions"
       Position.set_table_name(population + '_positions')
       credit(initial_balance(), clock, :msg => "Initial Balance")
-      if cva(:use_temp_tables)
+      unless cval(:keep_tables)
         SimPosition.connection.execute('CREATE TEMPORARY TABLE temp_sim_positions LIKE sim_positions')
         SimPosition.set_table_name 'temp_sim_positions'
         SimSummary.connection.execute('CREATE TEMPORARY TABLE temp_sim_summaries LIKE sim_summaries')
@@ -115,6 +115,10 @@ module Sim
       end
     end
 
+    def post_processing()
+      #TODO make a copy of sim_positions and sim_summaries to <prefix>*
+    end
+
     def total_value()
       market_value() + current_balance()
     end
@@ -147,6 +151,7 @@ module Sim
         sysmgr = SystemMgr.new(options)
         sysmgr.sim_loop()
         sysmgr.generate_reports()
+        sysmgr.post_processing()
         sysmgr.log("Total Positions Opened: #{sysmgr.total_opened}")
         sysmgr.log("Total Positions Closed: #{sysmgr.total_closed}")
       end

@@ -12,3 +12,4 @@ entry_slippage: close             # I only support close (which mean no slippage
 exit_slippage: close              # I only support close (which mean no slippage). Other values could be "low"
 initial_balance: 200000.00        # My understand is we start with 200K. Change it to 500K and see what happens.
 minimum_balance: 0.00             # I will not generate orders if there is not at least this much in the cash balance.
+keep_tables: false                # Don't keep positions or summaries table after simulator exit

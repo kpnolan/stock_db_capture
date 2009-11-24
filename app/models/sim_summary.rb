@@ -31,6 +31,6 @@ class SimSummary < ActiveRecord::Base
   end
 
   def to_s()
-    format('Pval: %7.0f Cval: %7.0f Total: %7.0f', portfolio_value, cash_balance, portfolio_value + cash_balance)
+    format('#{sim_date.to_formated_s(:ymd)} $%7.0f + $%7.0f = $%7.0f', portfolio_value, cash_balance, portfolio_value + cash_balance)
   end
 end

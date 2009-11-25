@@ -41,7 +41,7 @@ class SimPosition < ActiveRecord::Base
 
   class << self
     def open_position_count()
-      count(:conditions => { :exit_date => nil} )
+      @@open_position_count ||= 0
     end
 
     def exiting_positions(date)
@@ -53,6 +53,7 @@ class SimPosition < ActiveRecord::Base
     end
 
     def open(order, options={})
+      @@open_position_count += 1
       attrs = OpenStruct.new()
       attrs.eorder_id = order.id
       attrs.entry_date = order.filled_at
@@ -85,6 +86,7 @@ class SimPosition < ActiveRecord::Base
   end
 
   def close(order)
+    @@open_position_count -= 1
     attrs = OpenStruct.new
     attrs.xorder_id = order.id
     attrs.exit_date = order.filled_at

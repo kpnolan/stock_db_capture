@@ -76,7 +76,7 @@ optparse = OptionParser.new do |opts|
     options.filter_predicate = p
   end
 
-  opts.on('-k', '--[no]-keep', "Keeps a copy of the otherwise temporary positions and summary tables. The table name will be prefixed by -P or -T, in that order") do |t|
+  opts.on('-k', '--[no-]keep', "Keeps a copy of the otherwise temporary positions and summary tables. The table name will be prefixed by -P or -T, in that order") do |t|
     options.keep_tables = t
   end
 

@@ -14,7 +14,7 @@ module Sim
     extend Forwardable
     include CurrentMethod
 
-    def_delegators :@op, :buy, :sell, :max_order_amount
+    def_delegators :@op, :buy, :sell, :max_order_amount, :opened_position_count, :closed_position_count
     def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance, :initial_balance
     def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value, :open_position_count
     def_delegators :@ch, :find_candidates
@@ -22,7 +22,7 @@ module Sim
     def_delegators :@rg, :generate_reports
 
     attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population
-    attr_accessor :positions_closed, :positions_opened, :total_opened, :total_closed
+    attr_reader :total_opened, :total_closed
     attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg
 
     def initialize(options)
@@ -56,9 +56,9 @@ module Sim
     end
 
     def reset_daily_stats()
-#      self.total_opened += positions_opened
-#      self.total_closed += positions_closed
-      self.positions_closed, self.positions_opened = 0, 0
+      @total_opened += opened_position_count
+      @total_closed += closed_position_count
+      subsystems.each { |ss| ss.daily_hook() if ss.respond_to? :daily_hook }
     end
 
     def db_init()
@@ -68,12 +68,10 @@ module Sim
       raise ArgumentError, "unknown positions table #{population}_positions" unless tables.include? "#{population}_positions"
       Position.set_table_name(population + '_positions')
       credit(initial_balance(), clock, :msg => "Initial Balance")
-      unless cval(:keep_tables)
-        SimPosition.connection.execute('CREATE TEMPORARY TABLE temp_sim_positions LIKE sim_positions')
-        SimPosition.set_table_name 'temp_sim_positions'
-        SimSummary.connection.execute('CREATE TEMPORARY TABLE temp_sim_summaries LIKE sim_summaries')
-        SimSummary.set_table_name 'temp_sim_summaries'
-      end
+      SimPosition.connection.execute('CREATE TEMPORARY TABLE temp_sim_positions LIKE sim_positions')
+      SimPosition.set_table_name 'temp_sim_positions'
+      SimSummary.connection.execute('CREATE TEMPORARY TABLE temp_sim_summaries LIKE sim_summaries')
+      SimSummary.set_table_name 'temp_sim_summaries'
     end
 
     def cval(key)
@@ -87,12 +85,10 @@ module Sim
       attrs.positions_available = pool_size()
       attrs.portfolio_value = market_value(sysdate()).round
       attrs.cash_balance = current_balance().round
-      attrs.pos_opened = positions_opened
-      attrs.pos_closed = positions_closed
+      attrs.pos_opened = opened_position_count
+      attrs.pos_closed = closed_position_count
       sum = SimSummary.create! attrs.marshal_dump
       $el.log_event(sum)
-      self.positions_opened += positions_opened
-      self.positions_closed += positions_closed
       @clock = SystemMgr.trading_date_from(clock, 1)
     end
 
@@ -104,19 +100,37 @@ module Sim
       subsystems.each { |sub| sub.init_config() }
     end
 
-    # NB! any named scope must be represented in pool_size() and find_candidates()
     def sim_loop()
       while sysdate < end_date do
         reset_daily_stats()
-        self.positions_closed = sell_mature_positions()
+        sell_mature_positions()
         candidates = find_candidates(sysdate, num_vacancies())
         candidates.each { |candidate| buy(candidate) }
         increment_date()
       end
     end
 
+    # If --keep was supplied on the command line, copy the sim_summaries and sim_positions tables to
+    # a tables formed by either the prefix (if supplied) or the source table name. Raise and exception
+    # of no prefix can be computed
     def post_processing()
-      #TODO make a copy of sim_positions and sim_summaries to <prefix>*
+      if cval(:keep_tables)
+        names = case
+                when cval(:prefix) then
+                  ["#{cval(:prefix)}_sim_summaries", "#{cval(:prefix)}_sim_positions"]
+                when cval(:position_table) then
+                  ["#{cval(:position_table)}_sim_summaries", "#{cval(:position_table)}_sim_positions"]
+                else
+                  raise ArgumentError, "--keep specified but no effective prefix can be found"
+                end
+        dest_sum_table, dest_pos_table = names
+        SimSummary.connection.execute("DROP TABLE IF EXISTS #{dest_sum_table}")
+        SimPosition.connection.execute("DROP TABLE IF EXISTS #{dest_pos_table}")
+        SimSummary.connection.execute("CREATE TABLE #{dest_sum_table} LIKE #{SimSummary.table_name}")
+        SimPosition.connection.execute("CREATE TABLE #{dest_pos_table} LIKE #{SimPosition.table_name}")
+        SimSummary.connection.execute("INSERT INTO #{dest_sum_table} SELECT * FROM #{SimSummary.table_name}")
+        SimPosition.connection.execute("INSERT INTO #{dest_pos_table} SELECT * FROM #{SimPosition.table_name}")
+      end
     end
 
     def total_value()

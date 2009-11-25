@@ -3,11 +3,16 @@
 module Sim
   class OrderProcessor < Subsystem
 
-    attr_reader :open_positions
+    attr_reader :opened_position_count, :closed_position_count
 
     def initialize(sm, cm)
       super(sm, cm, self.class)
-      @open_positions = 0
+      daily_hook()
+    end
+
+    def daily_hook
+      @opened_position_count = 0
+      @closed_position_count = 0
     end
 
     def order_amount(); @oa ||= cval(:order_amount); end
@@ -34,7 +39,7 @@ module Sim
         txn = debit(order.order_price, clock, :order_id => order.id, :msg => msg )
         order.save!
         sim_position = SimPosition.open(order, options)
-        @open_positions += 1
+        @opened_position_count += 1
         $el.log_event(order)
         $el.log_event(txn)
         $el.log_event(sim_position)
@@ -42,7 +47,7 @@ module Sim
       when 'SEL'
         txn = credit(order.order_price, clock, :order_id => order.id, :msg => msg)
         order.save!
-        @open_positions -= 1
+        @closed_position_count += 1
         $el.log_event(order)
         $el.log_event(txn)
         order.sim_position.close(order)

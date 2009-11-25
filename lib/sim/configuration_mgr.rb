@@ -1,7 +1,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'ostruct'
-require 'pp'
+require 'yaml'
 require 'stringio'
 
 module Kernel
@@ -28,14 +28,18 @@ module Sim
       user_path = File.join(ENV['USER'], '.satvatr', 'simulator.yml')
       master_config = YAML.load_file(master_path) if File.exists? master_path
       local_config = YAML.load_file(user_path) if File.exists? user_path
-      default_options = master_config.merge(local_config)
+      default_options = master_config.merge(local_config).inject({}) { |m, pair| m[pair.first.to_sym] = pair.second; m}
       @options = OpenStruct.new(default_options.merge(ostruct.marshal_dump))
       sm.log("Config Values for Simulation are: \n\n")
-      sm.log(pp_s(options.marshal_dump))
+      sm.log(pretty_options(options.marshal_dump))
     end
 
     def cval(key)
       options.send(key)
+    end
+
+    def pretty_options(option_hash)
+      option_hash.to_yaml
     end
   end
 end

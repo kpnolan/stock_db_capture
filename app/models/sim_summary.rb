@@ -30,7 +30,8 @@ class SimSummary < ActiveRecord::Base
     sim_date
   end
 
+  # to insert a comma every 3 digits do: n.to_s.reverse.gsub(/...(?=.)/,'\&,').reverse
   def to_s()
-    format('#{sim_date.to_formated_s(:ymd)} $%7.0f + $%7.0f = $%7.0f', portfolio_value, cash_balance, portfolio_value + cash_balance)
+    format(' $%7.0f + $%7.0f = $%7.0f', portfolio_value, cash_balance, portfolio_value + cash_balance)
   end
 end

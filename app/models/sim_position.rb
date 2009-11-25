@@ -28,6 +28,8 @@ class SimPosition < ActiveRecord::Base
   belongs_to :ticker
   belongs_to :position
 
+  @@open_position_count = 0
+
   def after_create
     eorder.update_attribute(:sim_position_id, self.id)
   end
@@ -40,8 +42,9 @@ class SimPosition < ActiveRecord::Base
   end
 
   class << self
-    def open_position_count()
-      @@open_position_count ||= 0
+
+    def open_position_count
+      @@open_position_count
     end
 
     def exiting_positions(date)

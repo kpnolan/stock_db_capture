@@ -9,7 +9,6 @@ class SimJob < ActiveRecord::Base
   def portfolio_size_or_reinvest_percent
      unless portfolio_size.blank? ^ reinvest_percent.blank?
        errors.add(:portfolio_size, "Reinvest Percent is also given; one one or the other is permitted")
-       errors.add(:reinvest_percent, "See above")
     end
   end
 

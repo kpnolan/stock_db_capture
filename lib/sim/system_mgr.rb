@@ -70,6 +70,9 @@ module Sim
       raise ArgumentError, "unknown positions table #{population}_positions" unless tables.include? "#{population}_positions"
       Position.set_table_name(population + '_positions')
       credit(initial_balance(), clock, :msg => "Initial Balance")
+      # When run from DelayedJob the connection stays up so temp tables don't go away
+      SimSummary.connection.execute("DROP TABLE IF EXISTS temp_sim_summaries")
+      SimPosition.connection.execute("DROP TABLE IF EXISTS temp_sim_positions")
       SimPosition.connection.execute('CREATE TEMPORARY TABLE temp_sim_positions LIKE sim_positions')
       SimPosition.set_table_name 'temp_sim_positions'
       SimSummary.connection.execute('CREATE TEMPORARY TABLE temp_sim_summaries LIKE sim_summaries')

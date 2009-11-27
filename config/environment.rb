@@ -95,6 +95,8 @@ require 'yahoo_finance/split_parser'
 #end
 
 ETZ = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
+ActionView::Base.field_error_proc = Proc.new { |html_tag, instance|
+"<span class=\"fieldWithErrors\">#{html_tag}</span>" }
 extend TradingCalendar
 include ExcelSimulationDumper
 

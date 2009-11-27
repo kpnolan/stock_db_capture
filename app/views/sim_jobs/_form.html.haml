@@ -2,7 +2,7 @@
 = f.text_field :dir
 = f.text_field :prefix
 = f.select :position_table, [:filtered, :unfiltered]
-= f.date_select :start_date
+= f.date_select :start_date, :start_year => 2000, :end_year => 2010
 = f.date_select :end_date
 = f.select :output, [:summary, :positions, 'summary & positions']
 = f.text_field :filter_predicate

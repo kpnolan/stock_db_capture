@@ -9,7 +9,9 @@ module Sim
       super(sm, cm, self.class)
 
       path = File.join(output_dir, (cval(:prefix) ? cval(:prefix)+'_' : cval(:position_table)+'_'))
-      @logger = ActiveSupport::BufferedLogger.new(path+'sim_events.log')
+      path << 'sim_events.log'
+      File.truncate(path, 0)
+      @logger = ActiveSupport::BufferedLogger.new(path)
       @levels = case cval(:log_level)
                 when 0 : []
                 when 1 : [SimSummary]

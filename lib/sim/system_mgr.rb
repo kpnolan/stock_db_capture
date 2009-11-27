@@ -24,7 +24,7 @@ module Sim
 
     attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population, :output_dir
     attr_reader :total_opened, :total_closed
-    attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg
+    attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg, :el
 
     def initialize(options)
       prefix = options.prefix ? options.prefix+'_' : ''

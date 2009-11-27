@@ -74,8 +74,12 @@ optparse = OptionParser.new do |opts|
     options.sort_by = s
   end
 
-  opts.on('-F', '--filter-predicate string', "SQL string defining the WHERE condition applied to the position query") do |p|
+  opts.on('-F', '--filter-predicate STRING', "SQL string defining the WHERE condition applied to the position query") do |p|
     options.filter_predicate = p
+  end
+
+  opts.on('-k', '--[no]-keep-tables', "Keep the generated position and summary_tables") do |k|
+    options.keep_tables = k
   end
 
   opts.on('-d', '--output-dir DIR', "All output files will be stored in the specified (existing) directory instead of ./log") do |d|

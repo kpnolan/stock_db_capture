@@ -6,7 +6,7 @@ module Sim
     extend Forwardable
     include CurrentMethod
 
-    attr_accessor :sm, :cm, :op, :mm, :pm, :ch, :pc, :rg
+    attr_accessor :sm, :cm, :op, :mm, :pm, :ch, :pc, :rg, :el
     attr_reader :subclass
 
     def_delegators :@sm, :clock, :sysdate, :error, :info, :log, :output_dir
@@ -31,6 +31,7 @@ module Sim
       self.ch = sm.ch
       self.pc = sm.pc
       self.rg = sm.rg
+      self.el = sm.el
     end
 
     def cval(key)

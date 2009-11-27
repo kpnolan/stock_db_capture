@@ -24,18 +24,20 @@ pre {
   padding: 5px 5px 5px 15px;
   font-size: 12px;
   margin: -7px;
-  color: #fff;
+  color: #f0f;
 }
 
 #errorExplanation p {
   margin-bottom: 0;
   padding: 5px;
+  color: #f0f
 }
 
 #errorExplanation ul li {
   font-size: 12px;
   list-style-type: square;
-  padding-left: 10px
+  padding-left: 10px;
+  color: #f0f;
 }
 
 div.uploadStatus {

@@ -136,5 +136,11 @@ class Position < ActiveRecord::Base
     def find_by_date(field, date, options={})
       find(:all, { :conditions => ["date(#{field.to_s}) = ?", date]}.merge(options))
     end
+
+    def find_joined_by_date(field, date, options={})
+      join = "JOIN daily_bars ON (daily_bars.ticker_id = #{Positions.table_name}.ticker_id AND " +
+        "daily_bars.bardate = DATE(#{Positions.table_name}.entry_date))"
+      find(:all, { :join => join, :conditions => ["date(#{field.to_s}) = ?", date]}.merge(options))
+    end
   end
 end

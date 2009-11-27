@@ -8,7 +8,7 @@ module Sim
 
     def initialize(sm, cm)
       super(sm, cm, self.class)
-      @prefix = File.join(RAILS_ROOT, 'log', (cval(:prefix) ? cval(:prefix)+'_' : cval(:position_table)+'_'))
+      @prefix = File.join(output_dir, (cval(:prefix) ? cval(:prefix)+'_' : cval(:position_table)+'_'))
     end
 
     def generate_reports()

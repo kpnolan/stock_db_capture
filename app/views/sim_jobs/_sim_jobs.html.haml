@@ -1,0 +1,47 @@
+%tr[sim_jobs]{:class => cycle('list-line-even', 'list-line-odd')}
+  %td.dir
+    = h sim_jobs.dir
+  %td.prefix
+    = h sim_jobs.prefix
+  %td.center.position_table
+    = h sim_jobs.position_table
+  %td.center.start_date
+    = h sim_jobs.start_date
+  %td.center.end_date
+    = h sim_jobs.end_date
+  %td.center.output
+    = h sim_jobs.output
+  %td.center.filter_predicate
+    = h sim_jobs.filter_predicate
+  %td.center.sort_by
+    = h sim_jobs.sort_by
+  %td.center.initial_balance
+    = h sim_jobs.initial_balance
+  %td.center.order_amount
+    = h sim_jobs.order_amount
+  %td.center.minimum_balance
+    = h sim_jobs.minimum_balance
+  %td.center.portfolio_size
+    = h sim_jobs.portfolio_size
+  %td.center.reinvest_percent
+    = h sim_jobs.reinvest_percent
+  %td.center.order_charge
+    = h sim_jobs.order_charge
+  %td.center.entry_slippage
+    = h sim_jobs.entry_slippage
+  %td.center.exit_slippage
+    = h sim_jobs.exit_slippage
+  %td.center.log_level
+    = h sim_jobs.log_level
+  %td.center.keep_tables
+    = h sim_jobs.keep_tables
+  %td.center.job_started_at
+    = h sim_jobs.job_started_at
+  %td.center.job_finished_at
+    = h sim_jobs.job_finished_at
+  %td.show
+    = link_to 'Show', object_path(sim_jobs)
+  %td.edit
+    = link_to 'Edit', edit_object_path(sim_jobs)
+  %td.destroy
+    = link_to 'Destroy', object_path(sim_jobs), :confirm => 'Really destroy sim_jobs?', :method => :delete

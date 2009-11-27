@@ -9,7 +9,66 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091029212126) do
+ActiveRecord::Schema.define(:version => 20091125220250) do
+
+  create_table "alt_filtered_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "alt_filtered_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "alt_filtered_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.integer  "position_id"
+  end
+
+  create_table "alt_filtered_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
 
   create_table "btest_positions", :force => true do |t|
     t.integer  "ticker_id"
@@ -40,9 +99,10 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.integer  "exit_trigger_id"
     t.integer  "exit_strategy_id"
     t.integer  "scan_id"
+    t.float    "consumed_margin"
   end
 
-  add_index "btest_positions", ["ticker_id", "scan_id", "entry_strategy_id", "exit_strategy_id", "entry_date"], :name => "unique_param_ids", :unique => true
+  add_index "btest_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
 
   create_table "contract_types", :force => true do |t|
     t.string "name"
@@ -98,6 +158,19 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
 
   add_index "daily_bars", ["ticker_id", "bartime"], :name => "index_daily_bars_on_ticker_id_and_bartime", :unique => true
   add_index "daily_bars", ["ticker_id", "bardate"], :name => "ticker_id_and_bardate", :unique => true
+
+  create_table "daily_bars_save", :force => true do |t|
+    t.integer  "ticker_id"
+    t.float    "opening"
+    t.float    "close"
+    t.float    "high"
+    t.integer  "volume"
+    t.float    "low"
+    t.datetime "bartime"
+    t.float    "adj_close"
+    t.date     "bardate"
+    t.string   "source",    :limit => 1
+  end
 
   create_table "delayed_jobs", :force => true do |t|
     t.integer  "priority",   :default => 0
@@ -169,6 +242,40 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
   add_index "factors", ["study_id", "indicator_id", "result"], :name => "myfields_idx", :unique => true
   add_index "factors", ["indicator_id"], :name => "indicator_id"
 
+  create_table "filtered_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "filtered_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
   create_table "google_bars", :force => true do |t|
     t.integer  "ticker_id"
     t.float    "opening"
@@ -186,6 +293,40 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
   create_table "historical_attributes", :force => true do |t|
     t.string "name"
   end
+
+  create_table "index_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "index_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
 
   create_table "indicators", :force => true do |t|
     t.string "name"
@@ -247,8 +388,6 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.string   "msg"
   end
 
-  add_index "ledger_txns", ["order_id"], :name => "order_id"
-
   create_table "legacy_watch_list", :force => true do |t|
     t.integer  "ticker_id"
     t.integer  "tda_position_id"
@@ -298,13 +437,8 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.float    "order_price"
     t.float    "fill_price"
     t.integer  "ticker_id",                     :null => false
-    t.integer  "position_id"
     t.integer  "sim_position_id"
   end
-
-  add_index "orders", ["ticker_id"], :name => "ticker_id"
-  add_index "orders", ["position_id"], :name => "position_id"
-  add_index "orders", ["sim_position_id"], :name => "sim_position_id"
 
   create_table "plot_attributes", :force => true do |t|
     t.string   "name"
@@ -332,6 +466,12 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.integer "indicator_id"
     t.date    "date"
     t.float   "value"
+  end
+
+  create_table "position_stats", :id => false, :force => true do |t|
+    t.date    "date"
+    t.integer "total",    :limit => 8, :default => 0, :null => false
+    t.integer "rejected", :limit => 8, :default => 0
   end
 
   create_table "positions", :force => true do |t|
@@ -363,16 +503,10 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.integer  "exit_trigger_id"
     t.integer  "exit_strategy_id"
     t.integer  "scan_id"
+    t.float    "consumed_margin"
   end
 
-  add_index "positions", ["ticker_id", "scan_id", "entry_strategy_id", "exit_strategy_id", "entry_date"], :name => "unique_param_ids", :unique => true
-  add_index "positions", ["etind_id"], :name => "etind_id"
-  add_index "positions", ["xtind_id"], :name => "xtind_id"
-  add_index "positions", ["entry_trigger_id"], :name => "entry_trigger_id"
-  add_index "positions", ["entry_strategy_id"], :name => "entry_strategy_id"
-  add_index "positions", ["exit_trigger_id"], :name => "exit_trigger_id"
-  add_index "positions", ["exit_strategy_id"], :name => "exit_strategy_id"
-  add_index "positions", ["scan_id"], :name => "scan_id"
+  add_index "positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
 
   create_table "positions_save", :force => true do |t|
     t.integer  "ticker_id"
@@ -398,8 +532,23 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.float    "trigger_price"
   end
 
+  create_table "rejected_positions", :id => false, :force => true do |t|
+    t.date    "date"
+    t.integer "total", :limit => 8, :default => 0, :null => false
+  end
+
   create_table "samples", :id => false, :force => true do |t|
     t.integer "ticker_id"
+  end
+
+  create_table "save_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
   end
 
   create_table "saved_intra_day", :force => true do |t|
@@ -446,6 +595,7 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.integer  "exit_trigger_id"
     t.integer  "exit_strategy_id"
     t.integer  "scan_id"
+    t.float    "consumed_margin"
   end
 
   create_table "scans", :force => true do |t|
@@ -473,6 +623,30 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.string "name"
   end
 
+  create_table "sim_jobs", :force => true do |t|
+    t.string   "user"
+    t.string   "dir"
+    t.string   "prefix"
+    t.string   "position_table"
+    t.date     "start_date"
+    t.date     "end_date"
+    t.string   "output"
+    t.string   "filter_predicate"
+    t.string   "sort_by"
+    t.float    "initial_balance"
+    t.float    "order_amount"
+    t.float    "minimum_balance"
+    t.integer  "portfolio_size"
+    t.float    "reinvest_percent"
+    t.float    "order_charge"
+    t.string   "entry_slippage"
+    t.string   "exit_slippage"
+    t.integer  "log_level"
+    t.boolean  "keep_tables"
+    t.datetime "job_started_at"
+    t.datetime "job_finished_at"
+  end
+
   create_table "sim_positions", :force => true do |t|
     t.datetime "entry_date"
     t.datetime "exit_date"
@@ -488,17 +662,26 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.integer  "position_id"
   end
 
-  add_index "sim_positions", ["eorder_id"], :name => "eorder_id"
-  add_index "sim_positions", ["xorder_id"], :name => "xorder_id"
-  add_index "sim_positions", ["ticker_id"], :name => "ticker_id"
-  add_index "sim_positions", ["position_id"], :name => "position_id"
-
   create_table "sim_summaries", :force => true do |t|
     t.date    "sim_date"
     t.integer "positions_held"
     t.integer "positions_available"
     t.float   "portfolio_value"
     t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
+
+  create_table "snapshot_archive", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "bartime"
+    t.integer  "seq"
+    t.float    "opening"
+    t.float    "high"
+    t.float    "low"
+    t.float    "close"
+    t.integer  "volume"
+    t.integer  "accum_volume"
   end
 
   create_table "snapshots", :force => true do |t|
@@ -511,7 +694,6 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
     t.float    "close"
     t.integer  "volume"
     t.integer  "accum_volume"
-    t.integer  "secmid"
   end
 
   create_table "splits", :force => true do |t|
@@ -624,12 +806,76 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
   add_index "tickers", ["name"], :name => "ticker_name_index"
   add_index "tickers", ["exchange_id"], :name => "exchange_id"
 
+  create_table "total_positions", :id => false, :force => true do |t|
+    t.date    "date"
+    t.integer "total", :limit => 8, :default => 0, :null => false
+  end
+
   create_table "trigger_strategies", :force => true do |t|
     t.string   "name"
     t.string   "params"
     t.string   "description"
     t.datetime "created_at"
     t.datetime "updated_at"
+  end
+
+  create_table "unfiltered_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "unfiltered_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "unfiltered_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.integer  "position_id"
+  end
+
+  create_table "unfiltered_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
   end
 
   create_table "watch_list", :force => true do |t|
@@ -684,28 +930,10 @@ ActiveRecord::Schema.define(:version => 20091029212126) do
 
   add_foreign_key "intra_snapshots", ["ticker_id"], "tickers", ["id"], :name => "intra_snapshots_ibfk_1"
 
-  add_foreign_key "ledger_txns", ["order_id"], "orders", ["id"], :name => "ledger_txns_ibfk_1"
-
-  add_foreign_key "orders", ["ticker_id"], "tickers", ["id"], :name => "orders_ibfk_1"
-  add_foreign_key "orders", ["sim_position_id"], "sim_positions", ["id"], :name => "orders_ibfk_3"
-
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
-
-  add_foreign_key "positions", ["ticker_id"], "tickers", ["id"], :name => "positions_ibfk_1"
-  add_foreign_key "positions", ["etind_id"], "indicators", ["id"], :name => "positions_ibfk_2"
-  add_foreign_key "positions", ["xtind_id"], "indicators", ["id"], :name => "positions_ibfk_3"
-  add_foreign_key "positions", ["entry_trigger_id"], "entry_triggers", ["id"], :name => "positions_ibfk_4"
-  add_foreign_key "positions", ["entry_strategy_id"], "entry_strategies", ["id"], :name => "positions_ibfk_5"
-  add_foreign_key "positions", ["exit_trigger_id"], "exit_triggers", ["id"], :name => "positions_ibfk_6"
-  add_foreign_key "positions", ["exit_strategy_id"], "exit_strategies", ["id"], :name => "positions_ibfk_7"
-  add_foreign_key "positions", ["scan_id"], "scans", ["id"], :name => "positions_ibfk_8"
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"
-
-  add_foreign_key "sim_positions", ["eorder_id"], "orders", ["id"], :name => "sim_positions_ibfk_1"
-  add_foreign_key "sim_positions", ["xorder_id"], "orders", ["id"], :name => "sim_positions_ibfk_2"
-  add_foreign_key "sim_positions", ["ticker_id"], "tickers", ["id"], :name => "sim_positions_ibfk_3"
 
   add_foreign_key "splits", ["ticker_id"], "tickers", ["id"], :name => "splits_ibfk_1"
 

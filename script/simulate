@@ -6,6 +6,8 @@ require 'optparse/date'
 require 'ostruct'
 require 'pp'
 require 'date'
+#require 'rubygems'
+#require 'ruby-debug'
 
 options = OpenStruct.new
 
@@ -76,8 +78,15 @@ optparse = OptionParser.new do |opts|
     options.filter_predicate = p
   end
 
-  opts.on('-k', '--[no-]keep', "Keeps a copy of the otherwise temporary positions and summary tables. The table name will be prefixed by -P or -T, in that order") do |t|
-    options.keep_tables = t
+  opts.on('-d', '--output-dir DIR', "All output files will be stored in the specified (existing) directory instead of ./log") do |d|
+    unless File.exist?(d) and (fs = File::Stat.new(d)) and fs.directory? and fs.writable?
+      raise ArgumentError, "output directory: '#{d}' (-d or --output-dir) doesn't exist or isn't a directory or isn't writable"
+    end
+    options.dir = d
+  end
+
+  opts.on('-F', '--filter-predicate string', "SQL string defining the WHERE condition applied to the position query") do |p|
+    options.filter_predicate = p
   end
 
   opts.on('-h', '--help', 'Display this screen') do
@@ -109,7 +118,14 @@ EOS
   end
 end
 
-optparse.parse!
+begin
+  optparse.parse!
+rescue Exception => e
+  $stderr.puts "#{e.class}: #{e.to_s}"
+  exit
+end
+
+options.apply_defaults = true
 
 require '../config/environment.rb'
 require 'sim/system_mgr'

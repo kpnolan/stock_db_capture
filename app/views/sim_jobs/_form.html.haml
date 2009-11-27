@@ -1,0 +1,21 @@
+= f.text_field :user, :readonly => true
+= f.text_field :dir
+= f.text_field :prefix
+= f.select :position_table, [:filtered, :unfiltered]
+= f.date_select :start_date
+= f.date_select :end_date
+= f.select :output, [:summary, :positions, 'summary & positions']
+= f.text_field :filter_predicate
+= f.text_field :sort_by
+= f.text_field :initial_balance
+= f.text_field :order_amount
+= f.text_field :minimum_balance
+= f.text_field :portfolio_size
+= f.text_field :reinvest_percent
+= f.text_field :order_charge
+= f.select :entry_slippage, [:close, :high]
+= f.select :exit_slippage, [:close, :low]
+= f.select :log_level, (0..2).to_a
+= f.check_box :keep_tables
+= f.text_field :job_started_at, :readonly => true
+= f.text_field :job_finished_at, :readonly => true

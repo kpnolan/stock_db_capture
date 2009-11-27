@@ -40,19 +40,19 @@ module Sim
         order.save!
         sim_position = SimPosition.open(order, options)
         @opened_position_count += 1
-        $el.log_event(order)
-        $el.log_event(txn)
-        $el.log_event(sim_position)
-        #$el.sep
+        log_event(order)
+        log_event(txn)
+        log_event(sim_position)
+        #sep()
       when 'SEL'
         txn = credit(order.order_price, clock, :order_id => order.id, :msg => msg)
         order.save!
         @closed_position_count += 1
-        $el.log_event(order)
-        $el.log_event(txn)
+        log_event(order)
+        log_event(txn)
         order.sim_position.close(order)
-        $el.log_event(order.sim_position)
-        #$el.sep
+        log_event(order.sim_position)
+        #sep()
       end
     end
 

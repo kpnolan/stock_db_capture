@@ -1,0 +1,27 @@
+%h1 Listing sim_jobs
+%table
+  %tr.heading
+    %th Dir
+    %th Prefix
+    %th Position Table
+    %th Start Date
+    %th End Date
+    %th Output
+    %th Filter Predicate
+    %th Sort By
+    %th Initial Balance
+    %th Order Amount
+    %th Minimum Balance
+    %th Portfolio Size
+    %th Reinvest Percent
+    %th Order Charge
+    %th Entry Slippage
+    %th Exit Slippage
+    %th Log Level
+    %th Keep Tables
+    %th Job Started At
+    %th Job Finished At
+
+  = render :partial => 'sim_jobs', :collection => current_objects
+
+= link_to 'New sim_jobs', new_object_path 

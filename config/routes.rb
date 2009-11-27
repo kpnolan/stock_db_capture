@@ -1,22 +1,14 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :sim_jobs
   map.resources :sim_summaries
-
   map.resources :ledger_txns
-
   map.resources :splits
-
   map.resources :sim_positions
-
   map.resources :orders
-
   map.resources :trigger_strategies
-
   map.resources :exit_strategies
-
   map.resources :entry_strategies
-
   map.resources :position_series
-
   map.resources :tda_positions, :member => { :close => :put, :plot => :get }, :collection => { :open => :post, :summary => :get }
   map.resources :snapshots
   map.resources :studies

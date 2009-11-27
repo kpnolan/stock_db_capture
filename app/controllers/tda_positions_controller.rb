@@ -7,6 +7,7 @@ class TdaPositionsController < ApplicationController
     actions :all
 
     before :new do
+      debugger
     end
   end
 

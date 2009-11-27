@@ -20,15 +20,17 @@ module Sim
     def_delegators :@ch, :find_candidates
     def_delegators :@pc, :sell_mature_positions
     def_delegators :@rg, :generate_reports
+    def_delegators :@el, :log_event, :sep
 
-    attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population
+    attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population, :output_dir
     attr_reader :total_opened, :total_closed
     attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg
 
     def initialize(options)
       prefix = options.prefix ? options.prefix+'_' : ''
 
-      @logger =  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', prefix+'simulator.log'))
+      @output_dir = options.dir.blank? ? File.join(RAILS_ROOT, 'log') : options.dir
+      @logger =  ActiveSupport::BufferedLogger.new(File.join(output_dir, prefix+'simulator.log'))
 
       self.cm = ConfigurationMgr.new(self, options) # must be first!!
 
@@ -39,6 +41,7 @@ module Sim
       @subsystems << self.ch = Chooser.new(self, cm)
       @subsystems << self.pc = PositionCloser.new(self, cm)
       @subsystems << self.rg = ReportGenerator.new(self, cm)
+      @subsystems << self.el = EventLogger.new(self, cm)
 
       subsystems.each { |ss| ss.init_dispatch() }
       subsystems.each { |ss| ss.post_dispatch_hook() if ss.respond_to? :post_dispatch_hook }
@@ -50,7 +53,6 @@ module Sim
       raise ArgumentError, "population was not specified in on the command line or defaulted" if population.nil?
 
       @total_opened, @total_closed = 0,0
-      $el = EventLogger.new(cm)
 
       db_init()
     end
@@ -88,7 +90,7 @@ module Sim
       attrs.pos_opened = opened_position_count
       attrs.pos_closed = closed_position_count
       sum = SimSummary.create! attrs.marshal_dump
-      $el.log_event(sum)
+      log_event(sum)
       @clock = SystemMgr.trading_date_from(clock, 1)
     end
 

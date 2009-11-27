@@ -13,6 +13,8 @@ module Sim
      end
 
      def find_candidates(date, count)
+       if cval(:filter_predicate).include? 'volume'
+       end
       pool = Position.filtered(cval(:filter_predicate)).ordered(cval(:sort_by)).find_by_date(:entry_date, date, :limit => count)
       if include_set
         symbol_set = Set.new(pool.map { |p| p.ticker.symbol })

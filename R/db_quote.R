@@ -15,6 +15,7 @@ get.histo <-
     }
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
+    return(x)
     if ( nrow(x) == 0 ) {
       cat("Returned data is empty. Check SQL\n")
       return(FALSE);

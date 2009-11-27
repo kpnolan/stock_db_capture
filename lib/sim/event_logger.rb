@@ -1,13 +1,14 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 module Sim
-  class EventLogger
+  class EventLogger < Subsystem
 
-    attr_reader :levels, :cm, :logger
+    attr_reader :levels, :logger
 
-    def initialize(cm)
-      @cm = cm
-      path = File.join(RAILS_ROOT, 'log', (cval(:prefix) ? cval(:prefix)+'_' : cval(:position_table)+'_'))
+    def initialize(sm, cm)
+      super(sm, cm, self.class)
+
+      path = File.join(output_dir, (cval(:prefix) ? cval(:prefix)+'_' : cval(:position_table)+'_'))
       @logger = ActiveSupport::BufferedLogger.new(path+'sim_events.log')
       @levels = case cval(:log_level)
                 when 0 : []
@@ -32,15 +33,5 @@ module Sim
     def sep()
       logger.info('')
     end
-
-private
-
-    def cval(key)
-      cm.options.send(key)
-    end
-  end
-
-  def self.log_event(obj_or_str)
-    $el.log_event(obj_or_str)
   end
 end

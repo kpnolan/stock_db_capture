@@ -1,0 +1,44 @@
+one:
+  id: 1
+  dir: MyString
+  prefix: MyString
+  position_table: MyString
+  start_date: 2009-11-25
+  end_date: 2009-11-25
+  output: MyString
+  filter_predicate: MyString
+  sort_by: MyString
+  initial_balance: 1.5
+  order_amount: 1.5
+  minimum_balance: 1.5
+  portfolio_size: 1
+  reinvest_percent: 1.5
+  order_charge: 1.5
+  entry_slippage: MyString
+  exit_slippage: MyString
+  log_level: 1
+  keep_tables: false
+  job_started_at: 2009-11-25 14:02:50
+  job_finished_at: 2009-11-25 14:02:50
+two:
+  id: 2
+  dir: MyString
+  prefix: MyString
+  position_table: MyString
+  start_date: 2009-11-25
+  end_date: 2009-11-25
+  output: MyString
+  filter_predicate: MyString
+  sort_by: MyString
+  initial_balance: 1.5
+  order_amount: 1.5
+  minimum_balance: 1.5
+  portfolio_size: 1
+  reinvest_percent: 1.5
+  order_charge: 1.5
+  entry_slippage: MyString
+  exit_slippage: MyString
+  log_level: 1
+  keep_tables: false
+  job_started_at: 2009-11-25 14:02:50
+  job_finished_at: 2009-11-25 14:02:50

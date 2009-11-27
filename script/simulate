@@ -66,6 +66,10 @@ optparse = OptionParser.new do |opts|
     options.order_charge = m
   end
 
+  opts.on('-I', '--interest-rate NUMBER', Float, "The annual interest rate applied to cash balance") do |i|
+    options.interest_rate = i
+  end
+
   opts.on('-T', '--position-table filtered|unfiltered', "The name of the position table in the DB containing the source population of positions") do |t|
     options.position_table = t
   end

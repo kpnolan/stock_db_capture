@@ -15,3 +15,4 @@ minimum_balance: 0.00             # I will not generate orders if there is not a
 keep_tables: false                # Don't keep positions or summaries table after simulator exit
 sort_by: entry_price
 filter_predicate: 'entry_price > 1'
+interest_rate: 5                  # The annual interest rate applied to cash balance on the account"

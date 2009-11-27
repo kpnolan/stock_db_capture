@@ -23,7 +23,7 @@ module Sim
     def_delegators :@el, :log_event, :sep
 
     attr_reader   :config, :subsystems, :clock, :logger, :start_date, :end_date, :population, :output_dir
-    attr_reader :total_opened, :total_closed
+    attr_reader :total_opened, :total_closed, :daily_interest_factor
     attr_accessor :cm, :sm, :op, :mm, :pm, :ch, :pc, :rg, :el
 
     def initialize(options)
@@ -50,6 +50,7 @@ module Sim
       @end_date = cval(:end_date).to_date
       @clock = start_date.to_time.localtime.change(:hour => 6, :min => 30)
       @population = cval(:position_table)
+      @daily_interest_factor = cval(:interest_rate).nil? ? 1.0 : 1.0 + (cval(:interest_rate) / 100.0 / 252.0)
       raise ArgumentError, "population was not specified in on the command line or defaulted" if population.nil?
 
       @total_opened, @total_closed = 0,0
@@ -90,6 +91,7 @@ module Sim
       attrs.positions_available = pool_size()
       attrs.portfolio_value = market_value(sysdate()).round
       attrs.cash_balance = current_balance().round
+      attrs.cash_balance *= daily_interest_factor
       attrs.pos_opened = opened_position_count
       attrs.pos_closed = closed_position_count
       sum = SimSummary.create! attrs.marshal_dump

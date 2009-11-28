@@ -1,6 +1,7 @@
 %h1 Listing sim_jobs
 %table
   %tr.heading
+    %th User
     %th Dir
     %th Prefix
     %th Position Table
@@ -24,4 +25,4 @@
 
   = render :partial => 'sim_jobs', :collection => current_objects
 
-= link_to 'New sim_jobs', new_object_path 
+= link_to 'New sim_jobs', new_object_path

@@ -10,7 +10,7 @@ module Sim
 
       path = File.join(output_dir, (cval(:prefix) ? cval(:prefix)+'_' : cval(:position_table)+'_'))
       path << 'sim_events.log'
-      File.truncate(path, 0)
+      File.truncate(path, 0) if File.exist?(path)
       @logger = ActiveSupport::BufferedLogger.new(path)
       @levels = case cval(:log_level)
                 when 0 : []

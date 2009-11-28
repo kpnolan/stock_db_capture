@@ -36,6 +36,7 @@ class LedgerTxn < ActiveRecord::Base
   validates_numericality_of :amount, :balance
 
   class << self
+
     def debit(amount, date, balance, order_id, msg)
       attrs = OpenStruct.new
       attrs.amount = amount
@@ -56,10 +57,6 @@ class LedgerTxn < ActiveRecord::Base
       attrs.msg = msg
       attrs.balance = balance + (attrs.txn_type)*amount
       obj = create!(attrs.marshal_dump)
-    end
-
-    def current_balance()
-      count.zero? ? -0.0 : last.balance
     end
 
     def truncate()

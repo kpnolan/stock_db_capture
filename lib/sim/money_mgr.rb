@@ -13,6 +13,10 @@ module Sim
       @initial_balance = cval(:initial_balance)
     end
 
+    def apply_interest(interest_factor)
+      @current_balance *= interest_factor
+    end
+
     def debit(amount, date, options={})
       txn = LedgerTxn.debit(amount, date, current_balance, options[:order_id], options[:msg])
       self.current_balance -= amount

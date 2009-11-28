@@ -15,7 +15,7 @@ module Sim
     include CurrentMethod
 
     def_delegators :@op, :buy, :sell, :max_order_amount, :opened_position_count, :closed_position_count
-    def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance, :initial_balance
+    def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance, :initial_balance, :apply_interest
     def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value, :open_position_count
     def_delegators :@ch, :find_candidates
     def_delegators :@pc, :sell_mature_positions
@@ -51,6 +51,7 @@ module Sim
       @clock = start_date.to_time.localtime.change(:hour => 6, :min => 30)
       @population = cval(:position_table)
       @daily_interest_factor = cval(:interest_rate).nil? ? 1.0 : 1.0 + (cval(:interest_rate) / 100.0 / 252.0)
+      @daily_interest_rate = daily_interest_factor - 1.0
       raise ArgumentError, "population was not specified in on the command line or defaulted" if population.nil?
 
       @total_opened, @total_closed = 0,0
@@ -85,13 +86,13 @@ module Sim
     end
 
     def increment_date()
+      apply_interest(daily_interest_factor)
       attrs = OpenStruct.new()
       attrs.sim_date = sysdate()
       attrs.positions_held = open_position_count()
       attrs.positions_available = pool_size()
       attrs.portfolio_value = market_value(sysdate()).round
       attrs.cash_balance = current_balance().round
-      attrs.cash_balance *= daily_interest_factor
       attrs.pos_opened = opened_position_count
       attrs.pos_closed = closed_position_count
       sum = SimSummary.create! attrs.marshal_dump

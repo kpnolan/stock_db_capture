@@ -17,7 +17,6 @@ module Trading
     def initialize(logger, options={})
       @logger = logger
       @closing_strategy_params = {
-        :macdfix => {:threshold => 0, :range => -1..1, :direction => :over, :result => :last_of_third},
         :rsi => {:threshold => 50, :range => 0..100, :direction => :under, :result => :last},
         :rvi => {:threshold => 50, :range => 0..100, :direction => :under, :result => :last}
       }
@@ -26,7 +25,8 @@ module Trading
     def create_candidate_list()
       @scan = Scan.find_by_name(WATCHLIST_NAME)
 
-      start_date = Date.parse('1/1/2009')
+      prefetch_bars = Timeseries.prefetch_bars(:rsi, 14)
+      start_date = trading_date_from(Date.today, -prefetch_bars)
       end_date = trading_date_from(Date.today, -1)
       liquid = "min(volume) >= 100000 AND count(*) = #{total_bars(start_date, end_date, 1)}"
       scan.update_attributes!(:table_name => 'daily_bars',
@@ -49,7 +49,7 @@ module Trading
       ots_hash.length
     end
 
-    def test_snapshot_server
+    def retrieve_snapshots
       begin
         WatchList.all.map(&:symbol).any? { |symbol| qt.snapshot(symbol) > 0 }
       rescue SnapshotProtocolError
@@ -128,7 +128,7 @@ module Trading
         WatchList.find(:all, :conditions => 'opened_on IS NULL').each do |watched_position|
           ticker_id = Ticker.find watched_position.ticker_id
           start_date = watched_position.listed_on
-          end_date = DailyBar.maximum(:bartime, :conditions => { :ticker_id => ticker_id }).to_date
+          end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
           hash[ts] = [watched_position.target_rsi, watched_position.target_price]
         end
@@ -140,7 +140,7 @@ module Trading
         WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
           ticker_id = opened_position.ticker_id
           start_date = opened_position.tda_position.entry_date
-          end_date = DailyBar.maximum(:bartime, :conditions => { :ticker_id => ticker_id }).to_date
+          end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           vec << Timeseries.new(ticker_id, start_date..end_date, 1.day)
         end
       end
@@ -150,7 +150,7 @@ module Trading
       @qt = TdAmeritrade::QuoteServer.new
       @qt.attach_to_streamer()
       begin
-        test_snapshot_server()
+        retrieve_snapshots()
       rescue Exception
         sleep(60) and retry
       end

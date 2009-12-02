@@ -5,8 +5,6 @@
 #
 #  id            :integer(4)      not null, primary key
 #  ticker_id     :integer(4)
-#  estrategy_id  :integer(4)
-#  xstrategy_id  :integer(4)
 #  entry_price   :float
 #  exit_price    :float
 #  curr_price    :float
@@ -17,8 +15,6 @@
 #  stop_loss     :boolean(1)
 #  nreturn       :float
 #  rretrun       :float
-#  eorderid      :integer(4)
-#  xorderid      :integer(4)
 #  opened_at     :datetime
 #  closed_at     :datetime
 #  updated_at    :datetime
@@ -30,8 +26,6 @@
 
 class TdaPosition < ActiveRecord::Base
   belongs_to :ticker
-  #belongs_to :strategy, :foreign_key => :estrategy_id
-  #belongs_to :strategy, :foreign_key => :xstrategy_id
   belongs_to  :watch_list
 
   include TradingCalendar

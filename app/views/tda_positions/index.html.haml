@@ -2,8 +2,6 @@
 %table
   %tr.heading
     %th Ticker
-    %th Estrategy
-    %th Xstrategy
     %th Entry Date
     %th Exit Date
     %th Openned At
@@ -12,14 +10,11 @@
     %th Entry Price
     %th Exit Price
     %th Curr Price
-    %th Eorderid
-    %th Xorderid
-    %th Rum Shares
-    %th Stop Loss
+    %th Num Shares
     %th Days Held
     %th Nreturn
     %th Rretrun
 
   = render :partial => 'tda_position', :collection => current_objects
 
-= link_to 'New tda_position', new_object_path 
+= link_to 'New tda_position', new_object_path

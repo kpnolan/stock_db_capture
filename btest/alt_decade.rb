@@ -53,7 +53,7 @@ populations do
        end_date = start_date + 1.year - 1.day
        desc "Population of all stocks with a minimum valume of 75000 in #{start_date.year}"
        scan scan_name, :start_date =>  start_date, :end_date => end_date,
-                       :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9),
+                       :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:rsi, 14),
                        :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
                        :order_by => 'tickers.symbol'
        scan_vec << scan_name

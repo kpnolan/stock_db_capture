@@ -19,14 +19,12 @@
 #  last_seq          :integer(4)
 #  current_rsi       :float
 #  current_rvi       :float
-#  current_macdfix   :float
 #  target_rsi        :float
 #  target_rvi        :float
 #  open_crossed_at   :datetime
 #  closed_crossed_at :datetime
 #  min_delta         :float
 #  nearest_indicator :string(255)
-#  target_macdfix    :float
 #  opened_on         :date
 #
 
@@ -56,8 +54,7 @@ class WatchList < ActiveRecord::Base
   def thresholds()
     rsi = target_rsi
     rvi = target_rvi
-    macd = target_macdfix
-    [rsi, rvi, macd].map(&:to_i).join(',')
+    [rsi, rvi].map(&:to_i).join(',')
   end
 
   def update_closure!(result_hash, last_bar, num_samples)

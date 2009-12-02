@@ -16,6 +16,7 @@
 #  xorder_id        :integer(4)
 #  ticker_id        :integer(4)
 #  static_exit_date :date
+#  position_id      :integer(4)
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.

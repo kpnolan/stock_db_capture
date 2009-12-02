@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091029212126
+# Schema version: 20091125220250
 #
 # Table name: sim_summaries
 #
@@ -32,6 +32,9 @@ class SimSummary < ActiveRecord::Base
 
   # to insert a comma every 3 digits do: n.to_s.reverse.gsub(/...(?=.)/,'\&,').reverse
   def to_s()
-    format(' $%7.0f + $%7.0f = $%7.0f', portfolio_value, cash_balance, portfolio_value + cash_balance)
+    pretty_portfolio_value = portfolio_value.round.to_s.reverse.gsub(/...(?=.)/,'\&,').reverse
+    pretty_cash_balance = cash_balance.round.to_s.reverse.gsub(/...(?=.)/,'\&,').reverse
+    pretty_total = (portfolio_value + cash_balance).round.to_s.reverse.gsub(/...(?=.)/,'\&,').reverse
+    format(' $%10s + $%10s = $%10s', pretty_portfolio_value, pretty_cash_balance, pretty_total)
   end
 end

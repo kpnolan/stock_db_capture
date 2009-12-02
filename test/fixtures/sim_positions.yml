@@ -1,21 +1,21 @@
 # == Schema Information
-# Schema version: 20091029212126
+# Schema version: 20091125220250
 #
 # Table name: sim_positions
 #
-#  id          :integer(4)      not null, primary key
-#  entry_date  :datetime
-#  exit_date   :datetime
-#  quantity    :integer(4)
-#  entry_price :float
-#  exit_price  :float
-#  nreturn     :float
-#  roi         :float
-#  days_held   :integer(4)
-#  eorder_id   :integer(4)
-#  xorder_id   :integer(4)
-#  ticker_id   :integer(4)
-#  position_id :integer(4)
+#  id               :integer(4)      not null, primary key
+#  entry_date       :datetime
+#  exit_date        :datetime
+#  quantity         :integer(4)
+#  entry_price      :float
+#  exit_price       :float
+#  nreturn          :float
+#  roi              :float
+#  days_held        :integer(4)
+#  eorder_id        :integer(4)
+#  xorder_id        :integer(4)
+#  ticker_id        :integer(4)
+#  static_exit_date :date
 #
 
 one:

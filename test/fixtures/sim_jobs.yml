@@ -1,3 +1,32 @@
+# == Schema Information
+# Schema version: 20091125220250
+#
+# Table name: sim_jobs
+#
+#  id               :integer(4)      not null, primary key
+#  user             :string(255)
+#  dir              :string(255)
+#  prefix           :string(255)
+#  position_table   :string(255)
+#  start_date       :date
+#  end_date         :date
+#  output           :string(255)
+#  filter_predicate :string(255)
+#  sort_by          :string(255)
+#  initial_balance  :float
+#  order_amount     :float
+#  minimum_balance  :float
+#  portfolio_size   :integer(4)
+#  reinvest_percent :float
+#  order_charge     :float
+#  entry_slippage   :string(255)
+#  exit_slippage    :string(255)
+#  log_level        :integer(4)
+#  keep_tables      :boolean(1)
+#  job_started_at   :datetime
+#  job_finished_at  :datetime
+#
+
 one:
   id: 1
   dir: MyString

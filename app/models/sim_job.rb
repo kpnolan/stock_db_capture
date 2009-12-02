@@ -1,3 +1,32 @@
+# == Schema Information
+# Schema version: 20091125220250
+#
+# Table name: sim_jobs
+#
+#  id               :integer(4)      not null, primary key
+#  user             :string(255)
+#  dir              :string(255)
+#  prefix           :string(255)
+#  position_table   :string(255)
+#  start_date       :date
+#  end_date         :date
+#  output           :string(255)
+#  filter_predicate :string(255)
+#  sort_by          :string(255)
+#  initial_balance  :float
+#  order_amount     :float
+#  minimum_balance  :float
+#  portfolio_size   :integer(4)
+#  reinvest_percent :float
+#  order_charge     :float
+#  entry_slippage   :string(255)
+#  exit_slippage    :string(255)
+#  log_level        :integer(4)
+#  keep_tables      :boolean(1)
+#  job_started_at   :datetime
+#  job_finished_at  :datetime
+#
+
 class SimJob < ActiveRecord::Base
 
   validates_presence_of :user, :position_table, :initial_balance, :order_amount, :minimum_balance, :order_charge
@@ -5,6 +34,11 @@ class SimJob < ActiveRecord::Base
   validates_numericality_of  :initial_balance, :order_amount, :minimum_balance, :order_charge, :log_level
   validate :portfolio_size_or_reinvest_percent
   validate :validate_output_directory
+
+  before_save do
+    self.job_started_at = nil
+    self.job_finished_at = nil
+  end
 
   def portfolio_size_or_reinvest_percent
      unless portfolio_size.blank? ^ reinvest_percent.blank?

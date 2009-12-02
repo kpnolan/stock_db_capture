@@ -120,7 +120,7 @@ class Backtester
             for index in triggered_indexes
               next if triggered_index_hash.include? index #This index has been triggered on a previous pass
               trigger_date, trigger_price = ts.closing_values_at(index)
-              trigger_ival = ts.result_at(index, :rsi)          # We are assuming here that an rsi is the only entry trigger indicators, which may no always be
+              trigger_ival = ts.result_at(index, :rsi)          # We are assuming here that an rsi is the only entry trigger indicator, which may no always be
               # the case
               debugger if trigger_date.nil? or trigger_price.nil?
               position = BtestPosition.trigger_entry(ts.ticker_id, trigger_date, trigger_price, rsi_id, trigger_ival, pass)

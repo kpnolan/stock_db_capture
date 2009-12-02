@@ -1,21 +1,21 @@
 # == Schema Information
-# Schema version: 20091029212126
+# Schema version: 20091125220250
 #
 # Table name: sim_positions
 #
-#  id          :integer(4)      not null, primary key
-#  entry_date  :datetime
-#  exit_date   :datetime
-#  quantity    :integer(4)
-#  entry_price :float
-#  exit_price  :float
-#  nreturn     :float
-#  roi         :float
-#  days_held   :integer(4)
-#  eorder_id   :integer(4)
-#  xorder_id   :integer(4)
-#  ticker_id   :integer(4)
-#  position_id :integer(4)
+#  id               :integer(4)      not null, primary key
+#  entry_date       :datetime
+#  exit_date        :datetime
+#  quantity         :integer(4)
+#  entry_price      :float
+#  exit_price       :float
+#  nreturn          :float
+#  roi              :float
+#  days_held        :integer(4)
+#  eorder_id        :integer(4)
+#  xorder_id        :integer(4)
+#  ticker_id        :integer(4)
+#  static_exit_date :date
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
@@ -26,7 +26,7 @@ class SimPosition < ActiveRecord::Base
   belongs_to :eorder, :class_name => 'Order'
   belongs_to :xorder, :class_name => 'Order'
   belongs_to :ticker
-  belongs_to :position
+  belongs_to :position, :class_name => 'TempPositionTemplate'
 
   @@open_position_count = 0
 
@@ -48,7 +48,7 @@ class SimPosition < ActiveRecord::Base
     end
 
     def exiting_positions(date)
-      find(:all, :include => :position, :conditions => ["date(#{Position.table_name}.exit_date) = ?", date] )
+      find(:all, :conditions => { :static_exit_date => date } )
     end
 
     def open_positions()
@@ -63,6 +63,7 @@ class SimPosition < ActiveRecord::Base
       attrs.quantity = order.quantity
       attrs.entry_price = order.fill_price
       attrs.ticker_id = order.ticker_id
+      attrs.static_exit_date = options[:exit_date]
       attrs.position_id = options[:position_id]
       pos = create! attrs.marshal_dump
     end

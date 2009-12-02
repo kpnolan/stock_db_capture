@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091029212126
+# Schema version: 20091125220250
 #
 # Table name: positions
 #
@@ -32,6 +32,7 @@
 #  exit_trigger_id   :integer(4)
 #  exit_strategy_id  :integer(4)
 #  scan_id           :integer(4)
+#  consumed_margin   :float
 #
 
 one:

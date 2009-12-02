@@ -12,8 +12,8 @@ module Sim
     def_delegators :@sm, :clock, :sysdate, :error, :info, :log, :output_dir
     def_delegators :@op, :buy, :sell, :order_amount
     def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance
-    def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value
-    def_delegators :@ch, :find_candiates
+    def_delegators :@pm, :mature_positions, :num_vacancies, :market_value
+    def_delegators :@ch, :find_candiates, :pool_size
     def_delegators :@pc, :sell_mature_positions
     def_delegators :@el, :log_event, :sep
 

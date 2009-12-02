@@ -16,8 +16,8 @@ module Sim
 
     def_delegators :@op, :buy, :sell, :max_order_amount, :opened_position_count, :closed_position_count
     def_delegators :@mm, :credit, :debit, :funds_available, :current_balance, :minimum_balance, :initial_balance, :apply_interest
-    def_delegators :@pm, :open_positions, :mature_positions, :pool_size, :num_vacancies, :market_value, :open_position_count
-    def_delegators :@ch, :find_candidates
+    def_delegators :@pm, :mature_positions, :num_vacancies, :market_value, :open_position_count
+    def_delegators :@ch, :find_candidates, :pool_size
     def_delegators :@pc, :sell_mature_positions
     def_delegators :@rg, :generate_reports
     def_delegators :@el, :log_event, :sep
@@ -66,11 +66,12 @@ module Sim
     end
 
     def db_init()
-      count = Position.filtered(cval(:filter_predicate)).ordered(cval(:sort_by)).count
-      puts "#{count} positions matched filtering criteria"
       tables = Position.connection.select_values('show tables')
       raise ArgumentError, "unknown positions table #{population}_positions" unless tables.include? "#{population}_positions"
       Position.set_table_name(population + '_positions')
+      TempPositionTemplate.create_temp_table(cval(:filter_predicate))
+      count = TempPositionTemplate.count()
+      puts "#{count} positions matched filtering criteria"
       credit(initial_balance(), clock, :msg => "Initial Balance")
       # When run from DelayedJob the connection stays up so temp tables don't go away
       SimSummary.connection.execute("DROP TABLE IF EXISTS temp_sim_summaries")

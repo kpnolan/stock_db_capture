@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091029212126
+# Schema version: 20091125220250
 #
 # Table name: positions
 #
@@ -32,6 +32,7 @@
 #  exit_trigger_id   :integer(4)
 #  exit_strategy_id  :integer(4)
 #  scan_id           :integer(4)
+#  consumed_margin   :float
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
@@ -128,9 +129,32 @@ class Position < ActiveRecord::Base
       find(:all, :conditions => ['date(positions.exit_date) = ?', date.to_date])
     end
 
-    def persist()
-      Position.connection.execute('drop table if exits btest_positions')
-      Position.connection.execute('create table if not exist btest_positions select * from positions where closed = 1')
+    def generate_extract_sql(src, dest, filter)
+      names = columns.map(&:name)
+      names.delete('id')
+      lhs_names = rhs_names = names
+      if filter.include? 'volume'
+        append_clause = 'and (daily_bars.ticker_id = #{src}.ticker_id and daily_bars.bardate = date(entry_date))'
+        other_table = ',daily_bars'
+        rhs_names << 'daily_bars.volume'
+      else
+        other_table = ''
+        names.delete('volume')
+      end
+      where = 'where entry_price > 1.0'
+      lhs_cols = lhs_names.join(',')
+      rhs_cols = rhs_names.join(',')
+
+      "insert into #{dest}(#{lhs_cols}) select #{rhs_cols} from #{src}#{other_table} #{where} #{append_clause}"
+    end
+
+    def persist(src, filter)
+      sql = generate_extract_sql(src, 'temp_positions', filter)
+      debugger
+      Position.connection.execute("DROP TABLE IF EXISTS temp_positions")
+      Position.connection.execute('CREATE TEMPORARY TABLE temp_positions LIKE proto_positions')
+      Position.connection.execute('ALTER TABLE temp_positions ENGINE=MEMORY')
+      Position.connection.execute(sql)
     end
 
     def find_by_date(field, date, options={})

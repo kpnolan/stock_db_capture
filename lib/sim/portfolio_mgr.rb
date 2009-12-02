@@ -20,16 +20,8 @@ module Sim
       SimPosition.open_position_count()
     end
 
-    def open_positions()
-      SimPosition.open_positions()
-    end
-
     def mature_positions()
       SimPosition.exiting_positions(sysdate())
-    end
-
-    def pool_size()
-      Position.filtered(cval(:filter_predicate)).on_date(clock).count()
     end
 
     def num_vacancies()

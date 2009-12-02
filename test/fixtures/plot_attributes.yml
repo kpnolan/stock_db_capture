@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091029212126
+# Schema version: 20091125220250
 #
 # Table name: plot_attributes
 #

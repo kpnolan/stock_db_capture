@@ -5,31 +5,24 @@ analytics do
   #-----------------------------------------------------------------------------------------------------------------
   desc "Find all places where RSI gooes heads upwards of 30"
   entry_trigger :rsi_open_14, :time_period => 14, :result => :first do |params, pass|
-    rsi_ary = rsi(params)
-    indexes = under_threshold(20+pass*5, rsi_ary)
+    rsi_vec = rsi(params)
+    indexes = under_threshold(20+pass*5, rsi_vec)
   end
 
   #-----------------------------------------------------------------------------------------------------------------
-  # First use ad MACD to detect those RSI event which are on a downard slope, marking those that are not as valid.
-  # For those with a negative MACD, use an anchored momentum. i.e. Set the close at trigger as the reference close
-  # and return the index of the first trading day with a close higher than the reference date. Should weed out losers
-  # on a downward trend
-  desc 'Open triggered positions with a positive MACD or positive momentum'
-  open_position :macd_relative_momentum, :result => :first do |params|
-    macd_hist = macdext(:slow_period => 13, :faster_preriod => 6, :signal_period => 3, :result => :macd_hist).to_a
-    if (index = macd_hist.index { |val| val >= 0.0 })
-      [index+result_offset]
-    else
-      []
-    end
+  # This block just passes through the entry trigger recorded in the previous step. No addiional filtering is involved.
+  desc 'Just use the value of the entry trigger'
+  open_position :entry_trigger_passthrough, :result => :first do |params|
+    [begin_index]
   end
 
   #-----------------------------------------------------------------------------------------------------------------
-  desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
-  exit_trigger :compact_rrm_14, :time_period => 14, :result => :first do |params|
-    close_crossing_value(:macdext => params.merge(:threshold => 0, :direction => :over, :slow_period => 13, :faster_preriod => 6, :signal_period => 3, :result => :macd_hist),
-                         :rsi => params.merge(:threshold => 50, :direction => :under, :result => :rsi),
-                         :rvi => params.merge(:threshold => 50, :direction => :under, :result => :rvi))
+  desc "Find all places where RSI crosses 50 from below"
+  exit_trigger :rsi_50, :time_period => 14, :result => :first do |params|
+    min_time, meth = close_under_min(:rsi => params.merge(:threshold => 50),
+                                     :rvi => params.merge(:threshold => 50))
+
+    [min_time, meth, result_at(min_time, meth)]
   end
 
   #-----------------------------------------------------------------------------------------------------------------
@@ -54,7 +47,7 @@ end
 populations do
   liquid = "min(volume) >= 75000"
    $scan_names = returning [] do |scan_vec|
-     (2000..1999).each do |year|
+     (2000..2008).each do |year|
        start_date = Date.civil(year, 1, 1)
        scan_name = "year_#{year}".to_sym
        end_date = start_date + 1.year - 1.day
@@ -79,9 +72,9 @@ populations do
 end
 
 backtests(:generate_stats => false, :profile => false, :truncate => :scan, :repopulate => true, :log_flags => [:basic],
-           :prefetch => Timeseries.prefetch_bars(:macdfix, 9), :postfetch => 20, :days_to_close => 20, :populate => true) do
+           :prefetch => Timeseries.prefetch_bars(:rsi, 14), :postfetch => 20, :days_to_close => 20, :populate => true) do
   $scan_names.each do |scan_name|
-    using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :lagged_rsi_difference, scan_name) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
+    using(:rsi_open_14, :entry_trigger_passthrough, :rsi_50, :lagged_rsi_difference, scan_name) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
 #      make_sheet(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true)
       #make_sheet(nil, nil, nil, nil, scan, :values => [:close], :pre_days => 1, :post_days => 30, :keep => true)
     end

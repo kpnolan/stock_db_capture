@@ -19,7 +19,7 @@ class SimJobsController < ApplicationController
       initialize_params()
     end
 
-    after :create do
+    after :create, :update do
       Delayed::Job.enqueue(SimJobWrapper.new(current_object.id))
     end
   end

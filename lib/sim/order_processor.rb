@@ -3,10 +3,11 @@
 module Sim
   class OrderProcessor < Subsystem
 
-    attr_reader :opened_position_count, :closed_position_count
+    attr_reader :opened_position_count, :closed_position_count, :log_orders
 
     def initialize(sm, cm)
       super(sm, cm, self.class)
+      @log_orders = cval(:log_orders)
       daily_hook()
     end
 
@@ -26,7 +27,7 @@ module Sim
       if order_amount() < funds_available()
         order = Order.make_buy(position.ticker.id, position.entry_price, clock,
                                :order_ceiling => order_amount, :funds_available => funds_available, :order_charge => order_charge)
-        execute(order, :position_id => position.id)
+        execute(order, :position_id => position.id, :exit_date => position.exit_date)
       else
         puts "Not enough cash to BUY: #{order_amount()} > #{funds_available()}"
       end
@@ -57,7 +58,7 @@ module Sim
     end
 
     def sell(sim_position)
-      order = if sim_position.position.exit_date.to_date == sysdate()
+      order = if sim_position.static_exit_date == sysdate()
         sell_at_maturity(sim_position)
       else
         sell_premature(sim_position)
@@ -71,6 +72,7 @@ module Sim
 
     def sell_premature(sim_position)
       ticker_id = sim_position.position.ticker_id
+      raise Exception, "We shouldn't ever get here!"
       #TODO grap the current price from dailybars
     end
   end

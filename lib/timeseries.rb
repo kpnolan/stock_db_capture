@@ -413,9 +413,9 @@ class Timeseries
     if pre_offset.nil?
       calculate_fill_indexes(nil)
       raw_populate()
-    elsif pre_offset == @pre_offset           # Nothing need to change -- new data set bounded the same
+    elsif @pre_offset && pre_offset == @pre_offset           # Nothing need to change -- new data set bounded the same
       return self.index_range
-    elsif pre_offset < @pre_offset
+    elsif @pre_offset && pre_offset < @pre_offset
       map_local_range()
     else
       calculate_fill_indexes(pre_offset)

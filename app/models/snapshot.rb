@@ -43,10 +43,11 @@ class Snapshot < ActiveRecord::Base
 
     def last_bar(ticker_id, date=Date.today, count=false)
       snap_ary = Snapshot.find(:all, :conditions => ['ticker_id = ? and date(bartime) = ?', ticker_id, date], :order => 'seq desc')
+      debugger if snap_ary.empty?
       high = snap_ary.map(&:high).max
       low = snap_ary.map(&:low).min
-      open = snap_ary.last.open
-      close = snap_ary.first.open
+      open = snap_ary.last.opening
+      close = snap_ary.first.opening
       values = [open, high, low, close, snap_ary.first.accum_volume, snap_ary.first.bartime]
       bar = [:opening, :high, :low, :close, :volume, :time].inject({}) { |h, k| h[k] = values.shift; h }
       count ? [bar, snap_ary.length] : bar
@@ -82,6 +83,7 @@ class Snapshot < ActiveRecord::Base
         ss = bar.dup
         attrs = FORDER.inject({}) { |h, k| h[k] = ss.shift; h }
         attrs.delete(:symbol)
+        attrs.delete(:secmid)
         accum_volume += attrs[:volume]
         attrs[:ticker_id] = ticker.id
         attrs[:bartime] = calc_time(attrs[:seq], attrs[:date])

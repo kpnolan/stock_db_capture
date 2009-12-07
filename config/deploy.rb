@@ -39,10 +39,10 @@ end
 desc "set the production instance variables"
 task :production do
   set :application, "stock_db_capture"
-  set :domain, "stern"
-  set :repository,  "git://github/backup/git/stock_db_capture.git"
+  set :domain, "satvatrader.com"
+  set :repository,  "ssh://satvatr@71.193.192.51/backup/git/stock_db_capture.git"
   set :branch, "master"
-  set :user, "kevin"
+  set :user, "satvatr"
   set :git_username, "kevin"
   set :use_sudo, false
   set :deploy_to, "/home/#{user}/apps/#{application}"

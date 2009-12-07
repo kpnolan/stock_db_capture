@@ -50,11 +50,10 @@ class TdaPosition < ActiveRecord::Base
   end
 
   def compute_days_held
-    @dh ||= trading_day_count_between(entry_date, Date.today)
+    @dh ||= trading_day_count(entry_date, Date.today, false)
     if @dh != days_held
       update_attribute(:days_held, @dh)
     end
     @dh
   end
-
 end

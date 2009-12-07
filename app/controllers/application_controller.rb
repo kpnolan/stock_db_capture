@@ -7,6 +7,8 @@ class ApplicationController < ActionController::Base
 
 #  helper :all (No! only this and the designatied controller, help you!)
 
+  before_filter :authenticate
+
   layout proc{ |c| c.request.xhr? ? false : 'application' }
 
   # See ActionController::RequestForgeryProtection for details
@@ -17,6 +19,8 @@ class ApplicationController < ActionController::Base
   # Uncomment this to filter the contents of submitted sensitive data parameters
   # from your application log (in this case, all fields with names like "password").
   filter_parameter_logging :password
+
+  protected
 
   def authorize
 #    if request.class.to_s == "ActionController::TestRequest"
@@ -37,6 +41,13 @@ class ApplicationController < ActionController::Base
 #      close_session_after_timeout()
 #      flash[:error] = 'Session timed out...please login...'
 #      redirect_to new_session_path
+    end
+  end
+
+  def authenticate
+    authenticate_or_request_with_http_basic do |user_name, password|
+        user_name == 'kevin' && password == 'Troika3.' ||
+        user_name = 'lewis' && password = 'Nowisthetime'
     end
   end
   #

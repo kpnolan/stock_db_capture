@@ -7,6 +7,7 @@ class TdaPositionsController < ApplicationController
     actions :all
 
     before :new do
+      puts 'in before new'
       debugger
     end
   end

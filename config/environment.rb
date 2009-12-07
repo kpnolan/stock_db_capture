@@ -73,7 +73,6 @@ Time::DATE_FORMATS[:pm] = "%d %b %I:%M"
 Time::DATE_FORMATS[:ymd] = "%Y-%m-%d"
 
 require 'smart_form_builder'
-#require 'memcached'
 require 'will_paginate'
 require 'gsl'
 require 'talib'

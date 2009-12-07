@@ -59,6 +59,7 @@ class WatchList < ActiveRecord::Base
 
   def update_closure!(result_hash, last_bar, num_samples)
     attrs = { }
+    attrs[:price] = last_bar[:close]
     indicators = result_hash.keys
     indicators.each do |indicator|
       attrs["current_#{indicator}".to_sym] = result_hash[indicator][:value]

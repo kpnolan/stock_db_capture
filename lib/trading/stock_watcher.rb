@@ -91,7 +91,7 @@ module Trading
           start_date = trading_date_from(Date.today, -1)
           end_date = trading_date_from(Date.today, -1)
           ts = Timeseries.new(ticker, start_date..end_date, 1.day)
-          rsi = ts.rsi(:time_period => 14, :result => :first).last
+          rsi = ts.rsi(:time_period => 14, :result => :last)
           last_close = ts.close.last
 
           thresholds = RSI_OPEN_THRESHOLDS
@@ -138,7 +138,7 @@ module Trading
       returning [] do |vec|
         WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
           ticker_id = opened_position.ticker_id
-          start_date = opened_position.tda_position.entry_date
+          start_date = opened_position.listed_on
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           vec << Timeseries.new(ticker_id, start_date..end_date, 1.day)
         end
@@ -150,7 +150,8 @@ module Trading
       @qt.attach_to_streamer()
       begin
         retrieve_snapshots()
-      rescue Exception
+      rescue Exception => e
+        logger.error("#{Time.now}: retrieve_snapshot error: #{e.class}:#{e.to_s}")
         sleep(60) and retry
       end
       update_loop()
@@ -176,11 +177,11 @@ module Trading
         threshold, target_price = targets
         returning WatchList.lookup_entry(ts.ticker_id, :open) do |watch|
           #begin
-            unless qt.snapshot(ts.symbol).zero? or watch.last_snaptime.nil?
+            unless qt.snapshot(ts.symbol).zero?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
               if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
                 ts.update_last_bar(last_bar)
-                current_rsi = ts.rsi(:time_period => 14, :result => :first).last
+                current_rsi = ts.rsi(:time_period => 14, :result => :last)
                 watch.update_open_from_snapshot!(last_bar, current_rsi, num_samples, Snapshot.last_seq(ts.symbol, Date.today))
               end
             end
@@ -195,12 +196,12 @@ module Trading
       cts_vec.each do |ts|
         returning WatchList.lookup_entry(ts.ticker_id, :close) do |watch|
           #begin
-            unless qt.snapshot(ts.symbol).zero? or watch.last_snaptime.nil?
+            unless qt.snapshot(ts.symbol).zero?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
               if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
                 ts.update_last_bar(last_bar)
                 result_hash = ts.eval_crossing(closing_strategy_params)
-                watch.update_closure!(result_hash, last_bar,  num_samples)
+                watch.update_closure!(result_hash, last_bar, num_samples)
               end
             end
           #rescue Exception => e

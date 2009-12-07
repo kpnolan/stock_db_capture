@@ -646,7 +646,7 @@ class Timeseries
       end
     end
 
-    @reserved_options ||= %w{ keys memo raw first array third }.inject({}) { |h, k| h[k.to_sym] = true; h }
+    @reserved_options ||= %w{ keys memo raw first array third, last }.inject({}) { |h, k| h[k.to_sym] = true; h }
 
     if @reserved_options[options[:result]]
       results = case options[:result]
@@ -654,6 +654,7 @@ class Timeseries
                 when :memo  : pb
                 when :raw   : results
                 when :first : results.first
+                when :last  : results.first && results.first.last
                 when :array : results.first.to_a
                 when :third : results.third
                 end

@@ -15,9 +15,9 @@
   %td.center
     = h exit_list.volume
   %td.center
-    = h format('%3.2f', exit_list.current_rsi)
+    = h exit_list.current_rsi.nil? ? '-' :format('%3.2f', exit_list.current_rsi)
   %td.center
-    = h format('%3.2f', exit_list.current_rvi)
+    = h exit_list.current_rvi.nil? ? '-' : format('%3.2f', exit_list.current_rvi)
   %td.center
     = h exit_list.thresholds
   %td.center

@@ -3,15 +3,15 @@
   %td.ticker_id
     = lkup exit_list.ticker, :symbol
   %td.center
-    = h exit_list.tda_position.entry_date
+    = h exit_list.tda_position ? exit_list.tda_position.entry_date : '-'
   %td.center
-    = h exit_list.tda_position.compute_days_held
+    = h exit_list.tda_position ? exit_list.tda_position.compute_days_held : '-'
   %td.center
-    = h exit_list.tda_position.entry_price
+    = h exit_list.tda_position ?  exit_list.tda_position.entry_price : '-'
   %td.center{:class =>  price_color }
     = h exit_list.price
   %td.center
-    = h format('%3.2f%%', exit_list.tda_position.roi())
+    = h exit_list.tda_position ? format('%3.2f%%', exit_list.tda_position.roi()) : '-'
   %td.center
     = h exit_list.volume
   %td.center
@@ -21,9 +21,9 @@
   %td.center
     = h exit_list.thresholds
   %td.center
-    = h exit_list.nearest_indicator.upcase.strip
+    = h exit_list.nearest_indicator ? exit_list.nearest_indicator.upcase.strip : '-'
   %td.center
-    = h format('%3.2f', exit_list.min_delta)
+    = h exit_list.min_delta ? format('%3.2f', exit_list.min_delta) : '-'
   %td.center
     = h exit_list.closed_crossed_at.nil? ? '-' :  exit_list.closed_crossed_at.to_formatted_s(:pm)
   %td.center

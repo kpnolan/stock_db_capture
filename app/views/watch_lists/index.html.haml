@@ -7,6 +7,20 @@
 </script>
 
 
+= content_for :side_content do
+  %legend
+    Sort Order
+    %table
+      %tr
+        %td
+          Price
+          = radio_button_tag 'sort_order', 'Price', false, :onclick => sort_by_price
+      %tr
+        %td
+          Time
+          = radio_button_tag 'sort_order', 'Time', true, :onclick => sort_by_time
+
+
 %h1 Listing Entry Watch List
 %table
   %tr.heading
@@ -18,6 +32,7 @@
     %th Low
     %th Close
     %th Volume
+    %th Shares
     %th Strategy
     %th Indicator Value
     %th Target Threshold

@@ -92,8 +92,7 @@ fieldset {
 }
 
 #side_content div {
-    border-top: groove medium gray;
-    padding-top: 20px;
+  margin-left: 100px;
 }
 
 #form { background: #DDDDDD }

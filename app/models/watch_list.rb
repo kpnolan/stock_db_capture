@@ -51,6 +51,14 @@ class WatchList < ActiveRecord::Base
     end
   end
 
+  def to_shares
+    price ? 10000.0/price : 0
+  end
+
+  def to_lots
+    to_shares.zero? ? 0 : Math.log10(to_shares).floor ** 10
+  end
+
   def thresholds()
     rsi = target_rsi
     rvi = target_rvi
@@ -117,5 +125,9 @@ class WatchList < ActiveRecord::Base
               :last_snaptime => snap_time, :last_seq => last_seq }
     attrs[:open_crossed_at] = snap_time  if self.open_crossed_at.nil? and curr_rsi >= self.target_rsi
     update_attributes!(attrs.merge(last_bar))
+  end
+
+  def opened_positions(order=nil)
+    WatchList.all(:conditions => 'opened_on is not null', :order => order)
   end
 end

@@ -20,8 +20,9 @@ end
 desc "Set staging instance variables"
 task :staging do
   set :application, "stock_db_capture"
-  set :domain, "amd64"
-  set :repository,  "git://github/backup/git/stock_db_capture.git"
+  set :domain, "active-trader.com"
+  set :repository,  "ssh://kevin@192.168.1.107/backup/git/stock_db_capture.git"
+#  set :repository,  "git://github/backup/git/stock_db_capture.git"
   set :branch, "master"
   set :user, "kevin"
   set :git_username, "kevin"

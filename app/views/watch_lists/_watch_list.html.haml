@@ -17,6 +17,8 @@
   %td.center
     = h watch_list.volume
   %td.center
+    = h watch_list.price.nil? ? '-' : format('%d', watch_list.to_shares)
+  %td.center
     = h 'RSI'
   %td.center
     = h format("%3.2f", watch_list.current_rsi)
@@ -28,6 +30,8 @@
     = h watch_list.open_crossed_at.nil? ? '-' :  watch_list.open_crossed_at.to_formatted_s(:pm)
   %td.center
     = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:pm)
+  %td.Plot
+    = link_to 'Plot', plot_watch_list_path(watch_list)
   %td.open
     = link_to 'Open', new_watch_list_tda_position_path(watch_list)
   %td.destroy

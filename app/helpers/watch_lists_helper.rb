@@ -25,6 +25,16 @@ module WatchListsHelper
     exit_vec
   end
 
+  def sort_by_price
+    remote_function :url => { :action => :sort_by_price },
+                    :failure => "alert('HTTP Error ' + request.status + '!')"
+  end
+
+  def sort_by_time
+    remote_function :url => { :action => :sort_by_time },
+                    :failure => "alert('HTTP Error ' + request.status + '!')"
+  end
+
   def status_color(obj)
     STATUS_COLORS[obj.status()]
   end

@@ -1,6 +1,43 @@
+module Resourceful
+  module Default
+    module Actions
+      # GET /foos
+      def exits
+        load_objects
+        before :exits
+        response_for :index
+        after :exits
+      end
+      def index
+        load_objects
+        before :index
+        response_for :index
+        after :index
+      end
+    end
+  end
+end
+
 class WatchListsController < ApplicationController
+
+  attr_reader :current_objects
+
   make_resourceful do
     actions :all
+
+    before :exits do
+      self.sort_order ||=  'open_crossed_at desc, price'
+      @current_objects = wl = WatchList.all(:conditions => 'opened_on is not null', :include => :ticker, :order => sort_order)
+      session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
+      session[:prev_prices] = session[:prices] if session[:prev_prices].nil? or session[:prev_prices].keys != session[:prices].keys
+    end
+
+    before :index do
+      self.sort_order ||=  'open_crossed_at desc, price'
+      @current_objects = wl = WatchList.find(:all, :include => :ticker, :order => sort_order)
+      session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
+      session[:prev_prices] = session[:prices] if session[:prev_prices].nil? or session[:prev_prices].keys != session[:prices].keys
+    end
 
     after :index, :exits do
       session[:prev_prices] = session[:prices]
@@ -14,28 +51,27 @@ class WatchListsController < ApplicationController
     end
   end
 
-  def current_objects
-    wl = WatchList.find(:all, :include => :ticker, :order => 'open_crossed_at desc, tickers.symbol')
-    session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
-    session[:prev_prices] = session[:prices] if session[:prev_prices].nil? or session[:prev_prices].keys != session[:prices].keys
-    wl
-  end
-
   def plot
    puts "echo plot.rt.snap('#{current_object.ticker.symbol}') | R --no-save"
     `echo "plot.rt.snap('#{current_object.ticker.symbol}')" | R --no-save`
     send_file File.join(RAILS_ROOT, 'Rplots.pdf')
   end
 
-  def open
+  def sort_order
+    session[:watch_list_sort_order]
   end
 
-  def close
+  def sort_order=(str)
+    session[:watch_list_sort_order] = str
   end
 
-  def retire
+  def sort_by_time
+    self.sort_order = 'open_crossed_at desc, price'
+    redirect_to :action => 'index'
   end
 
-  def exits
+  def sort_by_price
+    self.sort_order = 'price, open_crossed_at desc'
+    redirect_to :action => 'index'
   end
 end

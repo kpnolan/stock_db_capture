@@ -1,0 +1,61 @@
+%html{ "xml:lang" => "en", :lang => "en", :xmlns => "http://www.w3.org/1999/xhtml" }
+  %head
+    %meta{ :content => "text/html;charset=UTF-8", "http-equiv" => "content-type" }/
+    %title
+      = controller.controller_name.titleize + ': ' + controller.action_name
+    = stylesheet_link_tag 'scaffold', 'application', 'admin', 'pagination', 'live_validation'
+    = javascript_include_tag :defaults, 'live_validation.js', 'application.js'
+  %body
+    #container
+      #left.column{ :style => "display:inline;" }
+        #title
+          Satva Trader
+          %br
+          Intelligent Volatility Trading
+        = link_to 'Tickers', tickers_path
+        %br/
+        = link_to 'Listing Categories', listing_categories_path
+        %br/
+        = link_to 'Opening Watch List', watch_lists_path
+        %br/
+        = link_to 'Closing Watch List', exits_watch_lists_path
+        %br/
+        = link_to 'TDA Positions', tda_positions_path
+        %br/
+        = link_to 'Daily Closes', daily_closes_path
+        %br/
+        = link_to 'Exchanges', exchanges_path
+        %br/
+        = link_to 'Historical Attributes', historical_attributes_path
+        %br/
+        = link_to 'Derived Attributes', derived_value_types_path
+        %br/
+        = link_to 'Derived Stat Values', stat_values_path
+        %br/
+        = link_to 'Plot Type', plot_types_path
+        %br/
+        = link_to 'Plot Attributes', plot_attributes_path
+        %br/
+        = link_to 'Strategies', strategies_path
+        %br/
+        = link_to 'Scans', scans_path
+        %br/
+        = link_to 'Sim Jobs', sim_jobs_path
+        %br/
+        %br/
+        %br/
+        = image_tag('rails.png', :id => 'rails_icon')
+        #side_content
+          = yield :side_content
+      #main
+        - if flash[:notice]
+          #notice
+            = flash[:notice]
+        - if flash[:warning]
+          #warning
+            = flash[:warning]
+        - if flash[:error]
+          #error
+            = flash[:error]
+
+        = yield :layout

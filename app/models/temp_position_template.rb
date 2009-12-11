@@ -102,6 +102,8 @@ class TempPositionTemplate < ActiveRecord::Base
     end
 
     def create_temp_table(filter)
+      connection.execute("set tmp_table_size=#{2**26}")
+      connection.execute("set max_heap_table_size=#{2**26}")
       sql = generate_extract_sql(Position.table_name, 'temp_positions', filter)
       connection.execute("DROP TABLE IF EXISTS temp_positions")
 #      connection.execute('CREATE TABLE temp_positions LIKE temp_position_template')

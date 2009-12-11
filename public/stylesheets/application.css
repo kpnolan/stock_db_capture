@@ -76,6 +76,11 @@ a.plain {
     background-image: url(/images/bg_grad.jpg);
 }
 
+#title {
+  text-align: center;
+  font-weight: bold;
+}
+
 #left a {
     color: #333333;
     font-size: small;

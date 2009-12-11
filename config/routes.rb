@@ -37,7 +37,7 @@ ActionController::Routing::Routes.draw do |map|
   map.resources :daily_closes, :member => { :plot => :get },:collection => { :reload => :get, :begin_load => :post, :progress => :get }
   map.resources :watch_lists, :has_one => :tda_position,
                               :member => { :plot => :get, :close => :get, :retire => :get },
-                              :collection => { :entries => :get, :exits => :get }
+                              :collection => { :entries => :get, :generate_csv => :get, :exits => :get }
 
   map.root :controller => 'tickers', :action => 'index'
 

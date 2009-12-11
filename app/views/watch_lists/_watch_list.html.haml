@@ -1,25 +1,19 @@
 - price_color = price_color(watch_list)
+- percentage_color = percentage_color(watch_list)
+
 %tr[watch_list]{:class => cycle('list-line-even', 'list-line-odd')}
   %td.ticker_id
     = lkup watch_list.ticker, :symbol
-  %td.center{:class =>  price_color }
+  %td.center{:class => percentage_color}
+    = watch_list.target_percentage && format('%2.2f', watch_list.target_percentage) || '-'
+  %td.center
     = h watch_list.price
   %td.center
     = h format("%3.2f", watch_list.target_price)
   %td.center
-    = h watch_list.opening
-  %td.center
-    = h watch_list.high
-  %td.center
-    = h watch_list.low
-  %td.center
-    = h watch_list.last_seq == 480 ? watch_list.close : '-'
-  %td.center
     = h watch_list.volume
   %td.center
     = h watch_list.price.nil? ? '-' : format('%d', watch_list.to_shares)
-  %td.center
-    = h 'RSI'
   %td.center
     = h format("%3.2f", watch_list.current_rsi)
   %td.center
@@ -28,8 +22,6 @@
     = h watch_list.listed_on.to_s(:db)
   %td.center
     = h watch_list.open_crossed_at.nil? ? '-' :  watch_list.open_crossed_at.to_formatted_s(:pm)
-  %td.center
-    = h watch_list.last_snaptime.nil? ? '-' :  watch_list.last_snaptime.to_formatted_s(:pm)
   %td.Plot
     = link_to 'Plot', plot_watch_list_path(watch_list)
   %td.open

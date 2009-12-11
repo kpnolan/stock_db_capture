@@ -30,6 +30,8 @@
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+#require 'faster_csv'
+
 class WatchList < ActiveRecord::Base
   set_table_name 'watch_list'
 
@@ -38,6 +40,9 @@ class WatchList < ActiveRecord::Base
 
   validates_presence_of :ticker_id
   validates_uniqueness_of :ticker_id, :scope => :listed_on
+
+  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target Price', 'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
+  CSV_COLUMNS = %w{ symbol target_percentage price target_price volume shares current_rsi target_rsi listed_on open_crossing }
 
   def symbol
     ticker.symbol
@@ -55,8 +60,20 @@ class WatchList < ActiveRecord::Base
     price ? 10000.0/price : 0
   end
 
+  def shares
+    to_shares
+  end
+
+  def open_crossing
+    open_crossed_at && open_crossed_at.to_formatted_s(:pm)
+  end
+
   def to_lots
     to_shares.zero? ? 0 : Math.log10(to_shares).floor ** 10
+  end
+
+  def target_percentage
+    price && target_price && (price - target_price)/target_price * 100.0
   end
 
   def thresholds()
@@ -108,6 +125,19 @@ class WatchList < ActiveRecord::Base
       raise "WatchList has #{wl_ary.length} live entries instead of 1" if wl_ary.length > 1
       wl_ary.first
     end
+
+    def generate_csv()
+      csv_string = FasterCSV.generate do |csv|
+        csv << CSV_HEADING
+        WatchList.all(:conditions => 'opened_on is null').each do |position|
+          csv << CSV_COLUMNS.map { |col| position.send(col) }
+        end
+      end
+    end
+
+    def opened_positions(order=nil)
+      WatchList.all(:conditions => 'opened_on is not null', :order => order)
+    end
   end
 
   def active_entries(options={})
@@ -127,7 +157,4 @@ class WatchList < ActiveRecord::Base
     update_attributes!(attrs.merge(last_bar))
   end
 
-  def opened_positions(order=nil)
-    WatchList.all(:conditions => 'opened_on is not null', :order => order)
-  end
 end

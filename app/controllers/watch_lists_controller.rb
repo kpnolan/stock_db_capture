@@ -5,7 +5,7 @@ module Resourceful
       def exits
         load_objects
         before :exits
-        response_for :index
+        response_for :exits
         after :exits
       end
       def index
@@ -19,6 +19,8 @@ module Resourceful
 end
 
 class WatchListsController < ApplicationController
+
+  layout 'watch_list'
 
   attr_reader :current_objects
 
@@ -49,6 +51,11 @@ class WatchListsController < ApplicationController
         position.update_attribute(:watch_list_id, nil)
       end
     end
+  end
+
+  def generate_csv
+    csv_string = WatchList.generate_csv()
+    send_data csv_string, :filename => "watch_list-#{Date.today.to_formatted_s(:ymd)}.csv", :type => 'text/csv'
   end
 
   def plot

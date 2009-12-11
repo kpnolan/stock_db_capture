@@ -19,25 +19,21 @@
         %td
           Time
           = radio_button_tag 'sort_order', 'Time', true, :onclick => sort_by_time
-
+  %br
+  = link_to 'Geerate CSV', :action => 'generate_csv'
 
 %h1 Listing Entry Watch List
 %table
   %tr.heading
     %th Ticker
+    %th Percent
     %th Price
     %th Target Price
-    %th Open
-    %th High
-    %th Low
-    %th Close
     %th Volume
     %th Shares
-    %th Strategy
-    %th Indicator Value
-    %th Target Threshold
+    %th RSI
+    %th Threshold
     %th Listed On
     %th Crossed At
-    %th Updated At
 
   = render :partial => 'watch_list', :collection => current_objects

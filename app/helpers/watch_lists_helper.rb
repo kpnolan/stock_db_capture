@@ -17,6 +17,10 @@ module WatchListsHelper
     end
   end
 
+  def percentage_color(watch_list)
+    watch_list.target_percentage && (watch_list.target_percentage > 0 ? 'red' : 'green') || 'black'
+  end
+
   def exiting_objects
     @exit_vec ||= WatchList.find(:all, :include => :tda_position,
                                  :conditions => 'opened_on IS NOT NULL', :order => 'opened_on')

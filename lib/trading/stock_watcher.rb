@@ -98,7 +98,7 @@ module Trading
           thresholds.each do |threshold|
             target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
             # what happens we we have multiple watch list items per ticker?
-            if  rsi < threshold or last_close < target_price && last_close >= (PRICE_CUTOFF_RATIO)*target_price
+            if  (rsi < threshold || last_close < target_price) && last_close >= (PRICE_CUTOFF_RATIO)*target_price
               begin
                 WatchList.create_or_update_listing(ticker_id, target_price, rsi, threshold, Date.today, :logger => logger)
                 break

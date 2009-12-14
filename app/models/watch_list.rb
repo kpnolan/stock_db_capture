@@ -5,7 +5,7 @@
 #
 #  id                :integer(4)      not null, primary key
 #  ticker_id         :integer(4)
-#  target_price      :float
+#  rsi_target_price  :float
 #  price             :float
 #  last_snaptime     :datetime
 #  num_samples       :integer(4)
@@ -26,6 +26,7 @@
 #  min_delta         :float
 #  nearest_indicator :string(255)
 #  opened_on         :date
+#  rvi_target_price  :float
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
@@ -41,8 +42,8 @@ class WatchList < ActiveRecord::Base
   validates_presence_of :ticker_id
   validates_uniqueness_of :ticker_id, :scope => :listed_on
 
-  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target Price', 'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
-  CSV_COLUMNS = %w{ symbol target_percentage price target_price volume shares current_rsi target_rsi listed_on open_crossing }
+  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price', 'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
+  CSV_COLUMNS = %w{ symbol target_percentage_f price_f target_rsi_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
 
   def symbol
     ticker.symbol
@@ -61,7 +62,31 @@ class WatchList < ActiveRecord::Base
   end
 
   def shares
-    to_shares
+    to_shares.floor
+  end
+
+  def target_percentage_f
+    target_percentage && format('%3.1f', target_percentage)
+  end
+
+  def price_f
+    price && format('%3.2f', price)
+  end
+
+  def rsi_target_price_f
+    rsi_target_price && format('%3.2f', rsi_target_price)
+  end
+
+  def rvi_target_price_f
+    rvi_target_price && format('%3.2f', rvi_target_price)
+  end
+
+  def current_rsi_f
+    current_rsi && format('%2.2f', current_rsi)
+  end
+
+  def current_rvi_f
+    current_rvi && format('%2.2f', current_rvi)
   end
 
   def open_crossing
@@ -73,7 +98,7 @@ class WatchList < ActiveRecord::Base
   end
 
   def target_percentage
-    price && target_price && (price - target_price)/target_price * 100.0
+    price && rsi_target_price && (price - rsi_target_price)/rsi_target_price * 100.0
   end
 
   def thresholds()
@@ -100,16 +125,16 @@ class WatchList < ActiveRecord::Base
 
   class << self
     # TODO what happen when there's more than one watch list entry for a target id!
-    def create_or_update_listing(ticker_id, target_price, current_rsi, target_rsi, listing_date, options={})
+    def create_or_update_listing(ticker_id, rsi_target_price, current_rsi, target_rsi, listing_date, options={})
       logger = options[:logger]
       listings = find(:all, :conditions => { :ticker_id => ticker_id, :opened_on => nil })
       listings.each do |listing|
-        listing.update_attributes!(:target_price => target_price, :target_rsi => target_rsi)
-        logger.info("Updated Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} to #{listing.target_price} for RSI #{listing.target_rsi}") if logger
+        listing.update_attributes!(:rsi_target_price => rsi_target_price, :target_rsi => target_rsi)
+        logger.info("Updated Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} to #{listing.rsi_target_price} for RSI #{listing.target_rsi}") if logger
       end
       if listings.empty?
-        listing = create!(:ticker_id => ticker_id, :target_price => target_price, :current_rsi => current_rsi, :target_rsi => target_rsi, :listed_on => listing_date)
-        logger.info("Create Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} for #{listing.target_price} on #{listing.target_rsi}") if logger
+        listing = create!(:ticker_id => ticker_id, :rsi_target_price => rsi_target_price, :current_rsi => current_rsi, :target_rsi => target_rsi, :listed_on => listing_date)
+        logger.info("Create Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} for #{listing.rsi_target_price} on #{listing.target_rsi}") if logger
       end
     end
 

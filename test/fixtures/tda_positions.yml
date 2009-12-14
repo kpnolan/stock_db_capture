@@ -12,7 +12,6 @@
 #  exit_date     :date
 #  num_shares    :integer(4)
 #  days_held     :integer(4)
-#  stop_loss     :boolean(1)
 #  nreturn       :float
 #  rretrun       :float
 #  opened_at     :datetime

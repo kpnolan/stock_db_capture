@@ -390,7 +390,10 @@ class Backtester
 
     columns = BtestPosition.columns.map(&:name)
     columns.delete 'id'
-    #sql = "insert into positions select #{columns.join(',')} from btest_positions where scan_id = #{scan.id} and exit_date is not null"
+
+    #TODO replace this entire block with a single constructed INSERT stmt with conditions on scan_id and exit_date
+    #TODO see Position.generate_insert_sql
+
     position_ids = scan.btest_position_ids
     for position_id in position_ids
       if (position = BtestPosition.find_by_id(position_id)) && position.exit_date
@@ -402,7 +405,7 @@ class Backtester
         end
       end
     end
-    position_ids.each { |id| BtestPosition.delete id } # clean up after ourselves
+    BtestPosition.delete_all(:conditions => { :san_id => scan.id} ) #clean up after ourselves
 
     endt = Time.now
     delta = endt - startt

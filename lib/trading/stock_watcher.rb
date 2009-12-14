@@ -1,4 +1,6 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+require 'rubygems'
+require 'ruby-debug'
 
 module Trading
 
@@ -39,6 +41,7 @@ module Trading
     def reset()
       create_candidate_list()
       add_possible_entries()
+      update_exit_list()
     end
 
     def clear_watch_list
@@ -96,14 +99,14 @@ module Trading
 
           thresholds = RSI_OPEN_THRESHOLDS
           thresholds.each do |threshold|
-            target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
+            rsi_target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
             # what happens we we have multiple watch list items per ticker?
-            if  (rsi < threshold || last_close < target_price) && last_close >= (PRICE_CUTOFF_RATIO)*target_price
+            if  (rsi < threshold || last_close < rsi_target_price) && last_close >= (PRICE_CUTOFF_RATIO)*rsi_target_price
               begin
-                WatchList.create_or_update_listing(ticker_id, target_price, rsi, threshold, Date.today, :logger => logger)
+                WatchList.create_or_update_listing(ticker_id, rsi_target_price, rsi, threshold, Date.today, :logger => logger)
                 break
               rescue Exception => e
-                logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{target_price} listed on #{Date.today.to_s(:db)}.")
+                logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{rsi_target_price} listed on #{Date.today.to_s(:db)}.")
               end
             elsif ( rsi >= RSI_CUTOFF and WatchList.find(:first, :conditions => { :ticker_id => ticker_id, :opened_on => nil} ))
               logger.info("Deleting #{ts.symbol} RSI of #{rsi} above threhold of #{RSI_CUTOFF}")
@@ -119,6 +122,27 @@ module Trading
       true
     end
 
+    def update_exit_list()
+      WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
+        ticker_id = opened_position.ticker_id
+        start_date = opened_position.opened_on
+        end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
+        ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
+        update_target_prices(opened_position, ts)
+      end
+    end
+
+    def update_target_prices(opened_position, ts)
+      attrs = {}
+      closing_strategy_params.each_pair do |meth, params|
+        inverse_meth = "inv#{meth}".to_sym
+        colname = "#{meth}_target_price".to_sym
+        tprice = ts.send(inverse_meth, meth => params[:threshold])
+        attrs[colname] = tprice
+      end
+      opened_position.update_attributes!(attrs)
+    end
+
     def populate_opening_list
       #
       # repopulate with possible entry that aren't stale
@@ -129,7 +153,7 @@ module Trading
           start_date = watched_position.listed_on
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
-          hash[ts] = [watched_position.target_rsi, watched_position.target_price]
+          hash[ts] = [watched_position.target_rsi, watched_position.rsi_target_price]
         end
       end
     end
@@ -138,9 +162,11 @@ module Trading
       returning [] do |vec|
         WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
           ticker_id = opened_position.ticker_id
-          start_date = opened_position.listed_on
+          start_date = opened_position.opened_on #should be opened on
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
-          vec << Timeseries.new(ticker_id, start_date..end_date, 1.day)
+          ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
+          update_target_prices(opened_position, ts) if opened_position.rvi_target_price.nil?
+          vec << ts
         end
       end
     end
@@ -174,7 +200,7 @@ module Trading
 
     def update_openings(ots_hash)
       ots_hash.each_pair do |ts, targets|
-        threshold, target_price = targets
+        threshold, rsi_target_price = targets
         returning WatchList.lookup_entry(ts.ticker_id, :open) do |watch|
           #begin
             unless qt.snapshot(ts.symbol).zero?

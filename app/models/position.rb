@@ -129,6 +129,21 @@ class Position < ActiveRecord::Base
       find(:all, :conditions => ['date(positions.exit_date) = ?', date.to_date])
     end
 
+    def generate_insert_sql(src_model, conditions=nil)
+      src = src_model.table_name
+      names = columns.map(&:name)
+      names.delete('id')
+      lhs_names = rhs_names = names
+      lhs_cols = lhs_names.join(',')
+      rhs_cols = rhs_names.join(',')
+      if conditions
+        where_clause = "WHERE #{conditions}"
+      else
+        where_clause = ''
+      end
+      "insert into #{table_name}(#{lhs_cols}) select #{rhs_cols} from #{src} #{where_clause}"
+    end
+
     def generate_extract_sql(src, dest, filter)
       names = columns.map(&:name)
       names.delete('id')

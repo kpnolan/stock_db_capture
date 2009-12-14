@@ -2,7 +2,7 @@ one:
   id: 1
   ticker_id: 1
   tda_position_id: 1
-  target_price: 1.5
+  rsi_target_price: 1.5
   target_ival: 1.5
   curr_price: 1.5
   curr_ival: 1.5
@@ -14,7 +14,7 @@ two:
   id: 2
   ticker_id: 1
   tda_position_id: 1
-  target_price: 1.5
+  rsi_target_price: 1.5
   target_ival: 1.5
   curr_price: 1.5
   curr_ival: 1.5

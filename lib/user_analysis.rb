@@ -235,6 +235,67 @@ module UserAnalysis
     out
   end
 
+  # Relative Valatility Index
+  def invrvi(options={})
+    options.reverse_merge! :time_period => 14
+    idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    raise TimeseriesException, "#{symbol}: length(#{high.len}) < range.end(#{idx_range.end})" if high.len < idx_range.end
+
+    options = options.merge :idx_range => idx_range
+    low_price = invrvi_wilder(low, options)
+    high_price = invrvi_wilder(high, options)
+    (low_price + high_price) / 2.0
+  end
+
+  def invrvi_wilder(price, options)
+    idx_range, n = options[:idx_range], options[:time_period].to_f
+    today = self.today
+    n1 = n - 1.0
+    r = options[:rvi]
+    emaPos = 0.0
+    emaNeg = 0.0
+    #
+    # compute the SMA for the first output point
+    today += 9
+    n.to_int.times do
+      prev10vec = price.subvector(today-9, 9)
+      sd = prev10vec.sd
+      if price[today] > price[today-1]
+        up, dn = sd, 0.0
+      else
+        dn, up = sd, 0.0
+      end
+      emaPos += up
+      emaNeg += dn
+      today += 1
+    end
+    today -= 9
+    emaPos /= n
+    emaNeg /= n
+    today += 1
+
+    begin
+      while today <= idx_range.end
+        prev9vec = price.subvector(today-9, 9)
+        sd = prev9vec.sd
+        if price[today] > price[today-1]
+          up, dn = sd, 0.0
+        else
+          dn, up = sd, 0.0
+        end
+        emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
+        emaNeg = (emaNeg * n1 + dn)/n
+        today += 1
+      end
+    rescue Exception => e
+      puts "#{e.to_s} -- today: #{today} price.len: #{price.len} idx_range.end: #{idx_range.end}"
+      raise
+    end
+    dn = 0.0
+    delta = (100*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100)
+    price[today-1]+delta
+  end
+
   # VALUE1 = ((CLOSE - OPEN) + 2 * (CLOSE (1))*OPEN (1)) + 2*(CLOSE (2)*OPEN (2)) + (CLOSE (3)*OPEN (3))) / 6
   # VALUE2 = ((HIGH - LOW) + 2 * (HIGH (1)*LOW (1)) + 2*(HIGH (2)- LOW (2)) + (HIGH (3)*LOW (3))) / 6
   # NUM = SUM (VALUE1, N)

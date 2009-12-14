@@ -46,8 +46,8 @@ class WatchList < ActiveRecord::Base
   validates_presence_of :ticker_id
   validates_uniqueness_of :ticker_id, :scope => :listed_on
 
-  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price',  'Target RVI Price', 'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
-  CSV_COLUMNS = %w{ symbol target_percentage_f price_f rsi_target_price_f rvi_target_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
+  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price',  'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
+  CSV_COLUMNS = %w{ symbol target_percentage_f price_f rsi_target_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
 
   def symbol
     ticker.symbol
@@ -91,6 +91,10 @@ class WatchList < ActiveRecord::Base
 
   def current_rvi_f
     current_rvi && format('%2.2f', current_rvi)
+  end
+
+  def target_rsi_f
+    target_rsi && format('%2.2f', target_rsi)
   end
 
   def open_crossing

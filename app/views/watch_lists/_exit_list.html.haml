@@ -1,5 +1,5 @@
 - price_color = session[:prices][exit_list.ticker_id] >= session[:prev_prices][exit_list.ticker_id] ? 'green' : 'red'
-%tr[exit_list]{:class => cycle('list-line-even', 'list-line-odd')}
+%tr[exit_list]{:class => cycle('list-line-even', 'list-line-odd')+(exit_list.closing_condition ? ' red' : '')}
   %td.ticker_id
     = lkup exit_list.ticker, :symbol
   %td.center

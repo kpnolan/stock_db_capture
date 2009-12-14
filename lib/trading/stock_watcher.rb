@@ -129,6 +129,7 @@ module Trading
         end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
         ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
         update_target_prices(opened_position, ts)
+        update_closing_values(opened_position, ts) unless opened_position.closed_crossed_at.nil?
       end
     end
 
@@ -139,6 +140,20 @@ module Trading
         colname = "#{meth}_target_price".to_sym
         tprice = ts.send(inverse_meth, meth => params[:threshold])
         attrs[colname] = tprice
+      end
+    end
+
+    def update_closing_values(opened_position, ts)
+      attrs = {}
+      rsi = ts.rsi(:result => :last)
+      if opened_position.last_populate.nil?
+        attrs[:last_rsi] = attrs[:closing_rsi] = rsi
+        attrs[:last_populate] = Time.zone.now
+      elsif opened_position.last_populate.to_date != Time.zone.to_date
+        attrs[:last_rsi] = attrs[:closing_rsi]
+        attrs[:closing_rsi] = rsi
+        attrs[:last_populate] = Time.zone.now
+        attrs[:closing_condition] = attrs[:last_rsi] >= rsi || trading_day_count(open_position.open_crossed_at, Date.today) >= 20
       end
       opened_position.update_attributes!(attrs)
     end
@@ -166,6 +181,7 @@ module Trading
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
           update_target_prices(opened_position, ts) if opened_position.rvi_target_price.nil?
+        #  update_closing_values(opened_position, ts) unless open_position.close_crossed_at.nil?
           vec << ts
         end
       end

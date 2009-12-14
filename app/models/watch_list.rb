@@ -27,6 +27,10 @@
 #  nearest_indicator :string(255)
 #  opened_on         :date
 #  rvi_target_price  :float
+#  last_populate     :datetime
+#  last_rsi          :float
+#  closing_rsi       :float
+#  closing_condition :boolean(1)
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
@@ -42,8 +46,8 @@ class WatchList < ActiveRecord::Base
   validates_presence_of :ticker_id
   validates_uniqueness_of :ticker_id, :scope => :listed_on
 
-  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price', 'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
-  CSV_COLUMNS = %w{ symbol target_percentage_f price_f target_rsi_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
+  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price',  'Target RVI Price', 'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
+  CSV_COLUMNS = %w{ symbol target_percentage_f price_f rsi_target_price_f rvi_target_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
 
   def symbol
     ticker.symbol
@@ -177,7 +181,7 @@ class WatchList < ActiveRecord::Base
     price = last_bar.delete :close
     snap_time = last_bar.delete :time
     attrs = { :price => price, :current_rsi => curr_rsi, :num_samples => num_samples,
-              :last_snaptime => snap_time, :last_seq => last_seq }
+              :last_snaptime => snap_time, :last_seq => last_seq, :volume => last_bar[:volume] }
     attrs[:open_crossed_at] = snap_time  if self.open_crossed_at.nil? and curr_rsi >= self.target_rsi
     update_attributes!(attrs.merge(last_bar))
   end

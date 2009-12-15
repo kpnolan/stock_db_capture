@@ -137,6 +137,7 @@ class WatchList < ActiveRecord::Base
       logger = options[:logger]
       listings = find(:all, :conditions => { :ticker_id => ticker_id, :opened_on => nil })
       listings.each do |listing|
+        listing.toggle!(:open_crossed_at) if listing.open_crossed_at
         listing.update_attributes!(:rsi_target_price => rsi_target_price, :target_rsi => target_rsi)
         logger.info("Updated Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} to #{listing.rsi_target_price} for RSI #{listing.target_rsi}") if logger
       end

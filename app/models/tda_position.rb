@@ -41,7 +41,7 @@ class TdaPosition < ActiveRecord::Base
   end
 
   def name
-    symbol
+    ticker.name
   end
 
   def roi()

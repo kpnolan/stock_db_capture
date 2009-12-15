@@ -1,20 +1,15 @@
-%h1 Listing tda_positions
+%h1 Listing TDA Positions
 %table
   %tr.heading
     %th Ticker
-    %th Entry Date
-    %th Exit Date
-    %th Openned At
-    %th Closed At
-    %th Updated At
+    %th Entered
+    %th Exited
     %th Entry Price
     %th Exit Price
     %th Curr Price
-    %th Num Shares
+    %th Shares
     %th Days Held
     %th Nreturn
-    %th Rretrun
+    %th ROI
 
   = render :partial => 'tda_position', :collection => current_objects
-
-= link_to 'New tda_position', new_object_path

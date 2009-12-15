@@ -8,7 +8,7 @@ class TdaPositionsController < ApplicationController
 
     after :create do
       #only set the opened_on field when the record is created since it's used to descriminate which watch list is appears on
-      current_object.watch_list.update_attribute!(:opened_on => Date.today, :rsi_target_price => nil, :rvi_target_price => nil)
+      current_object.watch_list.update_attributes!(:opened_on => Date.today, :rsi_target_price => nil, :rvi_target_price => nil)
     end
   end
 

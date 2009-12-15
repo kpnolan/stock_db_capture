@@ -36,7 +36,7 @@ class WatchListsController < ApplicationController
 
     before :index do
       self.sort_order ||=  'open_crossed_at desc, price'
-      @current_objects = wl = WatchList.find(:all, :include => :ticker, :order => sort_order)
+      @current_objects = wl = WatchList.find(:all, :include => :ticker, :conditions => 'opened_on is null', :order => sort_order)
       session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
       session[:prev_prices] = session[:prices] if session[:prev_prices].nil? or session[:prev_prices].keys != session[:prices].keys
     end
@@ -74,11 +74,15 @@ class WatchListsController < ApplicationController
 
   def sort_by_time
     self.sort_order = 'open_crossed_at desc, price'
-    redirect_to :action => 'index'
+    render_js do |page|
+      page.redirect_to :action => 'index'
+    end
   end
 
   def sort_by_price
     self.sort_order = 'price, open_crossed_at desc'
-    redirect_to :action => 'index'
+    render_js do |page|
+      page.redirect_to :action => 'index'
+    end
   end
 end

@@ -1,29 +1,23 @@
 %tr[tda_position]{:class => cycle('list-line-even', 'list-line-odd')}
   %td.ticker_id
     = lkup tda_position.ticker, :symbol
-  %td.entry_date
-    = h tda_position.entry_date
-  %td.exit_date
-    = h tda_position.exit_date
-  %td.opened_at
-    = h tda_position.opened_at
-  %td.closed_at
-    = h tda_position.closed_at
-  %td.updated_at
-    = h tda_position.updated_at
-  %td.entry_price
+  %td.center
+    = h tda_position.opened_at.to_formatted_s(:twz)
+  %td.center
+    = h tda_position.closed_at ? tda_position.closed_at.to_formatted_s(:twz) : '-'
+  %td.center
     = h tda_position.entry_price
-  %td.exit_price
+  %td.center
     = h tda_position.exit_price
-  %td.curr_price
+  %td.center
     = h tda_position.curr_price
-  %td.rum_shares
+  %td.center
     = h tda_position.num_shares
-  %td.days_held
+  %td.center
     = h tda_position.days_held
-  %td.nreturn
+  %td.center
     = h tda_position.nreturn
-  %td.rretrun
+  %td.center
     = h tda_position.rretrun
   %td.show
     = link_to 'Show', object_path(tda_position)

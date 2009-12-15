@@ -1,11 +1,8 @@
-<script>
-/
+:javascript
   function refresh_page() {
   window.location = location.href;
   }
   setInterval("refresh_page()", 60*1000)
-</script>
-
 
 = content_for :side_content do
   %legend
@@ -18,7 +15,7 @@
       %tr
         %td
           Time
-          = radio_button_tag 'sort_order', 'Time', true, :onclick => sort_by_time
+          = radio_button_tag 'sort_order', 'Time', false, :onclick => sort_by_time
   %br
   = link_to 'Geerate CSV', :action => 'generate_csv'
 

@@ -111,6 +111,8 @@ module Trading
             elsif ( rsi >= RSI_CUTOFF and WatchList.find(:first, :conditions => { :ticker_id => ticker_id, :opened_on => nil} ))
               logger.info("Deleting #{ts.symbol} RSI of #{rsi} above threhold of #{RSI_CUTOFF}")
               WatchList.delete_all(:ticker_id => ticker_id, :opened_on => nil)
+            elsif ( rsi >= threshold || last_close >= rsi_target_price )
+              WatchList.update_listing(ticker_id, rsi_target_price, rsi, threshold, :logger => logger)
             end
           end
         rescue TimeseriesException => e
@@ -141,6 +143,7 @@ module Trading
         tprice = ts.send(inverse_meth, meth => params[:threshold])
         attrs[colname] = tprice
       end
+      opened_position.update_attributes! attrs
     end
 
     def update_closing_values(opened_position, ts)
@@ -149,11 +152,11 @@ module Trading
       if opened_position.last_populate.nil?
         attrs[:last_rsi] = attrs[:closing_rsi] = rsi
         attrs[:last_populate] = Time.zone.now
-      elsif opened_position.last_populate.to_date != Time.zone.to_date
-        attrs[:last_rsi] = attrs[:closing_rsi]
+      elsif opened_position.last_populate.to_date != Time.zone.now.to_date
+        attrs[:last_rsi] = opened_position.closing_rsi
         attrs[:closing_rsi] = rsi
         attrs[:last_populate] = Time.zone.now
-        attrs[:closing_condition] = attrs[:last_rsi] >= rsi || trading_day_count(open_position.open_crossed_at, Date.today) >= 20
+        attrs[:closing_condition] = attrs[:last_rsi] >= rsi || trading_day_count(opened_position.open_crossed_at, Date.today) >= 20
       end
       opened_position.update_attributes!(attrs)
     end

@@ -23,8 +23,8 @@
   %td.center
     = h watch_list.open_crossed_at.nil? ? '-' :  watch_list.open_crossed_at.to_formatted_s(:pm)
   %td.Plot
-    = link_to 'Plot', plot_watch_list_path(watch_list)
+    = link_to_unless watch_list.price.nil?, 'Plot', plot_watch_list_path(watch_list)
   %td.open
-    = link_to 'Open', new_watch_list_tda_position_path(watch_list)
+    = link_to_unless watch_list.price.nil?, 'Open', new_watch_list_tda_position_path(watch_list)
   %td.destroy
     = link_to 'Destroy', object_path(watch_list), :confirm => 'Really destroy Watch List Item?', :method => :delete

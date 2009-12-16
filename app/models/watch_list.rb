@@ -147,6 +147,16 @@ class WatchList < ActiveRecord::Base
       end
     end
 
+    def update_listing(ticker_id, rsi_target_price, current_rsi, threshold, listing_date, options={})
+      logger = options[:logger]
+      listings = find(:all, :conditions => { :ticker_id => ticker_id, :target_rsi => threshold, :opened_on => nil })
+      raise Exception, "More than one watch list entry #{listing.symbol} for the same threhold: #{threshold} encounted!" if listings.length > 1
+      listings.each do |listing|
+        listing.update_attributes!(:rsi_target_price => rsi_target_price, :current_rsi => current_rsi)
+        logger.info("Updated Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} to #{listing.rsi_target_price} for RSI #{listing.target_rsi}") if logger
+      end
+    end
+
     def lookup_entry(ticker_id, type)
       cond = "ticker_id = #{ticker_id} and " +
         case type
@@ -155,8 +165,8 @@ class WatchList < ActiveRecord::Base
         else
           raise ArgumentError, "type should be :open or :close"
         end
-      wl_ary = find(:all, :conditions => cond)
-      raise "WatchList has #{wl_ary.length} live entries instead of 1" if wl_ary.length > 1
+      wl_ary = find(:all, :conditions => cond, :order => 'opened_on desc')
+      #raise "WatchList has #{wl_ary.length} live entries instead of 1" if wl_ary.length > 1
       wl_ary.first
     end
 

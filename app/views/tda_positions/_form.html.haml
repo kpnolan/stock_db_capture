@@ -1,10 +1,13 @@
 = f.hidden_field :ticker_id
-= f.hidden_field :watch_list_id
 = f.hidden_field :entry_date
+= f.hidden_field :exit_date
 
 = f.text_field :symbol, :disabled => true, :size => 5
 = f.text_field :name, :disabled => true
 = f.datetime_select :opened_at
+= f.datetime_select :closed_at
 = f.text_field :entry_price, :size => 6
+= f.text_field :exit_price, :size => 6
 = f.text_field :num_shares, :size => 6
+= f.table_select :watch_list_id, :order => 'opened_on, open_crossed_at', :value => :select_form
 = f.check_box :com, :label => 'MOC'

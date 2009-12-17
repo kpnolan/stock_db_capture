@@ -39,6 +39,7 @@ module Trading
     end
 
     def reset()
+      purge_old_snapshots()
       create_candidate_list()
       add_possible_entries()
       update_exit_list()
@@ -46,6 +47,10 @@ module Trading
 
     def clear_watch_list
       # TODO delete vestigial watch list entries that have been closed or terminated
+    end
+
+    def purge_old_snapshots
+      Snapshot.delete_all("date(bartime) < curdate()")
     end
 
     def length
@@ -109,8 +114,8 @@ module Trading
                 logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{rsi_target_price} listed on #{Date.today.to_s(:db)}.")
               end
             elsif ( rsi >= RSI_CUTOFF and WatchList.find(:first, :conditions => { :ticker_id => ticker_id, :opened_on => nil} ))
-              logger.info("Deleting #{ts.symbol} RSI of #{rsi} above threhold of #{RSI_CUTOFF}")
-              WatchList.delete_all(:ticker_id => ticker_id, :opened_on => nil)
+              #logger.info("Deleting #{ts.symbol} RSI of #{rsi} above threhold of #{RSI_CUTOFF}")
+              #WatchList.delete_all(:ticker_id => ticker_id, :opened_on => nil)
             elsif ( rsi >= threshold || last_close >= rsi_target_price )
               WatchList.update_listing(ticker_id, rsi_target_price, rsi, threshold, :logger => logger)
             end
@@ -163,7 +168,7 @@ module Trading
 
     def populate_opening_list
       #
-      # repopulate with possible entry that aren't stale
+      # repopulate with possible entries that aren't stale
       #
       returning (Hash.new) do |hash|
         WatchList.find(:all, :conditions => 'opened_on IS NULL').each do |watched_position|
@@ -180,7 +185,7 @@ module Trading
       returning [] do |vec|
         WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
           ticker_id = opened_position.ticker_id
-          start_date = opened_position.opened_on #should be opened on
+          start_date = opened_position.opened_on
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
           update_target_prices(opened_position, ts) if opened_position.rvi_target_price.nil?
@@ -220,16 +225,16 @@ module Trading
     def update_openings(ots_hash)
       ots_hash.each_pair do |ts, targets|
         threshold, rsi_target_price = targets
-        returning WatchList.lookup_entry(ts.ticker_id, :open) do |watch|
+        WatchList.lookup_entry(ts.ticker_id, :open).each do |watch|
           #begin
-            unless qt.snapshot(ts.symbol).zero?
+#            unless qt.snapshot(ts.symbol).zero?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
               if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
                 ts.update_last_bar(last_bar)
                 current_rsi = ts.rsi(:time_period => 14, :result => :last)
                 watch.update_open_from_snapshot!(last_bar, current_rsi, num_samples, Snapshot.last_seq(ts.symbol, Date.today))
               end
-            end
+#            end
           #rescue Exception => e
           #  logger.error("Exception -- #{ts.symbol} on  msg: #{e.to_s}")
           #end
@@ -239,16 +244,16 @@ module Trading
 
     def update_closures(cts_vec)
       cts_vec.each do |ts|
-        returning WatchList.lookup_entry(ts.ticker_id, :close) do |watch|
+        WatchList.lookup_entry(ts.ticker_id, :close).each do |watch|
           #begin
-            unless qt.snapshot(ts.symbol).zero?
+#            unless qt.snapshot(ts.symbol).zero?
               last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
               if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
                 ts.update_last_bar(last_bar)
                 result_hash = ts.eval_crossing(closing_strategy_params)
                 watch.update_closure!(result_hash, last_bar, num_samples)
               end
-            end
+#            end
           #rescue Exception => e
           #  logger.error("Exception -- #{ts.symbol} on msg: #{e.to_s}")
           #end

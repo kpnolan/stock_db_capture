@@ -3,7 +3,7 @@
   %td.ticker_id
     = lkup exit_list.ticker, :symbol
   %td.center
-    = h exit_list.tda_position ? exit_list.tda_position.compute_days_held : '-'
+    = h exit_list.days_held
   %td.center
     = h exit_list.tda_position ?  exit_list.tda_position.entry_price : '-'
   %td.center{:class =>  price_color }
@@ -13,7 +13,7 @@
   %td.center
     = h exit_list.rvi_target_price ? format('%3.2f', exit_list.rvi_target_price) : '-'
   %td.center
-    = h exit_list.tda_position ? format('%3.2f%%', exit_list.tda_position.roi()) : '-'
+    = h exit_list.tda_position && exit_list.tda_position.roi() && format('%3.2f%%', exit_list.tda_position.roi()) || '-'
   %td.center
     = h exit_list.volume
   %td.center
@@ -32,5 +32,5 @@
     = h exit_list.last_snaptime.nil? ? '-' :  exit_list.last_snaptime.to_formatted_s(:pm)
   %td.Plot
     = link_to 'Plot', plot_watch_list_path(exit_list)
-  %td.show
-    = link_to 'Close', close_watch_list_path(exit_list)
+  %td.close
+    = link_to_unless exit_list.tda_position.nil?, 'Close', exit_list.tda_position.nil? ? ticker_tda_positions_path(exit_list.ticker) : close_tda_position_path(exit_list.tda_position)

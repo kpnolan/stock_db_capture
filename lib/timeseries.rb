@@ -669,11 +669,9 @@ class Timeseries
 
   def update_last_bar(bar)
     return @last_bar = bar unless populated?
-    if timevec.last.to_date == Date.today
-      time_map[timevec.last] = nil
-      pop_values()
-      push_bar(bar)
-    end
+    pop_values() if timevec.last.to_date == Date.today
+    push_bar(bar)
+    compute_timestamps(value_hash[:bartime].first, value_hash[:bartime].last)
   end
 
   def push_bar(bar)

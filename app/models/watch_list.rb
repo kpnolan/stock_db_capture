@@ -38,6 +38,9 @@
 #require 'faster_csv'
 
 class WatchList < ActiveRecord::Base
+
+  include TradingCalendar
+
   set_table_name 'watch_list'
 
   belongs_to :ticker
@@ -46,8 +49,8 @@ class WatchList < ActiveRecord::Base
   validates_presence_of :ticker_id
   validates_uniqueness_of :ticker_id, :scope => :listed_on
 
-  CSV_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price',  'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
-  CSV_COLUMNS = %w{ symbol target_percentage_f price_f rsi_target_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
+  ENTRY_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price',  'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
+  ENTRY_COLUMNS = %w{ symbol target_percentage_f price_f rsi_target_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
 
   def symbol
     ticker.symbol
@@ -67,6 +70,12 @@ class WatchList < ActiveRecord::Base
 
   def shares
     to_shares.floor
+  end
+
+  def days_held
+    from_date = tda_position && tda_position.opened_at || opened_on
+    to_date = tda_position && tda_position.closed_at || closed_on || Date.today
+    from_date && to_date && trading_day_count(from_date, to_date)
   end
 
   def target_percentage_f
@@ -107,6 +116,10 @@ class WatchList < ActiveRecord::Base
 
   def target_percentage
     price && rsi_target_price && (price - rsi_target_price)/rsi_target_price * 100.0
+  end
+
+  def select_form
+    "#{ticker.symbol} - #{open_crossed_at && open_crossed_at.to_date} - #{opened_on}"
   end
 
   def thresholds()
@@ -165,16 +178,14 @@ class WatchList < ActiveRecord::Base
         else
           raise ArgumentError, "type should be :open or :close"
         end
-      wl_ary = find(:all, :conditions => cond, :order => 'opened_on desc')
-      #raise "WatchList has #{wl_ary.length} live entries instead of 1" if wl_ary.length > 1
-      wl_ary.first
+      find(:all, :conditions => cond)
     end
 
     def generate_csv()
       csv_string = FasterCSV.generate do |csv|
-        csv << CSV_HEADING
+        csv << ENTRY_HEADING
         WatchList.all(:conditions => 'opened_on is null').each do |position|
-          csv << CSV_COLUMNS.map { |col| position.send(col) }
+          csv << ENTRY_COLUMNS.map { |col| position.send(col) }
         end
       end
     end

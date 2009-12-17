@@ -1,18 +1,11 @@
 module Resourceful
   module Default
     module Actions
-      # GET /foos
       def exits
         load_objects
         before :exits
         response_for :exits
         after :exits
-      end
-      def index
-        load_objects
-        before :index
-        response_for :index
-        after :index
       end
     end
   end
@@ -29,7 +22,7 @@ class WatchListsController < ApplicationController
 
     before :exits do
       self.sort_order ||=  'open_crossed_at desc, price'
-      @current_objects = wl = WatchList.all(:conditions => 'opened_on is not null', :include => :ticker, :order => sort_order)
+      @current_objects = wl = WatchList.all(:conditions => 'opened_on is not null', :include => :ticker, :order => :opened_on)
       session[:prices] = wl.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
       session[:prev_prices] = session[:prices] if session[:prev_prices].nil? or session[:prev_prices].keys != session[:prices].keys
     end

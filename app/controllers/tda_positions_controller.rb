@@ -47,12 +47,12 @@ class TdaPositionsController < ApplicationController
     end
 
     before :create do
-      current_object.opened_at = Time.zone.now
+#      current_object.opened_at = Time.zone.now
       current_object.entry_date = Date.today
       current_object.exit_date = nil
       current_object.closed_at = nil
-      current_object.entry_price = current_object.watch_list.price
-      current_object.curr_price = current_object.entry_price
+#      current_object.entry_price = current_object.watch_list.price
+#      current_object.curr_price = current_object.entry_price
       current_object.days_held = 0
       current_object.nreturn = 0.0
       current_object.rreturn = 0.0
@@ -65,9 +65,14 @@ class TdaPositionsController < ApplicationController
       tda = current_object
       tda.exit_date = Date.today
       tda.exit_price = tda.curr_price = tda.watch_list.price
-      tda.days_held = TdaPositionsController.trading_day_count(tda.entry_date, tda.exit_date)
+      tda.days_held = TdaPositionsController.trading_day_count(tda.entry_date, tda.exit_date, false)
       tda.rreturn = tda.roi()
-      tda.nreturn = tda.rreturn / tda.days_held
+      tda.nreturn = (tda.days_held != 0 && tda.rreturn / tda.days_held) || tda.rreturn
+    end
+
+    after :closed do
+      current_object.watch_list.delete
+      current_object.watch_list.id = nil
     end
   end
 

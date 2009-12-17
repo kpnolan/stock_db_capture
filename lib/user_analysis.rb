@@ -186,7 +186,9 @@ module UserAnalysis
     today = self.today
     outidx = 0
     n1 = n - 1.0
-    out = GSL::Vector.alloc(idx_range.end-idx_range.begin+1)
+    out_len = idx_range.end-idx_range.begin+1
+    out_len = 1 if out_len.zero?
+    out = GSL::Vector.alloc(out_len)
     emaPos = 0.0
     emaNeg = 0.0
     #

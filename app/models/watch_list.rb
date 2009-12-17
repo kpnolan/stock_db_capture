@@ -75,7 +75,7 @@ class WatchList < ActiveRecord::Base
   def days_held
     from_date = tda_position && tda_position.opened_at || opened_on
     to_date = tda_position && tda_position.closed_at || closed_on || Date.today
-    from_date && to_date && trading_day_count(from_date, to_date)
+    from_date && to_date && trading_day_count(from_date, to_date, false)
   end
 
   def target_percentage_f

@@ -46,9 +46,19 @@ class TdaPositionsController < ApplicationController
       end
     end
 
-    after :create do
-      #only set the opened_on field when the record is created since it's used to descriminate which watch list is appears on
-      current_object.watch_list.update_attributes!(:opened_on => Date.today, :rsi_target_price => nil, :rvi_target_price => nil)
+    before :create do
+      current_object.opened_at = Time.zone.now
+      current_object.entry_date = Date.today
+      current_object.exit_date = nil
+      current_object.closed_at = nil
+      current_object.entry_price = current_object.watch_list.price
+      current_object.curr_price = current_object.entry_price
+      current_object.days_held = 0
+      current_object.nreturn = 0.0
+      current_object.rreturn = 0.0
+      current_object.watch_list.opened_on = Date.today
+      current_object.watch_list.target_rsi = nil
+      current_object.watch_list.target_rvi = nil
     end
 
     before :close do
@@ -62,13 +72,16 @@ class TdaPositionsController < ApplicationController
   end
 
   def new
-    wl = WatchList.find params['watch_list_id']
     @tda_position = returning(TdaPosition.new) do |obj|
-      obj.watch_list_id = wl.id
-      obj.ticker_id = wl.ticker_id
+      obj.watch_list = parent_object
+      obj.ticker_id = parent_object.ticker_id
       obj.entry_date = Date.today
-      obj.entry_price = wl.price
-      obj.num_shares = (10000.0/wl.price).floor
+      obj.entry_price = parent_object.price
+      obj.num_shares = (10000.0/parent_object.price).floor
+      obj.curr_price = obj.entry_price
+      obj.days_held = 0
+      obj.nreturn = 0.0
+      obj.rreturn = 0.0
     end
   end
 

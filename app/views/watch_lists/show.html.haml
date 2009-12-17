@@ -2,7 +2,7 @@
 
 %fieldset
   - smart_form_for(current_object, :readonly => true) do |f|
-    = render :partial => "form", :locals => {:f => f}
+    = render :partial => "form", :locals => {:f => f, :new => false}
 
 = link_to 'Edit', edit_object_path
 |

@@ -25,7 +25,7 @@
 
 class TdaPosition < ActiveRecord::Base
   belongs_to :ticker
-  belongs_to  :watch_list
+  belongs_to  :watch_list, :autosave => true
 
   extend TradingCalendar
 

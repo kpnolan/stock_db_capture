@@ -38,9 +38,9 @@ class WatchListsController < ApplicationController
       session[:prev_prices] = session[:prices]
     end
 
-    before :delete do
+    before :destroy do
       positions = TdaPosition.find(:all, :conditions => { :watch_list_id => current_object.id } )
-      positions.each do |positions|
+      positions.each do |position|
         position.update_attribute(:watch_list_id, nil)
       end
     end

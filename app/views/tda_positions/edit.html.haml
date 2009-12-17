@@ -4,7 +4,7 @@
 
 %fieldset
   - smart_form_for(current_object) do |f|
-    = render :partial => "form", :locals => {:f => f}
+    = render :partial => "form", :locals => {:f => f, :new => false}
     %p= f.submit "Update"
 
 = link_to 'Show', object_path

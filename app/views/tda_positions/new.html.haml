@@ -4,7 +4,7 @@
 
 %fieldset
   - smart_form_for(@tda_position) do |f|
-    = render :partial => "form", :locals => {:f => f}
+    = render :partial => "form", :locals => {:f => f, :new => true}
     %p= f.submit "Open"
 
 = link_to 'Back', objects_path

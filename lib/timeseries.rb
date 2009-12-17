@@ -682,7 +682,7 @@ class Timeseries
       value_hash[key].push(bar[key])
     end
     if model.time_class == Date
-      value_hash[:bartime].push(time.change(:hour => 6, :min => 30))
+      value_hash[:bartime].push(time.localtime.change(:hour => 6, :min => 30))
     else
       value_hash[:bartime].push(time)
     end

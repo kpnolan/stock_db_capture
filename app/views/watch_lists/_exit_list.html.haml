@@ -34,3 +34,5 @@
     = link_to 'Plot', plot_watch_list_path(exit_list)
   %td.close
     = link_to_unless exit_list.tda_position.nil?, 'Close', exit_list.tda_position.nil? ? ticker_tda_positions_path(exit_list.ticker) : close_tda_position_path(exit_list.tda_position)
+  %td.destroy
+    = link_to 'Destroy', object_path(exit_list), :confirm => 'Really destroy Watch List Item?', :method => :delete

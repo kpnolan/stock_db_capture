@@ -161,7 +161,7 @@ module Trading
         attrs[:last_rsi] = opened_position.closing_rsi
         attrs[:closing_rsi] = rsi
         attrs[:last_populate] = Time.zone.now
-        attrs[:closing_condition] = attrs[:last_rsi] >= rsi || trading_day_count(opened_position.open_crossed_at, Date.today) >= 20
+        attrs[:closing_condition] = attrs[:last_rsi] >= rsi || trading_day_count(opened_position.opened_on, Date.today) >= 20
       end
       opened_position.update_attributes!(attrs)
     end
@@ -226,18 +226,14 @@ module Trading
       ots_hash.each_pair do |ts, targets|
         threshold, rsi_target_price = targets
         WatchList.lookup_entry(ts.ticker_id, :open).each do |watch|
-          #begin
-#            unless qt.snapshot(ts.symbol).zero?
-              last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
-              if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
-                ts.update_last_bar(last_bar)
-                current_rsi = ts.rsi(:time_period => 14, :result => :last)
-                watch.update_open_from_snapshot!(last_bar, current_rsi, num_samples, Snapshot.last_seq(ts.symbol, Date.today))
-              end
-#            end
-          #rescue Exception => e
-          #  logger.error("Exception -- #{ts.symbol} on  msg: #{e.to_s}")
-          #end
+          qt.snapshot(ts.symbol)
+          last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
+          next if num_samples.zero?
+          if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
+            ts.update_last_bar(last_bar)
+            current_rsi = ts.rsi(:time_period => 14, :result => :last)
+            watch.update_open_from_snapshot!(last_bar, current_rsi, num_samples, Snapshot.last_seq(ts.symbol, Date.today))
+          end
         end
       end
     end
@@ -245,18 +241,14 @@ module Trading
     def update_closures(cts_vec)
       cts_vec.each do |ts|
         WatchList.lookup_entry(ts.ticker_id, :close).each do |watch|
-          #begin
-#            unless qt.snapshot(ts.symbol).zero?
-              last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
-              if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
-                ts.update_last_bar(last_bar)
-                result_hash = ts.eval_crossing(closing_strategy_params)
-                watch.update_closure!(result_hash, last_bar, num_samples)
-              end
-#            end
-          #rescue Exception => e
-          #  logger.error("Exception -- #{ts.symbol} on msg: #{e.to_s}")
-          #end
+          qt.snapshot(ts.symbol)
+          last_bar, num_samples = Snapshot.last_bar(ts.ticker_id, Date.today, true)
+          next if num_samples.zero?
+          if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
+            ts.update_last_bar(last_bar)
+            result_hash = ts.eval_crossing(closing_strategy_params)
+            watch.update_closure!(result_hash, last_bar, num_samples)
+          end
         end
       end
     end

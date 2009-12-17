@@ -40,7 +40,7 @@ class DailyBar < ActiveRecord::Base
 
     def order ; 'date, id'; end
     def time_convert ; 'to_time' ;  end
-    def time_class ; Time ;  end
+    def time_class ; Date ;  end
     def time_res; 1.day; end
 
     def find_loss(ticker_id, entry_date, exit_date, ratio)

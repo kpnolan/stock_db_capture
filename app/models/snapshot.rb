@@ -43,7 +43,7 @@ class Snapshot < ActiveRecord::Base
 
     def last_bar(ticker_id, date=Date.today, count=false)
       snap_ary = Snapshot.find(:all, :conditions => ['ticker_id = ? and date(bartime) = ?', ticker_id, date], :order => 'seq desc')
-      debugger if snap_ary.empty?
+      return count ? [{}, 0] : {} if snap_ary.empty?
       high = snap_ary.map(&:high).max
       low = snap_ary.map(&:low).min
       open = snap_ary.last.opening

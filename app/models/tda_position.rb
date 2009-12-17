@@ -53,10 +53,10 @@ class TdaPosition < ActiveRecord::Base
   def roi()
     if closed_at
       (exit_price - entry_price) / entry_price * 100
-    elif watch_list
+    elsif watch_list
       (watch_list.price - entry_price) / entry_price * 100.0
     else
-      nil
+      -0.0
     end
   end
 
@@ -73,10 +73,10 @@ class TdaPosition < ActiveRecord::Base
   class << self
     def synchronize_with_watch_list
       all.each do |tda|
-        tda.days_held = tda.closed_at ? trading_day_count(entry_date, exit_date) : trading_day_count(tda.entry_date, Date.today)
+        tda.days_held = tda.closed_at ? trading_day_count(entry_date, exit_date, false) : trading_day_count(tda.entry_date, Date.today, false)
         tda.curr_price = tda.watch_list ? tda.watch_list.price : -0.0
         tda.rreturn = tda.roi
-        tda.nreturn = tda.rreturn && tda.rreturn / tda.days_held
+        tda.nreturn = tda.rreturn && tda.days_held != 0 && tda.rreturn / tda.days_held || -0.0
         tda.save!
       end
     end

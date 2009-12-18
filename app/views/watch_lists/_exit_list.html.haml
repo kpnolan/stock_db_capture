@@ -29,9 +29,7 @@
   %td.center
     = h exit_list.closed_crossed_at.nil? ? '-' :  exit_list.closed_crossed_at.to_formatted_s(:pm)
   %td.center
-    = h exit_list.last_snaptime.nil? ? '-' :  exit_list.last_snaptime.to_formatted_s(:pm)
-  %td.Plot
-    = link_to 'Plot', plot_watch_list_path(exit_list)
+    = h exit_list.last_snaptime.nil? ? '-' :  (minutes = ((Time.now - exit_list.last_snaptime) / 60).round) > 9 ? '>' : minutes
   %td.close
     = link_to_unless exit_list.tda_position.nil?, 'Close', exit_list.tda_position.nil? ? ticker_tda_positions_path(exit_list.ticker) : close_tda_position_path(exit_list.tda_position)
   %td.destroy

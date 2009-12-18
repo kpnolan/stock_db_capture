@@ -51,7 +51,7 @@ class TdaPositionsController < ApplicationController
       current_object.entry_date = Date.today
       current_object.exit_date = nil
       current_object.closed_at = nil
-#      current_object.entry_price = current_object.watch_list.price
+      current_object.entry_price = current_object.watch_list.price
 #      current_object.curr_price = current_object.entry_price
       current_object.days_held = 0
       current_object.nreturn = 0.0

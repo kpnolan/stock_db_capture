@@ -41,24 +41,23 @@ class TdaPositionsController < ApplicationController
 
     after :update do
       unless current_object.exit_price.blank?
-        days_held = TdaPositionsController.trading_days_between(opened_at, closed_at)
+        days_held = TdaPositionsController.trading_days_between(opened_at, closed_at, false)
         current_object.update_attributes!(:days_held => days_held, :exit_date => closed_at.to_date)
       end
     end
 
     before :create do
-#      current_object.opened_at = Time.zone.now
-      current_object.entry_date = Date.today
+      current_object.entry_date = current_object.opened_at.to_date
       current_object.exit_date = nil
       current_object.closed_at = nil
-      current_object.entry_price = current_object.watch_list.price
-#      current_object.curr_price = current_object.entry_price
+      current_object.curr_price = current_object.watch_list.price
       current_object.days_held = 0
       current_object.nreturn = 0.0
       current_object.rreturn = 0.0
-      current_object.watch_list.opened_on = Date.today
+      current_object.watch_list.opened_on = current_object.entry_date
       current_object.watch_list.target_rsi = nil
       current_object.watch_list.target_rvi = nil
+      debugger
     end
 
     before :close do

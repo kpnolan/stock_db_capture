@@ -39,7 +39,7 @@ module Trading
     end
 
     def reset()
-      purge_old_snapshots()
+     # purge_old_snapshots()
       create_candidate_list()
       add_possible_entries()
       update_exit_list()

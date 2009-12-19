@@ -74,10 +74,18 @@ module TechnicalAnalysis
         unstable = (3.45*(args[0]+1)).ceil
         set_unstable_period(:ema, count)
         minimal_samples(to_lookback(base_indicator), *args)
-      when :rsi, :rvi then
+      when :rsi then
         unstable = (2.0*(args[0]+1)).ceil
         set_unstable_period(:rsi, unstable)
-        minimal_samples(to_lookback(:rsi), *args)
+        ms = minimal_samples(to_lookback(:rsi), *args)
+        puts "unstable #{unstable} prefetch: #{ms}"
+        ms
+      when :rvi then
+        unstable = (2.0*(args[0]+1+9)).ceil
+        set_unstable_period(:rsi, unstable)
+        ms = minimal_samples(to_lookback(:rsi), *args)
+        puts "unstable #{unstable} prefetch: #{ms}"
+        ms
       when :macd, :macdfix then
         ratio = 1.75
         unstable = (ratio*26+1).ceil

@@ -116,8 +116,9 @@ module UserAnalysis
       today += 1
     end
     dn = 0.0
-    delta = (100.0*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100.0)
-    price[today-1]+delta
+    posDelta = (100.0*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100.0)
+    negDelta = (n1 * (emaPos * ((r-100) + emaNeg*r)))/r
+    price[today-1]+posDelta
   end
 
 
@@ -125,7 +126,7 @@ module UserAnalysis
     raise ArgumentError, ":rsi must be specified" if options[:rsi].nil?
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
-    today = self.today
+    today = self.today+
     n = options[:time_period].to_f
     n1 = n - 1.0
     r = options[:rsi]

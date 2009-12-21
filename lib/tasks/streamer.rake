@@ -14,6 +14,14 @@ namespace :active_trader do
       @sw.reset()
     end
 
+    desc "Purge the Watch List"
+    task :purge => :environment do
+      log_name = "purge_watch_#{Date.today.to_s(:db)}.log"
+      @logger ||= ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', log_name))
+      @sw = Trading::StockWatcher.new(@logger)
+      @sw.purge()
+    end
+
     desc "Begin Updating Watch List"
     task :start_watching => :environment do
       log_name = "stock_watch_#{Date.today.to_s(:db)}.log"

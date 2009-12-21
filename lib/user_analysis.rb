@@ -115,10 +115,15 @@ module UserAnalysis
       emaNeg = (emaNeg * n1 + dn)/n
       today += 1
     end
-    dn = 0.0
-    posDelta = (100.0*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100.0)
-    negDelta = (n1 * (emaPos * ((r-100) + emaNeg*r)))/r
-    price[today-1]+posDelta
+    # Now we have to advance the ema (of sort) one more day to get one more decay before we solve
+    dn, up = 0.0, 0.0
+    #emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
+    #emaNeg = (emaNeg * n1 + dn)/n
+    # Now solve for up and dn
+    posDelta = (emaPos*n1*(r-100) + (dn +emaNeg*n1)*r)/(r-100.0)
+    negDelta = (-emaPos*n1*(r-100) + emaNeg*(r - n*r)-(r-100)*up)/r #works for downtrend
+    last_price = price[today-1]
+    [ last_price+posDelta, last_price+negDelta ]
   end
 
 
@@ -362,6 +367,17 @@ module UserAnalysis
       end
       memoize_result(self, :linreg, entry_index...(entry_index+n), options, result, :overlap)
     end
+  end
+
+  def lrclose(options={ })
+    options.reverse_merge! :time_period => 14
+    idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    n = options[:time_period]
+    xvec = GSL::Vector.linspace(0, n-1, n)
+    yvec = close.subvector(pre_offset-n, n)
+    retvec = GSL::Fit::linear(xvec, yvec)
+    raise Exception, "RBGSL Exception" unless retvec.last.zero?
+    [retvec.second, retvec[5], retvec.last ]
   end
 
   def mom_percent(options={ })

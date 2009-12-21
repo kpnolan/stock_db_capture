@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091125220250
+# Schema version: 20091220213712
 #
 # Table name: watch_list
 #
@@ -44,7 +44,7 @@ class WatchList < ActiveRecord::Base
   set_table_name 'watch_list'
 
   belongs_to :ticker
-  has_one    :tda_position
+  has_one    :tda_position, :dependent => :nullify
 
   validates_presence_of :ticker_id
   validates_uniqueness_of :ticker_id, :scope => :listed_on
@@ -193,6 +193,13 @@ class WatchList < ActiveRecord::Base
     def opened_positions(order=nil)
       WatchList.all(:conditions => 'opened_on is not null', :order => order)
     end
+
+    def purge()
+      WatchList.delete_all('closed_on is not null')
+      WatchList.all(:conditions => 'tda_positions.exit_date is not null', :include => :tda_position).each { |wl| wl.destroy() }
+      WatchList.delete_all(:current_rsi => 0..30)
+      WatchList.delete_all(:current_rsi => 40..100)
+    end
   end
 
   def active_entries(options={})
@@ -211,5 +218,4 @@ class WatchList < ActiveRecord::Base
     attrs[:open_crossed_at] = snap_time  if self.open_crossed_at.nil? and curr_rsi >= self.target_rsi
     update_attributes!(attrs.merge(last_bar))
   end
-
 end

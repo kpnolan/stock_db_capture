@@ -1,0 +1,76 @@
+# == Schema Information
+# Schema version: 20091220213712
+#
+# Table name: rsi_target_studies
+#
+#  id                   :integer(4)      not null, primary key
+#  ticker_id            :integer(4)
+#  start_date           :date
+#  end_date             :date
+#  time_period          :integer(4)
+#  slope                :float
+#  chisq                :float
+#  rsi                  :float
+#  prior_price          :float
+#  last_price           :float
+#  pos_delta            :float
+#  neg_delta            :float
+#  pos_delta_plus       :float
+#  neg_delta_plus       :float
+#  pos_delta_plus_ratio :float
+#  neg_delta_plus_ratio :float
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  ticker_id: 1
+  start_date: 2009-12-20
+  end_date: 2009-12-20
+  time_period: 1
+  slope: 1.5
+  chisq: 1.5
+  rsi: 1.5
+  prior_price: 1.5
+  last_price: 1.5
+  pos_delta: 1.5
+  neg_delta: 1.5
+  pos_delta1: 1.5
+  pos_delta_plus: 1.5
+  pos_delta_minus: 1.5
+  neg_delta_plus: 1.5
+  neg_delta_minus: 1.5
+  pos_delta1_plus: 1.5
+  pos_delta1_minus: 1.5
+  pos_delta_plus_ratio: 1.5
+  pos_delta_minus_ratio: 1.5
+  neg_delta_plus_ratio: 1.5
+  neg_delta_minus_ratio: 1.5
+  pos_delta1_plus_ratio: 1.5
+  pos_delta1_minus_ratio: 1.5
+
+two:
+  ticker_id: 1
+  start_date: 2009-12-20
+  end_date: 2009-12-20
+  time_period: 1
+  slope: 1.5
+  chisq: 1.5
+  rsi: 1.5
+  prior_price: 1.5
+  last_price: 1.5
+  pos_delta: 1.5
+  neg_delta: 1.5
+  pos_delta1: 1.5
+  pos_delta_plus: 1.5
+  pos_delta_minus: 1.5
+  neg_delta_plus: 1.5
+  neg_delta_minus: 1.5
+  pos_delta1_plus: 1.5
+  pos_delta1_minus: 1.5
+  pos_delta_plus_ratio: 1.5
+  pos_delta_minus_ratio: 1.5
+  neg_delta_plus_ratio: 1.5
+  neg_delta_minus_ratio: 1.5
+  pos_delta1_plus_ratio: 1.5
+  pos_delta1_minus_ratio: 1.5

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091125220250
+# Schema version: 20091220213712
 #
 # Table name: tda_positions
 #
@@ -13,7 +13,7 @@
 #  num_shares    :integer(4)
 #  days_held     :integer(4)
 #  nreturn       :float
-#  rretrun       :float
+#  rreturn       :float
 #  opened_at     :datetime
 #  closed_at     :datetime
 #  updated_at    :datetime

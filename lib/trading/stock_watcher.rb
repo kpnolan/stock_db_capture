@@ -38,6 +38,10 @@ module Trading
       @candidate_ids = scan.population_ids()
     end
 
+    def purge()
+      WatchList.purge()
+    end
+
     def reset()
      # purge_old_snapshots()
       create_candidate_list()
@@ -104,7 +108,7 @@ module Trading
 
           thresholds = RSI_OPEN_THRESHOLDS
           thresholds.each do |threshold|
-            rsi_target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
+            rsi_target_price = ts.invrsi(:rsi => threshold, :time_period => 14).first
             # what happens we we have multiple watch list items per ticker?
             if  (rsi < threshold || last_close < rsi_target_price) && last_close >= (PRICE_CUTOFF_RATIO)*rsi_target_price
               begin

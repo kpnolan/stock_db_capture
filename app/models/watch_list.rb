@@ -198,7 +198,7 @@ class WatchList < ActiveRecord::Base
       WatchList.delete_all('closed_on is not null')
       WatchList.all(:conditions => 'tda_positions.exit_date is not null', :include => :tda_position).each { |wl| wl.destroy() }
       WatchList.delete_all(:current_rsi => 0..30)
-      WatchList.delete_all(:current_rsi => 40..100)
+      WatchList.delete_all(:current_rsi => 33..100)
     end
   end
 

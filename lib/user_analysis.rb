@@ -120,7 +120,8 @@ module UserAnalysis
     #emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
     #emaNeg = (emaNeg * n1 + dn)/n
     # Now solve for up and dn
-    posDelta = (emaPos*n1*(r-100) + (dn +emaNeg*n1)*r)/(r-100.0)
+    posDelta = (100.0*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100.0)
+    #posDelta = (emaPos*n1*(r-100) + (dn +emaNeg*n1)*r)/(r-100.0)
     negDelta = (-emaPos*n1*(r-100) + emaNeg*(r - n*r)-(r-100)*up)/r #works for downtrend
     last_price = price[today-1]
     [ last_price+posDelta, last_price+negDelta ]

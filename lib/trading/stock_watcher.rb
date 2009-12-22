@@ -109,7 +109,7 @@ module Trading
           thresholds = RSI_OPEN_THRESHOLDS
           thresholds.each do |threshold|
             next if rsi > threshold
-            rsi_target_price = ts.invrsi(:rsi => threshold, :time_period => 14).first
+            rsi_target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
             # what happens we we have multiple watch list items per ticker?
             if  last_close < rsi_target_price && last_close >= (PRICE_CUTOFF_RATIO)*rsi_target_price
               begin
@@ -194,7 +194,7 @@ module Trading
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
           update_target_prices(opened_position, ts) if opened_position.rvi_target_price.nil?
-        #  update_closing_values(opened_position, ts) unless open_position.close_crossed_at.nil?
+        #  update_closing_values(opened_position, ts) unless open_position.close_crossed_at.nil? commented out to not color exit list red
           vec << ts
         end
       end

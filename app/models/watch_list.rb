@@ -195,10 +195,10 @@ class WatchList < ActiveRecord::Base
     end
 
     def purge()
-      WatchList.delete_all('closed_on is not null')
+      # Destroy exited positions
       WatchList.all(:conditions => 'tda_positions.exit_date is not null', :include => :tda_position).each { |wl| wl.destroy() }
-      WatchList.delete_all(:current_rsi => 0..30)
-      WatchList.delete_all(:current_rsi => 33..100)
+      # Delete Entries that will be repopulated
+      WatchList.delete_all('opened_on is null')
     end
   end
 

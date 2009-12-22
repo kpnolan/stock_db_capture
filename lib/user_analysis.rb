@@ -124,7 +124,7 @@ module UserAnalysis
     #posDelta = (emaPos*n1*(r-100) + (dn +emaNeg*n1)*r)/(r-100.0)
     negDelta = (-emaPos*n1*(r-100) + emaNeg*(r - n*r)-(r-100)*up)/r #works for downtrend
     last_price = price[today-1]
-    [ last_price+posDelta, last_price+negDelta ]
+    last_price+posDelta
   end
 
     def invrsi_exp(options={ })
@@ -172,7 +172,7 @@ module UserAnalysis
     #posDelta = (emaPos*n1*(r-100) + (dn +emaNeg*n1)*r)/(r-100.0)
     negDelta = (-emaPos*n1*(r-100) + emaNeg*(r - n*r)-(r-100)*up)/r #works for downtrend
     last_price = price[today-1]
-    [ posDelta, negDelta ]
+    posDelta
   end
 
 

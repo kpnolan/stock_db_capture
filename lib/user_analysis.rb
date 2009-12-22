@@ -127,29 +127,26 @@ module UserAnalysis
     [ last_price+posDelta, last_price+negDelta ]
   end
 
-
-  def invrsi_orig(options={ })
+    def invrsi_exp(options={ })
     raise ArgumentError, ":rsi must be specified" if options[:rsi].nil?
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
-    today = self.today+
+    today = self.today
     n = options[:time_period].to_f
     n1 = n - 1.0
     r = options[:rsi]
     emaPos = 0.0
     emaNeg = 0.0
-    up = 0.0
-    dn = 0.0
+    today += 1
     #
     # compute the SMA for the first the first :time_period bars
     #
     n.to_int.times do
-      delta_close = price[today] - price[today-1]
-      if delta_close < 0.0
-        emaNeg -= delta_close
-      else
-        emaPos += delta_close
-     end
+      deltaClose = price[today] - price[today-1]
+      up = [0, deltaClose].max
+      dn = [0, -deltaClose].max
+      emaPos += up
+      emaNeg += dn
       today += 1
     end
     emaPos /= n
@@ -159,24 +156,27 @@ module UserAnalysis
     # the price which would have produced the given RSI
     #
     while today <= idx_range.end
-      delta_close = price[today] - price[today-1]
-      emaPos *= n1
-      emaNeg *= n1
-      if delta_close < 0.0
-        emaNeg -= delta_close
-      else
-        emaPos += delta_close
-      end
-      emaPos /= n
-      emaNeg /= n
+      deltaClose = price[today] - price[today-1]
+      up = [0, deltaClose].max
+      dn = [0, -deltaClose].max
+      emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
+      emaNeg = (emaNeg * n1 + dn)/n
       today += 1
     end
-    dn = 0.0
-    delta = (100*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100)
-    price[today-1]+delta
+    # Now we have to advance the ema (of sort) one more day to get one more decay before we solve
+    dn, up = 0.0, 0.0
+    emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
+    emaNeg = (emaNeg * n1 + dn)/n
+    # Now solve for up and dn
+    posDelta = (100.0*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100.0)
+    #posDelta = (emaPos*n1*(r-100) + (dn +emaNeg*n1)*r)/(r-100.0)
+    negDelta = (-emaPos*n1*(r-100) + emaNeg*(r - n*r)-(r-100)*up)/r #works for downtrend
+    last_price = price[today-1]
+    [ posDelta, negDelta ]
   end
 
-  # Relative Valatility Index
+
+   # Relative Valatility Index
   def rvi(options={})
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])

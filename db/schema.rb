@@ -579,24 +579,17 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
     t.integer "time_period"
     t.float   "slope"
     t.float   "chisq"
-    t.float   "rsi"
+    t.float   "target_rsi"
     t.float   "prior_price"
     t.float   "last_price"
     t.float   "pos_delta"
     t.float   "neg_delta"
-    t.float   "pos_delta1"
     t.float   "pos_delta_plus"
-    t.float   "pos_delta_minus"
     t.float   "neg_delta_plus"
-    t.float   "neg_delta_minus"
-    t.float   "pos_delta1_plus"
-    t.float   "pos_delta1_minus"
     t.float   "pos_delta_plus_ratio"
-    t.float   "pos_delta_minus_ratio"
     t.float   "neg_delta_plus_ratio"
-    t.float   "neg_delta_minus_ratio"
-    t.float   "pos_delta1_plus_ratio"
-    t.float   "pos_delta1_minus_ratio"
+    t.float   "prior_rsi"
+    t.float   "delta_rsi"
   end
 
   add_index "rsi_target_studies", ["ticker_id"], :name => "ticker_id"
@@ -771,6 +764,15 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
   create_table "sectors", :force => true do |t|
     t.string "name"
   end
+
+  create_table "sessions", :force => true do |t|
+    t.string   "session_id", :null => false
+    t.text     "data"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
+
+  add_index "sessions", ["session_id"], :name => "session_id"
 
   create_table "sim_jobs", :force => true do |t|
     t.string   "user"
@@ -1134,8 +1136,6 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
   add_foreign_key "intra_snapshots", ["ticker_id"], "tickers", ["id"], :name => "intra_snapshots_ibfk_1"
 
   add_foreign_key "plot_attributes", ["ticker_id"], "tickers", ["id"], :name => "plot_attributes_ibfk_1"
-
-  add_foreign_key "rsi_target_studies", ["ticker_id"], "tickers", ["id"], :name => "rsi_target_studies_ibfk_1"
 
   add_foreign_key "scans_tickers", ["ticker_id"], "tickers", ["id"], :name => "scans_tickers_ibfk_1"
   add_foreign_key "scans_tickers", ["scan_id"], "scans", ["id"], :name => "scans_tickers_ibfk_2"

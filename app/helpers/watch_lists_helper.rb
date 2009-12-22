@@ -10,10 +10,10 @@ module WatchListsHelper
   }
 
   def price_color(watch_list)
-    if session[:prices][watch_list.ticker_id].nil? or session[:prev_prices][watch_list.ticker_id].nil?
+    if session[:prices][watch_list.id].nil? or session[:prev_prices][watch_list.id].nil?
       'green'
     else
-      session[:prices][watch_list.ticker_id] >= session[:prev_prices][watch_list.ticker_id] ? 'green' : 'red'
+      session[:prices][watch_list.id] >= session[:prev_prices][watch_list.id] ? 'green' : 'red'
     end
   end
 
@@ -24,7 +24,7 @@ module WatchListsHelper
   def exiting_objects
     @exit_vec ||= WatchList.find(:all, :include => :tda_position,
                                  :conditions => 'opened_on IS NOT NULL', :order => 'opened_on')
-    session[:prices] = exit_vec.inject({}) { |h, obj| h[obj.ticker_id] = obj.price; h}
+    session[:prices] = exit_vec.inject({}) { |h, obj| h[obj.id] = obj.price; h}
     session[:prev_prices] = session[:prices] if session[:prev_prices].nil? or session[:prev_prices].keys != session[:prices].keys
     exit_vec
   end

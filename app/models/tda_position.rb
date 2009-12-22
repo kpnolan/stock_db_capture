@@ -32,7 +32,7 @@ class TdaPosition < ActiveRecord::Base
   validates_presence_of :entry_date, :entry_price, :num_shares, :curr_price, :days_held, :opened_at
 #  validates_presence_of :nreturn, :rreturn
   validates_numericality_of :num_shares
-  validates_presence_of :exit_price, :exit_date, :unless => lambda { |tda| tda.closed_at.nil? }
+#  validates_presence_of :exit_price, :exit_date, :unless => lambda { |tda| tda.closed_at.nil? }
   validates_associated :watch_list, :if => lambda { |tda| tda.closed_at.nil? }
 
   def update_price(current_price)
@@ -53,7 +53,7 @@ class TdaPosition < ActiveRecord::Base
   def roi()
     if closed_at
       (exit_price - entry_price) / entry_price * 100
-    elsif watch_list
+    elsif watch_list && watch_list.price && entry_price
       (watch_list.price - entry_price) / entry_price * 100.0
     else
       -0.0
@@ -63,7 +63,7 @@ class TdaPosition < ActiveRecord::Base
   def profit
     @profie ||= if closed_at
                   num_shares * exit_price - num_shares * entry_price
-                elsif watch_list
+                elsif watch_list && watch_list.price && entry_price
                   num_shares * watch_list.price -  num_shares * entry_price
                 else
                   -0.0
@@ -73,8 +73,8 @@ class TdaPosition < ActiveRecord::Base
   class << self
     def synchronize_with_watch_list
       all.each do |tda|
-        tda.days_held = tda.closed_at ? trading_day_count(entry_date, exit_date, false) : trading_day_count(tda.entry_date, Date.today, false)
-        tda.curr_price = tda.watch_list ? tda.watch_list.price : -0.0
+        tda.days_held = tda.closed_at ? trading_day_count(tda.entry_date, tda.exit_date, false) : trading_day_count(tda.entry_date, Date.today, false)
+        tda.curr_price = tda.watch_list && tda.watch_list.price || -0.0
         tda.rreturn = tda.roi
         tda.nreturn = tda.rreturn && tda.days_held != 0 && tda.rreturn / tda.days_held || -0.0
         tda.save!

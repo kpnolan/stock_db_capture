@@ -50,14 +50,13 @@ class TdaPositionsController < ApplicationController
       current_object.entry_date = current_object.opened_at.to_date
       current_object.exit_date = nil
       current_object.closed_at = nil
-      current_object.curr_price = current_object.watch_list.price
+      current_object.curr_price = current_object.watch_list.price || current_object.entry_price
       current_object.days_held = 0
       current_object.nreturn = 0.0
       current_object.rreturn = 0.0
       current_object.watch_list.opened_on = current_object.entry_date
       current_object.watch_list.target_rsi = nil
       current_object.watch_list.target_rvi = nil
-      debugger
     end
 
     before :close do
@@ -73,6 +72,10 @@ class TdaPositionsController < ApplicationController
       current_object.watch_list.delete
       current_object.watch_list.id = nil
     end
+
+    after :update do
+      current_object.update_attribute(:closed_at, nil)
+    end
   end
 
   def new
@@ -81,7 +84,7 @@ class TdaPositionsController < ApplicationController
       obj.ticker_id = parent_object.ticker_id
       obj.entry_date = Date.today
       obj.entry_price = parent_object.price
-      obj.num_shares = (10000.0/parent_object.price).floor
+      obj.num_shares = (10000.0/parent_object.price).floor if parent_object.price
       obj.curr_price = obj.entry_price
       obj.days_held = 0
       obj.nreturn = 0.0

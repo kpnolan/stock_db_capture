@@ -50,15 +50,15 @@ class RsiTargetStudy < ActiveRecord::Base
           target_price = ts1.close[-1]
           last_price = prior_price = ts1.close[-2]
           slope, chisq = ts1.lrclose()
-          attrs = ts2.invrsi(:rsi => target_rsi)
+          pos_delta, neg_delta = ts2.invrsi_exp(:rsi => target_rsi)
           os = OpenStruct.new({ :start_date => start_date, :end_date => end_date,
                                 :target_rsi => target_rsi, :prior_rsi => prior_rsi, :delta_rsi => target_rsi - prior_rsi,
                                 :last_price => target_price, :slope => slope, :chisq => chisq,
-                                :time_period => 14, :ticker_id => ticker_id}.merge(attrs))
+                                :time_period => 14, :ticker_id => ticker_id, :pos_delta => pos_delta, :neg_delta => neg_delta})
 
           target_prices = {
-            :pos_delta_plus =>     last_price+os.pos_delta,
-            :neg_delta_plus =>     last_price+os.neg_delta,
+            :pos_delta_plus =>     last_price+pos_delta,
+            :neg_delta_plus =>     last_price+neg_delta,
           }
 
           target_prices.each_pair do |k,v|

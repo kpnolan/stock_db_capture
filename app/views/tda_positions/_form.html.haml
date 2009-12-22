@@ -4,7 +4,7 @@
 = f.text_field :symbol, :disabled => true, :size => 5
 = f.text_field :name, :disabled => true
 = f.datetime_select :opened_at
-= f.datetime_select :closed_at, :disabled => new || f.options[:readonly]
+= f.datetime_select :closed_at, :disabled => true
 = f.text_field :entry_price, :size => 6
 = f.text_field :exit_price, :size => 6, :disabled => new || f.options[:readonly]
 = f.text_field :num_shares, :size => 6

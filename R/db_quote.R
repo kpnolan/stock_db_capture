@@ -29,6 +29,17 @@ get.histo <-
       h = hist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
   }
 
+get.table <-
+  function(table_name)
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    sql <- paste("SELECT * FROM", table_name)
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    dbDisconnect(con)
+    x
+  }
+
 get.rejects <-
   function()
   {

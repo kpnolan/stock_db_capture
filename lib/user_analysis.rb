@@ -127,7 +127,7 @@ module UserAnalysis
     last_price+posDelta
   end
 
-    def invrsi_exp(options={ })
+  def invrsi_exp(options={ })
     raise ArgumentError, ":rsi must be specified" if options[:rsi].nil?
     options.reverse_merge! :time_period => 14
     idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
@@ -171,8 +171,7 @@ module UserAnalysis
     posDelta = (100.0*emaPos*n1 - (dn+(emaNeg+emaPos)*n1)*r)/(r-100.0)
     #posDelta = (emaPos*n1*(r-100) + (dn +emaNeg*n1)*r)/(r-100.0)
     negDelta = (-emaPos*n1*(r-100) + emaNeg*(r - n*r)-(r-100)*up)/r #works for downtrend
-    last_price = price[today-1]
-    posDelta
+    [posDelta, negDelta]
   end
 
 

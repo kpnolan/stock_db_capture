@@ -107,10 +107,10 @@ class Timeseries
   TRADING_PERIOD = 6.hours + 30.minutes
   PRECALC_BARS = 50
   POSTCALC_BARS = 30
-  DEFAULT_OPTIONS = { DailyBar => { :sample_resolution => [ 1.day ],
-                                    :non_attrs => [ :logr ]   },
-                     IntraDayBar => { :sample_resolution => [ 30.minutes ], :non_attrs => [ :period, :delta, :seq ] },
-                     Snapshot => { :sample_resolution => [ 1.minute ], :non_attrs => [ :secmid ] } }
+  DEFAULT_OPTIONS = {
+    DailyBar =>     { :sample_resolution => [ 1.day ], :non_attrs => [ :logr ]   },
+    IntraDayBar =>  { :sample_resolution => [ 30.minutes ], :non_attrs => [ :period, :delta, :seq ] },
+    Snapshot =>     { :sample_resolution => [ 1.minute ], :non_attrs => [ :secmid ] } }
 
   attr_reader :symbol, :ticker_id, :model, :value_hash, :result_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
   attr_reader :begin_time, :end_time, :pre_offset, :post_offset, :utc_offset, :resolution, :options

@@ -7,10 +7,10 @@
 #  ticker_id            :integer(4)
 #  start_date           :date
 #  end_date             :date
-#  time_period          :integer(4)
+#  delta_price          :float
 #  slope                :float
 #  chisq                :float
-#  rsi                  :float
+#  target_rsi           :float
 #  prior_price          :float
 #  last_price           :float
 #  pos_delta            :float
@@ -19,6 +19,8 @@
 #  neg_delta_plus       :float
 #  pos_delta_plus_ratio :float
 #  neg_delta_plus_ratio :float
+#  prior_rsi            :float
+#  delta_rsi            :float
 #
 
 # Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html

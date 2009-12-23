@@ -7,10 +7,10 @@
 #  ticker_id            :integer(4)
 #  start_date           :date
 #  end_date             :date
-#  time_period          :integer(4)
+#  delta_price          :float
 #  slope                :float
 #  chisq                :float
-#  rsi                  :float
+#  target_rsi           :float
 #  prior_price          :float
 #  last_price           :float
 #  pos_delta            :float
@@ -19,6 +19,8 @@
 #  neg_delta_plus       :float
 #  pos_delta_plus_ratio :float
 #  neg_delta_plus_ratio :float
+#  prior_rsi            :float
+#  delta_rsi            :float
 #
 
 require 'ostruct'
@@ -50,11 +52,12 @@ class RsiTargetStudy < ActiveRecord::Base
           target_price = ts1.close[-1]
           last_price = prior_price = ts1.close[-2]
           slope, chisq = ts1.lrclose()
+          price_delta = target_price - last_price
           pos_delta, neg_delta = ts2.invrsi_exp(:rsi => target_rsi)
           os = OpenStruct.new({ :start_date => start_date, :end_date => end_date,
                                 :target_rsi => target_rsi, :prior_rsi => prior_rsi, :delta_rsi => target_rsi - prior_rsi,
-                                :last_price => target_price, :slope => slope, :chisq => chisq,
-                                :time_period => 14, :ticker_id => ticker_id, :pos_delta => pos_delta, :neg_delta => neg_delta})
+                                :last_price => target_price, :slope => slope, :chisq => chisq, :delta_price => price_delta,
+                                :ticker_id => ticker_id, :pos_delta => pos_delta, :neg_delta => neg_delta})
 
           target_prices = {
             :pos_delta_plus =>     last_price+pos_delta,

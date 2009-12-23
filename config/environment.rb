@@ -52,6 +52,9 @@ Rails::Initializer.run do |config|
     :session_key => '_stock_db_capture_session',
     :secret      => 'b44cd5c428ffef1c44c1bb88dccf6cea79dbd7db9434d380391263a6582f5a177473c829b2fc3a0ed9dc02bf5179e3e397f860ccaa1027754623a5358d8830f0'
   }
+  # FIXME Turn off, for the time being, any forgery detection as this is causing problems for Lewis (who no doubt is not
+  # FIXME his own session as a result of loggin in)
+  config.action_controller.allow_forgery_protection = false
 
   # Use the database for sessions instead of the cookie-based default,
   # which shouldn't be used to store highly confidential information

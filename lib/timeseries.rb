@@ -508,11 +508,13 @@ class Timeseries
   # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
 
   def calc_indexes(lookback_fcn=nil, *args)
-    pre_offset = calc_prefetch(lookback_fcn, *args)
+    ms = pre_offset = calc_prefetch(lookback_fcn, *args)
     #pre_offset = params_changed?(lookback_fcn, *args) ? calc_prefetch(lookback_fcn, *args) : @pre_offset
     index_range = populate(pre_offset)
     begin_index = index_range.begin
-    @output_offset = begin_index >= (ms = Timeseries.minimal_samples(lookback_fcn, *args)) ? 0 : ms - begin_index
+    @output_offset = begin_index >= ms ? 0 : ms - begin_index
+    # commented out since minimal samples has already been computed
+    #@output_offset = begin_index >= (ms = Timeseries.minimal_samples(lookback_fcn, *args)) ? 0 : ms - begin_index
     if @output_offset > 0
       debugger
     end

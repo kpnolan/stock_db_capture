@@ -83,7 +83,6 @@ module TechnicalAnalysis
         unstable = (2.0*(args[0]+1+9)).ceil
         set_unstable_period(:rsi, unstable)
         ms = minimal_samples(to_lookback(:rsi), *args)
-        ms
       when :macd, :macdfix then
         ratio = 1.75
         unstable = (ratio*26+1).ceil

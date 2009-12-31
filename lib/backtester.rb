@@ -135,7 +135,10 @@ class Backtester
           end
         rescue TimeseriesException => e
           logger.info "#{e.to_s} -- SKIPPING Ticker"
+        rescue Exception => e
+          logger.info "Unexpected exception #{e.to_s}"
         end
+
       end
 
       endt = Time.now
@@ -405,7 +408,7 @@ class Backtester
         end
       end
     end
-    BtestPosition.delete_all(:conditions => { :san_id => scan.id} ) #clean up after ourselves
+    BtestPosition.delete_all(:scan_id => scan.id) #clean up after ourselves
 
     endt = Time.now
     delta = endt - startt

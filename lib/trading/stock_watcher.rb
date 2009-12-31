@@ -43,10 +43,10 @@ module Trading
     end
 
     def reset()
-     # purge_old_snapshots()
-      create_candidate_list()
-      add_possible_entries()
-      update_exit_list()
+     purge_old_snapshots()
+     create_candidate_list()
+     add_possible_entries()
+     update_exit_list()
     end
 
     def clear_watch_list
@@ -82,7 +82,7 @@ module Trading
           ss = Snapshot.find(:first, :conditions => { :ticker_id => wl.ticker_id, :bartime => wl.open_crossed_at })
           unless ss.nil?
             TdaPosition.create!(:ticker_id => wl.ticker_id, :watch_list_id => wl.id, :entry_price => ss.close,
-                                :entry_date => ss.bartime.to_date, :opened_at => ss.bartime, :num_shares => 10000)
+                               :entry_date => ss.bartime.to_date, :opened_at => ss.bartime, :num_shares => 10000)
             count += 1
           end
         end
@@ -103,7 +103,7 @@ module Trading
           start_date = trading_date_from(Date.today, -1)
           end_date = trading_date_from(Date.today, -1)
           ts = Timeseries.new(ticker, start_date..end_date, 1.day)
-          rsi = ts.rsi(:time_period => 14, :result => :last)
+          rsi = ts.rsi()
           last_close = ts.close.last
 
           thresholds = RSI_OPEN_THRESHOLDS
@@ -137,15 +137,19 @@ module Trading
     def update_exit_list()
       WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
         ticker_id = opened_position.ticker_id
-        start_date = opened_position.opened_on
+        start_date = trading_date_from(opened_position.opened_on, -20)
         end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
         ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
+        result_hash = ts.eval_crossing(closing_strategy_params)
+        time = Time.zone.at(ts.bartime.last).to_datetime.midnight+1.day # daily bar crossings marked at midnight
+        opened_position.update_closure!(result_hash, time, ts.close.last, 0)
+        ts = Timeseries.new(ticker_id, start_date..end_date, 1.day) # eval crossing screws up the timeseries
         update_target_prices(opened_position, ts)
-        update_closing_values(opened_position, ts) unless opened_position.closed_crossed_at.nil?
+        update_closing_values(opened_position, ts)
       end
     end
 
-    def update_target_prices(opened_position, ts)
+    def update_target_prices(opos, ts)
       attrs = {}
       closing_strategy_params.each_pair do |meth, params|
         inverse_meth = "inv#{meth}".to_sym
@@ -153,22 +157,22 @@ module Trading
         tprice = ts.send(inverse_meth, meth => params[:threshold])
         attrs[colname] = tprice
       end
-      opened_position.update_attributes! attrs
+      opos.update_attributes! attrs
     end
 
-    def update_closing_values(opened_position, ts)
+    def update_closing_values(opos, ts)
       attrs = {}
-      rsi = ts.rsi(:result => :last)
-      if opened_position.last_populate.nil?
-        attrs[:last_rsi] = attrs[:closing_rsi] = rsi
+      rsi = ts.rsi()
+      if opos.last_populate.nil?
+        %w{ current last closing }.each { |prefix| attrs["#{prefix}_rsi".to_sym] = rsi }
         attrs[:last_populate] = Time.zone.now
-      elsif opened_position.last_populate.to_date != Time.zone.now.to_date
-        attrs[:last_rsi] = opened_position.closing_rsi
-        attrs[:closing_rsi] = rsi
+      elsif opos.last_populate.to_date != Time.zone.now.to_date
+        attrs[:last_rsi] = opos.closing_rsi
+        %w{ current closing }.each { |prefix| attrs["#{prefix}_rsi".to_sym] = rsi }
         attrs[:last_populate] = Time.zone.now
-        attrs[:closing_condition] = attrs[:last_rsi] >= rsi || trading_day_count(opened_position.opened_on, Date.today) >= 20
+        attrs[:closing_condition] = opos.closed_crossed_at && (attrs[:last_rsi] >= rsi || trading_day_count(opos.opened_on, Date.today) >= 20)
       end
-      opened_position.update_attributes!(attrs)
+      opos.update_attributes!(attrs)
     end
 
     def populate_opening_list
@@ -188,14 +192,14 @@ module Trading
 
     def populate_closure_list
       returning [] do |vec|
-        WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
-          ticker_id = opened_position.ticker_id
-          start_date = opened_position.opened_on
+        WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opos|
+          ticker_id = opos.ticker_id
+          start_date = opos.opened_on
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
-          update_target_prices(opened_position, ts) if opened_position.rvi_target_price.nil?
-        #  update_closing_values(opened_position, ts) unless open_position.close_crossed_at.nil? commented out to not color exit list red
-          vec << ts
+          update_target_prices(opos, ts) if opos.rvi_target_price.nil?
+        #  update_closing_values(opos, ts) unless open_position.close_crossed_at.nil? commented out to not color exit list red
+         vec << ts
         end
       end
     end
@@ -236,7 +240,7 @@ module Trading
           next if num_samples.zero?
           if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
             ts.update_last_bar(last_bar)
-            current_rsi = ts.rsi(:time_period => 14, :result => :last)
+            current_rsi = ts.rsi()
             watch.update_open_from_snapshot!(last_bar, current_rsi, num_samples, Snapshot.last_seq(ts.symbol, Date.today))
           end
         end
@@ -252,7 +256,7 @@ module Trading
           if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
             ts.update_last_bar(last_bar)
             result_hash = ts.eval_crossing(closing_strategy_params)
-            watch.update_closure!(result_hash, last_bar, num_samples)
+            watch.update_closure!(result_hash, last_bar[:time], last_bar[:close], num_samples)
           end
         end
       end

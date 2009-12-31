@@ -3,7 +3,7 @@
 = error_messages_for :tda_position
 
 %fieldset
-  - smart_form_for(current_object) do |f|
+  - smart_form_for(current_object, :url => {:action => 'closed' } ) do |f|
     = render :partial => "close_form", :locals => {:f => f}
     %p= f.submit "Close"
 

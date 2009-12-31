@@ -128,9 +128,9 @@ class WatchList < ActiveRecord::Base
     [rsi, rvi].map(&:to_i).join(',')
   end
 
-  def update_closure!(result_hash, last_bar, num_samples)
+  def update_closure!(result_hash, time, price, num_samples)
     attrs = { }
-    attrs[:price] = last_bar[:close]
+    attrs[:price] = price
     indicators = result_hash.keys
     indicators.each do |indicator|
       attrs["current_#{indicator}".to_sym] = result_hash[indicator][:value]
@@ -138,8 +138,11 @@ class WatchList < ActiveRecord::Base
     end
     attrs[:nearest_indicator] = (min_ind = indicators.find { |ind| result_hash[ind].has_key? :min }).to_s
     attrs[:min_delta] = result_hash[min_ind][:delta]
-    attrs[:last_snaptime] = last_bar[:time]
-    attrs[:closed_crossed_at] = last_bar[:time] if indicators.any? { |ind| result_hash[ind][:crossed] }
+    attrs[:last_snaptime] = time
+    # Don't change the crossing if it was a daily crossing (marked by midnight crossing)
+    unless attrs[:closed_crossed_at] && attrs[:closed_crossed_at].seconds_since_midnight.zero?
+      attrs[:closed_crossed_at] = time if indicators.any? { |ind| result_hash[ind][:crossed] }
+    end
     attrs[:num_samples] = num_samples
     update_attributes!(attrs)
   end

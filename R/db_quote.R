@@ -40,6 +40,17 @@ get.table <-
     x
   }
 
+get.close <-
+  function(symbol, date)
+  {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    sql <- paste("SELECT bardate, close FROM daily_bars join tickers on tickers.id = ticker_id where symbol = '", symbol, "' and bardate between '", date, "' and curdate() order by bardate", sep="")
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    dbDisconnect(con)
+    x
+  }
+
 get.rejects <-
   function()
   {

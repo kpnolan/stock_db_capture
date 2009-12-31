@@ -663,7 +663,7 @@ class Timeseries
     elsif result_hash.keys.include? options[:result]
       result_hash[options[:result]]
     elsif options[:result].nil?
-      nil
+      results.first && results.first.last
     else
       raise ArgumentError, "invalid value for :result => #{options[:result]}"
     end

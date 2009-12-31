@@ -8,5 +8,5 @@
 = f.text_field :entry_price, :size => 6
 = f.text_field :exit_price, :size => 6, :disabled => new || f.options[:readonly]
 = f.text_field :num_shares, :size => 6
-= f.table_select :watch_list_id, :order => 'opened_on, open_crossed_at', :value => :select_form, :disabled => new || f.options[:readonly]
+= f.table_select :watch_list_id, :order => 'opened_on, open_crossed_at', :include_blank => true, :value => :select_form, :disabled => new || f.options[:readonly]
 = f.check_box :com, :label => 'MOC'

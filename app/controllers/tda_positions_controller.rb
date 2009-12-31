@@ -69,8 +69,8 @@ class TdaPositionsController < ApplicationController
     end
 
     after :closed do
+      current_object.update_attribute(:exit_date, current_object.closed_at.to_date)
       current_object.watch_list.delete
-      current_object.watch_list.id = nil
     end
 
     after :update do

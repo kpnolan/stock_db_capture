@@ -48,7 +48,7 @@ class SmartFormBuilder < ActionView::Helpers::FormBuilder
   def select(field, choices, options = {}, html_options = {})
     label_options = html_options.merge(:class => 'form-field')
     label_options.delete(:id)
-    choices.unshift([html_options[:include_blank], nil]) if html_options[:include_blank]
+    choices.unshift(['', nil]) if html_options[:include_blank]
     label(field, label_options)+
       super(field, choices, options, html_options.reverse_merge(:class => self.options[:field_class], :disabled => self.options[:readonly])) + brk(html_options)
   end

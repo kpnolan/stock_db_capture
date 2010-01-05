@@ -44,7 +44,7 @@ analytics do
 end
 
 populations do
-  liquid = nil #"min(volume) >= 75000"
+  liquid = "min(volume) >= 75000"
    $scan_names = returning [] do |scan_vec|
      (2000..2008).each do |year|
        start_date = Date.civil(year, 1, 1)
@@ -64,7 +64,7 @@ populations do
   # end date keeps advancing as long as their 30 trading days which is the max hold time
   end_date = latest_bar_date
   desc "Population of all stocks with a minimum valume of 100000 from 2009-1-1 to #{end_date}"
-  scan 'year_2009', :start_date => '1/1/2009', :end_date => end_date,
+  scan 'year_2009', :start_date => '1/1/2009', :end_date => '12/23/2009',
                     :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
                     :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:rsi, 14), :postfetch => 0
   $scan_names << 'year_2009'

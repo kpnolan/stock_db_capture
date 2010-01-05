@@ -140,12 +140,16 @@ module Trading
         start_date = trading_date_from(opened_position.opened_on, -20)
         end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
         ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
-        result_hash = ts.eval_crossing(closing_strategy_params)
-        time = Time.zone.at(ts.bartime.last).to_datetime.midnight+1.day # daily bar crossings marked at midnight
-        opened_position.update_closure!(result_hash, time, ts.close.last, 0)
-        ts = Timeseries.new(ticker_id, start_date..end_date, 1.day) # eval crossing screws up the timeseries
-        update_target_prices(opened_position, ts)
-        update_closing_values(opened_position, ts)
+        begin
+          result_hash = ts.eval_crossing(closing_strategy_params)
+          time = Time.zone.at(ts.bartime.last).to_datetime.midnight+1.day # daily bar crossings marked at midnight
+          opened_position.update_closure!(result_hash, time, ts.close.last, 0)
+          ts = Timeseries.new(ticker_id, start_date..end_date, 1.day) # eval crossing screws up the timeseries
+          update_target_prices(opened_position, ts)
+          update_closing_values(opened_position, ts)
+        rescue TimeseriesException => e
+          next
+        end
       end
     end
 
@@ -255,8 +259,12 @@ module Trading
           next if num_samples.zero?
           if watch.last_snaptime.nil? or last_bar[:time] > watch.last_snaptime
             ts.update_last_bar(last_bar)
-            result_hash = ts.eval_crossing(closing_strategy_params)
-            watch.update_closure!(result_hash, last_bar[:time], last_bar[:close], num_samples)
+            begin
+              result_hash = ts.eval_crossing(closing_strategy_params)
+              watch.update_closure!(result_hash, last_bar[:time], last_bar[:close], num_samples)
+            rescue TimeseriesException => e
+              next
+            end
           end
         end
       end

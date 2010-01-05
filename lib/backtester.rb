@@ -249,6 +249,7 @@ class Backtester
       pos_count = open_positions.length
 
       counter = 1
+      null_exits = 0
       for position in open_positions
         begin
           max_exit_date = BtestPosition.trading_date_from(position.entry_date, days_to_close)
@@ -268,6 +269,14 @@ class Backtester
             exit_trigger.btest_positions << position
           else
             BtestPosition.trigger_exit(position, max_exit_date, ts.value_at(max_exit_date, :close), nil, nil, :closed => false)
+            null_exit = BtestPosition.close(position, max_exit_date, ts.value_at(max_exit_date, :close), nil, :indicator => :rsi, :closed => false)
+            if null_exit
+              logger.info format("Position %d of %d (%s) %s\t%s has NULL close",
+                                 counter, pos_count, position.ticker.symbol,
+                                 position.entry_date.to_formatted_s(:ymd),
+                                 max_exit_date.to_formatted_s(:ymd))
+              null_exits += 1
+            end
           end
         rescue TimeseriesException => e
           logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
@@ -286,6 +295,7 @@ class Backtester
       endt = Time.now
       delta = endt - startt
 
+      logger.info "(#{chunk_id}) #{null_exits} NULL EXITS found" if log? :basic
       logger.info "(#{chunk_id}) Exit trigger analysis elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
       if self.options[:profile]
@@ -408,7 +418,7 @@ class Backtester
         end
       end
     end
-    BtestPosition.delete_all(:scan_id => scan.id) #clean up after ourselves
+    #BtestPosition.delete_all(:scan_id => scan.id) #clean up after ourselves
 
     endt = Time.now
     delta = endt - startt

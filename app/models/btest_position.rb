@@ -116,11 +116,17 @@ class BtestPosition < ActiveRecord::Base
 
     def close(position, exit_date, exit_price, exit_ival, options={})
       days_held = trading_days_between(position.entry_date, exit_date)
-      roi = (exit_price - position.entry_price) / position.entry_price
-      rreturn = exit_price / position.entry_price
-      logr = Math.log(rreturn.zero? ? 0 : rreturn)
-      nreturn = days_held.zero? ? 0.0 : roi / days_held
-      nreturn *= -1.0 if position.short and nreturn != 0.0
+      exit_status = if exit_price.nil?
+                      roi = rreturn = logr = nreturn = 0.0
+                      true
+                    else
+                      roi = (exit_price - position.entry_price) / position.entry_price
+                      rreturn = exit_price / position.entry_price
+                      logr = Math.log(rreturn.zero? ? 0.0 : rreturn)
+                      nreturn = days_held.zero? ? 0.0 : roi / days_held
+                      nreturn *= -1.0 if position.short and nreturn != 0.0
+                      false
+                    end
       closed = options[:closed] == false ? nil : options[:closed]
       indicator_id = Indicator.lookup(options[:indicator]).id
 
@@ -128,7 +134,7 @@ class BtestPosition < ActiveRecord::Base
                                   :xtind_id => indicator_id, :exit_ival => exit_ival,
                                   :days_held => days_held, :nreturn => nreturn, :logr => logr,
                                   :closed => closed)
-      position
+      exit_status
     end
   end
 end

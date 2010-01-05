@@ -1,6 +1,6 @@
 prefix:                           # the string prefixed to reports
 start_date: 2000-1-3              # This represents the minima
-end_date: 2009-11-2               # This represents the maxima
+end_date: 2009-12-30               # This represents the maxima
 log: 0                            # 0 means don't generate any log files with speeds up the simulator. Only increate the log factor two view logs you actually watch
 output: ['summary', 'positions']  # Output both the simmary (one row per day) and positions (one row per position)
 portfolio_size: 20                # Max portfolio size if you're not reinvesting. Try 50 and see what happens

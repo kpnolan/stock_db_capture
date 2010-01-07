@@ -18,10 +18,6 @@
     = h format("%3.2f", watch_list.current_rsi)
   %td.center
     = h watch_list.target_rsi
-  %td.center
-    = h watch_list.listed_on.to_s(:db)
-  %td.center
-    = h watch_list.open_crossed_at.nil? ? '-' :  watch_list.open_crossed_at.to_formatted_s(:pm)
   %td.Plot
     = link_to_unless watch_list.price.nil?, 'Plot', plot_watch_list_path(watch_list)
   %td.open

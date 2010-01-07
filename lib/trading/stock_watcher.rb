@@ -43,10 +43,11 @@ module Trading
     end
 
     def reset()
-     purge_old_snapshots()
-     create_candidate_list()
-     add_possible_entries()
-     update_exit_list()
+      purge_old_snapshots()
+      purge_entry_list()
+      create_candidate_list()
+      add_possible_entries()
+      update_exit_list()
     end
 
     def clear_watch_list
@@ -100,11 +101,12 @@ module Trading
       for ticker_id in candidate_ids
         begin
           ticker = Ticker.find ticker_id
-          start_date = trading_date_from(Date.today, -1)
+          start_date = trading_date_from(Date.today, -6)
           end_date = trading_date_from(Date.today, -1)
           ts = Timeseries.new(ticker, start_date..end_date, 1.day)
           rsi = ts.rsi()
           last_close = ts.close.last
+          last_volume = ts.volume.last
 
           thresholds = RSI_OPEN_THRESHOLDS
           thresholds.each do |threshold|
@@ -113,7 +115,7 @@ module Trading
             # what happens we we have multiple watch list items per ticker?
             if  last_close < rsi_target_price && last_close >= (PRICE_CUTOFF_RATIO)*rsi_target_price
               begin
-                WatchList.create_or_update_listing(ticker_id, rsi_target_price, rsi, threshold, Date.today, :logger => logger)
+                WatchList.create_or_update_listing(ticker_id, last_close, last_volume, rsi_target_price, rsi, threshold, Date.today, :logger => logger)
                 break
               rescue Exception => e
                 logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{rsi_target_price} listed on #{Date.today.to_s(:db)}.")
@@ -179,16 +181,21 @@ module Trading
       opos.update_attributes!(attrs)
     end
 
-    def populate_opening_list
+    def purge_entry_list()
+      WatchList.delete_all('opened_on IS NULL')
+    end
+
+    def populate_opening_list(update_daily=false)
       #
       # repopulate with possible entries that aren't stale
       #
       returning (Hash.new) do |hash|
         WatchList.find(:all, :conditions => 'opened_on IS NULL').each do |watched_position|
           ticker_id = Ticker.find watched_position.ticker_id
-          start_date = watched_position.listed_on
+          start_date = watched_position.listed_on - 5.days
           end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
+          watched_position = watched_position.update_open_from_daily!(ts) if update_daily
           hash[ts] = [watched_position.target_rsi, watched_position.rsi_target_price]
         end
       end
@@ -210,6 +217,7 @@ module Trading
 
     def start_watching()
       @qt = TdAmeritrade::QuoteServer.new
+      @qt.logout
       @qt.attach_to_streamer()
       begin
         retrieve_snapshots()

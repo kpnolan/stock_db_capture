@@ -147,6 +147,13 @@ module TdAmeritrade
       submit_request(TdAmeritrade::LOGIN_URL, form_data, options)
     end
 
+    def logout(options={})
+      url = URI.parse(TdAmeritrade::LOGOUT_URL)
+      req = HTTP::Post.new(url.path)
+      form_data = { 'source' => ioptions[:login] }
+      submit_request(TdAmeritrade::LOGOUT_URL, form_data, options)
+    end
+
     def streamer_uri
       "http://#{streamer_url}/"
     end

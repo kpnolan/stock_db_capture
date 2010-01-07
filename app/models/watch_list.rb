@@ -149,7 +149,7 @@ class WatchList < ActiveRecord::Base
 
   class << self
     # TODO what happen when there's more than one watch list entry for a target id!
-    def create_or_update_listing(ticker_id, rsi_target_price, current_rsi, target_rsi, listing_date, options={})
+    def create_or_update_listing(ticker_id, price, volume, rsi_target_price, current_rsi, target_rsi, listing_date, options={})
       logger = options[:logger]
       listings = find(:all, :conditions => { :ticker_id => ticker_id, :opened_on => nil })
       listings.each do |listing|
@@ -158,7 +158,9 @@ class WatchList < ActiveRecord::Base
         logger.info("Updated Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} to #{listing.rsi_target_price} for RSI #{listing.target_rsi}") if logger
       end
       if listings.empty?
-        listing = create!(:ticker_id => ticker_id, :rsi_target_price => rsi_target_price, :current_rsi => current_rsi, :target_rsi => target_rsi, :listed_on => listing_date)
+        listing = create!(:ticker_id => ticker_id, :price => price, :volume => volume,
+                          :rsi_target_price => rsi_target_price, :current_rsi => current_rsi, :target_rsi => target_rsi,
+                          :listed_on => listing_date)
         logger.info("Create Listing values on #{listing.symbol} #{listing.listed_on.to_s(:db)} for #{listing.rsi_target_price} on #{listing.target_rsi}") if logger
       end
     end
@@ -221,4 +223,19 @@ class WatchList < ActiveRecord::Base
     attrs[:open_crossed_at] = snap_time  if self.open_crossed_at.nil? and curr_rsi >= self.target_rsi
     update_attributes!(attrs.merge(last_bar))
   end
+
+#   def update_open_from_daily!(ts)
+#     return self unless ts.timevec.last.to_date == trading_date_from(Date.today, -1)
+#     attrs = { :price => ts.price.last, :current_rsi => rsi = ts.rsi(), :num_samples => 0,
+#               :last_snaptime => st = Time.zone.now.at_midnight, :last_seq => 0, :volume => ts.volume.last }
+#     if rsi >= target_rsi && target_rsi > last_crossed_rsi
+#       attrs[:open_crossed_at] = st
+#       attrs[:last_crossed_rsi] = target_rsi
+#       attrs[:target_rsi] = target_rsi < 30 ? target_rsi + 5 : 30
+#     elsif rsi < target_rsi && target_rsi
+#       attrs[:target_rsi] = ts.invrsi(:rsi => self.target_rsi < 30 ? self.target_rsi)
+#     end
+#     update_attributes!(attrs.merge(ts.value_hash_at(-1, :opening, :high, :low, :close, :volume)))
+#     self
+#   end
 end

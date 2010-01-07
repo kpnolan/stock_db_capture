@@ -30,7 +30,7 @@ analytics do
   #-----------------------------------------------------------------------------------------------------------------
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
   exit_trigger :compact_rrm_14, :time_period => 14, :result => :first do |params|
-    close_crossing_value(:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :macd_hist),
+    close_crossing_value(#:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :macd_hist),
                          :rsi => params.merge(:threshold => 50, :direction => :under, :result => :rsi),
                          :rvi => params.merge(:threshold => 50, :direction => :under, :result => :rvi))
   end

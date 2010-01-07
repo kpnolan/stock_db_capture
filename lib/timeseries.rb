@@ -114,13 +114,14 @@ class Timeseries
 
   attr_reader :symbol, :ticker_id, :model, :value_hash, :result_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
   attr_reader :begin_time, :end_time, :pre_offset, :post_offset, :utc_offset, :resolution, :options
-  attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset
+  attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset, :frozen
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
   attr_reader :expected_bar_count, :logger
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false, :missing_bar_error => :report
     initialize_state()
+    debugger if local_range.begin > local_range.end
     @ticker_id = Ticker.resolve_id(symbol_or_id)
     raise ArgumentError, "Excpecting ticker symbol or ticker id as first argument. Neither could be found" if ticker_id.nil?
     @symbol = Ticker.find(ticker_id, :select => :symbol).symbol
@@ -360,6 +361,8 @@ class Timeseries
     @begin_index = time2index(local_range.begin)
     @end_index = time2index(local_range.end, -1)  # FIXME this gives an unreachable index causing Exceptions down the line...
     @index_range = begin_index..end_index
+    debugger if end_index < begin_index
+    index_range
   end
   #
   # compute the local range w/o side-effects
@@ -427,12 +430,13 @@ class Timeseries
   #
   def raw_populate()
     @value_hash = model.general_vectors(ticker_id, attrs, begin_time, end_time)
+
     raise DelistedStockException.new(symbol) if @value_hash.empty?
     @populated = true
     push_bar(@last_bar) if @last_bar
     compute_timestamps(begin_time, end_time)
     missing_bar_count = expected_bar_count - timevec.length
-
+    raise TimeseriesException, "end date is beyond max bardate" if local_range.end > timevec.last
     raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
       "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
     # We should only get here if we are not accessing DailyBars, otherwise that would have been caught earlier
@@ -508,6 +512,7 @@ class Timeseries
   # FIXME outidx is unique to function and params and so much be indexed as such!!!!!!!!!!!!!!!!!!
 
   def calc_indexes(lookback_fcn=nil, *args)
+    return index_range if frozen
     ms = pre_offset = calc_prefetch(lookback_fcn, *args)
     #pre_offset = params_changed?(lookback_fcn, *args) ? calc_prefetch(lookback_fcn, *args) : @pre_offset
     index_range = populate(pre_offset)
@@ -548,6 +553,9 @@ class Timeseries
     slots.map { |s| value_hash[s][index]}
   end
 
+  def value_hash_at(index, *slots)
+    slots.inject({}) { |h, s| h[s] = value_hash[s][index]; h}
+  end
   #
   # Return the result element corresponding to the input vector index *index*.
   # FIXME We really need a better way of delaying with two index values, e.g. one for results and one for bar values. We need to unify them at some
@@ -636,7 +644,20 @@ class Timeseries
     pb = AnalResults.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
     @derived_values << pb
     result_hash.merge! pb.result_hash
-
+    if results.first.len < 2
+      puts ts.symbol
+      puts index_range
+      if index_range.end > index_range.begin
+        puts timevec[index_range].join(', ')
+        puts "#{fcn}: #{results.first.to_a.join(', ')}"
+      elsif index_range.end < index_range.begin
+        puts timevec.slice(-2,2).join(', ')
+        puts local_range
+        puts "#{timevec.last.to_i} #{local_range.end.to_i}"
+        debugger
+      end
+      puts
+    end
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
 
@@ -670,10 +691,14 @@ class Timeseries
   end
 
   def update_last_bar(bar)
+    puts "update lb: #{populated? ? 'true' : 'false'}"
     return @last_bar = bar unless populated?
     pop_values() if timevec.last.to_date == Date.today
     push_bar(bar)
     compute_timestamps(value_hash[:bartime].first, value_hash[:bartime].last)
+    @local_range = local_range.begin..timevec.last
+    map_local_range(true)
+    @frozen = true
   end
 
   def push_bar(bar)

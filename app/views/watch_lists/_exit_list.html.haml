@@ -1,28 +1,30 @@
-%tr[exit_list]{:class => cycle('list-line-even', 'list-line-odd')+(exit_list.closing_condition ? ' red' : '')}
+%tr[exit_list]{:class => cycle('list-line-even', 'list-line-odd')+(exit_list.closed_crossed_at ? ' red' : '')}
   %td.ticker_id
     = lkup exit_list.ticker, :symbol
   %td.center
     = h exit_list.days_held
   %td.center
-    = h exit_list.opened_on.to_formatted_s(:ymd)
+    = h exit_list.entry_date
   %td.center
-    = h exit_list.tda_position ?  exit_list.tda_position.entry_price : '-'
+    = h exit_list.entry_price
   %td.center{:class =>  price_color(exit_list) }
-    = h exit_list.price
+    = h exit_list.price_f
   %td.center
-    = h exit_list.rsi_target_price ? format('%3.2f', exit_list.rsi_target_price) : '-'
+    = h exit_list.rsi_target_price_f
   %td.center
-    = h exit_list.rvi_target_price ? format('%3.2f', exit_list.rvi_target_price) : '-'
+    = h exit_list.rvi_target_price_f
   %td.center
-    = h exit_list.tda_position && exit_list.tda_position.roi() && format('%3.2f%%', exit_list.tda_position.roi()) || '-'
+    = h exit_list.roi_f
   %td.center
     = h exit_list.volume
   %td.center
-    = h exit_list.current_rsi.nil? ? '-' : format('%3.2f', exit_list.current_rsi)
+    = h exit_list.current_rsi_f
   %td.center
-    = h exit_list.current_rvi.nil? ? '-' : format('%3.2f', exit_list.current_rvi)
+    = h exit_list.current_rvi_f
   %td.center
-    = h exit_list.closed_crossed_at.nil? ? '-' :  exit_list.closed_crossed_at.to_formatted_s(:pm)
+    = h exit_list.indicator_crossing
+  %td.center
+    = h exit_list.close_crossing
   %td.center
     = h exit_list.last_snaptime.nil? ? '-' :  (minutes = ((Time.now - exit_list.last_snaptime) / 60).round) > 9 ? '>' : minutes
   %td.close

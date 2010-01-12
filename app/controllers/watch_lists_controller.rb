@@ -46,9 +46,14 @@ class WatchListsController < ApplicationController
     end
   end
 
-  def generate_csv
-    csv_string = WatchList.generate_csv()
-    send_data csv_string, :filename => "watch_list-#{Date.today.to_formatted_s(:ymd)}.csv", :type => 'text/csv'
+  def generate_entry_csv
+    csv_string = WatchList.generate_entry_csv()
+    send_data csv_string, :filename => "entry_watch_list-#{Date.today.to_formatted_s(:ymd)}.csv", :type => 'application/csv'
+  end
+
+  def generate_exit_csv
+    csv_string = WatchList.generate_exit_csv()
+    send_data csv_string, :filename => "exit_watch_list-#{Date.today.to_formatted_s(:ymd)}.csv", :type => 'application/csv'
   end
 
   def plot

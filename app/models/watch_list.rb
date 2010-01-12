@@ -3,34 +3,34 @@
 #
 # Table name: watch_list
 #
-#  id                :integer(4)      not null, primary key
-#  ticker_id         :integer(4)
-#  rsi_target_price  :float
-#  price             :float
-#  last_snaptime     :datetime
-#  num_samples       :integer(4)
-#  listed_on         :date
-#  closed_on         :date
-#  opening           :float
-#  high              :float
-#  low               :float
-#  close             :float
-#  volume            :integer(4)
-#  last_seq          :integer(4)
-#  current_rsi       :float
-#  current_rvi       :float
-#  target_rsi        :float
-#  target_rvi        :float
-#  open_crossed_at   :datetime
-#  closed_crossed_at :datetime
-#  min_delta         :float
-#  nearest_indicator :string(255)
-#  opened_on         :date
-#  rvi_target_price  :float
-#  last_populate     :datetime
-#  last_rsi          :float
-#  closing_rsi       :float
-#  closing_condition :boolean(1)
+#  id                    :integer(4)      not null, primary key
+#  ticker_id             :integer(4)
+#  rsi_target_price      :float
+#  price                 :float
+#  last_snaptime         :datetime
+#  num_samples           :integer(4)
+#  listed_on             :date
+#  closed_on             :date
+#  opening               :float
+#  high                  :float
+#  low                   :float
+#  close                 :float
+#  volume                :integer(4)
+#  last_seq              :integer(4)
+#  current_rsi           :float
+#  current_rvi           :float
+#  target_rsi            :float
+#  target_rvi            :float
+#  open_crossed_at       :datetime
+#  closed_crossed_at     :datetime
+#  min_delta             :float
+#  nearest_indicator     :string(255)
+#  opened_on             :date
+#  rvi_target_price      :float
+#  last_populate         :datetime
+#  last_rsi              :float
+#  closing_rsi           :float
+#  indicators_crossed_at :datetime
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
@@ -51,6 +51,8 @@ class WatchList < ActiveRecord::Base
 
   ENTRY_HEADING = [ 'Symbol', 'Percentage', 'Price', 'Target RSI Price',  'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
   ENTRY_COLUMNS = %w{ symbol target_percentage_f price_f rsi_target_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
+  EXIT_HEADING =  [ 'Symbol', 'Days Held', 'Entry Date', 'Entry Price', 'Current Price', 'Target RSI Price',  'Target RVI Price',  'ROI', 'Volume', 'Shares Held', 'RSI', 'RVI', 'RSI/RVI Crossing', 'Close Crossing' ]
+  EXIT_COLUMNS = %w{ symbol days_held entry_date entry_price price_f rsi_target_price_f rvi_target_price_f roi_f volume shares_held current_rsi_f current_rvi_f indicator_crossing close_crossing }
 
   def symbol
     ticker.symbol
@@ -76,10 +78,22 @@ class WatchList < ActiveRecord::Base
     to_shares.floor
   end
 
+  def shares_held
+    tda_position && tda_position.num_shares || '?'
+  end
+
   def days_held
     from_date = tda_position && tda_position.opened_at || opened_on
     to_date = tda_position && tda_position.closed_at || closed_on || Date.today
     from_date && to_date && trading_day_count(from_date, to_date, false)
+  end
+
+  def entry_date
+    opened_on && opened_on.to_formatted_s(:ymd) || '-'
+  end
+
+  def entry_price
+    tda_position && format('%3.2f', tda_position.entry_price) || '-'
   end
 
   def target_percentage_f
@@ -112,6 +126,18 @@ class WatchList < ActiveRecord::Base
 
   def open_crossing
     open_crossed_at && open_crossed_at.to_formatted_s(:pm)
+  end
+
+  def indicator_crossing
+    indicators_crossed_at && indicators_crossed_at.to_formatted_s(:pm) || '-'
+  end
+
+  def close_crossing
+    closed_crossed_at && closed_crossed_at.to_formatted_s(:pm) || '-'
+  end
+
+  def roi_f
+    tda_position && tda_position.roi() && format('%3.2f%%', tda_position.roi()) || '-'
   end
 
   def to_lots
@@ -190,11 +216,20 @@ class WatchList < ActiveRecord::Base
       find(:all, :conditions => cond)
     end
 
-    def generate_csv()
+    def generate_entry_csv()
       csv_string = FasterCSV.generate do |csv|
         csv << ENTRY_HEADING
         WatchList.all(:conditions => 'opened_on is null').each do |position|
           csv << ENTRY_COLUMNS.map { |col| position.send(col) }
+        end
+      end
+    end
+
+    def generate_exit_csv()
+      csv_string = FasterCSV.generate do |csv|
+        csv << EXIT_HEADING
+        WatchList.all(:conditions => 'opened_on is not null').each do |position|
+          csv << EXIT_COLUMNS.map { |col| position.send(col) }
         end
       end
     end

@@ -6,6 +6,10 @@
   setInterval("refresh_page()", 60*1000)
 </script>
 
+= content_for :side_content do
+  %p
+  = link_to 'Generate CSV', :action => 'generate_exit_csv'
+
 
 %h1 Exit Watch List
 %table
@@ -21,7 +25,8 @@
     %th Volume
     %th RSI
     %th RVI
-    %th Crossed At
+    %th RSI/RVI Crossding
+    %th Close Crossing
     %th M
 
   = render :partial => 'exit_list', :collection => exiting_objects

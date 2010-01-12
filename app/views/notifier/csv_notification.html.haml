@@ -1,0 +1,27 @@
+%h3 Good Morning
+
+Hello Lewis,
+%br
+%br
+
+Attached you will find the Entry List computed from yesterdays close.
+
+%h1 Entry Watch List
+%table
+  %tr.heading
+    %th Ticker
+    %th Percent
+    %th Price
+    %th Target Price
+    %th Volume
+    %th Shares at Price
+    %th RSI
+    %th Threshold
+
+  = render :partial => 'watch_list', :collection => @watch_list
+
+%p
+Namaste`
+%p
+The Daemon
+

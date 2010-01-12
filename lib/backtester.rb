@@ -174,17 +174,18 @@ class Backtester
 
       for position in triggers
         begin
-          start_date = position.ettime
-          end_date = BtestPosition.trading_date_from(start_date, days_to_open)
+          start_date = position.ettime.to_date
+          end_date = Backtester.trading_date_from(start_date, days_to_open)
           if ts = timeseries_for(position)
             ts.reset_local_range(start_date, end_date)
           else
             ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, self.options.merge(:logger => logger))
           end
 
-          confirming_indexes = ts.instance_exec(opening_decl.params, &opening_decl.block)
-          unless confirming_indexes.empty?
-            index = confirming_indexes.first
+          confirming_index = ts.instance_exec(opening_decl.params, &opening_decl.block)
+
+          if confirming_index
+            index = confirming_index+ts.outidx
             entry_time, entry_price = ts.closing_values_at(index)
 
             unless BtestPosition.open(position, entry_time, entry_price).nil?
@@ -260,7 +261,7 @@ class Backtester
           if ts = timeseries_for(position)
             ts.reset_local_range(position.entry_date, max_exit_date)
           else
-            ts_options = { :pre_buffer => Timeseries.prefetch_bars(:rsi, 14), :logger => logger } # FIXME prefetch bars should be dynamic
+            ts_options = { :pre_buffer => Timeseries.prefetch_bars(:rvi, 14), :logger => logger } # FIXME prefetch bars should be dynamic
             ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, self.options.merge(ts_options))
           end
           exit_time, indicator, ival = ts.instance_exec(xtrigger_decl.params, &xtrigger_decl.block)
@@ -333,6 +334,7 @@ class Backtester
 
       counter = 1
       log_counter = 0
+      max_limit_counter = 00
       for position in open_positions
         begin
           p = position
@@ -355,6 +357,7 @@ class Backtester
             closing_time = position.xttime
             closing_price = postition.xtprice
             max_rsi = xtival
+            max_limit_count += 1
           end
           BtestPosition.close(position, closing_time, closing_price, max_rsi, :indicator => :rsi, :closed => true)
           begin
@@ -393,6 +396,7 @@ class Backtester
 
     endt = Time.now
     delta = endt - startt
+    logger.info "Max Optimize limit reached = #{max_limit_counter}"
     logger.info "(#{chunk_id}) Backtest (optimize close analysis) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
     #-----------------------------------------------------------------------------------------------------------------

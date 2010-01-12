@@ -76,11 +76,16 @@ module TechnicalAnalysis
         minimal_samples(to_lookback(base_indicator), *args)
       when :rsi then
         unstable = (2.0*(args[0]+1)).ceil
+        unstable = 75
         set_unstable_period(:rsi, unstable)
-        ms = minimal_samples(to_lookback(:rsi), *args)
-        ms
+        minimal_samples(to_lookback(:rsi), *args)
+      when :mfi then
+        unstable = 75
+        set_unstable_period(:mfi, unstable)
+        unstable + args.sum
       when :rvi then
         unstable = (2.0*(args[0]+1+9)).ceil
+        unstable = 75
         set_unstable_period(:rsi, unstable)
         ms = minimal_samples(to_lookback(:rsi), *args)
       when :macd, :macdfix then
@@ -94,7 +99,7 @@ module TechnicalAnalysis
         set_unstable_period(:ema, unstable)
         minimal_samples(to_lookback(base_indicator), *args)
       when :mom then
-        minimal_samples(to_lookback(base_indicator), *args)
+        minimal_samples(to_lookback(:mom), *args)
       else
         raise TimeseriesException, "unknown lookback function -- :#{base_indicator}"
       end
@@ -1041,32 +1046,32 @@ module TechnicalAnalysis
 
   #Rate of change : ((price/prevPrice)-1)*100
   def roc(options={})
-    options.reverse_merge!(:time_period => 10)
-    idx_range = calc_indexes(:ta_roc_lookback, options[:time_period])
+    options.reverse_merge!(:time_period => 5)
+    idx_range = calc_indexes(:ta_mom_lookback, options[:time_period])
     result = Talib.ta_roc(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :roc, idx_range, options, result)
   end
 
   #Rate of change Percentage: (price-prevPrice)/prevPrice
   def rocp(options={})
-    options.reverse_merge!(:time_period => 10)
-    idx_range = calc_indexes(:ta_rocp_lookback, options[:time_period])
+    options.reverse_merge!(:time_period => 5)
+    idx_range = calc_indexes(:ta_mom_lookback, options[:time_period])
     result = Talib.ta_rocp(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :rocp, idx_range, options, result)
   end
 
   #Rate of change ratio: (price/prevPrice)
   def rocr(options={})
-    options.reverse_merge!(:time_period => 10)
-    idx_range = calc_indexes(:ta_rocr_lookback, options[:time_period])
+    options.reverse_merge!(:time_period => 5)
+    idx_range = calc_indexes(:ta_mom_lookback, options[:time_period])
     result = Talib.ta_rocr(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :rocr, idx_range, options, result)
   end
 
   #Rate of change ratio 100 scale: (price/prevPrice)*100
   def rocr100(options={})
-    options.reverse_merge!(:time_period => 10)
-    idx_range = calc_indexes(:ta_rocr100_lookback, options[:time_period])
+    options.reverse_merge!(:time_period => 5)
+    idx_range = calc_indexes(:ta_mom_lookback, options[:time_period])
     result = Talib.ta_rocr100(idx_range.begin, idx_range.end, price, options[:time_period])
     memoize_result(self, :rocr100, idx_range, options, result)
   end

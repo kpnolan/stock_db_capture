@@ -4,6 +4,8 @@
   %td.center
     = h exit_list.days_held
   %td.center
+    = h exit_list.opened_on.to_formatted_s(:ymd)
+  %td.center
     = h exit_list.tda_position ?  exit_list.tda_position.entry_price : '-'
   %td.center{:class =>  price_color(exit_list) }
     = h exit_list.price
@@ -19,12 +21,6 @@
     = h exit_list.current_rsi.nil? ? '-' : format('%3.2f', exit_list.current_rsi)
   %td.center
     = h exit_list.current_rvi.nil? ? '-' : format('%3.2f', exit_list.current_rvi)
-  %td.center
-    = h exit_list.thresholds
-  %td.center
-    = h exit_list.nearest_indicator ? exit_list.nearest_indicator.upcase.strip : '-'
-  %td.center
-    = h exit_list.min_delta ? format('%3.2f', exit_list.min_delta) : '-'
   %td.center
     = h exit_list.closed_crossed_at.nil? ? '-' :  exit_list.closed_crossed_at.to_formatted_s(:pm)
   %td.center

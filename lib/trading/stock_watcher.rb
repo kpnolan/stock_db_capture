@@ -1,6 +1,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 require 'rubygems'
 require 'ruby-debug'
+require 'faster_csv'
 
 module Trading
 
@@ -103,7 +104,7 @@ module Trading
           ticker = Ticker.find ticker_id
           start_date = trading_date_from(Date.today, -6)
           end_date = trading_date_from(Date.today, -1)
-          ts = Timeseries.new(ticker, start_date..end_date, 1.day)
+          ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
           rsi = ts.rsi()
           last_close = ts.close.last
           last_volume = ts.volume.last
@@ -115,6 +116,7 @@ module Trading
             # what happens we we have multiple watch list items per ticker?
             if  last_close < rsi_target_price && last_close >= (PRICE_CUTOFF_RATIO)*rsi_target_price
               begin
+                puts "#{ts.symbol}: #{rsi}\t#{last_close}"
                 WatchList.create_or_update_listing(ticker_id, last_close, last_volume, rsi_target_price, rsi, threshold, Date.today, :logger => logger)
                 break
               rescue Exception => e
@@ -213,6 +215,29 @@ module Trading
          vec << ts
         end
       end
+    end
+
+    def generate_entry_csv()
+      datestr = Date.today.to_formatted_s(:ymd)
+      basename =  "Entry_List-#{datestr}.csv"
+      filename = File.join(RAILS_ROOT, 'tmp', basename)
+      FasterCSV.open(filename, 'w') do |csv|
+        csv << [ 'Ticker', 'Percent', 'Price', 'Target Price', 'Volume', 'RSI', 'Threshold', 'Shares@Price' ]
+        WatchList.find(:all, :conditions => 'opened_on is NULL', :order => 'price').each do |wl|
+          row = []
+          row << wl.ticker.symbol
+          row << wl.target_percentage && format('%2.2f', wl.target_percentage) || '-'
+          row << wl.price_f
+          row << wl.rsi_target_price_f
+          row << wl.volume
+          row << wl.current_rsi_f
+          row << wl.target_rsi_f
+          row << wl.shares
+          csv << row
+        end
+        csv.flush
+      end
+      Notifier.deliver_csv_notification(filename)
     end
 
     def start_watching()

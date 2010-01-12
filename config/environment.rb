@@ -70,11 +70,30 @@ Rails::Initializer.run do |config|
   # config.active_record.observers = :cacher, :garbage_collector
 
   # Configure a Time format which uses 12hour time
+
+  #Configure Mailer
+  # config/environments/development.rb
+  config.action_mailer.raise_delivery_errors = true
+  config.action_mailer.template_root = File.join(RAILS_ROOT, 'app', 'views')
+  # set delivery method to :smtp, :sendmail or :test
+  config.action_mailer.delivery_method = :smtp
+
+  # these options are only needed if you choose smtp delivery
+  config.action_mailer.smtp_settings = {
+    :address        => 'mail.satvatrader.com',
+    :port           => 25,
+    :domain         => 'satvatrader.com',
+    :authentication => :login,
+    :user_name      => 'satvatr',
+    :password       => 'Troika3'
+  }
 end
 
 Time::DATE_FORMATS[:pm] = "%d %b %I:%M"
 Time::DATE_FORMATS[:ymd] = "%Y-%m-%d"
 Time::DATE_FORMATS[:twz] = "%Y-%m-%d %I:%M%p (%Z)"
+
+
 
 require 'smart_form_builder'
 require 'will_paginate'

@@ -70,7 +70,7 @@ class BtestPosition < ActiveRecord::Base
   end
 
   def entry_delay
-    BtestPosition.trading_days_between(entry_date, ettime)
+    BtestPosition.trading_days_between(ettime, entry_date)
   end
 
   class << self

@@ -13,7 +13,7 @@
   %td.center
     = h watch_list.volume
   %td.center
-    = h watch_list.price.nil? ? '-' : format('%d', watch_list.to_shares)
+    = h watch_list.price.nil? ? '-' : format('%d', watch_list.shares)
   %td.center
     = h format("%3.2f", watch_list.current_rsi)
   %td.center

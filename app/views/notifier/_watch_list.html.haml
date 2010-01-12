@@ -1,0 +1,18 @@
+%tr[watch_list]
+  %td
+    = watch_list.ticker.symbol
+  %td{:style => 'text-align: center;'}
+    = watch_list.target_percentage && format('%2.2f', watch_list.target_percentage) || '-'
+  %td{:style => 'text-align: center;'}
+    = h watch_list.price
+  %td{:style => 'text-align: center;'}
+    = h format("%3.2f", watch_list.rsi_target_price)
+  %td{:style => 'text-align: center;'}
+    = h watch_list.volume
+  %td{:style => 'text-align: center;'}
+    = h watch_list.price.nil? ? '-' : format('%d', watch_list.shares)
+  %td{:style => 'text-align: center;'}
+    = h format("%3.2f", watch_list.current_rsi)
+  %td{:style => 'text-align: center;'}
+    = h watch_list.target_rsi
+

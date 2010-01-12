@@ -22,6 +22,13 @@ namespace :active_trader do
       @sw.purge()
     end
 
+    desc "Generate Entry CSV"
+    task :csv => :environment do
+      @sw = Trading::StockWatcher.new(nil)
+      @sw.generate_entry_csv()
+    end
+
+
     desc "Begin Updating Watch List"
     task :start_watching => :environment do
       log_name = "stock_watch_#{Date.today.to_s(:db)}.log"

@@ -64,6 +64,10 @@ class WatchList < ActiveRecord::Base
     end
   end
 
+  def to_lot_shares
+    price ? Math.log10(10000.0/price).floor*10 : 0
+  end
+
   def to_shares
     price ? 10000.0/price : 0
   end

@@ -358,18 +358,22 @@ get.position.series <-
 get.db.quote <-
 function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
           method = NULL, origin = "1899-12-30",
-          retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
+          retclass = c("df", "zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
 {
   if (missing(start))
     start <- "2009-01-02"
   if (missing(end) || is.na(end))
     end <- format(Sys.Date() - 1, "%Y-%m-%d")
   retclass <- match.arg(retclass)
+  if (retclass != "df")
+    desc = "desc"
+  else
+    desc = ""
   start <- as.Date(start)
   end <- as.Date(end)
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
   sql <- paste("select date(bartime) as date, opening as Open, high as High, low as Low, close as Close from daily_bars left outer join tickers ",
-    " on tickers.id = ticker_id where symbol = '", instrument, "' and bartime between '", start, "' and '", end, "' order by bartime desc", sep="")
+    " on tickers.id = ticker_id where symbol = '", instrument, "' and bardate between '", start, "' and '", end, "' order by bardate ", desc, sep="")
   res = dbSendQuery(con, sql)
   x = fetch(res, n = -1)
   dbDisconnect(con)
@@ -379,6 +383,9 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   n <- nrow(x)
 
   print(paste("Rows:", n))
+  if (retclass == "df")
+    return(x)
+
 
   dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
   if (!quiet && dat[n] != start)
@@ -422,11 +429,11 @@ do.positions <-
     if ( type == "all" ) {
       pos = get.positions(order="order by ettime, ticker_id")
     } else if ( type == "losers" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and roi < 0 and exit_date is not null", order="order by roi")
+      pos = get.positions(where="where year(entry_date) = 2000 and roi < 0 and exit_date is not null", order="order by roi asc")
     } else if ( type == "winners" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and roi > 0 and exit_date is not null", order="order by roi desc")
+      pos = get.positions(where="where year(entry_date) = 2000 and roi > 0 and exit_date is not null", order="order by roi desc")
     } else if ( type == "non" ) {
-      pos = get.positions(where="where year(entry_date) = 2009 and exit_date is null", order="order by roi")
+      pos = get.positions(where="where year(entry_date) = 2000 and exit_date is null", order="order by roi")
     } else {
       print("invalid arg")
     }
@@ -451,7 +458,7 @@ get.positions <-
   }
 
 plot.positions <-
-  function(type, x,  origin = "1899-12-30", scale=10.0) {
+  function(type, x,  origin = "1899-12-30", scale=10.0, offset=14) {
     ids = x$id
     syms = x$symbol
     closed = x$closed
@@ -483,8 +490,15 @@ plot.positions <-
 
       roi = rois[i]
       days_held = dh[i]
-      edate14 = edate - 14
-      xdate14 = xdate + 14
+      edate14 = edate - offset
+      xdate14 = xdate + 7
+
+      df = get.db.quote(symbol, start=edate14, end=xdate14, retclass="df", quiet=TRUE)
+      yvec = df$Close[1:offset]
+      xvec = 1:offset
+      lr = lm(yvec ~ xvec)
+      slope = lr$coefficients[2]
+      corr = cor(yvec, xvec)
 
       q = get.db.quote(symbol, start=edate14, end=xdate14, retclass="ts", quiet=TRUE)
       tjdate <- unclass(julian(tdate, origin = as.Date(origin)))
@@ -493,7 +507,7 @@ plot.positions <-
       days = xjdate-ejdate
 
       roi = roi * 100.0
-      xlabel = paste("Time, ret:", format(roi, digits=5), "%", "Days held:", days_held)
+      xlabel = paste("Time, ret:", format(roi, digits=5), "%", "Days held:", days_held, "Slope:", format(slope, digits=4), "Cor:", format(corr, digit=4))
 
       if ( !ps.empty() )
           screen(1)

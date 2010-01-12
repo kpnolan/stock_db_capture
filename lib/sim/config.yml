@@ -4,7 +4,7 @@ end_date: 2009-12-30               # This represents the maxima
 log: 1                            # 0 means don't generate any log files with speeds up the simulator. Only increate the log factor two view logs you actually watch
 output: ['summary', 'positions']  # Output both the simmary (one row per day) and positions (one row per position)
 portfolio_size: 20                # Max portfolio size if you're not reinvesting. Try 50 and see what happens
-reinvest_percent: 100             # Set this to zero to not reinvest (then the portfolio size drives entries)
+reinvest_percent: 75              # Set this to zero to not reinvest (then the portfolio size drives entries)
 order_charge: 7.00                # This is what you said an order costs. For every order generated this value is added to the
                                   # amount of the order
 order_amount: 10000.00            # Dollars. You said the max order (and min order) is $10K. Change this and see what happens.

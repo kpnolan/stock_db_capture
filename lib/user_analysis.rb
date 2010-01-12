@@ -30,9 +30,22 @@ module UserAnalysis
     nil
   end
 
+  #Combined macdhist and rocr
+  def mhistslope(options={})
+    options.reverse_merge!(:signal_period => 9, :time_period => 5)
+    idx_range = calc_indexes(:ta_macdfix_lookback, options[:signal_period])
+    result = Talib.ta_macdfix(idx_range.begin, idx_range.end, price, options[:signal_period])
+    tp = options[:time_period]
+    hist_vec = result.last
+    len = hist_vec.len
+    roc = hist_vec[tp..len-1] / hist_vec[0..len-tp-1]
+    ones = GSL::Vector.indgen(roc.len, 1, 0)
+    flags = roc.gt(ones).where { |e| e == 1 }
+    flags && flags[0]
+  end
+
   #
-  # return the scalar price, given a series of prices and a time_period (decay rate)
-  # that would have produced the given RSI (on the next bar)
+  # Native Ruby implementation of he RSI
   #
   def rsi1(options={ })
     options.reverse_merge! :time_period => 14
@@ -46,22 +59,10 @@ module UserAnalysis
     today += 1
     out = []
     #
-    # compute the SMA for the first the first :time_period bars
-    #
-    n.times do
-      deltaClose = price[today] - price[today-1]
-      up = [0, deltaClose].max
-      dn = [0, -deltaClose].max
-      emaPos += up
-      emaNeg += dn
-      today += 1
-    end
-    emaPos /= n
-    emaNeg /= n
-    out << 100.0 * (emaPos / (emaPos + emaNeg))
-    #
     # Now accumulate (and decay) the value of the two ema's solving for
-    # the price which would have produced the given RSI
+    # the price which would have produced the given RSI without actually
+    # writing output points. This "charges up" the ema's so that they have
+    # converged prior to the first actual output point
     #
     while today <= idx_range.end
       deltaClose = price[today] - price[today-1]
@@ -69,7 +70,7 @@ module UserAnalysis
       dn = [0, -deltaClose].max
       emaPos = (emaPos * n1 + up)/n     # add the current price to the decayed sum
       emaNeg = (emaNeg * n1 + dn)/n
-      out << 100.0 * (emaPos / (emaPos + emaNeg)) if today > idx_range.begin
+      out << 100.0 * (emaPos / (emaPos + emaNeg)) unless today < idx_range.begin
       today += 1
     end
     out
@@ -370,14 +371,27 @@ module UserAnalysis
   end
 
   def lrclose(options={ })
-    options.reverse_merge! :time_period => 14
-    idx_range = calc_indexes(:ta_rsi_lookback, options[:time_period])
+    options.reverse_merge! :time_period => 10
+    idx_range = calc_indexes(nil, options[:time_period])
     n = options[:time_period]
-    xvec = GSL::Vector.linspace(0, n-1, n)
-    yvec = close.subvector(pre_offset-n, n)
+    xvec = GSL::Vector.linspace(1, n, n)
+    yvec = close.subvector(self.today, n)
     retvec = GSL::Fit::linear(xvec, yvec)
+    corr = Stats.correlation(xvec, yvec)
     raise Exception, "RBGSL Exception" unless retvec.last.zero?
-    [retvec.second, retvec[5], retvec.last ]
+    [retvec[1], corr]
+  end
+
+  def lrclose0(options={ })
+    options.reverse_merge! :time_period => 10
+    idx_range = calc_indexes(nil, 0)
+    n = options[:time_period]
+    xvec = GSL::Vector.linspace(1, n, n)
+    yvec = close.subvector(self.today, n)
+    retvec = GSL::Fit::linear(xvec, yvec)
+    corr = Stats.correlation(xvec, yvec).abs
+    raise Exception, "RBGSL Exception" unless retvec.last.zero?
+    [retvec.second, corr]
   end
 
   def mom_percent(options={ })
@@ -441,7 +455,7 @@ module UserAnalysis
   end
 
   def anchored_mom(options={})
-    idx_range = calc_indexes(nil)
+    idx_range = calc_indexes(nil,0)
     momvec = []
     today = idx_range.begin
     reference_close = close[idx_range.begin]

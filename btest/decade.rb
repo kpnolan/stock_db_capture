@@ -15,24 +15,29 @@ analytics do
   # and return the index of the first trading day with a close higher than the reference date. Should weed out losers
   # on a downward trend
   desc 'Open triggered positions with a positive MACD or positive momentum'
-  open_position :macd_relative_momentum, :result => :first do |params|
-# UNCOMMENT THESE LINES TO GET FILTER POSITIONS
-    macd_hist = macdfix(:result => :macd_hist).to_a
-    if (index = macd_hist.index { |val| val >= 0.0 })
-      [index+result_offset]
+  open_position :macd_relative_momentum, :time_period => 10 do |params|
+    slope, corr = lrclose(params)
+    slope = 0.0
+    if slope < 0.0
+      deltas = anchored_mom(:result => :gv)
+      flags = deltas.where { |delta| delta > 0.0 }
+      flags && flags[0]
     else
-      delta_closes = anchored_mom(params)
-      indexes = under_threshold(0.0, delta_closes)
+      0
     end
-#    [begin_index]   # COMMENT THIS LINE OUT TO GET FILTERED POSITIONS
   end
 
   #-----------------------------------------------------------------------------------------------------------------
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
   exit_trigger :compact_rrm_14, :time_period => 14, :result => :first do |params|
-    close_crossing_value(#:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :macd_hist),
-                         :rsi => params.merge(:threshold => 50, :direction => :under, :result => :rsi),
-                         :rvi => params.merge(:threshold => 50, :direction => :under, :result => :rvi))
+    populate()
+    if close[index_range.begin+3] < close[index_range.begin]
+      timevec[index_range.begin+3]
+    else
+      close_crossing_value(#:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :macd_hist),
+                           :rsi => params.merge(:threshold => 50, :direction => :under, :result => :rsi),
+                           :rvi => params.merge(:threshold => 50, :direction => :under, :result => :rvi))
+    end
   end
 
   #-----------------------------------------------------------------------------------------------------------------
@@ -57,7 +62,7 @@ end
 populations do
   liquid = "min(volume) >= 75000"
    $scan_names = returning [] do |scan_vec|
-     (2000..2008).each do |year|
+     (2000..2000).each do |year|
        start_date = Date.civil(year, 1, 1)
        scan_name = "year_#{year}".to_sym
        end_date = start_date + 1.year - 1.day
@@ -71,18 +76,18 @@ populations do
    end
   # For 2009, since it's incomplete we have to do compute the scan differently by...
   # ...find the lastest daily bar in the DB (using IBM as the guiney pig)
-  latest_bar_date = DailyBar.maximum(:bartime, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" ).to_date
+  #latest_bar_date = DailyBar.maximum(:bartime, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" ).to_date
   # end date keeps advancing as long as their 30 trading days which is the max hold time
-  end_date = Population.trading_date_from(latest_bar_date, -20)
-  desc "Population of all stocks with a minimum valume of 100000 from 2009-1-1 to #{end_date}"
-  scan 'year_2009', :start_date => '1/1/2009', :end_date => end_date,
-                    :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
-                    :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9), :postfetch => 20
-  $scan_names << 'year_2009'
+  #end_date = Population.trading_date_from(latest_bar_date, -20)
+  #desc "Population of all stocks with a minimum valume of 100000 from 2009-1-1 to #{end_date}"
+  #scan 'year_2009', :start_date => '1/1/2009', :end_date => end_date,
+  #                  :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
+  #                  :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9), :postfetch => 20
+  #$scan_names << 'year_2009'
 end
 
-backtests(:generate_stats => false, :profile => false, :truncate => :scan, :repopulate => true, :log_flags => [:basic],
-           :prefetch => Timeseries.prefetch_bars(:macdfix, 9), :postfetch => 20, :days_to_close => 20, :populate => true) do
+backtests(:generate_stats => false, :profile => false, :truncate => [], :repopulate => false, :log_flags => [:basic],
+           :prefetch => 0, :postfetch => 20, :days_to_close => 20, :populate => false) do
   $scan_names.each do |scan_name|
     using(:rsi_open_14, :macd_relative_momentum, :compact_rrm_14, :lagged_rsi_difference, scan_name) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
 #      make_sheet(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true)

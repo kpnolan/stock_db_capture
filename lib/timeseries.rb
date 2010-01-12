@@ -618,11 +618,6 @@ class Timeseries
     derived_values.last
   end
 
-  # FiXME don't know why this is here!!!!
-  def extended_range?
-    true
-  end
-
   def log_result(symbol_or_string)
     case symbol_or_string
     when Symbol then
@@ -644,20 +639,7 @@ class Timeseries
     pb = AnalResults.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
     @derived_values << pb
     result_hash.merge! pb.result_hash
-    if results.first.len < 2
-      puts ts.symbol
-      puts index_range
-      if index_range.end > index_range.begin
-        puts timevec[index_range].join(', ')
-        puts "#{fcn}: #{results.first.to_a.join(', ')}"
-      elsif index_range.end < index_range.begin
-        puts timevec.slice(-2,2).join(', ')
-        puts local_range
-        puts "#{timevec.last.to_i} #{local_range.end.to_i}"
-        debugger
-      end
-      puts
-    end
+
     #FIXME overlap should be plotted on the same graph (the oposite of what is coded here)
     #FIXME whereas non-overlap should be plotted in separate graphs
 
@@ -669,7 +651,7 @@ class Timeseries
       end
     end
 
-    @reserved_options ||= %w{ keys memo raw first array third, last }.inject({}) { |h, k| h[k.to_sym] = true; h }
+    @reserved_options ||= %w{ keys memo gv raw first array third, last }.inject({}) { |h, k| h[k.to_sym] = true; h }
 
     if @reserved_options[options[:result]]
       results = case options[:result]
@@ -679,6 +661,7 @@ class Timeseries
                 when :first : results.first
                 when :last  : results.first && results.first.last
                 when :array : results.first.to_a
+                when :gv    : results.first
                 when :third : results.third
                 end
     elsif result_hash.keys.include? options[:result]
@@ -742,6 +725,8 @@ class Timeseries
     if lookback_fcn
       @current_indicator = Timeseries.base_indicator(lookback_fcn)
       Timeseries.indicator_prefetch(@current_indicator, *args)
+    elsif lookback_fcn.nil? && ! args.empty?
+      args.sum
     elsif pbopt.is_a?(Numeric)
       Timeseries.set_unstable_period(:all, pbopt)
       pbopt

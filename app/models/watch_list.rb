@@ -170,8 +170,8 @@ class WatchList < ActiveRecord::Base
     attrs[:min_delta] = result_hash[min_ind][:delta]
     attrs[:last_snaptime] = time
     # Don't change the crossing if it was a daily crossing (marked by midnight crossing)
-    unless attrs[:closed_crossed_at] && attrs[:closed_crossed_at].seconds_since_midnight.zero?
-      attrs[:closed_crossed_at] = time if indicators.any? { |ind| result_hash[ind][:crossed] }
+    unless attrs[:indicators_crossed_at] && attrs[:indicators_crossed_at].seconds_since_midnight.zero?
+      attrs[:indicators_crossed_at] = time if indicators.any? { |ind| result_hash[ind][:crossed] }
     end
     attrs[:num_samples] = num_samples
     update_attributes!(attrs)

@@ -76,16 +76,17 @@ module TechnicalAnalysis
         minimal_samples(to_lookback(base_indicator), *args)
       when :rsi then
         unstable = (2.0*(args[0]+1)).ceil
-        unstable = 75
+        unstable = 50
         set_unstable_period(:rsi, unstable)
-        minimal_samples(to_lookback(:rsi), *args)
+        ms = minimal_samples(to_lookback(:rsi), *args)
+        ms
       when :mfi then
-        unstable = 75
+        unstable = 50
         set_unstable_period(:mfi, unstable)
         unstable + args.sum
       when :rvi then
         unstable = (2.0*(args[0]+1+9)).ceil
-        unstable = 75
+        unstable = 50
         set_unstable_period(:rsi, unstable)
         ms = minimal_samples(to_lookback(:rsi), *args)
       when :macd, :macdfix then
@@ -101,7 +102,7 @@ module TechnicalAnalysis
       when :mom then
         minimal_samples(to_lookback(:mom), *args)
       else
-        raise TimeseriesException, "unknown lookback function -- :#{base_indicator}"
+        minimal_samples(to_lookback(base_indicator), *args)
       end
     end
   end

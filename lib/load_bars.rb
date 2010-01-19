@@ -74,6 +74,7 @@ module LoadBars
         after_gap = after_date ? trading_day_count(end_date, after_date, false) : -1
         if before_gap == 1 && after_gap == 1 && (before_close - before_adj_close).abs/before_close < 0.01 && (after_close - after_adj_close).abs/after_close < 0.01
           rows = model.all(:conditions => { :ticker_id => ticker_id, :bardate => start_date..end_date }, :order => 'bardate')
+          puts "filling #{ts.symbol} --\tstart: #{start_date.to_formatted_s(:ymd)}\t#{end_date.to_formatted_s(:ymd)}"
           for row in rows
             attrs = columns.inject({}) { |h, k| h[k] = row[k]; h }
             attrs[:source] = model.source_id
@@ -89,7 +90,7 @@ module LoadBars
           end
         end
       end
-      logger.info "(#{proc_id}) #{symbol}\tinserted #{row_cnt} bars\t#{count} of #{chunk.length}"
+      logger.info "(#{chunk.id}) #{symbol}\tinserted #{row_cnt} bars\t#{count} of #{chunk.length}"
     end
     logger.info "Inserted Bars: #{inserted_bars} Rejected Bars: #{rejected_bars}"
   end

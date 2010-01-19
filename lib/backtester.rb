@@ -138,7 +138,6 @@ class Backtester
         rescue Exception => e
           logger.info "Unexpected exception #{e.to_s}"
         end
-
       end
 
       endt = Time.now
@@ -185,7 +184,7 @@ class Backtester
           confirming_index = ts.instance_exec(opening_decl.params, &opening_decl.block)
 
           if confirming_index
-            index = confirming_index+ts.outidx
+            index = confirming_index
             entry_time, entry_price = ts.closing_values_at(index)
 
             unless BtestPosition.open(position, entry_time, entry_price).nil?
@@ -252,6 +251,7 @@ class Backtester
       counter = 1
       null_exits = 0
       for position in open_positions
+        @current_position = position
         begin
           max_exit_date = BtestPosition.trading_date_from(position.entry_date, days_to_close)
           if max_exit_date > Date.today
@@ -261,16 +261,18 @@ class Backtester
           if ts = timeseries_for(position)
             ts.reset_local_range(position.entry_date, max_exit_date)
           else
-            ts_options = { :pre_buffer => Timeseries.prefetch_bars(:rvi, 14), :logger => logger } # FIXME prefetch bars should be dynamic
+            ts_options = { :logger => logger } # FIXME prefetch bars should be dynamic
             ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, self.options.merge(ts_options))
           end
+          puts "#{ts.symbol}\t#{position.entry_date.to_formatted_s(:ymd)} #{position.etival}"
           exit_time, indicator, ival = ts.instance_exec(xtrigger_decl.params, &xtrigger_decl.block)
-          unless exit_time.nil?
+          if exit_time.is_a?(Time)
             BtestPosition.trigger_exit(position, exit_time, ts.value_at(exit_time, :close), indicator, ival, :closed => true)
             exit_trigger.btest_positions << position
-          else
-            BtestPosition.trigger_exit(position, max_exit_date, ts.value_at(max_exit_date, :close), nil, nil, :closed => false)
-            null_exit = BtestPosition.close(position, max_exit_date, ts.value_at(max_exit_date, :close), nil, :indicator => :rsi, :closed => false)
+          elsif exit_time.is_a?(Numeric)
+            exit_date = Backtester.trading_date_from(position.entry_date, -exit_time)
+            BtestPosition.trigger_exit(position, exit_date, ts.value_at(exit_date, :close), nil, nil, :closed => false)
+            null_exit = BtestPosition.close(position, exit_date, ts.value_at(exit_date, :close), nil, :indicator => :rsi, :closed => false)
             if null_exit
               logger.info format("Position %d of %d (%s) %s\t%s has NULL close",
                                  counter, pos_count, position.ticker.symbol,
@@ -337,6 +339,8 @@ class Backtester
       max_limit_counter = 00
       for position in open_positions
         begin
+          BtestPosition.close(position, position.xttime, position.xtprice, 0, :indicator => :rsi, :closed => true)
+          next
           p = position
           max_exit_date = BtestPosition.trading_date_from(position.xttime, options[:days_to_optimize])
           if max_exit_date > Date.today
@@ -432,7 +436,7 @@ class Backtester
     #-----------------------------------------------------------------------------------------------------------------
     # Generate statistics to support positions
     #-----------------------------------------------------------------------------------------------------------------
-    generate_stats(exit_strategy.btest_positions) if self.options[:generate_stats]
+    generate_stats(entry_trigger.btest_positions) if self.options[:generate_stats]
 
     endt = Time.now
     global_delta = endt - global_startt
@@ -527,17 +531,14 @@ class Backtester
     logger.info "(#{chunk_id}) Beginning indicator statistics generatian..."
     startt = Time.now
     for position in positions
-      start_date = BtestPosition.trading_date_from(position.ettime, -10)
-      end_date = BtestPosition.trading_date_from(position.exit_date, 10)
+      start_date = BtestPosition.trading_date_from(position.ettime, 0)
+      end_date = BtestPosition.trading_date_from(position.ettime, 20)
       if end_date > Date.today
         ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
         end_date = ticker_max.localtime
       end
       ts = Timeseries.new(position.ticker_id, start_date..end_date, 1.day, :post_buffer => 0)
-      ts.compute_and_persist(position,
-                             :macdfix => { :result => :macd_hist },
-                             :rsi => { :result => :rsi },
-                             :rvi => { :result => :rvi })
+      ts.compute_and_persist(position, :rsi => { :result => :rsi }, :rvi => { :result => :rvi })
     end
     endt = Time.now
     delta = endt-startt

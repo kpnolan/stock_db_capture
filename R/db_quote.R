@@ -304,13 +304,12 @@ ps.empty <-
   }
 
 get.position.series <-
-  function(pos_id, origin = "1899-12-30", retclass = c("zoo", "its", "ts"), indicators = c('rsi', 'rvi', 'macd_hist'),
+  function(pos_id, retclass = c("zoo", "its", "ts", "xts"), indicators = c('rsi', 'rvi'),
            quiet = FALSE, drop = FALSE)  {
   sql <- paste("select date,",
                 "sum(if(name='rsi', value, 0)) as rsi,",
-                "sum(if(name='rvi', value, 0)) as rvi,",
-                "sum(if(name='macd_hist', value, 0)) as macd_hist",
-               "from position_series left outer join indicators on indicators.id = indicator_id",
+                "sum(if(name='rvi', value, 0)) as rvi",
+               "from position_series join indicators on indicators.id = indicator_id",
                "where position_id = ", pos_id, "group by date order by date desc")
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
   res = dbSendQuery(con, sql)
@@ -325,10 +324,15 @@ get.position.series <-
   nser <- pmatch(indicators, names(x)[-1]) + 1
   n <- nrow(x)
 
-  dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+  origin <- as.Date(as.character(x[, 1][1]), "%Y-%m-%d")
 
+  dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+  if (!quiet && dat[n])
+    cat(format(dat[n], "time series starts %Y-%m-%d\n"))
+  if (!quiet && dat[1])
+    cat(format(dat[1], "time series ends   %Y-%m-%d\n"))
   if (retclass == "ts") {
-    jdat <- unclass(julian(dat, origin = as.Date(origin)))
+    jdat <- unclass(julian(dat, origin = origin))
     ind <- jdat - jdat[n] + 1
     y <- matrix(NA, nrow = max(ind), ncol = length(nser))
     y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
@@ -341,39 +345,54 @@ get.position.series <-
     rownames(x) <- NULL
     y <- zoo(x, dat)
     y <- y[, seq_along(nser), drop = drop]
-    if (retclass == "its") {
-      if ("package:its" %in% search() || require("its", quietly = TRUE)) {
-        index(y) <- as.POSIXct(index(y))
-        y <- its::as.its(y)
-      }
-      else {
-        warning("package its could not be loaded: zoo series returned")
-      }
-    }
-    return(y)
   }
+  if (retclass == "xts")
+    return(as.xts(y))
+  if (retclass == "its") {
+    if ("package:its" %in% search() || require("its", quietly = TRUE)) {
+      index(y) <- as.POSIXct(index(y))
+      y <- its::as.its(y)
+    }  else {
+      warning("package its could not be loaded: zoo series returned")
+    }
+  }
+  return(y)
 }
 
+rvig <-
+  function(series, n=5) {
+    open = series[, "Open"]
+    close = series[, "Close"]
+    high = series[, "High"]
+    low = series[, "Low"]
+    val1 = (close-open + 2.0*(Lag(close,1)-Lag(open,1)) + 2.0*(Lag(close,2)-Lag(open,2)) + Lag(close, 3)-Lag(open,3))/6.0
+    val2 = (high-low + 2.0*(Lag(high,1)-Lag(low,1)) + 2.0*(Lag(high,2)-Lag(low,2)) + Lag(high, 3)-Lag(low,3))/6.0
+    print(val1)
+    print(val2)
+    num = SMA(val1, n)
+    denom = SMA(val2, n)
+    rvi = 100.0 * num/denom
+    rviSig = (rvi + 2.0*Lag(rvi,1) + 2.0*Lag(rvi, 2) + Lag(rvi,3))/6.0
+    pair <- cbind(rvi, rviSig)
+    colnames(pair) <- c("rvig", "signal")
+    return(pair)
+  }
 
 get.db.quote <-
-function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
-          method = NULL, origin = "1899-12-30",
-          retclass = c("df", "zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
+function (instrument, start, end, quote = c("Open", "High", "Low", "Close", "Volume"),
+          method = NULL,
+          retclass = c("df", "zoo", "its", "ts", "xts"), quiet = FALSE, drop = FALSE)
 {
   if (missing(start))
     start <- "2009-01-02"
   if (missing(end) || is.na(end))
     end <- format(Sys.Date() - 1, "%Y-%m-%d")
   retclass <- match.arg(retclass)
-  if (retclass != "df")
-    desc = "desc"
-  else
-    desc = ""
   start <- as.Date(start)
   end <- as.Date(end)
   con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-  sql <- paste("select date(bartime) as date, opening as Open, high as High, low as Low, close as Close from daily_bars left outer join tickers ",
-    " on tickers.id = ticker_id where symbol = '", instrument, "' and bardate between '", start, "' and '", end, "' order by bardate ", desc, sep="")
+  sql <- paste("select date(bartime) as date, opening as Open, high as High, low as Low, close as Close, volume as Volume from daily_bars left outer join tickers ",
+    " on tickers.id = ticker_id where symbol = '", instrument, "' and bardate between '", start, "' and '", end, "' order by bardate", sep="")
   res = dbSendQuery(con, sql)
   x = fetch(res, n = -1)
   dbDisconnect(con)
@@ -383,40 +402,44 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
   n <- nrow(x)
 
   print(paste("Rows:", n))
-  if (retclass == "df")
-    return(x)
-
+  if (retclass == "df") {
+    x[,1] = date = as.Date(as.character(x[, 1]), "%Y-%m-%d")
+    index = unclass(julian(date, origin=date[1])) + 1
+    xx = data.frame(date, index)
+    return(merge(x,xx))
+  }
 
   dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
-  if (!quiet && dat[n] != start)
-    cat(format(dat[n], "time series starts %Y-%m-%d\n"))
-  if (!quiet && dat[1] != end)
-    cat(format(dat[1], "time series ends   %Y-%m-%d\n"))
+  if (!quiet && dat[1] != start)
+    cat(format(dat[1], "time series starts %Y-%m-%d\n"))
+  if (!quiet && dat[n] != end)
+    cat(format(dat[n], "time series ends   %Y-%m-%d\n"))
   if (retclass == "ts") {
-    jdat <- unclass(julian(dat, origin = as.Date(origin)))
-    ind <- jdat - jdat[n] + 1
+    jdat <- unclass(julian(dat, origin=as.Date("1899-12-30")))
+    ind <- jdat-jdat[1] + 1
     y <- matrix(NA, nrow = max(ind), ncol = length(nser))
     y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
     colnames(y) <- names(x)[nser]
     y <- y[, seq_along(nser), drop = drop]
-    return(ts(y, start = jdat[n], end = jdat[1]))
+    return(ts(y, start = jdat[1], end = jdat[n]))
   }
   else {
     x <- as.matrix(x[, nser, drop = FALSE])
     rownames(x) <- NULL
     y <- zoo(x, dat)
     y <- y[, seq_along(nser), drop = drop]
-    if (retclass == "its") {
-      if ("package:its" %in% search() || require("its", quietly = TRUE)) {
-        index(y) <- as.POSIXct(index(y))
-        y <- its::as.its(y)
-      }
-      else {
-        warning("package its could not be loaded: zoo series returned")
-      }
-    }
-    return(y)
   }
+  if (retclass == "xts")
+    return(as.xts(y))
+  if (retclass == "its") {
+    if ("package:its" %in% search() || require("its", quietly = TRUE)) {
+      index(y) <- as.POSIXct(index(y))
+      y <- its::as.its(y)
+    }  else {
+      warning("package its could not be loaded: zoo series returned")
+    }
+  }
+  return(y)
 }
 
 do.winners <- function() { do.positions("winners") }
@@ -458,7 +481,7 @@ get.positions <-
   }
 
 plot.positions <-
-  function(type, x,  origin = "1899-12-30", scale=10.0, offset=14) {
+  function(type, x,  origin = "1899-12-30", scale=10.0, offset=0) {
     ids = x$id
     syms = x$symbol
     closed = x$closed
@@ -490,24 +513,19 @@ plot.positions <-
 
       roi = rois[i]
       days_held = dh[i]
-      edate14 = edate - offset
-      xdate14 = xdate + 7
+      edate14 = edate - 0
+      xdate14 = xdate + 28
 
-      df = get.db.quote(symbol, start=edate14, end=xdate14, retclass="df", quiet=TRUE)
-      yvec = df$Close[1:offset]
-      xvec = 1:offset
-      lr = lm(yvec ~ xvec)
-      slope = lr$coefficients[2]
-      corr = cor(yvec, xvec)
 
       q = get.db.quote(symbol, start=edate14, end=xdate14, retclass="ts", quiet=TRUE)
-      tjdate <- unclass(julian(tdate, origin = as.Date(origin)))
-      ejdate <- unclass(julian(edate, origin = as.Date(origin)))
-      xjdate <- unclass(julian(xdate, origin = as.Date(origin)))
+      q1 = get.db.quote(symbol, start=edate14, end=xdate14, retclass="df", quiet=TRUE)
+
+      tjdate <- unclass(julian(tdate))
+      ejdate <- unclass(julian(edate))
+      xjdate <- unclass(julian(xdate))
       days = xjdate-ejdate
 
-      roi = roi * 100.0
-      xlabel = paste("Time, ret:", format(roi, digits=5), "%", "Days held:", days_held, "Slope:", format(slope, digits=4), "Cor:", format(corr, digit=4))
+      xlabel = paste("Time, ret:", format(roi, digits=5), "%", "Days held:", days_held)
 
       if ( !ps.empty() )
           screen(1)
@@ -519,20 +537,20 @@ plot.positions <-
       }
 
       x0 = tjdate
-      y0 = tprice
+      y0 = tprice*0.9
       x1 = tjdate
-      y1 = tprice+.01
+      y1 = tprice
       arrows(x0, y0, x1, y1, col='yellow')
       x0 = ejdate
-      y0 = eprice
+      y0 = eprice*0.9
       x1 = ejdate
-      y1 = eprice+.01
+      y1 = eprice
       arrows(x0, y0, x1, y1, col='green')
       if ( !is.na(xprice) ) {
         x0 = xjdate
-        y0 = xprice
+        y0 = xprice*0.9
         x1 = xjdate
-        y1 = xprice-.01
+        y1 = xprice
         arrows(x0, y0, x1, y1, col='red')
       }
 

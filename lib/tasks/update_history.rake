@@ -77,7 +77,7 @@ namespace :active_trader do
     start_date = ENV['START'].nil? ? nil : Date.parse( ENV['START'])
     end_date = ENV['END'].nil? ? nil : Date.parse( ENV['END'])
     logger = init_logger(:fill_missing_bars)
-    fill_missing_bars(logger)
+    fill_missing_bars(logger, model, start_date, end_date)
   end
 
   desc "Report missing bars"

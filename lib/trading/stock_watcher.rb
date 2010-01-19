@@ -116,7 +116,7 @@ module Trading
             # what happens we we have multiple watch list items per ticker?
             if  last_close < rsi_target_price && last_close >= (PRICE_CUTOFF_RATIO)*rsi_target_price
               begin
-                puts "#{ts.symbol}: #{rsi}\t#{last_close}"
+                #puts "#{ts.symbol}: #{rsi}\t#{last_close}"
                 WatchList.create_or_update_listing(ticker_id, last_close, last_volume, rsi_target_price, rsi, threshold, Date.today, :logger => logger)
                 break
               rescue Exception => e
@@ -141,7 +141,7 @@ module Trading
     def update_exit_list()
       WatchList.find(:all, :conditions => 'opened_on IS NOT NULL').each do |opened_position|
         ticker_id = opened_position.ticker_id
-        start_date = trading_date_from(opened_position.opened_on, -20)
+        start_date = opened_position.opened_on
         end_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => ticker_id })
         ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
         begin
@@ -175,10 +175,11 @@ module Trading
         %w{ current last closing }.each { |prefix| attrs["#{prefix}_rsi".to_sym] = rsi }
         attrs[:last_populate] = Time.zone.now
       elsif opos.last_populate.to_date != Time.zone.now.to_date
+        time = Time.zone.at(ts.bartime.last).to_datetime.midnight+1.day # daily bar crossings marked at midnight
         attrs[:last_rsi] = opos.closing_rsi
         %w{ current closing }.each { |prefix| attrs["#{prefix}_rsi".to_sym] = rsi }
         attrs[:last_populate] = Time.zone.now
-        attrs[:closing_condition] = opos.closed_crossed_at && (attrs[:last_rsi] >= rsi || trading_day_count(opos.opened_on, Date.today) >= 20)
+        attrs[:closed_crossed_at] = (opos.indicators_crossed_at && (attrs[:last_rsi] >= rsi || trading_day_count(opos.opened_on, Date.today) >= 20) || nil) && time
       end
       opos.update_attributes!(attrs)
     end
@@ -242,7 +243,6 @@ module Trading
 
     def start_watching()
       @qt = TdAmeritrade::QuoteServer.new
-      @qt.logout
       @qt.attach_to_streamer()
       begin
         retrieve_snapshots()

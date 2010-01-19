@@ -16,34 +16,26 @@ analytics do
   # on a downward trend
   desc 'Open triggered positions with a positive MACD or positive momentum'
   open_position :macd_relative_momentum, :time_period => 10 do |params|
-    slope, corr = lrclose(params)
-    slope = 0.0
-    if slope < 0.0
-      deltas = anchored_mom(:result => :gv)
-      flags = deltas.where { |delta| delta > 0.0 }
-      flags && flags[0]
-    else
-      0
-    end
+    populate(0)
+    begin_index
   end
 
   #-----------------------------------------------------------------------------------------------------------------
   desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
   exit_trigger :compact_rrm_14, :time_period => 14, :result => :first do |params|
-    populate()
-    if close[index_range.begin+3] < close[index_range.begin]
-      timevec[index_range.begin+3]
+    if (idx1 = lrmeth(:rsi)) && idx1 >= 0
+      [index2time(idx1), :rsi, result_at(idx1, :rsi) ]
+    elsif (idx2 = lrmeth(:rvi)) && idx2 >= 0
+      [index2time(idx2), :rvi, result_at(idx2, :rvi) ]
     else
-      close_crossing_value(#:macdfix => params.merge(:threshold => 0, :direction => :over, :result => :macd_hist),
-                           :rsi => params.merge(:threshold => 50, :direction => :under, :result => :rsi),
-                           :rvi => params.merge(:threshold => 50, :direction => :under, :result => :rvi))
+      [idx1, idx2].min
     end
   end
 
   #-----------------------------------------------------------------------------------------------------------------
   desc "Close positions that have been triggered from an RVI or and RSI and whose indicatars have continued to climb until they peak out or level out"
-  close_position :lagged_rsi_difference, :time_period => 14, :result => :first do |position, params|
-    rsi_ary = rsi(params).to_a
+  close_position :lagged_rsi_difference, :time_period => 14, :result => :array do |position, params|
+    rsi_ary = rsi(params)
     exit_rsi = rsi_ary.shift
     index = monotonic_sequence(exit_rsi, rsi_ary)
     index = (index == :max ? index_range.end : [index_range.begin, index-1].max)
@@ -74,6 +66,7 @@ populations do
        scan_vec << scan_name
      end
    end
+
   # For 2009, since it's incomplete we have to do compute the scan differently by...
   # ...find the lastest daily bar in the DB (using IBM as the guiney pig)
   #latest_bar_date = DailyBar.maximum(:bartime, :include => :ticker, :conditions => "tickers.symbol = 'IBM'" ).to_date
@@ -82,7 +75,7 @@ populations do
   #desc "Population of all stocks with a minimum valume of 100000 from 2009-1-1 to #{end_date}"
   #scan 'year_2009', :start_date => '1/1/2009', :end_date => end_date,
   #                  :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
-  #                  :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:macdfix, 9), :postfetch => 20
+  #                  :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:rsi, 9), :postfetch => 20
   #$scan_names << 'year_2009'
 end
 

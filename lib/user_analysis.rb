@@ -4,6 +4,16 @@ require 'timeseries_exception'
 
 include GSL
 
+module Enumerable
+  def diff
+    self[1..-1].zip(self).map {|x| x[0]-x[1]}
+  end
+
+  def cumsum
+    self.inject([0]){|xs,y| xs.unshift(xs.first + y) }.reverse.slice(1..-1)
+  end
+end
+
 module UserAnalysis
   def zema(options = {})
     options.reverse_merge!(:time_period => 3, :gain => 1.0, :mlag => 3)
@@ -175,6 +185,60 @@ module UserAnalysis
     [posDelta, negDelta]
   end
 
+  def lrmeth(meth, options={})
+    options.reverse_merge! :time_period => 14, :maxval => 50.0, :len => 10
+    n = options[:len]
+    maxval = options[:maxval]
+    out_vec = send(meth, :result => :gv)
+    len = out_vec.len
+    yvec = out_sample = out_vec[0...n]
+    max_10 = out_sample.max
+
+    puts "#{meth} #{symbol}\tidx: #{out_sample.to_a.index(max_10)}\t#{max_10}" if max_10 >= maxval
+    return index_range.begin+out_sample.to_a.index(max_10) if max_10 >= maxval
+
+    xvec = GSL::Vector.linspace(0, n-1, n)
+    retvec = GSL::Fit::linear(xvec, yvec)
+    raise Exception, "Non-zero GSL Status: #{retvec.last}" unless retvec.last.zero? || xvec.len != yvec.len
+
+    yval1, yerr1 = GSL::Fit.linear_est(len-1, retvec[0..-1])
+
+    if yval1 >= maxval
+      out_sample = out_vec[n...len]
+      max_20 = out_sample.max
+      if max_20 >= maxval
+        puts "#{meth} #{symbol}\tidx: #{out_sample.to_a.index(max_20)+n}\t#{max_20}" if max_10 >= maxval
+        return index_range.begin++n+out_sample.to_a.index(max_20)
+      else
+        puts "#{meth} #{symbol} idx: #{-len}"
+        -len
+      end
+    else
+      puts "#{meth} #{symbol} idx: #{-n}"
+      -n
+    end
+  end
+
+  def rsimom(options={})
+    options.reverse_merge! :time_period => 14, :maxrsi => 50.0, :len => 10
+    rsi_vec = rsi(:result => :array)[0..options[:len]]
+    puts "#{symbol} #{local_range.begin.to_formatted_s(:ymd)} rsi_vec: #{rsi_vec.map { |r| (format '%2.2f', r) }.join(' ,')}"
+    puts "#{symbol} #{local_range.begin.to_formatted_s(:ymd)} rsi_vec: #{rsi_vec.diff.cumsum.map { |r| (format '%2.2f', r) }.join(' ,')}"
+
+    sum = 0.0
+    maxrsi = options[:maxrsi]
+    i = 1
+    while i < rsi_vec.length
+      sum +=  rsi_vec[i] - rsi_vec[i-1]                       # Cumulative Sum of 1st differences
+      if sum < 0.0 || rsi_vec[i] >= maxrsi
+        puts "#{symbol} #{local_range.begin.to_formatted_s(:ymd)} i: #{i}"
+        return(index_range.begin+i)
+      end
+      i += 1
+    end
+    puts "#{symbol} #{local_range.begin.to_formatted_s(:ymd)} i: NOT FOUND"
+    puts ""
+  end
 
    # Relative Valatility Index
   def rvi(options={})
@@ -311,38 +375,51 @@ module UserAnalysis
   # DENUM = SUM (VALUE2, N)
   # RVI = NUM / DENUM
   # RVISig = (RVI + 2 * RVI (1) + 2 * RVI (2) + RVI (3)) / 6
-  # Relative
+  # Relative Vigor Index
   def rvig(options={})
     options.reverse_merge! :time_period => 10
-    idx_range = calc_indexes(nil, options[:time_period], 6)
-    out1 = GSL::Vector.alloc((idx_range.end-idx_range.begin)+1+options[:time_period]+3)
-    out2 = GSL::Vector.alloc((idx_range.end-idx_range.begin)+1+options[:time_period]+3)
+    idx_range = calc_indexes(:ta_sma_lookback, options[:time_period]+18)
+    nan = 0.0/0.0
 
-    t = idx_range.begin - options[:time_period] - 3
-    outidx = 0
-    while t < idx_range.end
-      out1[outidx] = ((close[t]-open[t]) + 2.0*(close[t-1]*open[t-1]) + 2.0*(close[t-2]*open[t-2]) + (close[t-3]*open[t-3]))/6.0
-      out2[outidx] = ((high[t]-low[t]) + 2.0*(high[t-1]*low[t-1]) + 2.0*(high[t-2]*low[t-2]) + (high[t-3]*low[t-3]))/6.0
-      t += 1
-      outidx += 1
-    end
-    result1 = Talib.ta_sma(options[:time_period], outidx, out1, options[:time_period])
-    result2 = Talib.ta_sma(options[:time_period], outidx, out2, options[:time_period])
+    work = close.dup
+    close1 = work.unshift(nan)[0..-2]
+    close2 = work.unshift(nan)[0..-3]
+    close3 = work.unshift(nan)[0..-4]
+
+    work = opening.dup
+    open = opening
+    open1 = work.unshift(nan)[0..-2]
+    open2 = work.unshift(nan)[0..-3]
+    open3 = work.unshift(nan)[0..-4]
+
+
+    work = high.dup
+    high1 = work.unshift(nan)[0..-2]
+    high2 = work.unshift(nan)[0..-3]
+    high3 = work.unshift(nan)[0..-4]
+
+    work = low.dup
+    low1 = work.unshift(nan)[0..-2]
+    low2 = work.unshift(nan)[0..-3]
+    low3 = work.unshift(nan)[0..-4]
+
+    out1 = (close-open + (close1-open1).scale(2.0) + (close2-open2).scale(2.0) + (close3-open3)).scale(1.0/6.0)#[3..-1]
+    out2 = (high-low + (high1-low1).scale(2.0) + (high2-low2).scale(2.0) + (high3-low3)).scale(1.0/6.0)#[3..-1]
+
+    result1 = Talib.ta_sma(idx_range.begin-6, idx_range.end, out1, options[:time_period])
+    result2 = Talib.ta_sma(idx_range.begin-6, idx_range.end, out2, options[:time_period])
 
     num = result1.third
     denom = result2.third
-    rvi = num / denom
+    rvi = (num / denom).scale(100.0)
 
-    rviSig =  GSL::Vector.alloc(rvi.len-3)
-    inIdx = 3
-    outIdx = 0
-    while inIdx < rvi.len
-      rviSig[outIdx] = (rvi[inIdx] + 2*rvi[inIdx-1] + 2*rvi[inIdx-2] + rvi[inIdx-3])/6.0
-      inIdx += 1
-      outIdx += 1
-    end
-    rlen = rvi.len
-    result = [0, idx_range.begin, rvi[3..rlen-1], rviSig]
+    work = rvi.dup
+    rvi1 = work.unshift(nan)[0..-2]
+    rvi2 = work.unshift(nan)[0..-3]
+    rvi3 = work.unshift(nan)[0..-4]
+    rviSig = (rvi + 2.0*rvi1 + 2.0*rvi2 + rvi3)/6.0
+
+    result = [0, outidx, rvi[6..-1], rviSig[6..-1]]
     memoize_result(self, :rvig, idx_range, options, result, :financebars)
   end
 

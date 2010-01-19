@@ -636,6 +636,7 @@ class Timeseries
   def memoize_result(ts, fcn, idx_range, options, results, graph_type=nil)
     status = results.shift
     outidx = results.shift
+
     pb = AnalResults.new(ts, fcn, ts.local_range, idx_range, options, outidx, graph_type, results)
     @derived_values << pb
     result_hash.merge! pb.result_hash
@@ -664,6 +665,9 @@ class Timeseries
                 when :gv    : results.first
                 when :third : results.third
                 end
+    elsif options[:result].is_a?(Array)
+      raise TimeseriesException, "Invald result key #{@sym}" unless options[:result].all? { |sym| @key = sym; pb.result_hash.has_key?(sym) }
+      options[:result].map { |sym| pb.result_hash[sym] }
     elsif result_hash.keys.include? options[:result]
       result_hash[options[:result]]
     elsif options[:result].nil?

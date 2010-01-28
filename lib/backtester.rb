@@ -41,7 +41,7 @@ class Backtester
   def initialize(trigger_strategy_name, entry_strategy_name, exit_trigger_name, exit_strategy_name, scan_name, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
                                      :days_to_close => 20, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10,
-                                     :pre_buffer => 127, :post_buffer => 20, :repopulate => true
+                                     :pre_buffer => 0, :post_buffer => 0, :repopulate => true
     @et_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xt_name = exit_trigger_name
@@ -56,10 +56,10 @@ class Backtester
     @resolution = self.options.delete :resolution
     set_log_level(@options[:log_flags])
 
-    raise BacktestException.new("Cannot find entry trigger: #{et_name}")  if EntryTrigger.find_by_name(et_name).nil?
-    raise BacktestException.new("Cannot find entry strategy: #{es_name}") if EntryStrategy.find_by_name(es_name).nil?
-    raise BacktestException.new("Cannot find exit trigger: #{xt_name}")   if ExitTrigger.find_by_name(xt_name).nil?
-    raise BacktestException.new("Cannot find exit strategy: #{xs_name}")  if ExitStrategy.find_by_name(xs_name).nil?
+    raise BacktestException.new("Cannot find entry trigger: #{et_name}")  if et_name && EntryTrigger.find_by_name(et_name).nil?
+    raise BacktestException.new("Cannot find entry strategy: #{es_name}") if es_name && EntryStrategy.find_by_name(es_name).nil?
+    raise BacktestException.new("Cannot find exit trigger: #{xt_name}")   if xt_name && ExitTrigger.find_by_name(xt_name).nil?
+    raise BacktestException.new("Cannot find exit strategy: #{xs_name}")  if xs_name && ExitStrategy.find_by_name(xs_name).nil?
     raise BacktestException.new("Cannot find scan: #{scan_name}")         if Scan.find_by_name(scan_name).nil?
   end
 
@@ -72,17 +72,17 @@ class Backtester
     logger.info "\n(#{chunk_id}) Processing backtest with a #{et_name} entry trigger and #{es_name} entry with #{xt_name} trigger and #{xs_name} exit against #{scan_name}"
 
     @chunk_id       = chunk_id
-    @etrigger_decl  = $analytics.find_etrigger(et_name)
-    @opening_decl   = $analytics.find_opening(es_name)
-    @xtrigger_decl  = $analytics.find_xtrigger(xt_name)
-    @closing_decl   = $analytics.find_closing(xs_name)
+    @etrigger_decl  = et_name && $analytics.find_etrigger(et_name)
+    @opening_decl   = es_name && $analytics.find_opening(es_name)
+    @xtrigger_decl  = xt_name && $analytics.find_xtrigger(xt_name)
+    @closing_decl   = xs_name && $analytics.find_closing(xs_name)
     @stop_loss_decl = $analytics.find_stop_loss
 
     @scan           = Scan.find_by_name(scan_name)
-    @entry_trigger  = EntryTrigger.find_by_name(et_name)
-    @entry_strategy = EntryStrategy.find_by_name(es_name)
-    @exit_trigger   = ExitTrigger.find_by_name(xt_name)
-    @exit_strategy  = ExitStrategy.find_by_name(xs_name)
+    @entry_trigger  = et_name && EntryTrigger.find_by_name(et_name)
+    @entry_strategy = es_name && EntryStrategy.find_by_name(es_name)
+    @exit_trigger   = xt_name && ExitTrigger.find_by_name(xt_name)
+    @exit_strategy  = xs_name && ExitStrategy.find_by_name(xs_name)
 
     truncate(self.options[:truncate]) unless self.options[:truncate].nil?
 
@@ -108,36 +108,42 @@ class Backtester
     if entry_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
       logger.info "(#{chunk_id}) Beginning trigger positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
-      @rsi_id ||= Indicator.lookup(:rsi).id
+      primary_indicator = etrigger_decl.params[:indicator]
+      indicator_id ||= Indicator.lookup(primary_indicator).id
 
       count = 0
-      for ticker_id in scan.population_ids(options[:repopulate], :logger => logger)
+      index_count = 0
+      ticker_ids = scan.population_ids(options[:repopulate], :logger => logger)
+      for ticker_id in ticker_ids
         begin
           ts = Timeseries.new(ticker_id, sdate..edate, resolution, self.options.merge(:logger => logger))
           reset_position_index_hash()
           for pass in self.options[:epass]
             triggered_indexes = ts.instance_exec(etrigger_decl.params, pass, &etrigger_decl.block)
+            index_count = triggered_indexes.length
             for index in triggered_indexes
               next if triggered_index_hash.include? index #This index has been triggered on a previous pass
               trigger_date, trigger_price = ts.closing_values_at(index)
-              trigger_ival = ts.result_at(index, :rsi)          # We are assuming here that an rsi is the only entry trigger indicator, which may no always be
+              trigger_ival = ts.result_at(index, primary_indicator)
               # the case
               debugger if trigger_date.nil? or trigger_price.nil?
-              position = BtestPosition.trigger_entry(ts.ticker_id, trigger_date, trigger_price, rsi_id, trigger_ival, pass)
+              position = BtestPosition.trigger_entry(ts.ticker_id, trigger_date, trigger_price, indicator_id, trigger_ival, pass, :next_pass => entry_strategy.name != 'identity')
               logger.info "Triggered #{ts.symbol} on #{trigger_date.to_formatted_s(:ymd)} at $#{trigger_price}" if log? :triggers
               entry_trigger.btest_positions << position
               scan.btest_positions << position
               map_position_ts(position, ts)
               triggered_index_hash[index] = true
               ts.clear_results() unless ts.nil?
-              count += 1
             end
           end
         rescue TimeseriesException => e
           logger.info "#{e.to_s} -- SKIPPING Ticker"
-        rescue Exception => e
-          logger.info "Unexpected exception #{e.to_s}"
+        #rescue Exception => e
+        #  logger.info "Unexpected exception #{e.to_s}"
         end
+        count += 1
+        symbol = Ticker.find(ticker_id).symbol
+        logger.info("Processed #{symbol} #{count} of #{ticker_ids.length} #{index_count} positions entered") if log? :trigger_summary
       end
 
       endt = Time.now
@@ -156,7 +162,7 @@ class Backtester
     else
       logger.info "Using pre-generated triggers..." if log? :basic
     end
-
+
     #--------------------------------------------------------------------------------------------------------------------
     # OPEN POSITION pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
     # whose mission it is to cull out losers that have been triggered and ones not likely to close.
@@ -172,6 +178,7 @@ class Backtester
       trig_count = triggers.length
 
       for position in triggers
+        break if entry_strategy.name == 'identity'
         begin
           start_date = position.ettime.to_date
           end_date = Backtester.trading_date_from(start_date, days_to_open)
@@ -202,7 +209,7 @@ class Backtester
                                position.ettime.to_formatted_s(:ymd),
                                position.etprice) if log? :entries
           end
-        rescue TimeseriesException => e
+          rescue TimeseriesException => e
           logger.error(e.to_s)
           remove_from_position_map(position)
           BtestPosition.delete position.id
@@ -245,7 +252,7 @@ class Backtester
 
       RubyProf.start if self.options[:profile]
 
-      open_positions = entry_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id })
+      open_positions = BtestPosition.find(:all, :conditions => { :scan_id => scan.id }, :include => :ticker, :order => 'tickers.symbol, entry_date')
       pos_count = open_positions.length
 
       counter = 1
@@ -264,12 +271,15 @@ class Backtester
             ts_options = { :logger => logger } # FIXME prefetch bars should be dynamic
             ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, self.options.merge(ts_options))
           end
-          puts "#{ts.symbol}\t#{position.entry_date.to_formatted_s(:ymd)} #{position.etival}"
           exit_time, indicator, ival = ts.instance_exec(xtrigger_decl.params, &xtrigger_decl.block)
           if exit_time.is_a?(Time)
-            BtestPosition.trigger_exit(position, exit_time, ts.value_at(exit_time, :close), indicator, ival, :closed => true)
+            BtestPosition.trigger_exit(position, exit_time, c = ts.value_at(exit_time, :close), indicator, ival, :closed => true)
+            BtestPosition.close(position, exit_time, c, ival, :indicator => :rvigor, :closed => true) if exit_strategy.name = 'identity'
+            logger.info "#{ts.symbol}\t#{position.entry_date.to_formatted_s(:ymd)} #{position.xttime.to_formatted_s(:ymd)} #{position.etival} #{position.xtival}"
             exit_trigger.btest_positions << position
-          elsif exit_time.is_a?(Numeric)
+          elsif exit_time.nil?
+            BtestPosition.trigger_exit(position, max_exit_date, ts.value_at(max_exit_date, :close), :rvigor, nil, :closed => false)
+          elsif exit_time.is_a?(Numeric) # FIXME I'm not sure what in the fuck this is doing here
             exit_date = Backtester.trading_date_from(position.entry_date, -exit_time)
             BtestPosition.trigger_exit(position, exit_date, ts.value_at(exit_date, :close), nil, nil, :closed => false)
             null_exit = BtestPosition.close(position, exit_date, ts.value_at(exit_date, :close), nil, :indicator => :rsi, :closed => false)
@@ -294,6 +304,8 @@ class Backtester
                            position.xtroi, position.indicator.name ) if log? :exits
         counter += 1
       end
+
+      entry_strategy.btest_positions.clear()
 
       endt = Time.now
       delta = endt - startt
@@ -324,7 +336,7 @@ class Backtester
     # position. The purpose of this pass is to follow the curse looking for a local maxima and then closing, thus added
     # to our profit.
     #-------------------------------------------------------------------------------------------------------------------
-    if exit_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
+    if exit_strategy.nil? || exit_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
       logger.info "(#{chunk_id}) Beginning close position optimization analysis..." if log? :basic
       startt = Time.now
 
@@ -336,11 +348,10 @@ class Backtester
 
       counter = 1
       log_counter = 0
-      max_limit_counter = 00
+      max_limit_counter = 0
       for position in open_positions
+        break if exit_strategy.name == 'identity'
         begin
-          BtestPosition.close(position, position.xttime, position.xtprice, 0, :indicator => :rsi, :closed => true)
-          next
           p = position
           max_exit_date = BtestPosition.trading_date_from(position.xttime, options[:days_to_optimize])
           if max_exit_date > Date.today
@@ -415,18 +426,10 @@ class Backtester
     #TODO replace this entire block with a single constructed INSERT stmt with conditions on scan_id and exit_date
     #TODO see Position.generate_insert_sql
 
-    position_ids = scan.btest_position_ids
-    for position_id in position_ids
-      if (position = BtestPosition.find_by_id(position_id)) && position.exit_date
-        attrs = columns.inject({}) { |h,k| h[k] = position[k]; h }
-        begin
-          Position.create! attrs
-        rescue ActiveRecord::StatementInvalid
-          logger.error("Duplicate entry for #{position.ticker.symbol} tigger: #{position.entry_date.to_formatted_s(:ymd)}")
-        end
-      end
-    end
-    #BtestPosition.delete_all(:scan_id => scan.id) #clean up after ourselves
+    columns = BtestPosition.columns.map(&:name)
+    columns.delete("id")
+    sql = "insert into #{Position.table_name} select #{columns.join(',')} from #{BtestPosition.table_name} where scans.id = #{scan.id}"
+    Position.connection.execute(sql)
 
     endt = Time.now
     delta = endt - startt
@@ -572,7 +575,7 @@ class Backtester
   #     basic, entries, exis,
   #--------------------------------------------------------------------------------------------------------------------
   def set_log_level(flags)
-    options = %w{none basic triggers entries exits closures}.map(&:to_sym)
+    options = %w{none basic triggers trigger_summary entries exits closures}.map(&:to_sym)
     flags = Array.wrap(flags)
     unless flags.all? { |flag| options.member? flag }
       flags.each do |flag|

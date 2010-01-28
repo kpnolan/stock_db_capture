@@ -185,6 +185,7 @@ module UserAnalysis
     [posDelta, negDelta]
   end
 
+  # Find the linear regression of a TA methods
   def lrmeth(meth, options={})
     options.reverse_merge! :time_period => 14, :maxval => 50.0, :len => 10
     n = options[:len]

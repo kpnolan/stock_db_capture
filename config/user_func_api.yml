@@ -222,11 +222,11 @@ FinancialFunctions:
         OutputArgument:
           - Flags:
               Flag: Dashed Line
-            Name: outRvi
+            Name: outRvigor
             Type: Double Array
           - Flags:
               Flag: Line
-            Name: outRviSig
+            Name: outRvigorSig
             Type: Double Array
       RequiredInputArguments:
         RequiredInputArgument:

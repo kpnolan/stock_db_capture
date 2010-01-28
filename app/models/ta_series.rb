@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091220213712
+# Schema version: 20100123024049
 #
 # Table name: ta_series
 #

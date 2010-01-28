@@ -5,17 +5,17 @@ require(tseries)
 require(gtools)
 
 get.histo <-
-  function(value, table='positions', scale='lin', scan='')
+  function(value, table='positions', scale='lin', scan='', where='')
   {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
     if ( scan == '' ) {
-      sql <- paste("select ", value, " from ", table, " where exit_date is not null", sep="")
+      sql <- paste("select ", value, " from ", table, where, sep="")
     } else {
       sql <- paste("select ", value, " from positions left outer join scans on scans.id = scan_id where closed = 1 and name = '", scan ,"'", sep="")
     }
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
-    return(x)
+
     if ( nrow(x) == 0 ) {
       cat("Returned data is empty. Check SQL\n")
       return(FALSE);
@@ -26,7 +26,7 @@ get.histo <-
     if ( scale == 'log' )
       h = logHist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
     else
-      h = hist(x[, value], breaks=100, col="red", main=main, xlab=xlab)
+      h = hist(x[, value], col="red", breaks=100, main=main, xlab=xlab)
   }
 
 get.table <-
@@ -195,15 +195,14 @@ get.histo2d.all <-
     xlab = value1
     ylab = value2
     dbDisconnect(con)
-    h2d = hist2d(x[, value1], x[, value2], main=main, xlab=xlab)
-    x
+    h2d = hist2d(x[, value1], x[, value2], main=main, xlab=xlab, ylab=ylab)
   }
 
 get.histo2d <-
   function(value1, value2, scan)
   {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select ", value1,",", value2, " from positions left outer join scans on scans.id = scan_id where name = '", scan ,"'", sep="")
+    sql <- paste("select ", value1,",", value2, " from positions left outer join scans on scans.id = scan_id where etival < 0 and xtival > 0 and name = '", scan ,"'", sep="")
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
     if ( nrow(x) == 0 ) {
@@ -214,69 +213,14 @@ get.histo2d <-
     xlab = value1
     ylab = value2
     dbDisconnect(con)
-    h2d = hist2d(x[, value1], x[, value2], main=main, xlab=xlab)
-    write.table(h2d, "/work/railsapps/stock_db_capture/R/h2d.tsv")
-#    persp( h2d$x, h2d$y, h2d$counts,
-#          ticktype="detailed", theta=30, phi=30,
-#          expand=0.5, shade=0.5, col="cyan", ltheta=-30)
+    h2d = hist2d(x[, value1], x[, value2], main=main, xlab=xlab, ylab=ylab)
+#    write.table(h2d, "/work/railsapps/stock_db_capture/R/h2d.tsv")
+    persp( h2d$x, h2d$y, h2d$counts,
+          ticktype="detailed", theta=30, phi=30,
+          expand=0.5, shade=0.5, col="cyan", ltheta=-30)
 #    contour( h2d$x, h2d$y, h2d$counts, nlevels=4)
 #                   col=gray((4:0)/4) )
    }
-
-
-get.id.quote <-
-  function (instrument, start, end, quote = c("Open", "High", "Low", "Close"),
-            method = NULL, origin = "1899-12-30",
-            retclass = c("zoo", "its", "ts"), quiet = FALSE, drop = FALSE)
-{
-  if (missing(start))
-    start <- "2009-01-02"
-  if (missing(end))
-    end <- format(Sys.Date() - 1, "%Y-%m-%d")
-  retclass <- match.arg(retclass)
-  start <- as.Date(start)
-  end <- as.Date(end)
-  con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-  sql <- paste("select bartime, opening as Open, high as High, low as Low, close as Close from intra_day_bars left outer join tickers ",
-    " on tickers.id = ticker_id where symbol = '", instrument, "' and bardate between '", start, "' and '", end, "' order by bartime desc", sep="")
-  res = dbSendQuery(con, sql)
-  x = fetch(res, n = -1)
-  dbDisconnect(con)
-
-  nser <- pmatch(quote, names(x)[-1]) + 1
-  n <- nrow(x)
-
-  dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
-  if (!quiet && dat[n] != start)
-    cat(format(dat[n], "time series starts %Y-%m-%d\n"))
-  if (!quiet && dat[1] != end)
-    cat(format(dat[1], "time series ends   %Y-%m-%d\n"))
-  if (retclass == "ts") {
-    jdat <- unclass(julian(dat, origin = as.Date(origin)))
-    ind <- jdat - jdat[n] + 1
-    y <- matrix(NA, nrow = max(ind), ncol = length(nser))
-    y[ind, ] <- as.matrix(x[, nser, drop = FALSE])
-    colnames(y) <- names(x)[nser]
-    y <- y[, seq_along(nser), drop = drop]
-    return(ts(y, start = jdat[n], end = jdat[1]))
-  }
-  else {
-    x <- as.matrix(x[, nser, drop = FALSE])
-    rownames(x) <- NULL
-    y <- zoo(x, dat)
-    y <- y[, seq_along(nser), drop = drop]
-    if (retclass == "its") {
-      if ("package:its" %in% search() || require("its", quietly = TRUE)) {
-        index(y) <- as.POSIXct(index(y))
-        y <- its::as.its(y)
-      }
-      else {
-        warning("package its could not be loaded: zoo series returned")
-      }
-    }
-    return(y)
-  }
-}
 
 get.db.slope <-
   function(pass) {
@@ -360,15 +304,13 @@ get.position.series <-
 }
 
 rvig <-
-  function(series, n=5) {
+  function(series, n=10) {
     open = series[, "Open"]
     close = series[, "Close"]
     high = series[, "High"]
     low = series[, "Low"]
     val1 = (close-open + 2.0*(Lag(close,1)-Lag(open,1)) + 2.0*(Lag(close,2)-Lag(open,2)) + Lag(close, 3)-Lag(open,3))/6.0
     val2 = (high-low + 2.0*(Lag(high,1)-Lag(low,1)) + 2.0*(Lag(high,2)-Lag(low,2)) + Lag(high, 3)-Lag(low,3))/6.0
-    print(val1)
-    print(val2)
     num = SMA(val1, n)
     denom = SMA(val2, n)
     rvi = 100.0 * num/denom
@@ -377,6 +319,48 @@ rvig <-
     colnames(pair) <- c("rvig", "signal")
     return(pair)
   }
+
+get.input.matrix <-
+  function(instrument, start, end) {
+    con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+    # we left out the O0 column since we are not tracking that now
+    if (missing(start))
+      start <- "2009-01-02"
+    if (missing(end) || is.na(end))
+      end <- format(Sys.Date() - 1, "%Y-%m-%d")
+    start <- as.Date(start)
+    end <- as.Date(end)
+    cols =  c("Open", "High", "Low", "Close", "Volume", "rsi", "macd", "rvig")
+    sql <- paste("select date(bartime) as date, o as Open, h as High, l as Low, c as Close, v as Volume, rsi, macd, rvig from ann_inputs left outer join tickers ",
+                 " on tickers.id = ticker_id where symbol = '", instrument, "' and bartime between '", start, "' and '", end+1, "' order by bartime", sep="")
+    res = dbSendQuery(con, sql)
+    x = fetch(res, n = -1)
+    dbDisconnect(con)
+    nser <- pmatch(cols, names(x)[-1]) + 1
+    y <- as.matrix(x[, nser, drop = FALSE])
+  }
+
+ann <-
+  function(P)
+  {
+    library(AMORE)
+                                        # P is the input vector
+                                        # The network will try to approximate the target P^2
+    target <- (P[, 4])
+                                        # We create a feedforward network, with two hidden layers.
+                                        # The first hidden layer has three neurons and the second has two neurons.
+                                        # The hidden layers have got Tansig activation functions and the output layer is Purelin.
+    net <- newff(n.neurons=c(dim(P)[2],10,4,1), learning.rate.global=1e-1, momentum.global=0.5,
+                 error.criterium="LMS", Stao=NA, hidden.layer="tansig",
+                 output.layer="purelin", method="ADAPTgdwm")
+    result <- train(net, P, target, error.criterium="LMS", report=TRUE, show.step=10000, n.shows=100)
+    y <- sim(result$net, P)
+    plot(P[, "Close"],y, col="blue", pch="+")
+    points(P[,"Close"], target, col="red", pch=19)
+  }
+
+
+
 
 get.db.quote <-
 function (instrument, start, end, quote = c("Open", "High", "Low", "Close", "Volume"),
@@ -402,6 +386,48 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close", "Vol
   n <- nrow(x)
 
   print(paste("Rows:", n))
+
+  dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+  if (!quiet && dat[1] != start)
+    cat(format(dat[1], "time series starts %Y-%m-%d\n"))
+  if (!quiet && dat[n] != end)
+    cat(format(dat[n], "time series ends   %Y-%m-%d\n"))
+  if (retclass == "ts") {
+    jdat <- unclass(julian(dat, origin=as.Date("1899-12-30")))
+    ind <- jdat-jdat[1] + 1
+    y <- matrix(NA, nrow = max(ind), ncol = length(nser))
+    return(ts(y, start = jdat[1], end = jdat[n]))
+  }
+  else {
+    x <- as.matrix(x[, nser, drop = FALSE])
+    rownames(x) <- NULL
+    y <- zoo(x, dat)
+    y <- y[, seq_along(nser), drop = drop]
+  }
+  if (retclass == "xts")
+    return(as.xts(y))
+  if (retclass == "its") {
+    if ("package:its" %in% search() || require("its", quietly = TRUE)) {
+      index(y) <- as.POSIXct(index(y))
+      y <- its::as.its(y)
+    }  else {
+      warning("package its could not be loaded: zoo series returned")
+    }
+  }
+  return(y)
+}
+
+get.csv <-
+function (basename, retclass = c("df", "zoo", "its", "ts", "xts"), quiet = FALSE, drop = FALSE)
+{
+  retclass <- match.arg(retclass)
+  x = read.csv(paste("/work/tdameritrade/stock_db_capture/tmp/", basename, ".csv", sep=''))
+
+  names(x) <- gsub("\\.", "", names(x))
+  nser <-pmatch(names(x)[-1], names(x))
+  n <- nrow(x)
+
+  print(paste("Rows:", n))
   if (retclass == "df") {
     x[,1] = date = as.Date(as.character(x[, 1]), "%Y-%m-%d")
     index = unclass(julian(date, origin=date[1])) + 1
@@ -410,9 +436,7 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close", "Vol
   }
 
   dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
-  if (!quiet && dat[1] != start)
     cat(format(dat[1], "time series starts %Y-%m-%d\n"))
-  if (!quiet && dat[n] != end)
     cat(format(dat[n], "time series ends   %Y-%m-%d\n"))
   if (retclass == "ts") {
     jdat <- unclass(julian(dat, origin=as.Date("1899-12-30")))
@@ -466,11 +490,16 @@ do.positions <-
 
 strategy=""
 
+## get.positions.raw <-
+##   function( origin = "1899-12-30", order="order by entry_date, symbol", where="") {
+##     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
+##         sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price, exit_price, roi, days_held from positions left outer join tickers",
+##                      "on tickers.id = ticker_id", where, order)
+
 get.positions <-
-  function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, triggered_at", where="") {
+  function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, ettime", where="") {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select positions.id as id, symbol, date(ettime) as tdate, date(entry_date) as edate, date(exit_date) as xdate, etprice as tprice, entry_price as eprice, exit_price as xprice, roi, days_held from positions left outer join tickers",
-                 "on tickers.id = ticker_id", where, strategy, order)
+    sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice, etival, xtival, roi, days_held from positions left outer join tickers on tickers.id = ticker_id", where, order)
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
     if ( nrow(x) == 0 ) {
@@ -719,3 +748,5 @@ function (x, xlim = NULL, ylim = NULL, xlab = "Time", ylab, col = par("col"),
     if (frame.plot)
         box(...)
 }
+
+

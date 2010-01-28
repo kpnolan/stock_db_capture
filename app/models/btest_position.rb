@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091220213712
+# Schema version: 20100123024049
 #
 # Table name: btest_positions
 #
@@ -81,7 +81,9 @@ class BtestPosition < ActiveRecord::Base
 
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
       begin
-        pos = create!(:ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival)
+        attrs = { :ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival }
+        attrs.merge!(:entry_date => trigger_time, :entry_price => trigger_price) if options[:next_pass] == false
+        pos = create!(attrs)
       rescue ActiveRecord::RecordInvalid => e
         raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
         raise e
@@ -94,7 +96,9 @@ class BtestPosition < ActiveRecord::Base
         ind_id = indicator.nil? ? nil : Indicator.lookup(indicator).id
         closed = options[:closed]
         ival = nil if ival.nil? or ival.nan?
-        pos = position.update_attributes!(:xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed)
+        attrs = { :xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed }
+        attrs.merge!(:exit_price => trigger_price, :exit_date => trigger_time)
+        pos = position.update_attributes! attrs
       rescue ActiveRecord::RecordInvalid => e
         raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
         raise e
@@ -112,6 +116,19 @@ class BtestPosition < ActiveRecord::Base
       position.update_attributes!(:entry_price => entry_price, :entry_date => entry_time,
                                   :num_shares => 1, :short => short, :consumed_margin => cmargin)
       position
+    end
+
+    def compute_derived_values()
+      positions = find(:all, :conditions => { :days_held => nil} )
+      for p in positions
+        p.days_held = trading_days_between(p.entry_date, p.exit_date)
+        p.roi = (p.exit_price - p.entry_price) / p.entry_price
+        rreturn = p.exit_price / p.entry_price
+        p.logr = Math.log(rreturn.zero? ? 0.0 : rreturn)
+        p.nreturn = p.days_held.zero? ? 0.0 : p.roi / p.days_held
+        p.nreturn *= -1.0 if p.short and p.nreturn != 0.0
+        p.save!
+      end
     end
 
     def close(position, exit_date, exit_price, exit_ival, options={})

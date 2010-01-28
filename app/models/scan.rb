@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20091220213712
+# Schema version: 20100123024049
 #
 # Table name: scans
 #
@@ -57,8 +57,8 @@ class Scan < ActiveRecord::Base
 
   # TODO find a better name for this method
   def tickers_ids(repopulate=false, logger=nil)
-    count = "count(*) = #{trading_day_count(adjusted_start, adjusted_end)}"
-    order = self.order_by ? " ORDER BY #{self.order_by}" : ''
+    count = self.count.nil? ? "count(*) = #{trading_day_count(adjusted_start, adjusted_end)}" : "count(*) = #{self.count}"
+    order = self.order_by ? " ORDER BY #{self.order_by}" : ' ORDER BY symbol'
     having = conditions ? "HAVING #{conditions} and #{count}" : "HAVING #{count}"
 
     sql = "SELECT #{table_name}.ticker_id FROM #{table_name} #{join} WHERE " +

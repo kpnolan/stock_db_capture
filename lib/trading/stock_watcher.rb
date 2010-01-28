@@ -36,7 +36,7 @@ module Trading
                               :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
                               :prefetch =>  nil,
                               :conditions => liquid)
-      @candidate_ids = scan.population_ids()
+      @candidate_ids = scan.population_ids(true)
     end
 
     def purge()
@@ -104,6 +104,7 @@ module Trading
           ticker = Ticker.find ticker_id
           start_date = trading_date_from(Date.today, -6)
           end_date = trading_date_from(Date.today, -1)
+
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
           rsi = ts.rsi()
           last_close = ts.close.last
@@ -113,20 +114,12 @@ module Trading
           thresholds.each do |threshold|
             next if rsi > threshold
             rsi_target_price = ts.invrsi(:rsi => threshold, :time_period => 14)
-            # what happens we we have multiple watch list items per ticker?
             if  last_close < rsi_target_price && last_close >= (PRICE_CUTOFF_RATIO)*rsi_target_price
               begin
-                #puts "#{ts.symbol}: #{rsi}\t#{last_close}"
                 WatchList.create_or_update_listing(ticker_id, last_close, last_volume, rsi_target_price, rsi, threshold, Date.today, :logger => logger)
-                break
               rescue Exception => e
                 logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{rsi_target_price} listed on #{Date.today.to_s(:db)}.")
               end
-            elsif ( rsi >= RSI_CUTOFF and WatchList.find(:first, :conditions => { :ticker_id => ticker_id, :opened_on => nil} ))
-              #logger.info("Deleting #{ts.symbol} RSI of #{rsi} above threhold of #{RSI_CUTOFF}")
-              #WatchList.delete_all(:ticker_id => ticker_id, :opened_on => nil)
-            elsif ( rsi >= threshold || last_close >= rsi_target_price )
-              WatchList.update_listing(ticker_id, rsi_target_price, rsi, threshold, :logger => logger)
             end
           end
         rescue TimeseriesException => e
@@ -146,7 +139,7 @@ module Trading
         ts = Timeseries.new(ticker_id, start_date..end_date, 1.day)
         begin
           result_hash = ts.eval_crossing(closing_strategy_params)
-          time = Time.zone.at(ts.bartime.last).to_datetime.midnight+1.day # daily bar crossings marked at midnight
+          time = Time.zone.at(ts.bartime.last).to_datetime.midnight+1.day # daily bar crossings marked at midnight of the following day
           opened_position.update_closure!(result_hash, time, ts.close.last, 0)
           ts = Timeseries.new(ticker_id, start_date..end_date, 1.day) # eval crossing screws up the timeseries
           update_target_prices(opened_position, ts)

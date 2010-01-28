@@ -9,7 +9,7 @@ require 'gsl'
 # OPTIMIZE since when closing a position we are generally interested in the first event as opposed to opening positions where
 # OPTIMIZE we want to open positions for every crossing
 module ResultAnalysis
-
+  RAD2DEG = (180.0/Math::PI)
   include GSL
 
   VALID_OPS = [:gt, :lt, :ge, :le, :eq]
@@ -22,19 +22,11 @@ module ResultAnalysis
   end
 
   def over_threshold(threshold, vec)
-    unless (indexes = threshold_crossing(threshold, vec, :gt)).nil?
-      indexes.to_v.to_i.add_constant!(outidx).to_a
-    else
-      []
-    end
+    threshold_crossing(threshold, vec, :gt)
   end
 
   def under_threshold(threshold, vec)
-    unless (indexes = threshold_crossing(threshold, vec, :lt)).nil?
-      indexes.to_v.to_i.add_constant!(outidx).to_a
-    else
-      []
-    end
+    threshold_crossing(threshold, vec, :lt)
   end
 
   def threshold_crossing(threshold, vec, op)
@@ -44,21 +36,44 @@ module ResultAnalysis
   end
 
   def crosses_over(a_vec ,b_vec)
-    crossing(:gt, a_vec, b_vec).to_v.to_i.add_constant!(outidx).to_a
+    crossing(:gt, a_vec, b_vec)
   end
 
   def crosses_under(a_vec, b_vec)
-    crossing(:lt, a_vec, b_vec).to_v.to_i.add_constant!(outidx).to_a
+    crossing(:lt, a_vec, b_vec)
+  end
+
+  def slope_at_crossing(vec1, vec2, crossings)
+    raise TimeseriesException, "Vectors are not the same length #{v1.len} versus #{vec2.len}" if vec1.len != vec2.len
+    outvec = []
+    xvec = GSL::Vector.alloc(-1, 0, 1)
+    for crossing in crossings.map { |idx| idx - outidx }
+      begin
+        vec1_points = vec1[crossing-1..crossing+1]
+        vec2_points = vec2[crossing-1..crossing+1]
+        slope1 = GSL::Fit.linear(xvec, vec1_points).second
+        slope2 = GSL::Fit.linear(xvec, vec2_points).second
+        angle1, angle2 = Math.atan(1/slope1)*RAD2DEG, Math.atan(1/slope2)*RAD2DEG
+        outvec << [crossing+outidx, vec1[crossing], (angle1-angle2).abs]
+      rescue
+        next
+      end
+    end
+    outvec
   end
 
   def crossing(method, a, b)
     bitmap = a.send(method, b)
-    last_value = bitmap[0]
+    lval = (bitmap[0] == 1)
+    idx = 0
+    indexes = []
     bitmap.where do |bflag|
-      result = (last_value == 1 && bflag == 0)
-      last_value = bflag
-      result
+      flag = (bflag == 1)
+      indexes << idx+outidx if (lval ^ flag && !flag)
+      lval = flag
+      idx += 1
     end
+    indexes
   end
 
   def find_ones(sym)

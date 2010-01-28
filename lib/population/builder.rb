@@ -53,6 +53,7 @@ module Population
       options[:description] = @descriptions.shift
       options[:table_name] = 'daily_bars' if options[:table_name].nil?
       options[:prefetch] = options[:prefetch].to_i if options[:prefetch].is_a?(Numeric)
+      options[:count] = options[:count].to_i if options[:count].is_a?(Numeric)
       options.reject { |key, value| ! cols.include? key }
     end
 

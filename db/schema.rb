@@ -9,7 +9,21 @@
 #
 # It's strongly recommended to check this file into your version control system.
 
-ActiveRecord::Schema.define(:version => 20091220213712) do
+ActiveRecord::Schema.define(:version => 20100123024049) do
+
+  create_table "ann_inputs", :force => true do |t|
+    t.float    "O"
+    t.float    "H"
+    t.float    "L"
+    t.float    "C"
+    t.float    "RSI"
+    t.integer  "V"
+    t.float    "RVIG"
+    t.float    "MACD"
+    t.float    "O0"
+    t.datetime "created_at"
+    t.datetime "updated_at"
+  end
 
   create_table "btest_positions", :force => true do |t|
     t.integer  "ticker_id"
@@ -111,6 +125,340 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
     t.float    "adj_close"
     t.date     "bardate"
     t.string   "source",    :limit => 1
+  end
+
+  create_table "decade0_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "decade0_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "decade1_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "decade1_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "decade1_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "decade1_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
+
+  create_table "decade2_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "decade2_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "decade2_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "decade2_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
+
+  create_table "decade3_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "decade3_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "decade3_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "decade3_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
+
+  create_table "decade4_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "decade4_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "decade4_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "decade4_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
+
+  create_table "decade_positions", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "decade_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "decade_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "decade_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
   end
 
   create_table "delayed_jobs", :force => true do |t|
@@ -395,6 +743,66 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
     t.string "symbol", :limit => 8
   end
 
+  create_table "no_vol_rsi_only", :force => true do |t|
+    t.integer  "ticker_id"
+    t.datetime "ettime"
+    t.float    "etprice"
+    t.float    "etival"
+    t.datetime "xttime"
+    t.float    "xtprice"
+    t.float    "xtival"
+    t.datetime "entry_date"
+    t.float    "entry_price"
+    t.float    "entry_ival"
+    t.datetime "exit_date"
+    t.float    "exit_price"
+    t.float    "exit_ival"
+    t.integer  "days_held"
+    t.float    "nreturn"
+    t.float    "logr"
+    t.boolean  "short"
+    t.boolean  "closed"
+    t.integer  "entry_pass"
+    t.float    "roi"
+    t.integer  "num_shares"
+    t.integer  "etind_id"
+    t.integer  "xtind_id"
+    t.integer  "entry_trigger_id"
+    t.integer  "entry_strategy_id"
+    t.integer  "exit_trigger_id"
+    t.integer  "exit_strategy_id"
+    t.integer  "scan_id"
+    t.float    "consumed_margin"
+  end
+
+  add_index "no_vol_rsi_only", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "nreturn_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "nreturn_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
+
   create_table "open_volume_positions", :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "ettime"
@@ -538,7 +946,33 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
     t.integer "total", :limit => 8, :default => 0, :null => false
   end
 
-  create_table "rsi_positions", :force => true do |t|
+  create_table "roi_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "roi_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
+
+  create_table "rsi_only_positions", :force => true do |t|
     t.integer  "ticker_id"
     t.datetime "ettime"
     t.float    "etprice"
@@ -570,13 +1004,39 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
     t.float    "consumed_margin"
   end
 
-  add_index "rsi_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+  add_index "rsi_only_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "rsi_only_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "rsi_only_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
+  end
 
   create_table "rsi_target_studies", :force => true do |t|
     t.integer "ticker_id"
     t.date    "start_date"
     t.date    "end_date"
-    t.integer "time_period"
+    t.float   "delta_price"
     t.float   "slope"
     t.float   "chisq"
     t.float   "target_rsi"
@@ -624,6 +1084,34 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
     t.integer  "exit_strategy_id"
     t.integer  "scan_id"
     t.float    "consumed_margin"
+  end
+
+  add_index "rsirvi_positions", ["ticker_id", "entry_date"], :name => "unique_param_ids", :unique => true
+
+  create_table "rsirvi_sim_positions", :force => true do |t|
+    t.datetime "entry_date"
+    t.datetime "exit_date"
+    t.integer  "quantity"
+    t.float    "entry_price"
+    t.float    "exit_price"
+    t.float    "nreturn"
+    t.float    "roi"
+    t.integer  "days_held"
+    t.integer  "eorder_id"
+    t.integer  "xorder_id"
+    t.integer  "ticker_id"
+    t.date     "static_exit_date"
+    t.integer  "position_id"
+  end
+
+  create_table "rsirvi_sim_summaries", :force => true do |t|
+    t.date    "sim_date"
+    t.integer "positions_held"
+    t.integer "positions_available"
+    t.float   "portfolio_value"
+    t.float   "cash_balance"
+    t.integer "pos_opened"
+    t.integer "pos_closed"
   end
 
   create_table "samples", :id => false, :force => true do |t|
@@ -1107,7 +1595,7 @@ ActiveRecord::Schema.define(:version => 20091220213712) do
     t.datetime "last_populate"
     t.float    "last_rsi"
     t.float    "closing_rsi"
-    t.boolean  "closing_condition"
+    t.datetime "indicators_crossed_at"
   end
 
   add_index "watch_list", ["ticker_id"], :name => "ticker_id"

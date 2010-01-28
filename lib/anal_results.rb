@@ -84,4 +84,17 @@ class AnalResults
       self.send(sym)
     end
   end
+
+  def generate_csv()
+    basename = names.join('_')
+    path = File.join(RAILS_ROOT, 'tmp', basename+'.csv')
+    timevec = timeseries.timevec[index_range].map { |d| d.to_formatted_s(:ymd) }
+    count = timevec.length
+    FasterCSV.open(path, "w") do |csv|
+      csv << ['date'].concat(result_hash.keys)
+      count.times do |i|
+        csv << [timevec[i]].concat(result_hash.keys.map { |k| result_hash[k][i] })
+      end
+    end
+  end
 end

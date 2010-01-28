@@ -436,7 +436,6 @@ class Timeseries
     push_bar(@last_bar) if @last_bar
     compute_timestamps(begin_time, end_time)
     missing_bar_count = expected_bar_count - timevec.length
-    raise TimeseriesException, "end date is beyond max bardate" if local_range.end > timevec.last
     raise TimeseriesException, "No values where returned from #{model.to_s.tableize} for #{symbol} " +
       "#{begin_time.to_s(:db)} through #{end_time.to_s(:db)}" if value_hash.empty?
     # We should only get here if we are not accessing DailyBars, otherwise that would have been caught earlier
@@ -604,10 +603,17 @@ class Timeseries
     end
   end
   #
+  # returns the length of this timeseries. Note that this is the "net" length
+  #
+  def length
+    timevec[index_range].length
+  end
+
+  #
   # returns the length of this timeseries. Note that this is the "gross" length, taking into account
   # any pre or post bufferes
   #
-  def length
+  def len
     timevec.length
   end
 
@@ -652,7 +658,7 @@ class Timeseries
       end
     end
 
-    @reserved_options ||= %w{ keys memo gv raw first array third, last }.inject({}) { |h, k| h[k.to_sym] = true; h }
+    @reserved_options ||= %w{ keys memo gv raw first array third, last csv series}.inject({}) { |h, k| h[k.to_sym] = true; h }
 
     if @reserved_options[options[:result]]
       results = case options[:result]
@@ -664,9 +670,11 @@ class Timeseries
                 when :array : results.first.to_a
                 when :gv    : results.first
                 when :third : results.third
+                when :csv   : pb.generate_csv()
+                when :series : generate_series(results)
                 end
     elsif options[:result].is_a?(Array)
-      raise TimeseriesException, "Invald result key #{@sym}" unless options[:result].all? { |sym| @key = sym; pb.result_hash.has_key?(sym) }
+      raise TimeseriesException, "Invald result key #{@key}" unless options[:result].all? { |sym| @key = sym; pb.result_hash.has_key?(sym) }
       options[:result].map { |sym| pb.result_hash[sym] }
     elsif result_hash.keys.include? options[:result]
       result_hash[options[:result]]
@@ -675,6 +683,13 @@ class Timeseries
     else
       raise ArgumentError, "invalid value for :result => #{options[:result]}"
     end
+  end
+
+  def generate_series(results)
+    timevec[index_range].zip(results.first.to_a).each do |pair|
+      puts "#{pair.first.to_formatted_s(:ymd)}  #{pair.second}"
+    end
+    nil
   end
 
   def update_last_bar(bar)
@@ -791,5 +806,10 @@ end
 
 def ts(symbol, local_range, seconds=1.day, options={})
   $ts = Timeseries.new(symbol, local_range, seconds, options)
+  nil
+end
+
+def sts(symbol, start_date, end_date, options={ })
+  $ts = Timeseries.new(symbol, start_date.to_date..end_date.to_date, 1.day, options)
   nil
 end

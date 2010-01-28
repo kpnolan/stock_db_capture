@@ -40,10 +40,6 @@ analytics do
     index = monotonic_sequence(exit_rsi, rsi_ary)
     index = (index == :max ? index_range.end : [index_range.begin, index-1].max)
     exit_date, exit_price = closing_values_at(index)
-    if exit_date < position.xttime
-      debugger
-    end
-    index
   end
 
   desc "Close the position if the stop loss is 15% or greater"

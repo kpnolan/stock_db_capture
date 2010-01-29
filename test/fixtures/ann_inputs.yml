@@ -1,0 +1,44 @@
+# == Schema Information
+# Schema version: 20100123024049
+#
+# Table name: ann_inputs
+#
+#  id        :integer(4)      not null, primary key
+#  O         :float
+#  H         :float
+#  L         :float
+#  C         :float
+#  RSI       :float
+#  V         :integer(4)
+#  RVIG      :float
+#  MACD      :float
+#  O0        :float
+#  ticker_id :integer(4)
+#  bartime   :datetime
+#  O1        :float
+#  O5        :float
+#
+
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  O: 1.5
+  H: 1.5
+  L: 1.5
+  C: 1.5
+  RSI: 1.5
+  V: 1
+  RVIG: 1.5
+  MACD: 1.5
+  O0: 1.5
+
+two:
+  O: 1.5
+  H: 1.5
+  L: 1.5
+  C: 1.5
+  RSI: 1.5
+  V: 1
+  RVIG: 1.5
+  MACD: 1.5
+  O0: 1.5

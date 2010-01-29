@@ -59,7 +59,7 @@ desc "set the production instance variables"
 task :production do
   set :application, "stock_db_capture"
   set :domain, "174.129.233.122"
-  set :repository,  "git://backup/git/stock_db_capture.git"
+  set :repository,  "git://71.193.192.51/backup/git/stock_db_capture.git"
   set :branch, "master"
   set :user, "deploy"
   set :git_username, "kevin"

@@ -1,17 +1,16 @@
 # == Schema Information
-# Schema version: 20100123024049
+# Schema version: 20100205165537
 #
 # Table name: positions
 #
-#  id                :integer(4)      not null, primary key
-#  ticker_id         :integer(4)
+#  ticker_id         :integer(4)      default(0), not null
 #  ettime            :datetime
 #  etprice           :float
 #  etival            :float
 #  xttime            :datetime
 #  xtprice           :float
 #  xtival            :float
-#  entry_date        :datetime
+#  entry_date        :datetime        not null
 #  entry_price       :float
 #  entry_ival        :float
 #  exit_date         :datetime
@@ -33,6 +32,8 @@
 #  exit_strategy_id  :integer(4)
 #  scan_id           :integer(4)
 #  consumed_margin   :float
+#  eind_id           :integer(4)
+#  xind_id           :integer(4)
 #
 
 one:

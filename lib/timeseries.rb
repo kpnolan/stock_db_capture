@@ -119,7 +119,7 @@ class Timeseries
   attr_reader :expected_bar_count, :logger
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
-    @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false, :missing_bar_error => :report
+    @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false, :missing_bar_error => :report, :max_date => Date.today - 1
     initialize_state()
     debugger if local_range.begin > local_range.end
     @ticker_id = Ticker.resolve_id(symbol_or_id)
@@ -545,6 +545,16 @@ class Timeseries
     return index2time(index), value_at(index, :close)
   end
 
+  # Persist the contents of a set of results to an IndicatorValue table
+  def persist_results(trigger, position, *result_names)
+    result_names.each do |name|
+      indicator_id = Indicator.lookup(name).id
+      result_vec = result_hash[name]
+      result_vec.each_index do |index|
+        IndicatorValue.record_element(trigger, indicator_id, position, index2time(index+result_offset), result_vec[index])
+      end
+    end
+  end
   #
   # Returns a the value at an index location of a bar or result #FIXME this function is duplicated elswhere
   #
@@ -659,7 +669,6 @@ class Timeseries
     end
 
     @reserved_options ||= %w{ keys memo gv raw first array third, last csv series}.inject({}) { |h, k| h[k.to_sym] = true; h }
-
     if @reserved_options[options[:result]]
       results = case options[:result]
                 when :keys  : pb.keys

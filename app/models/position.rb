@@ -1,17 +1,16 @@
 # == Schema Information
-# Schema version: 20100123024049
+# Schema version: 20100205165537
 #
 # Table name: positions
 #
-#  id                :integer(4)      not null, primary key
-#  ticker_id         :integer(4)
+#  ticker_id         :integer(4)      default(0), not null
 #  ettime            :datetime
 #  etprice           :float
 #  etival            :float
 #  xttime            :datetime
 #  xtprice           :float
 #  xtival            :float
-#  entry_date        :datetime
+#  entry_date        :datetime        not null
 #  entry_price       :float
 #  entry_ival        :float
 #  exit_date         :datetime
@@ -33,14 +32,19 @@
 #  exit_strategy_id  :integer(4)
 #  scan_id           :integer(4)
 #  consumed_margin   :float
+#  eind_id           :integer(4)
+#  xind_id           :integer(4)
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-#require 'rubygems'
-#require 'ruby-debug'
+require 'rubygems'
+require 'composite_primary_keys'
 
 class Position < ActiveRecord::Base
+
+  set_primary_keys :ticker_id, :entry_date
+
   belongs_to :ticker
   belongs_to :entry_trigger
   belongs_to :exit_trigger
@@ -49,7 +53,7 @@ class Position < ActiveRecord::Base
   belongs_to :scan
   belongs_to :etind, :class_name => 'Indicator'
   belongs_to :xtind, :class_name => 'Indicator'
-  has_many :position_series, :dependent => :delete_all
+  has_many :indicator_values, :foreign_key => [:ticker_id, :entry_date]
 
   named_scope :filtered, lambda { |*pred| { :conditions => pred.first } }
   named_scope :ordered,  lambda { |*sort| { :order => sort.first } }
@@ -81,7 +85,9 @@ class Position < ActiveRecord::Base
 
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
       begin
-        pos = create!(:ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival)
+        attrs = { :ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival, :entry_date => trigger_time }
+        attrs.merge!(:entry_price => trigger_price) if options[:next_pass] == false
+        pos = create!(attrs)
       rescue ActiveRecord::RecordInvalid => e
         raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
         raise e
@@ -94,7 +100,9 @@ class Position < ActiveRecord::Base
         ind_id = indicator.nil? ? nil : Indicator.lookup(indicator).id
         closed = options[:closed]
         ival = nil if ival.nil? or ival.nan?
-        pos = position.update_attributes!(:xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed)
+        attrs = { :xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed }
+        attrs.merge!(:exit_price => trigger_price, :exit_date => trigger_time)
+        pos = position.update_attributes! attrs
       rescue ActiveRecord::RecordInvalid => e
         raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
         raise e
@@ -102,19 +110,31 @@ class Position < ActiveRecord::Base
       pos
     end
 
+    #
+    # open a position that has been previously triggered. Note that because the entry date may have moved from the
+    # trigger date this can result in a duplicate opening, for which we check first
+    #
     def open(position, entry_time, entry_price, options={})
       short = options[:short]
-      position.update_attributes!(:entry_price => entry_price, :entry_date => entry_time, :num_shares => 1, :short => short)
+      cmargin = (entry_price - position.etprice)/position.etprice
+      position.update_attributes!(:entry_price => entry_price, :entry_date => entry_time,
+                                  :num_shares => 1, :short => short, :consumed_margin => cmargin)
       position
     end
 
     def close(position, exit_date, exit_price, exit_ival, options={})
       days_held = trading_days_between(position.entry_date, exit_date)
-      roi = (exit_price - position.entry_price) / position.entry_price
-      rreturn = exit_price / position.entry_price
-      logr = Math.log(rreturn.zero? ? 0 : rreturn)
-      nreturn = days_held.zero? ? 0.0 : roi / days_held
-      nreturn *= -1.0 if position.short and nreturn != 0.0
+      exit_status = if exit_price.nil?
+                      roi = rreturn = logr = nreturn = 0.0
+                      true
+                    else
+                      roi = (exit_price - position.entry_price) / position.entry_price
+                      rreturn = exit_price / position.entry_price
+                      logr = Math.log(rreturn.zero? ? 0.0 : rreturn)
+                      nreturn = days_held.zero? ? 0.0 : roi / days_held
+                      nreturn *= -1.0 if position.short and nreturn != 0.0
+                      false
+                    end
       closed = options[:closed] == false ? nil : options[:closed]
       indicator_id = Indicator.lookup(options[:indicator]).id
 
@@ -122,7 +142,7 @@ class Position < ActiveRecord::Base
                                   :xtind_id => indicator_id, :exit_ival => exit_ival,
                                   :days_held => days_held, :nreturn => nreturn, :logr => logr,
                                   :closed => closed)
-      position
+      exit_status
     end
 
     def exiting_positions(date)
@@ -161,15 +181,6 @@ class Position < ActiveRecord::Base
       rhs_cols = rhs_names.join(',')
 
       "insert into #{dest}(#{lhs_cols}) select #{rhs_cols} from #{src}#{other_table} #{where} #{append_clause}"
-    end
-
-    def persist(src, filter)
-      sql = generate_extract_sql(src, 'temp_positions', filter)
-      debugger
-      Position.connection.execute("DROP TABLE IF EXISTS temp_positions")
-      Position.connection.execute('CREATE TEMPORARY TABLE temp_positions LIKE proto_positions')
-      Position.connection.execute('ALTER TABLE temp_positions ENGINE=MEMORY')
-      Position.connection.execute(sql)
     end
 
     def find_by_date(field, date, options={})

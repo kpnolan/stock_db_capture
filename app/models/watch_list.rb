@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20100123024049
+# Schema version: 20100205165537
 #
 # Table name: watch_list
 #
@@ -49,8 +49,8 @@ class WatchList < ActiveRecord::Base
   validates_presence_of :ticker_id
   validates_uniqueness_of :ticker_id, :scope => :listed_on
 
-  ENTRY_HEADING = [ 'Symbol', 'Percentage', 'Target RSI Price',  'Volume', 'Shares', 'RSI', 'Threshold', 'Listing', 'Open Crossing' ]
-  ENTRY_COLUMNS = %w{ symbol target_percentage_f rsi_target_price_f volume shares current_rsi_f target_rsi_f listed_on open_crossing }
+  ENTRY_HEADING = [ 'Symbol', 'Percentage', 'Target RSI Price',  'Volume', 'Shares', 'RSI', 'Threshold', 'Open Crossing' ]
+  ENTRY_COLUMNS = %w{ symbol target_percentage_f rsi_target_price_f volume shares current_rsi_f target_rsi_f open_crossing }
   EXIT_HEADING =  [ 'Symbol', 'Days Held', 'Entry Date', 'Entry Price', 'Current Price', 'Target RSI Price',  'Target RVI Price',  'ROI', 'Volume', 'Shares Held', 'RSI', 'RVI', 'RSI/RVI Crossing', 'Close Crossing' ]
   EXIT_COLUMNS = %w{ symbol days_held entry_date entry_price price_f rsi_target_price_f rvi_target_price_f roi_f volume shares_held current_rsi_f current_rvi_f indicator_crossing close_crossing }
 

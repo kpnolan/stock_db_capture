@@ -1,4 +1,6 @@
 ActionController::Routing::Routes.draw do |map|
+  map.resources :indicator_values
+
   map.resources :sim_jobs
   map.resources :sim_summaries
   map.resources :ledger_txns

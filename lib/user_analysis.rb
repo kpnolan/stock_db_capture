@@ -4,6 +4,16 @@ require 'timeseries_exception'
 
 include GSL
 
+class Range
+  def lag(p=1)
+    (self.begin-1)..(self.end-1)
+  end
+  def size()
+    size = self.end - self.begin
+    exclude_end? ? size : size + 1
+  end
+end
+
 module Enumerable
   def diff
     self[1..-1].zip(self).map {|x| x[0]-x[1]}
@@ -309,6 +319,24 @@ module UserAnalysis
     out
   end
 
+  # Arms Ease of Movement
+  def arms_eom()
+    range = calc_indexes(nil, 1)
+    outvec = ((high[range]+low[range])/2 - (high[range.lag]-low[range.lag]/2)) / (volume[range]/(high[range]-low[range]))
+    result = [0, outidx, outvec]
+    memoize_result(self, :arms_eom, range, options, result, :overlap)
+  end
+
+  # Price Volume Trend
+  def pvt()
+    range = calc_indexes(nil, 1)
+
+    subtotal = volume[range]*(close[range] - close[range.lag])/close[range.lag]
+    outvec = subtotal.cumsum()
+    result = [0, outidx, outvec]
+    memoize_result(self, :pvt, range, options, result, :overlap)
+  end
+
   # Relative Valatility Index
   def invrvi(options={})
     options.reverse_merge! :time_period => 14
@@ -378,7 +406,7 @@ module UserAnalysis
   # RVISig = (RVI + 2 * RVI (1) + 2 * RVI (2) + RVI (3)) / 6
   # Relative Vigor Index
   def rvig(options={})
-    options.reverse_merge! :time_period => 10
+    options.reverse_merge! :time_period => 5
     idx_range = calc_indexes(:ta_sma_lookback, options[:time_period]+18)
     nan = 0.0/0.0
 

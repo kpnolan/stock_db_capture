@@ -27,7 +27,7 @@ class Backtester
 
   attr_reader :scan_name, :et_name, :es_name, :xt_name, :xs_name
   attr_reader :etrigger_decl, :opening_decl, :xtrigger_decl, :closing_decl
-  attr_reader :desc, :options, :post_process, :days_to_close, :days_to_open, :triggered_index_hash
+  attr_reader :desc, :options, :post_process, :days_to_close, :days_to_open, :triggered_index_hash, :max_date
   attr_reader :entry_trigger, :entry_strategy, :exit_trigger, :exit_strategy
   attr_reader :opening, :closing, :scan, :stop_loss, :tid_array, :date_range, :rsi_id
   attr_reader :position_ts_map
@@ -41,7 +41,8 @@ class Backtester
   def initialize(trigger_strategy_name, entry_strategy_name, exit_trigger_name, exit_strategy_name, scan_name, description, options, &block)
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
                                      :days_to_close => 20, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10,
-                                     :pre_buffer => 0, :post_buffer => 0, :repopulate => true
+                                     :pre_buffer => 0, :post_buffer => 0, :repopulate => true, :max_date => (Date.today-1),
+                                     :record_indicators => false
     @et_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xt_name = exit_trigger_name
@@ -54,6 +55,7 @@ class Backtester
     @position_ts_map = { }
     @post_process = block
     @resolution = self.options.delete :resolution
+    @max_date = options[:max_date]
     set_log_level(@options[:log_flags])
 
     raise BacktestException.new("Cannot find entry trigger: #{et_name}")  if et_name && EntryTrigger.find_by_name(et_name).nil?
@@ -105,10 +107,10 @@ class Backtester
     # varied is a hack (FIXME), which should instead involve the use of three seperate trigger strategies instead of the
     # bastardized one we use here.
     #-------------------------------------------------------------------------------------------------------------------
-    if entry_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
+    if Position.count(:all, :conditions => { :entry_trigger_id => entry_trigger.id, :scan_id => scan.id }).zero?
       logger.info "(#{chunk_id}) Beginning trigger positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
-      primary_indicator = etrigger_decl.params[:indicator]
+      primary_indicator = etrigger_decl.params[:result] && etrigger_decl.params[:result].first
       indicator_id ||= Indicator.lookup(primary_indicator).id
 
       count = 0
@@ -127,10 +129,11 @@ class Backtester
               trigger_ival = ts.result_at(index, primary_indicator)
               # the case
               debugger if trigger_date.nil? or trigger_price.nil?
-              position = BtestPosition.trigger_entry(ts.ticker_id, trigger_date, trigger_price, indicator_id, trigger_ival, pass, :next_pass => entry_strategy.name != 'identity')
+              position = Position.trigger_entry(ts.ticker_id, trigger_date, trigger_price, indicator_id, trigger_ival, pass, :next_pass => entry_strategy.name != 'identity')
               logger.info "Triggered #{ts.symbol} on #{trigger_date.to_formatted_s(:ymd)} at $#{trigger_price}" if log? :triggers
-              entry_trigger.btest_positions << position
-              scan.btest_positions << position
+              ts.persist_results(entry_trigger, position, *etrigger_decl.params[:result]) if options[:record_indicators]
+              entry_trigger.positions << position
+              scan.positions << position
               map_position_ts(position, ts)
               triggered_index_hash[index] = true
               ts.clear_results() unless ts.nil?
@@ -138,13 +141,15 @@ class Backtester
           end
         rescue TimeseriesException => e
           logger.info "#{e.to_s} -- SKIPPING Ticker"
-        #rescue Exception => e
-        #  logger.info "Unexpected exception #{e.to_s}"
+          #rescue Exception => e
+          #  logger.info "Unexpected exception #{e.to_s}"
         end
         count += 1
         symbol = Ticker.find(ticker_id).symbol
+        $stderr.print "\r#{symbol}    "
         logger.info("Processed #{symbol} #{count} of #{ticker_ids.length} #{index_count} positions entered") if log? :trigger_summary
       end
+
 
       endt = Time.now
       delta = endt - startt
@@ -167,59 +172,67 @@ class Backtester
     # OPEN POSITION pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
     # whose mission it is to cull out losers that have been triggered and ones not likely to close.
     #-------------------------------------------------------------------------------------------------------------------
-    if entry_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
+    if Position.count(:all, :conditions => { :entry_strategy_id => entry_strategy.id, :scan_id => scan.id }).zero?
       logger.info "(#{chunk_id}) Beginning open positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
 
       startt = Time.now
       count = 0
       duplicate_entries = 0
-      triggers = entry_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id }, :order => 'ettime, ticker_id')
+      triggers = entry_trigger.positions.find(:all, :conditions => { :scan_id => scan.id }, :order => 'ettime, ticker_id')
       trig_count = triggers.length
-
       for position in triggers
-        break if entry_strategy.name == 'identity'
-        begin
-          start_date = position.ettime.to_date
-          end_date = Backtester.trading_date_from(start_date, days_to_open)
-          if ts = timeseries_for(position)
-            ts.reset_local_range(start_date, end_date)
-          else
-            ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, self.options.merge(:logger => logger))
-          end
+        if entry_strategy.params[:result] == [:identity]
+          result_id ||= Indicator.lookup(:identity).id
+          position.entry_date = position.ettime
+          posiion.entry_price = position.etprice
+          position.entry_ival = position.etival
+          position.eind_it = result_id;
+          entry_strategy.positions << position
+          count += 1
+        else
+          begin
+            start_date = position.ettime.to_date
+            end_date = [Backtester.trading_date_from(start_date, days_to_open), max_date].min
+            if ts = timeseries_for(position)
+              ts.reset_local_range(start_date, end_date)
+            else
+              ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, self.options.merge(:logger => logger))
+            end
 
-          confirming_index = ts.instance_exec(opening_decl.params, &opening_decl.block)
+            confirming_index = ts.instance_exec(opening_decl.params, &opening_decl.block)
+            ts.persist_results(entry_strategy, position, *entry_strategy.params[:result]) if options[:record_indicators]
 
-          if confirming_index
-            index = confirming_index
-            entry_time, entry_price = ts.closing_values_at(index)
-
-            unless BtestPosition.open(position, entry_time, entry_price).nil?
-              logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
+            unless confirming_index.nil?
+              index = confirming_index
+              entry_time, entry_price = ts.closing_values_at(index)
+              logger.info "#{ts.symbol} etrigger: #{position.ettime.to_formatted_s(:ymd)} entry_date: #{entry_time.to_formatted_s(:ymd)}" if log? :entry
+              unless Position.open(position, entry_time, entry_price).nil?
+                logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
+                                   count, trig_count, position.ticker.symbol,
+                                   position.ettime.to_formatted_s(:ymd),
+                                   position.entry_delay, position.etprice, position.entry_price,
+                                   position.consumed_margin) if log? :entries
+                entry_strategy.positions << position
+                count += 1
+              end
+            else
+              logger.info format("Position %d of %d (%s) %s\tNA\t%3.2f\tNA\tNA",
                                  count, trig_count, position.ticker.symbol,
                                  position.ettime.to_formatted_s(:ymd),
-                                 position.entry_delay, position.etprice, position.entry_price,
-                                 position.consumed_margin) if log? :entries
-              entry_strategy.btest_positions << position
-              count += 1
+                                 position.etprice) if log? :entries
             end
-          else
-            logger.info format("Position %d of %d (%s) %s\tNA\t%3.2f\tNA\tNA",
-                               count, trig_count, position.ticker.symbol,
-                               position.ettime.to_formatted_s(:ymd),
-                               position.etprice) if log? :entries
-          end
           rescue TimeseriesException => e
-          logger.error(e.to_s)
-          remove_from_position_map(position)
-          BtestPosition.delete position.id
-        rescue ActiveRecord::StatementInvalid
-          duplicate_entries += 1
-          #logger.error("Duplicate entry for #{position.ticker.symbol} tigger: #{position.ettime.to_formatted_s(:ymd)} entry: #{entry_time.to_formatted_s(:ymd)}")
+            logger.error(e.to_s)
+            remove_from_position_map(position)
+            Position.delete position.id
+          rescue ActiveRecord::StatementInvalid
+            duplicate_entries += 1
+            #logger.error("Duplicate entry for #{position.ticker.symbol} tigger: #{position.ettime.to_formatted_s(:ymd)} entry: #{entry_time.to_formatted_s(:ymd)}")
+          end
+          ts.clear_results unless ts.nil?
         end
-        ts.clear_results unless ts.nil?
       end
-
       endt = Time.now
       delta = endt - startt
       logger.info "(#{chunk_id}) #{duplicate_entries} duplicate entries merged" if log? :basic
@@ -237,7 +250,7 @@ class Backtester
     else
       logger.info "Using pre-computed entries..."
     end
-
+
     #--------------------------------------------------------------------------------------------------------------------
     # TRIGGERED EXIT pass. Iterates through all positions opened by the previous pass applying an exitting strategy based upon
     # crossing a certain threshold of one or more indicators. This is NOT intended to be an optimizing close, rather it records the
@@ -246,13 +259,13 @@ class Backtester
     # forcefully closed (usually at a significant loss). Any positions found with an incomplete set of bars is
     # summarily logged and destroyed.
     #-------------------------------------------------------------------------------------------------------------------
-    if exit_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
+    if Position.count(:all, :conditions => { :exit_trigger_id => exit_trigger.id, :scan_id => scan.id }).zero?
       logger.info "(#{chunk_id}) Beginning exit trigger analysis..." if log? :basic
       startt = Time.now
 
       RubyProf.start if self.options[:profile]
 
-      open_positions = BtestPosition.find(:all, :conditions => { :scan_id => scan.id }, :include => :ticker, :order => 'tickers.symbol, entry_date')
+      open_positions = entry_strategy.positions.find(:all, :conditions => { :scan_id => scan.id }, :include => :ticker, :order => 'tickers.symbol, entry_date')
       pos_count = open_positions.length
 
       counter = 1
@@ -260,8 +273,8 @@ class Backtester
       for position in open_positions
         @current_position = position
         begin
-          max_exit_date = BtestPosition.trading_date_from(position.entry_date, days_to_close)
-          if max_exit_date > Date.today
+          max_exit_date = Position.trading_date_from(position.entry_date, days_to_close)
+          if max_exit_date > Date.today-1
             ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
             max_exit_date = ticker_max.localtime
           end
@@ -271,18 +284,21 @@ class Backtester
             ts_options = { :logger => logger } # FIXME prefetch bars should be dynamic
             ts = Timeseries.new(position.ticker_id, position.entry_date..max_exit_date, resolution, self.options.merge(ts_options))
           end
+
           exit_time, indicator, ival = ts.instance_exec(xtrigger_decl.params, &xtrigger_decl.block)
+          ts.persist_results(exit_trigger, position, *entry_strategy.params[:result]) if options[:record_indicators]
+
           if exit_time.is_a?(Time)
-            BtestPosition.trigger_exit(position, exit_time, c = ts.value_at(exit_time, :close), indicator, ival, :closed => true)
-            BtestPosition.close(position, exit_time, c, ival, :indicator => :rvigor, :closed => true) if exit_strategy.name = 'identity'
-            logger.info "#{ts.symbol}\t#{position.entry_date.to_formatted_s(:ymd)} #{position.xttime.to_formatted_s(:ymd)} #{position.etival} #{position.xtival}"
-            exit_trigger.btest_positions << position
+            Position.trigger_exit(position, exit_time, c = ts.value_at(exit_time, :close), indicator, ival, :closed => true)
+            Position.close(position, exit_time, c, ival, :indicator => :rvigor, :closed => true) if exit_strategy.name = 'identity'
+            logger.info "#{ts.symbol}\t#{position.entry_date.to_formatted_s(:ymd)} #{position.xttime.to_formatted_s(:ymd)} #{position.etival} #{position.xtival}" if log? :exits
+            exit_trigger.positions << position
           elsif exit_time.nil?
-            BtestPosition.trigger_exit(position, max_exit_date, ts.value_at(max_exit_date, :close), :rvigor, nil, :closed => false)
+            Position.trigger_exit(position, max_exit_date, ts.value_at(max_exit_date, :close), :rvigor, nil, :closed => false)
           elsif exit_time.is_a?(Numeric) # FIXME I'm not sure what in the fuck this is doing here
             exit_date = Backtester.trading_date_from(position.entry_date, -exit_time)
-            BtestPosition.trigger_exit(position, exit_date, ts.value_at(exit_date, :close), nil, nil, :closed => false)
-            null_exit = BtestPosition.close(position, exit_date, ts.value_at(exit_date, :close), nil, :indicator => :rsi, :closed => false)
+            Position.trigger_exit(position, exit_date, ts.value_at(exit_date, :close), nil, nil, :closed => false)
+            null_exit = Position.close(position, exit_date, ts.value_at(exit_date, :close), nil, :indicator => :rsi, :closed => false)
             if null_exit
               logger.info format("Position %d of %d (%s) %s\t%s has NULL close",
                                  counter, pos_count, position.ticker.symbol,
@@ -294,7 +310,7 @@ class Backtester
         rescue TimeseriesException => e
           logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
           remove_from_position_map(position)
-          BtestPosition.delete position.id
+          Position.delete position.id
         end
         ts.clear_results() unless ts.nil?
         logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
@@ -305,7 +321,7 @@ class Backtester
         counter += 1
       end
 
-      entry_strategy.btest_positions.clear()
+      entry_strategy.positions.clear()
 
       endt = Time.now
       delta = endt - startt
@@ -325,7 +341,7 @@ class Backtester
     else
       logger.info "Using pre-computed exits..."
     end
-
+
     #--------------------------------------------------------------------------------------------------------------------
     # CLOSE POSITION pass. Once a position has crossed  a exit threshold it is further processed to seek an optimal close,
     # not just the point at which an arbritary threshold was crossed. This is usually done by followin an indicator as it rises and
@@ -336,76 +352,86 @@ class Backtester
     # position. The purpose of this pass is to follow the curse looking for a local maxima and then closing, thus added
     # to our profit.
     #-------------------------------------------------------------------------------------------------------------------
-    if exit_strategy.nil? || exit_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id }).count.zero?
+    if exit_strategy.nil? || Position.count(:all, :conditions => { :exit_strategy_id => exit_trigger.id, :scan_id => scan.id }).zero?
       logger.info "(#{chunk_id}) Beginning close position optimization analysis..." if log? :basic
       startt = Time.now
 
       RubyProf.start if self.options[:profile]
 
-      open_positions = exit_trigger.btest_positions.find(:all, :conditions => { :scan_id => scan.id },
-                                                         :include => :ticker, :order => 'tickers.symbol, entry_date')
+      open_positions = Position.find(:all, :conditions => { :exit_trigger_id => exit_trigger.id, :scan_id => scan.id },
+                                      :include => :ticker, :order => 'tickers.symbol, entry_date')
       pos_count = open_positions.length
 
       counter = 1
       log_counter = 0
       max_limit_counter = 0
       for position in open_positions
-        break if exit_strategy.name == 'identity'
-        begin
-          p = position
-          max_exit_date = BtestPosition.trading_date_from(position.xttime, options[:days_to_optimize])
-          if max_exit_date > Date.today
-            ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
-            max_exit_date = ticker_max.localtime
-          end
-          if ts = timeseries_for(position)
-            ts.reset_local_range(position.xttime, max_exit_date)
-          else
-            ts = Timeseries.new(position.ticker_id, position.xttime..max_exit_date, resolution, self.options.merge(:logger => logger))
-          end
-          index = ts.instance_exec(position, closing_decl.params, &closing_decl.block)
-
-          unless index.nil?
-            closing_time, closing_price = ts.closing_values_at(index)
-            max_rsi = ts.result_at(index, :rsi)
-          else
-            closing_time = position.xttime
-            closing_price = postition.xtprice
-            max_rsi = xtival
-            max_limit_count += 1
-          end
-          BtestPosition.close(position, closing_time, closing_price, max_rsi, :indicator => :rsi, :closed => true)
+        if entry_strategy.params[:result] == [:identity]
+          result_id ||= Indicator.lookup(:result).id
+          position.exit_date = position.xttime
+          position.exit_price = position.xtprice
+          position.entry_ival = position.etival
+          position.eind_it = result_id;
+          exit_strategy.positions << position
+          count += 1
+        else
           begin
-            exit_strategy.btest_positions << position
-          rescue Exception   # FIXME duplicates should have been filtered out on opening, so we should not have to do this
-            remove_from_position_map(position)
-            BtestPosition.delete position.id
-          end
-          ts.clear_results() unless ts.nil?
+            p = position
+            max_exit_date = Position.trading_date_from(position.xttime, options[:days_to_optimize])
+            if max_exit_date > Date.today
+              ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
+              max_exit_date = ticker_max.localtime
+            end
+            if ts = timeseries_for(position)
+              ts.reset_local_range(position.xttime, max_exit_date)
+            else
+              ts = Timeseries.new(position.ticker_id, position.xttime..max_exit_date, resolution, self.options.merge(:logger => logger))
+            end
+            index = ts.instance_exec(position, closing_decl.params, &closing_decl.block)
+            ts.persist_results(exit_strategy, position, *entry_strategy.params[:result]) if options[:record_indicators]
 
-          if position.exit_date > position.xttime
-            xtival = position.xtival.nil? ? -0.00 : position.xtival.abs > 100.0 ? -0.00 : position.xtival
-            logger.info("\t\t\t\t\t\tDH\tXTROI\tDELTA\tROI\tXTIVAL\tRSI") if log?(:closures) and log_counter % 50 == 0
-            logger.info format("Position %d of %d (%s)\t%s\t%d\t%3.2f%%\t%3.2f\t%3.2f%%\t%3.2f\t%3.2f\t%s",
-                               counter, pos_count, position.ticker.symbol,
-                               position.xttime.to_formatted_s(:ymd), position.exit_days_held,
-                               position.xtroi*100, position.exit_delta, position.roi*100,
-                               xtival , position.exit_ival, position.xtind.name) if log? :closures
-            log_counter += 1 if log? :closures
-          elsif position.exit_date < position.xttime
-            xtival = position.xtival.nil? ? -0.00 : position.xtival.abs > 100.0 ? -0.00 : position.xtival
-            logger.info format("!!!Position %d of %d (%s)\t%s %s\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
-                               counter, pos_count, position.ticker.symbol,
-                               position.xttime.to_formatted_s(:ymd), position.exit_date.to_formatted_s(:ymd),
-                               position.xtprice, position.exit_price,
-                               xtival , position.exit_ival, position.xtind.name) if log? :closures
+            unless index.nil?
+              closing_time, closing_price = ts.closing_values_at(index)
+              max_rsi = ts.result_at(index, :rsi)
+            else
+              closing_time = position.xttime
+              closing_price = postition.xtprice
+              max_rsi = xtival
+              max_limit_count += 1
+            end
+            Position.close(position, closing_time, closing_price, max_rsi, :indicator => :rsi, :closed => true)
+            begin
+              exit_strategy.positions << position
+            rescue Exception   # FIXME duplicates should have been filtered out on opening, so we should not have to do this
+              remove_from_position_map(position)
+              Position.delete position.id
+            end
+            ts.clear_results() unless ts.nil?
+
+            if position.exit_date > position.xttime
+              xtival = position.xtival.nil? ? -0.00 : position.xtival.abs > 100.0 ? -0.00 : position.xtival
+              logger.info("\t\t\t\t\t\tDH\tXTROI\tDELTA\tROI\tXTIVAL\tRSI") if log?(:closures) and log_counter % 50 == 0
+              logger.info format("Position %d of %d (%s)\t%s\t%d\t%3.2f%%\t%3.2f\t%3.2f%%\t%3.2f\t%3.2f\t%s",
+                                 counter, pos_count, position.ticker.symbol,
+                                 position.xttime.to_formatted_s(:ymd), position.exit_days_held,
+                                 position.xtroi*100, position.exit_delta, position.roi*100,
+                                 xtival , position.exit_ival, position.xtind.name) if log? :closures
+              log_counter += 1 if log? :closures
+            elsif position.exit_date < position.xttime
+              xtival = position.xtival.nil? ? -0.00 : position.xtival.abs > 100.0 ? -0.00 : position.xtival
+              logger.info format("!!!Position %d of %d (%s)\t%s %s\t%3.2f\t%3.2f\t%3.2f\t%3.2f\t%s",
+                                 counter, pos_count, position.ticker.symbol,
+                                 position.xttime.to_formatted_s(:ymd), position.exit_date.to_formatted_s(:ymd),
+                                 position.xtprice, position.exit_price,
+                                 xtival , position.exit_ival, position.xtind.name) if log? :closures
+            end
+          rescue TimeseriesException => e
+            logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
+            remove_from_position_map(position)
+            Position.delete position.id
           end
-        rescue TimeseriesException => e
-          logger.error("#{e.class.to_s}: #{e.to_s}. DELETING POSITION!")
-          remove_from_position_map(position)
-          BtestPosition.delete position.id
+          counter += 1
         end
-        counter += 1
       end
     end
 
@@ -420,37 +446,28 @@ class Backtester
     #-----------------------------------------------------------------------------------------------------------------
     startt = Time.now
 
-    columns = BtestPosition.columns.map(&:name)
+    columns = Position.columns.map(&:name)
     columns.delete 'id'
 
     #TODO replace this entire block with a single constructed INSERT stmt with conditions on scan_id and exit_date
     #TODO see Position.generate_insert_sql
 
-    columns = BtestPosition.columns.map(&:name)
-    columns.delete("id")
-    sql = "insert into #{Position.table_name} select #{columns.join(',')} from #{BtestPosition.table_name} where scans.id = #{scan.id}"
-    Position.connection.execute(sql)
+    sql = "insert into positions select #{columns.join(',')} from #{Position.table_name} where scan_id = #{scan.id} "+
+      "and exit_date is not null"
+    #Position.connection.execute(sql)
 
     endt = Time.now
     delta = endt - startt
     logger.info "Backtest (persist positions) elapsed time: #{Backtester.format_et(delta)}" if log? :basic
 
-
-    #-----------------------------------------------------------------------------------------------------------------
-    # Generate statistics to support positions
-    #-----------------------------------------------------------------------------------------------------------------
-    generate_stats(entry_trigger.btest_positions) if self.options[:generate_stats]
 
-    endt = Time.now
-    global_delta = endt - global_startt
-    logger.info "(#{chunk_id}) Total Backtest elapsed time: (#{scan_name}) #{Backtester.format_et(global_delta)}" if log? :basic
     #--------------------------------------------------------------------------------------------------------------------
     # Stop-loss pass. The nitty gritty of threshold crossing is handeled by tstop(...)
     #-------------------------------------------------------------------------------------------------------------------
     unless stop_loss.nil? || stop_loss.threshold.to_f == 100.0
       logger.info "Beginning stop loss analysis..."
       startt = Time.now
-      open_positions = exit_strategy.btest_positions.find(:all, :conditions => { :scan_id => scan.id })
+      open_positions = exit_strategy.positions.find(:all, :conditions => { :scan_id => scan.id })
       open_positions.each do |p|
         tstop(p, stop_loss.threshold, stop_loss.options)
       end
@@ -481,7 +498,7 @@ class Backtester
   def reset_position_index_hash
     @triggered_index_hash = { }
   end
-
+
   #--------------------------------------------------------------------------------------------------------------------
   # Truncate all positions matching the current tigger, entry, or exit strategies or scan. Accepts either a single symbol or an array of symbols
   #--------------------------------------------------------------------------------------------------------------------
@@ -496,29 +513,19 @@ class Backtester
       case symbol
       when :entry_trigger then
         count += entry_trigger.positions.count
-        count += entry_trigger.btest_positions.count
         entry_trigger.positions.clear
-        entry_trigger.btest_positions.clear
       when :entry_strategy then
         count += entry_strategy.positions.count
-        count += entry_strategy.btest_positions.count
         entry_strategy.positions.clear
-        entry_strategy.btest_positions.clear
       when :exit_trigger then
         count += exit_trigger.positions.count
-        count += exit_trigger.btest_positions.count
         exit_trigger.positions.clear
-        exit_trigger.btest_positions.clear
       when :exit_strategy then
         count += exit_strategy.positions.count
-        count += exit_strategy.btest_positions.count
         exit_strategy.positions.clear
-        exit_strategy.btest_positions.clear
       when :scan then
         count += scan.positions.count
-        count += scan.btest_positions.count
         scan.positions.clear
-        scan.btest_positions.clear
       else
         raise ArgumentError, ":truncate must take one or an array of the following: :entry_trigger, :entry_strategy, :exit_strategy or :scan"
       end
@@ -527,27 +534,7 @@ class Backtester
     delta = Time.now - startt
     logger.info "(#{chunk_id}) Truncated #{total_count} positions in #{Backtester.format_et(delta)}" if log? :basic
   end
-  #--------------------------------------------------------------------------------------------------------------------
-  # Geerate statistics recorded are given by the params given to the function compute_and_persist
-  #--------------------------------------------------------------------------------------------------------------------
-  def generate_stats(positions)
-    logger.info "(#{chunk_id}) Beginning indicator statistics generatian..."
-    startt = Time.now
-    for position in positions
-      start_date = BtestPosition.trading_date_from(position.ettime, 0)
-      end_date = BtestPosition.trading_date_from(position.ettime, 20)
-      if end_date > Date.today
-        ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
-        end_date = ticker_max.localtime
-      end
-      ts = Timeseries.new(position.ticker_id, start_date..end_date, 1.day, :post_buffer => 0)
-      ts.compute_and_persist(position, :rsi => { :result => :rsi }, :rvi => { :result => :rvi })
-    end
-    endt = Time.now
-    delta = endt-startt
-    logger.info "(#{chunk_id}) Generate Position Statitics took #{Backtester.format_et(delta)}" if log? :basic
-  end
-
+
   #--------------------------------------------------------------------------------------------------------------------
   # add a mapping between a positions and it's associated timeseries
   #--------------------------------------------------------------------------------------------------------------------
@@ -614,7 +601,7 @@ class Backtester
       raise ArgumentError, "#{use.to_s.capitalize} strategy #{name} do not have a value" if value.nil?
     end
   end
-
+
   #--------------------------------------------------------------------------------------------------------------------
   # First attempt at a stop-loss algorithm that mimics the stop-losses which can be placed on orders at the time the are
   # bought and/or applied and modified later. Early tests indicated that this type of loss protection did more harm than
@@ -648,13 +635,13 @@ class Backtester
           xtime = ts.index2time(sindex)
           xdate = xtime.to_date
           edate = p.entry_date.to_date
-          days_held = BtestPosition.trading_day_count(edate, xdate)
+          days_held = Position.trading_day_count(edate, xdate)
           nreturn = ((low - p.entry_price) / p.entry_price) if days_held.zero?
           nreturn = ((low - p.entry_price) / p.entry_price) / days_held if days_held > 0
           ret = ((low - p.entry_price) / p.entry_price)
           nreturn *= -1.0 if p.short and nreturn != 0.0
           logger.info(format("%s\tentry: %3.2f max high: %3.2f low(exit): %3.2f on drop: %3.3f %%\t return: %3.3f %%\t @ #{xtime.to_s(:short)}",
-                              ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0)) if log? :stops
+                             ts.symbol, p.entry_price, max_high, low, 100*rratio, ret*100.0)) if log? :stops
           p.update_attributes!(:exit_price => low, :exit_date => xtime,
                                :days_held => days_held, :nreturn => nreturn,
                                :exit_trigger => rratio, :stop_loss => true)

@@ -53,13 +53,25 @@ module ResultAnalysis
         vec2_points = vec2[crossing-1..crossing+1]
         slope1 = GSL::Fit.linear(xvec, vec1_points).second
         slope2 = GSL::Fit.linear(xvec, vec2_points).second
-        angle1, angle2 = Math.atan(1/slope1)*RAD2DEG, Math.atan(1/slope2)*RAD2DEG
-        outvec << [crossing+outidx, vec1[crossing], (angle1-angle2).abs]
+#        angle1, angle2 = Math.atan(1/slope1)*RAD2DEG, Math.atan(1/slope2)*RAD2DEG
+        outvec << [crossing+outidx, vec1[crossing], compare_slopes(slope1, slope2) ]
       rescue
         next
       end
     end
     outvec
+  end
+
+  def compare_slopes(slope1, slope2)
+    sign1 = slope1 <=> 0.0
+    sign2 = slop2 <=> 0.0
+    delta = slope1 - slope2
+    case
+    when sign2 != sign2 && delta > 0.1 : -1
+    when sign1 == sign2 && delta < 0.1 :  0
+    else
+      1
+    end
   end
 
   def crossing(method, a, b)

@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20100123024049
+# Schema version: 20100205165537
 #
 # Table name: tda_positions
 #
@@ -25,7 +25,7 @@
 
 class TdaPosition < ActiveRecord::Base
   belongs_to :ticker
-  belongs_to  :watch_list, :autosave => true, :dependent => :destroy
+  belongs_to  :watch_list, :dependent => :destroy
 
   extend TradingCalendar
 

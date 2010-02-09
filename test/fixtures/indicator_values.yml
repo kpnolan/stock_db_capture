@@ -1,0 +1,25 @@
+# == Schema Information
+# Schema version: 20100205165537
+#
+# Table name: indicator_values
+#
+#  id            :integer(4)      not null, primary key
+#  indicator_id  :integer(4)
+#  itime         :datetime
+#  value         :float
+#  ticker_id     :integer(4)
+#  entry_date    :datetime
+#  valuable_id   :integer(4)
+#  valuable_type :string(64)
+#
+
+one:
+  id: 1
+  indicator_id: 1
+  datetime: 
+  value: 1.5
+two:
+  id: 2
+  indicator_id: 1
+  datetime: 
+  value: 1.5

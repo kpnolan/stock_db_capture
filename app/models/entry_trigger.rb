@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20100123024049
+# Schema version: 20100205165537
 #
 # Table name: entry_triggers
 #
@@ -16,7 +16,7 @@ require 'yaml'
 class EntryTrigger < ActiveRecord::Base
 
   has_many :positions, :dependent => :nullify
-  has_many :btest_positions, :dependent => :nullify
+  has_many :indicator_values, :as => :valuable
 
   validates_presence_of :name
   validates_uniqueness_of :name
@@ -25,7 +25,6 @@ class EntryTrigger < ActiveRecord::Base
 
   def clear_associations_if_dirty
     positions.clear if changed?
-    btest_positions.clear if changed?
   end
 
   # Convert the yaml formatted hash of params back into a hash

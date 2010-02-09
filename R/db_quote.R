@@ -304,7 +304,7 @@ get.position.series <-
 }
 
 rvig <-
-  function(series, n=10) {
+  function(series, n=5) {
     open = series[, "Open"]
     close = series[, "Close"]
     high = series[, "High"]
@@ -371,6 +371,8 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close", "Vol
     start <- "2009-01-02"
   if (missing(end) || is.na(end))
     end <- format(Sys.Date() - 1, "%Y-%m-%d")
+  if (missing(retclass))
+    retclass='xts'
   retclass <- match.arg(retclass)
   start <- as.Date(start)
   end <- as.Date(end)
@@ -385,9 +387,10 @@ function (instrument, start, end, quote = c("Open", "High", "Low", "Close", "Vol
   nser <- pmatch(quote, names(x)[-1]) + 1
   n <- nrow(x)
 
-  print(paste("Rows:", n))
+  print(paste(instrument, "-- rows:", n))
 
   dat <- as.Date(as.character(x[, 1]), "%Y-%m-%d")
+
   if (!quiet && dat[1] != start)
     cat(format(dat[1], "time series starts %Y-%m-%d\n"))
   if (!quiet && dat[n] != end)
@@ -466,6 +469,42 @@ function (basename, retclass = c("df", "zoo", "its", "ts", "xts"), quiet = FALSE
   return(y)
 }
 
+## quantmod:addRSI <-
+## function (n = 14, maType = "EMA", wilder = TRUE)
+## {
+##     stopifnot("package:TTR" %in% search() || require("TTR", quietly = TRUE))
+##     lchob <- quantmod:::get.current.chob()
+##     x <- as.matrix(lchob@xdata)
+##     print(x)
+##     chobTA <- new("chobTA")
+##     chobTA@new <- TRUE
+##     xx <- if (is.OHLC(x)) {
+##         Cl(x)
+##     }
+##     else x
+##     rsi <- RSI(xx, n = n, maType = maType, wilder = wilder)
+##     chobTA@TA.values <- rsi[lchob@xsubset]
+##     chobTA@name <- "chartRSI"
+##     chobTA@call <- match.call()
+##     chobTA@params <- list(xrange = lchob@xrange, colors = lchob@colors,
+##         color.vol = lchob@color.vol, multi.col = lchob@multi.col,
+##         spacing = lchob@spacing, width = lchob@width, bp = lchob@bp,
+##         x.labels = lchob@x.labels, time.scale = lchob@time.scale,
+##         n = n, wilder = wilder, maType = maType)
+##     if (is.null(sys.call(-1))) {
+##         TA <- lchob@passed.args$TA
+##         lchob@passed.args$TA <- c(TA, chobTA)
+##         lchob@windows <- lchob@windows + ifelse(chobTA@new, 1,
+##             0)
+##         do.call("chartSeries.chob", list(lchob))
+##         invisible(chobTA)
+##     }
+##     else {
+##         return(chobTA)
+##     }
+## }
+
+
 do.winners <- function() { do.positions("winners") }
 do.losers  <- function() { do.positions("losers") }
 do.non     <- function() { do.positions("non") }
@@ -476,15 +515,16 @@ do.positions <-
     if ( type == "all" ) {
       pos = get.positions(order="order by ettime, ticker_id")
     } else if ( type == "losers" ) {
-      pos = get.positions(where="where year(entry_date) = 2000 and roi < 0 and exit_date is not null", order="order by roi asc")
+      pos = get.positions(where="where year(entry_date) = 2009 and roi < 0 and exit_date is not null", order="order by roi asc")
     } else if ( type == "winners" ) {
-      pos = get.positions(where="where year(entry_date) = 2000 and roi > 0 and exit_date is not null", order="order by roi desc")
+      pos = get.positions(where="where year(entry_date) = 2009 and roi > 0 and exit_date is not null", order="order by roi desc")
     } else if ( type == "non" ) {
-      pos = get.positions(where="where year(entry_date) = 2000 and exit_date is null", order="order by roi")
+      pos = get.positions(where="where year(entry_date) = 2009 and exit_date is null", order="order by roi")
     } else {
       print("invalid arg")
     }
-    plot.positions(type, pos)
+    chart.positions(pos)
+#    plot.positions(type, pos)
 #    pos
   }
 
@@ -495,11 +535,12 @@ strategy=""
 ##     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
 ##         sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price, exit_price, roi, days_held from positions left outer join tickers",
 ##                      "on tickers.id = ticker_id", where, order)
+table = 'rvig_positions'
 
 get.positions <-
-  function( origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, ettime", where="") {
+  function(origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, ettime", where="") {
     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
-    sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price as eprice, exit_price as xprice, etival, xtival, roi, days_held from positions left outer join tickers on tickers.id = ticker_id", where, order)
+    sql <- paste("select symbol, date(ettime) as etdate, date(entry_date) as edate, date(exit_date) as xdate, date(xttime) as xtdate, entry_price as eprice, exit_price as xprice, etprice, xtprice, etival, xtival, roi, days_held from", table, "left outer join tickers on tickers.id = ticker_id", where, order)
     res = dbSendQuery(con, sql)
     x = fetch(res, n = -1)
     if ( nrow(x) == 0 ) {
@@ -509,20 +550,110 @@ get.positions <-
     x
   }
 
+printSeries <-
+  function(x)
+  {
+    print("PRINT SERIES:")
+    print(x)
+    x
+  }
+
+addRvig <- newTA(rvig, data.at=1, col=c("grey", "red"))
+
+addRvig1 <-
+  function (n = 5, ..., on = NA, legend = "auto")
+{
+    lchob <- quantmod:::get.current.chob()
+    x <- as.matrix(lchob@xdata)
+
+    x <- Cl(x)
+    print(x)
+    yrange <- NULL
+    chobTA <- new("chobTA")
+    if (NCOL(x) == 1) {
+        chobTA@TA.values <- x[lchob@xsubset]
+    }
+    else chobTA@TA.values <- x[lchob@xsubset, ]
+    chobTA@name <- "chartTA"
+    if (any(is.na(on))) {
+        chobTA@new <- TRUE
+    }
+    else {
+        chobTA@new <- FALSE
+        chobTA@on <- on
+    }
+    chobTA@call <- match.call()
+    legend.name <- gsub("^add", "", deparse(match.call()))
+    gpars <- c(list(...), list(col = c("grey", "red")))[unique(names(c(list(col = c("grey",
+        "red")), list(...))))]
+    chobTA@params <- list(xrange = lchob@xrange, yrange = yrange,
+        colors = lchob@colors, color.vol = lchob@color.vol, multi.col = lchob@multi.col,
+        spacing = lchob@spacing, width = lchob@width, bp = lchob@bp,
+        x.labels = lchob@x.labels, time.scale = lchob@time.scale,
+        isLogical = is.logical(x), legend = legend, legend.name = legend.name,
+        pars = list(gpars))
+    if (is.null(sys.call(-1))) {
+        TA <- lchob@passed.args$TA
+        lchob@passed.args$TA <- c(TA, chobTA)
+        lchob@windows <- lchob@windows + ifelse(chobTA@new, 1,
+            0)
+        chartSeries.chob <- quantmod:::chartSeries.chob
+        do.call("chartSeries.chob", list(lchob))
+        invisible(chobTA)
+    }
+    else {
+        return(chobTA)
+    }
+}
+
+
+chart.positions <-
+  function(x)
+  {
+    print(paste("There are", NROW(x), "entries in this set"))
+
+    for ( i in 1:NROW(x) )  {
+      if ( is.na(x$edate[i]) )
+        next
+
+      symbol = x$symbol[i]
+      edate = as.Date(x$edate[i])
+      xdate = as.Date(x$xdate[i])
+      etdate = as.Date(x$etdate[i])
+      xtdate = as.Date(x$xtdate[i])
+
+      etprice = x$etprice[i]
+      xtprice = x$xtprice[i]
+      eprice = x$eprice[i]
+      xprice = x$xprice[i]
+
+      roi = x$roi[i]
+      days_held = x$days_held[i]
+      etival = x$etival[i]
+      xtival = x$xtival[i]
+
+      window.start = etdate - 7
+      window.end = xdate +7
+
+      edate14 = etdate - 60
+      xdate14 = xtdate + 14
+      subset = paste(window.start,'/',window.end, sep='')
+
+      q = get.db.quote(symbol, start=edate14, end=xdate14, quiet=TRUE)
+
+      chob = chartSeries(q, TA='addVo();addRvig();addMACD()', up.col="green", dn.col="red", subset=subset)
+      print(paste('Entry Trig:', etdate, 'Exit Trig:', xtdate))
+      print(paste('Entry', edate, 'Exit:', xdate, "Roi:", roi ))
+      print(paste('Trigger Price:', etprice, 'Entry Price:', eprice, 'Exit Price:', xprice))
+      print(paste('Trigger Ival:', etival, 'Exit Ival:', xtival))
+      ask()
+    }
+  }
+
+
 plot.positions <-
   function(type, x,  origin = "1899-12-30", scale=10.0, offset=0) {
-    ids = x$id
-    syms = x$symbol
-    closed = x$closed
-    tdates = x$tdate
-    edates = x$edate
-    xdates = x$xdate
-    tprices = x$tprice
-    eprices = x$eprice
-    xprices = x$xprice
-    rois = x$roi
-    dh = x$days_held
-    print(paste("There are", length(syms), "entries in this set"))
+    print(paste("There are", NROW(x), "entries in this set"))
     op <- par(pty = "m", bg="white")
 
     if ( !ps.empty() )
@@ -532,19 +663,22 @@ plot.positions <-
       if ( is.na(edates[i]) )
         next
 
-      symbol = syms[i]
-      tdate = as.Date(tdates[i])
-      edate = as.Date(edates[i])
-      xdate = as.Date(xdates[i])
-      tprice = tprices[i]
-      eprice = eprices[i]
-      xprice = xprices[i]
+      symbol = x$symbol[i]
+      edate = as.Date(x$edate[i])
+      xdate = as.Date(x$xdate[i])
+      etdate = as.Date(x$etdate[i])
+      xtdate = as.Date(x$xtdate[i])
 
-      roi = rois[i]
-      days_held = dh[i]
+      etprice = x$etprice[i]
+      xtprice = x$xtprice[i]
+      eprice = x$eprice[i]
+      xprice = x$xprice[i]
+
+      roi = x$roi[i]
+      days_held = x$days_held[i]
+
       edate14 = edate - 0
       xdate14 = xdate + 28
-
 
       q = get.db.quote(symbol, start=edate14, end=xdate14, retclass="ts", quiet=TRUE)
       q1 = get.db.quote(symbol, start=edate14, end=xdate14, retclass="df", quiet=TRUE)
@@ -748,5 +882,93 @@ function (x, xlim = NULL, ylim = NULL, xlab = "Time", ylab, col = par("col"),
     if (frame.plot)
         box(...)
 }
+
+has.Vo <-
+  function (x, which = FALSE)
+{
+    loc <- grep("Volume", colnames(x))
+    if (!identical(loc, integer(0)))
+        return(ifelse(which, loc, TRUE))
+    ifelse(which, loc, FALSE)
+}
+
+arms_em <-
+  function(x)
+  {
+    HLV <- try.xts(x, error = as.matrix)
+    if (!has.Hi(HLV) || !has.Lo(HLV) || !has.Vo(HLV))
+      stop("must have High, Low, and Volume")
+    h = as.numeric(HLV[, "High"])
+    l = as.numeric(HLV[, "Low"])
+    v = as.numeric(HLV[, "Volume"])
+    ((h+l)/2 - (Lag(h)-Lag(l))/2) / (v/(h-l))
+  }
+
+volPriceTrend <-
+  function(price, volume)
+  {
+    lp = ifelse(is.na(Lag(price)), price, Lag(price))
+    cumsum(volume*(price - lp)/lp)
+  }
+
+normalize.m <-
+  function(x)
+  {
+    m = as.matrix(x)
+    apply(x,2,normalize.v)
+  }
+
+normalize.v <-
+  function(v)
+  {
+    mean.v = mean(v, na.rm=TRUE)
+    v[which(is.na(v))] = mean.v
+    min.v = min(v)
+    max.v = max(v)
+    delta = max.v - min.v
+    v / delta - (min.v / delta)
+  }
+
+
+generate.ann.data <-
+  function(symbol=NA, start_date=NA, end_date=NA)
+  {
+    if ( is.na(symbol) && is.na(start_date) && is.na(end_date) )
+      data(ttrc)
+    ts = ttrc
+    rsi = rsiTA(ts[, "Close"])
+    obv = OBV(ts[, "Close"], ts[, "Volume"])
+    vpr = volPriceTrend(ts[, "Close"], ts[, "Volume"])
+    HLC = as.matrix(cbind(ts[, "High"], ts[, "Low"], ts[, "Close"]))
+    ad = chaikinAD(HLC, ts[, "Volume"])
+    stoch.ret = stoch(HLC, 8, 5)
+    perD = stoch.ret[,"fastD"]
+    perK = stoch.ret[,"fastK"]
+    wpr = WPR(HLC, 2)
+    arms.em = arms_em(ts)
+    perCloseIn4 = 100.0*(Next(ts[, "Close"], 4)-ts[, "Close"])/ts[,"Close"]
+    m = as.matrix(cbind(ts$Open, ts$Close, ts$Volume, ad, rsi, perD, perK, wpr, arms.em, obv, vpr))
+    target = normalize.v(perCloseIn4)
+    m.norm = normalize.m(m)
+    ann(m.norm, target)
+    #df = data.frame(Date=ts$Date, Open=ts$Open, Close=ts$Close, Volume=ts$Volume, AccDist=ad, RSI=rsi, perD, perK, wpr, arms=arms.em, obv, vpr, perCloseIn4)
+    #write.csv(df, "~/ann.csv", row.names=FALSE)
+  }
+
+ann <-
+  function(inputs, target)
+  {
+    library(AMORE)
+    ncol = NCOL(inputs)
+    net <- newff(n.neurons=c(ncol, 8,4, 1), learning.rate.global=1e-2, momentum.global=0.5,
+                 error.criterium="LMS", Stao=NA, hidden.layer="tansig", output.layer="purelin", method="ADAPTgdwm")
+    result <- train(net, inputs, target, error.criterium="LMS", report=TRUE, show.step=1000, n.shows=50 )
+    y <- sim(result$net, inputs)
+    plot(target, y, col="blue", pch="+")
+    points(target,target, col="red", pch="x")
+  }
+
+do.losers()
+
 
 

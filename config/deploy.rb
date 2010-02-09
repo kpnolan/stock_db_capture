@@ -61,7 +61,7 @@ task :production do
   set :domain, "174.129.233.122"
   set :repository,  "git://71.193.192.51/backup/git/stock_db_capture.git"
   set :branch, "master"
-  set :user, "deploy"
+  set :user, "kevin"
   set :git_username, "kevin"
   set :use_sudo, false
   set :deploy_to, "/home/#{user}/apps/#{application}"

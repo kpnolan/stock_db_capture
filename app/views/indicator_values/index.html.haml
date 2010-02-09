@@ -1,0 +1,10 @@
+%h1 Listing indicator_values
+%table
+  %tr.heading
+    %th Indicator
+    %th Datetime
+    %th Value
+
+  = render :partial => 'indicator_value', :collection => current_objects
+
+= link_to 'New indicator_value', new_object_path 

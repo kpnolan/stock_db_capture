@@ -1,5 +1,5 @@
 # == Schema Information
-# Schema version: 20100123024049
+# Schema version: 20100205165537
 #
 # Table name: scans
 #
@@ -14,6 +14,7 @@
 #  order_by    :string(255)
 #  prefetch    :integer(4)
 #  postfetch   :integer(4)
+#  count       :integer(4)
 #
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
@@ -23,7 +24,6 @@ class Scan < ActiveRecord::Base
   include TradingCalendar
 
   has_many :positions, :dependent => :destroy
-  has_many :btest_positions, :dependent => :delete_all
   has_and_belongs_to_many :tickers
 
   validates_uniqueness_of :name
@@ -47,12 +47,19 @@ class Scan < ActiveRecord::Base
     return ids
   end
 
+  def year()
+    raise Exception, "year is different between start and end dates" if start_date.year != end_date.year
+    start_date.year
+  end
+
   def adjusted_start()
     prefetch.is_a?(Numeric) ? trading_date_from(start_date, -prefetch.to_i) : start_date
   end
 
   def adjusted_end()
-    postfetch.is_a?(Numeric) ? trading_date_from(end_date, postfetch.to_i) : end_date
+    max_bar_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => 1674 }) #IBM
+    adj_end = postfetch.is_a?(Numeric) ? trading_date_from(end_date, postfetch.to_i) : end_date
+    [adj_end, max_bar_date].min
   end
 
   # TODO find a better name for this method
@@ -65,6 +72,7 @@ class Scan < ActiveRecord::Base
           'delisted <> 1 AND ' +
           "bardate BETWEEN '#{adjusted_start.to_s(:db)}' AND '#{adjusted_end.to_s(:db)}' " +
           "GROUP BY ticker_id " + having + order
+
     if repopulate || tickers.empty?
       logger.info "Performing #{name} scan because it is not be done before or criterion have changed" if logger
       tickers.delete_all

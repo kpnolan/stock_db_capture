@@ -172,7 +172,7 @@ module Trading
         attrs[:last_rsi] = opos.closing_rsi
         %w{ current closing }.each { |prefix| attrs["#{prefix}_rsi".to_sym] = rsi }
         attrs[:last_populate] = Time.zone.now
-        attrs[:closed_crossed_at] = (opos.indicators_crossed_at && (attrs[:last_rsi] >= rsi || trading_day_count(opos.opened_on, Date.today) >= 20) || nil) && time
+        attrs[:closed_crossed_at] = (opos.indicators_crossed_at && (attrs[:last_rsi] >= rsi || trading_day_count(opos.opened_on, Date.today) >= 20) || nil) && time if opos.closed_crossed_at.nil?
       end
       opos.update_attributes!(attrs)
     end

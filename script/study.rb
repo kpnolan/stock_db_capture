@@ -10,7 +10,7 @@ if ARGV.empty?
    exit()
 end
 
-require File.dirname(__FILE__) + "/../config/#{ARGV[0]}.rb"
+require File.dirname(__FILE__) + "/../btest/#{ARGV[0]}.rb"
 
 logger = ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "#{ARGV[0]}_experiment.log"))
 

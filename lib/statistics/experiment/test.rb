@@ -5,7 +5,7 @@
 #
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'statistics/base'
+require 'statistics/study_base'
 
 module Statistics
   module Experiment

@@ -185,9 +185,9 @@ class Backtester
         if entry_strategy.params[:result] == [:identity]
           result_id ||= Indicator.lookup(:identity).id
           position.entry_date = position.ettime
-          posiion.entry_price = position.etprice
+          position.entry_price = position.etprice
           position.entry_ival = position.etival
-          position.eind_it = result_id;
+          position.eind_id = result_id;
           entry_strategy.positions << position
           count += 1
         else
@@ -290,7 +290,6 @@ class Backtester
 
           if exit_time.is_a?(Time)
             Position.trigger_exit(position, exit_time, c = ts.value_at(exit_time, :close), indicator, ival, :closed => true)
-            Position.close(position, exit_time, c, ival, :indicator => :rvigor, :closed => true) if exit_strategy.name = 'identity'
             logger.info "#{ts.symbol}\t#{position.entry_date.to_formatted_s(:ymd)} #{position.xttime.to_formatted_s(:ymd)} #{position.etival} #{position.xtival}" if log? :exits
             exit_trigger.positions << position
           elsif exit_time.nil?
@@ -320,8 +319,6 @@ class Backtester
                            position.xtroi, position.indicator.name ) if log? :exits
         counter += 1
       end
-
-      entry_strategy.positions.clear()
 
       endt = Time.now
       delta = endt - startt
@@ -367,12 +364,12 @@ class Backtester
       max_limit_counter = 0
       for position in open_positions
         if entry_strategy.params[:result] == [:identity]
-          result_id ||= Indicator.lookup(:result).id
-          position.exit_date = position.xttime
-          position.exit_price = position.xtprice
-          position.entry_ival = position.etival
-          position.eind_it = result_id;
+          exit_time = position.xttime
+          exit_price = position.xtprice
+          exit_ival = position.xtival
+          position.xind_id = position.xtind_id
           exit_strategy.positions << position
+          Position.close(position, exit_time, exit_price, exit_ival, :closed => true)
           count += 1
         else
           begin
@@ -395,11 +392,12 @@ class Backtester
               max_rsi = ts.result_at(index, :rsi)
             else
               closing_time = position.xttime
-              closing_price = postition.xtprice
-              max_rsi = xtival
-              max_limit_count += 1
+              closing_price = position.xtprice
+              max_rsi = position.xtival
+              max_limit_counter += 1
             end
-            Position.close(position, closing_time, closing_price, max_rsi, :indicator => :rsi, :closed => true)
+            indicator = exit_strategy.params[:result]
+            Position.close(position, closing_time, closing_price, max_rsi, :indicator => indicator, :closed => true)
             begin
               exit_strategy.positions << position
             rescue Exception   # FIXME duplicates should have been filtered out on opening, so we should not have to do this

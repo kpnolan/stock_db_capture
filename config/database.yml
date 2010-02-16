@@ -20,7 +20,6 @@ test:
   host: localhost
   pool: 10
 
-<% if `uname -n`.strip == 'ubuntu' %>
 production:
   adapter: mysql
   database: active_trader_production
@@ -29,14 +28,5 @@ production:
   password: Troika3.
   host: localhost
   pool: 10
-<% else %>
-production:
-  adapter: mysql
-  database: satvatr_activetrader
-  encoding: utf8
-  username: satvatr_kpnolan
-  password: Troika3.
-  host: localhost
-  pool: 10
-<% end %>
+
 

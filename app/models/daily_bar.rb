@@ -30,7 +30,7 @@ class DailyBar < ActiveRecord::Base
   extend TradingCalendar
   extend BarUtils
   extend TableExtract
-  extend Plot
+#  extend Plot
 
   def symbol=(value) ;  end
   def last_trade_date=(value) ;  end

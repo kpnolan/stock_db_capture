@@ -55,13 +55,13 @@ class AnalResults
   # FIXME I'm not sure how to get around this as you cannot pass parameters to each (I don't think)
   def each
     i = -1
-    vectors.first.each { |e| i+=1; yield [e, timeseries.index2time(i, outidx)] }
+    vectors.first.each { |e| i+=1; yield [e, timeseries.index2time(i+outidx)] }
   end
 
   def each_from_result(sym)
-    raise ArgumentError, "#{sym} is not a valid result for #{function}" unless names.include? sym.to_s.downcase
+    raise ArgumentError, "#{sym} is not a valid result for #{function}" unless names.include? sym.to_sym
     i = -1
-    result_hash[sym.to_sym].each { |e| i+=1; yield [e, index2time(i)] }
+    result_hash[sym.to_sym].each { |e| i+=1; yield [e, timeseries.index2time(i+outidx)] }
   end
 
   def match(fcn, options={})

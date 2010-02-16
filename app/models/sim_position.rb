@@ -24,10 +24,10 @@
 require 'ostruct'
 
 class SimPosition < ActiveRecord::Base
-  belongs_to :eorder, :class_name => 'Order'
-  belongs_to :xorder, :class_name => 'Order'
+  belongs_to :eorder, :class_name => 'Order', :foreign_key => :eorder_id
+  belongs_to :xorder, :class_name => 'Order', :foreign_key => :xorder_id
   belongs_to :ticker
-  belongs_to :position, :class_name => 'TempPositionTemplate'
+  belongs_to :position, :class_name => 'TempPositionTemplate', :foreign_key => :position_id
 
   @@open_position_count = 0
 

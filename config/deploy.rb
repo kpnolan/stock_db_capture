@@ -20,9 +20,8 @@ end
 desc "Set staging instance variables"
 task :staging do
   set :application, "stock_db_capture"
-  set :domain, "active-trader.com"
+  set :domain, "amd64"
   set :repository,  "ssh://kevin@192.168.1.107/backup/git/stock_db_capture.git"
-#  set :repository,  "git://github/backup/git/stock_db_capture.git"
   set :branch, "master"
   set :user, "kevin"
   set :git_username, "kevin"
@@ -40,10 +39,10 @@ end
 desc "set the production instance variables"
 task :satvatr do
   set :application, "stock_db_capture"
-  set :domain, "satvatrader.com"
+  set :domain, "68.233.9.217 "
   set :repository,  "ssh://kevin@71.193.192.51/backup/git/stock_db_capture.git"
   set :branch, "master"
-  set :user, "satvatr"
+  set :user, "kevin"
   set :git_username, "kevin"
   set :use_sudo, false
   set :deploy_to, "/home/#{user}/apps/#{application}"

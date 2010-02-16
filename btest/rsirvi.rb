@@ -4,16 +4,15 @@ analytics do
 
   #-----------------------------------------------------------------------------------------------------------------
   desc "Find all places where RSI gooes heads upwards of 30"
-  entry_trigger :rsi_open_14, :time_period => 14, :result => :first do |params, pass|
-    rsi_vec = rsi(params)
+  entry_trigger :rsi_open_14, :time_period => 14, :result => [:rsi] do |params, pass|
+    rsi_vec = rsi(params).first
     indexes = under_threshold(20+pass*5, rsi_vec)
   end
 
   #-----------------------------------------------------------------------------------------------------------------
   # This block just passes through the entry trigger recorded in the previous step. No addiional filtering is involved.
   desc 'Just use the value of the entry trigger'
-  open_position :entry_trigger_passthrough, :result => :first do |params|
-    [begin_index]
+  open_position :entry_trigger_passthrough, :result => [:identity] do |params|
   end
 
   #-----------------------------------------------------------------------------------------------------------------
@@ -26,7 +25,7 @@ analytics do
 
   #-----------------------------------------------------------------------------------------------------------------
   desc "Close positions that have been triggered from an RVI or and RSI and whose indicatars have continued to climb until they peak out or level out"
-  close_position :lagged_rsi_difference, :time_period => 14, :result => :first do |position, params|
+  close_position :lagged_rsi_difference, :time_period => 14, :result => [:rsi] do |position, params|
     rsi_ary = rsi(params).to_a
     exit_rsi = rsi_ary.shift
     index = monotonic_sequence(exit_rsi, rsi_ary)
@@ -45,7 +44,7 @@ end
 
 populations do
   liquid = "min(volume) >= 75000"
-   $scan_names = returning [] do |scan_vec|
+  $scan_names = returning [] do |scan_vec|
      (2000..2008).each do |year|
        start_date = Date.civil(year, 1, 1)
        scan_name = "year_#{year}".to_sym
@@ -66,6 +65,7 @@ populations do
   desc "Population of all stocks with a minimum valume of 100000 from 2009-1-1 to #{end_date}"
   scan 'year_2009', :start_date => '1/1/2009', :end_date => '12/23/2009',
                     :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
+                    :order => 'tickers.symbol',
                     :conditions => liquid, :prefetch => Timeseries.prefetch_bars(:rsi, 14), :postfetch => 0
   $scan_names << 'year_2009'
 end

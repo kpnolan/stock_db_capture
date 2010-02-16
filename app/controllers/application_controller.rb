@@ -49,7 +49,7 @@ class ApplicationController < ActionController::Base
   def authenticate
     authenticate_or_request_with_http_basic do |user_name, password|
         user_name == 'kevin' && password == 'Troika3.' ||
-        user_name = 'lewis' && password = 'Nowisthetime'
+        user_name = 'lewis' && password = 'Nowisthetime1.'
     end
   end
   #

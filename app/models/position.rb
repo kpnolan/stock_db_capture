@@ -136,7 +136,7 @@ class Position < ActiveRecord::Base
                       false
                     end
       closed = options[:closed] == false ? nil : options[:closed]
-      indicator_id = Indicator.lookup(options[:indicator]).id
+      indicator_id = options[:indicator] ? Indicator.lookup(options[:indicator]).id : position.xtind_id
 
       position.update_attributes!(:exit_price => exit_price, :exit_date => exit_date, :roi => roi,
                                   :xtind_id => indicator_id, :exit_ival => exit_ival,

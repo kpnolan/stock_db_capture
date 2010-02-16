@@ -24,8 +24,8 @@ end
 optparse.parse!
 puts "Running #{options[:parallel]} processes"
 options[:parallel].times do |proc_id|
-  puts "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} &"
-  system "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} &"
+  puts "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} --trace &"
+  system "nice rake active_trader:backtest CONFIG=#{options[:config]} PROC_ID=#{proc_id} PROC_CNT=#{options[:parallel]} --trace &"
 end
 
 # Local Variables:

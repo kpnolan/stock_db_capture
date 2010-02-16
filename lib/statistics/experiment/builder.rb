@@ -9,7 +9,6 @@ module Statistics
     end
 
     class Builder
-
       attr_reader :options, :description, :experiments
 
       def initialize(options)

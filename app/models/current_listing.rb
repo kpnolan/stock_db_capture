@@ -45,4 +45,8 @@ class CurrentListing < ActiveRecord::Base
 
   def symbol=(name)
   end
+
+  def name
+    ticker.name
+  end
 end

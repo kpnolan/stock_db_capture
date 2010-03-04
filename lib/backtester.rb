@@ -32,7 +32,7 @@ class Backtester
   attr_reader :opening, :closing, :scan, :stop_loss, :tid_array, :date_range, :rsi_id
   attr_reader :position_ts_map
   attr_reader :resolution, :logger
-  attr_reader :chunk_id
+  attr_reader :chunk_id, :debug
 
   #--------------------------------------------------------------------------------------------------------------------
   # A Backtester object is created for every instance of a using(...) statement with the args of that statement along
@@ -42,7 +42,7 @@ class Backtester
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
                                      :days_to_close => 20, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10,
                                      :pre_buffer => 0, :post_buffer => 0, :repopulate => true, :max_date => (Date.today-1),
-                                     :record_indicators => false
+                                     :record_indicators => false, :debug => false
     @et_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xt_name = exit_trigger_name
@@ -55,7 +55,8 @@ class Backtester
     @position_ts_map = { }
     @post_process = block
     @resolution = self.options.delete :resolution
-    @max_date = options[:max_date]
+    @max_date = @options[:max_date]
+    @debug = @options[:debug]
     set_log_level(@options[:log_flags])
 
     raise BacktestException.new("Cannot find entry trigger: #{et_name}")  if et_name && EntryTrigger.find_by_name(et_name).nil?
@@ -134,6 +135,7 @@ class Backtester
               ts.persist_results(entry_trigger, position, *etrigger_decl.params[:result]) if options[:record_indicators]
               entry_trigger.positions << position
               scan.positions << position
+              count += 1
               map_position_ts(position, ts)
               triggered_index_hash[index] = true
               ts.clear_results() unless ts.nil?
@@ -144,7 +146,6 @@ class Backtester
           #rescue Exception => e
           #  logger.info "Unexpected exception #{e.to_s}"
         end
-        count += 1
         symbol = Ticker.find(ticker_id).symbol
         $stderr.print "\r#{symbol}    "
         logger.info("Processed #{symbol} #{count} of #{ticker_ids.length} #{index_count} positions entered") if log? :trigger_summary
@@ -175,7 +176,6 @@ class Backtester
     if Position.count(:all, :conditions => { :entry_strategy_id => entry_strategy.id, :scan_id => scan.id }).zero?
       logger.info "(#{chunk_id}) Beginning open positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
-
       startt = Time.now
       count = 0
       duplicate_entries = 0
@@ -207,28 +207,25 @@ class Backtester
               index = confirming_index
               entry_time, entry_price = ts.closing_values_at(index)
               logger.info "#{ts.symbol} etrigger: #{position.ettime.to_formatted_s(:ymd)} entry_date: #{entry_time.to_formatted_s(:ymd)}" if log? :entry
-              unless Position.open(position, entry_time, entry_price).nil?
-                logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
-                                   count, trig_count, position.ticker.symbol,
-                                   position.ettime.to_formatted_s(:ymd),
-                                   position.entry_delay, position.etprice, position.entry_price,
-                                   position.consumed_margin) if log? :entries
-                entry_strategy.positions << position
-                count += 1
-              end
-            else
-              logger.info format("Position %d of %d (%s) %s\tNA\t%3.2f\tNA\tNA",
+              position.open(entry_time, entry_price)
+              logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
                                  count, trig_count, position.ticker.symbol,
                                  position.ettime.to_formatted_s(:ymd),
-                                 position.etprice) if log? :entries
+                                 position.entry_delay, position.etprice, position.entry_price,
+                                 position.consumed_margin) if log? :entries
+              entry_strategy.positions << position
+              count += 1
+            else # Since an entry has already been created, any entry not confirmed should be destroyed
+              position.destroy()
             end
           rescue TimeseriesException => e
             logger.error(e.to_s)
             remove_from_position_map(position)
-            Position.delete position.id
+            position.destroy
           rescue ActiveRecord::StatementInvalid
             duplicate_entries += 1
-            #logger.error("Duplicate entry for #{position.ticker.symbol} tigger: #{position.ettime.to_formatted_s(:ymd)} entry: #{entry_time.to_formatted_s(:ymd)}")
+            position.destroy
+            logger.error("Duplicate entry for #{position.ticker.symbol} tigger: #{position.ettime.to_formatted_s(:ymd)} entry: #{entry_time.to_formatted_s(:ymd)}")
           end
           ts.clear_results unless ts.nil?
         end
@@ -291,7 +288,7 @@ class Backtester
           if exit_time.is_a?(Time)
             Position.trigger_exit(position, exit_time, c = ts.value_at(exit_time, :close), indicator, ival, :closed => true)
             logger.info "#{ts.symbol}\t#{position.entry_date.to_formatted_s(:ymd)} #{position.xttime.to_formatted_s(:ymd)} #{position.etival} #{position.xtival}" if log? :exits
-            exit_trigger.positions << position
+            position.update_attribute(:exit_trigger_id, exit_trigger.id)
           elsif exit_time.nil?
             Position.trigger_exit(position, max_exit_date, ts.value_at(max_exit_date, :close), :rvigor, nil, :closed => false)
           elsif exit_time.is_a?(Numeric) # FIXME I'm not sure what in the fuck this is doing here

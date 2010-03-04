@@ -71,7 +71,7 @@ class TempPositionTemplate < ActiveRecord::Base
 
     def generate_extract_sql(src, dest, filter)
       names = columns.map(&:name)
-      names.shift                           # remove 'id' column
+      names.shift                       # remote id column
       lhs_names = names
       rhs_names = names.dup
       if filter.include? 'volume'
@@ -106,7 +106,6 @@ class TempPositionTemplate < ActiveRecord::Base
       connection.execute("set max_heap_table_size=#{2**26}")
       sql = generate_extract_sql(Position.table_name, 'temp_positions', filter)
       connection.execute("DROP TABLE IF EXISTS temp_positions")
-#      connection.execute('CREATE TABLE temp_positions LIKE temp_position_template')
       connection.execute('CREATE TEMPORARY TABLE temp_positions LIKE temp_position_template')
       connection.execute('ALTER TABLE temp_positions ENGINE=MEMORY')
       connection.execute(sql)

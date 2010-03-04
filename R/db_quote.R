@@ -535,7 +535,7 @@ strategy=""
 ##     con <- dbConnect(MySQL(), user="kevin", pass="Troika3.", db="active_trader_production")
 ##         sql <- paste("select symbol, date(entry_date) as edate, date(exit_date) as xdate, entry_price, exit_price, roi, days_held from positions left outer join tickers",
 ##                      "on tickers.id = ticker_id", where, order)
-table = 'rvig_positions'
+table = 'rsirvig_positions'
 
 get.positions <-
   function(origin = "1899-12-30", quote=c("entry_price", "exit_price"), order="order by symbol, ettime", where="") {

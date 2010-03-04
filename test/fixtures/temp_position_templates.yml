@@ -1,0 +1,43 @@
+# Read about fixtures at http://ar.rubyonrails.org/classes/Fixtures.html
+
+one:
+  ticker_id: 1
+  ettime: 2010-02-14
+  etprice: 1.5
+  etival: 1.5
+  xttime: 2010-02-14
+  xtprice: 1.5
+  xtival: 1.5
+  entry_date: 2010-02-14
+  entry_price: 1.5
+  entry_ival: 1.5
+  exit_price: 1.5
+  exit_date: 2010-02-14
+  exit_ival: 1.5
+  days_held: 1
+  nreturn: 1.5
+  entry_pass: 1
+  roi: 1.5
+  consumed_margin: 1.5
+  volume: 1
+
+two:
+  ticker_id: 1
+  ettime: 2010-02-14
+  etprice: 1.5
+  etival: 1.5
+  xttime: 2010-02-14
+  xtprice: 1.5
+  xtival: 1.5
+  entry_date: 2010-02-14
+  entry_price: 1.5
+  entry_ival: 1.5
+  exit_price: 1.5
+  exit_date: 2010-02-14
+  exit_ival: 1.5
+  days_held: 1
+  nreturn: 1.5
+  entry_pass: 1
+  roi: 1.5
+  consumed_margin: 1.5
+  volume: 1

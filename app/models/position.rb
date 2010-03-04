@@ -81,8 +81,23 @@ class Position < ActiveRecord::Base
     Position.trading_days_between(xttime, exit_date)
   end
 
+    #
+    # open a position that has been previously triggered. Note that because the entry date may have moved from the
+    # trigger date this can result in a duplicate opening, for which we check first
+    #
+  def open(entry_time, entry_price, options={})
+      short = options[:short]
+      cmargin = (entry_price - etprice)/etprice
+      update_attributes!(:entry_price => entry_price, :entry_date => entry_time,
+                         :num_shares => 1, :short => short, :consumed_margin => cmargin)
+    end
+
   class << self
 
+    #
+    # Trigger and entry event which does not necessarly mean an entry, that is later confirmed. Since positions are not a composite key
+    # a dummy entry date is given to the MySql happy
+    #
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
       begin
         attrs = { :ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival, :entry_date => trigger_time }
@@ -108,18 +123,6 @@ class Position < ActiveRecord::Base
         raise e
       end
       pos
-    end
-
-    #
-    # open a position that has been previously triggered. Note that because the entry date may have moved from the
-    # trigger date this can result in a duplicate opening, for which we check first
-    #
-    def open(position, entry_time, entry_price, options={})
-      short = options[:short]
-      cmargin = (entry_price - position.etprice)/position.etprice
-      position.update_attributes!(:entry_price => entry_price, :entry_date => entry_time,
-                                  :num_shares => 1, :short => short, :consumed_margin => cmargin)
-      position
     end
 
     def close(position, exit_date, exit_price, exit_ival, options={})

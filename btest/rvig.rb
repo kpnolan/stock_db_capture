@@ -28,14 +28,14 @@ analytics do
       hist_max = pos_hist.max
       hist_sd = pos_hist.sd(hist_mean)
       macd_hista = macd_hist.to_a
-      (index = macd_hista.index { |val| val >= hist_mean }) ? index+result_offset : nil
+      (index = macd_hista.index { |val| val >= hist_mean }) ? adj_result_index(index) : nil
     else
       nil
     end
   end
 
   #-----------------------------------------------------------------------------------------------------------------
-  desc "Find all places where RSI gooes heads upwards of 70 OR go back under 30 after crossing 30"
+  desc "Find where rvig crosses over rvig_signal"
   exit_trigger :rvig_close, :time_period => 5, :result => [:rvigor, :rvigor_sig], :method => :crosses_over do |params|
     rvig, rvigSig = rvig(:result => params[:result])
     indexes = send(params[:method], rvigSig, rvig)
@@ -50,11 +50,11 @@ analytics do
   end
 
   #-----------------------------------------------------------------------------------------------------------------
-  desc "This does nothing"
-  close_position :identity, :result => [:identity] do |position, params|
+  desc "Just passes the exit triggers to the exit_strategy"
+  close_position :pass_through, :result => [:identity] do |position, params|
   end
 
-  desc "Close the position if the stop loss is 15% or greater"
+  #desc "Close the position if the stop loss is 15% or greater"
   #stop_loss(100.0)
 
 end
@@ -77,7 +77,7 @@ populations do
   # For 2009, since it's incomplete we have to do compute the scan differently by...
   # ...find the lastest daily bar in the DB (using IBM as the guiney pig)
   # end date keeps advancing as long as their 30 trading days which is the max hold time
-  desc "Population of all stocks with a minimum valume of 100000 for 2009"
+  desc "Population of all stocks with a minimum valume of 75000 for 2009"
   start_date = '1/1/2009'.to_date
   scan 'year_2009', :start_date => start_date, :end_date => start_date + 1.year - 1.day,
                     :join => 'LEFT OUTER JOIN tickers ON tickers.id = ticker_id',
@@ -87,10 +87,10 @@ end
 
 max_bar_date = DailyBar.maximum(:bardate, :conditions => { :ticker_id => 1674 }) #IBM
 
-backtests(:generate_stats => false, :profile => false, :truncate => [], :repopulate => true, :log_flags => [:basic],
-          :days_to_open => 60, :days_to_close => 45, :populate => false, :epass => 0..0, :max_date => max_bar_date) do
+backtests(:generate_stats => false, :profile => false, :truncate => nil, :repopulate => false, :log_flags => [:basic],
+          :days_to_open => 60, :days_to_close => 45, :populate => false, :epass => 0..0, :max_date => max_bar_date, :optimize_passes => false) do
   $scan_names.each do |scan_name|
-    using(:rvig_open, :macd_confirm, :rvig_close, :identity, scan_name) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
+    using(:rvig_open, :macd_confirm, :rvig_close, :pass_through, scan_name) do |entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan|
 #      make_sheet(entry_trigger, entry_strategy, exit_trigger, exit_strategy, scan, :values => [:opening, :close, :high, :low, :volume], :pre_days => 1, :post_days => 30, :keep => true)
       #make_sheet(nil, nil, nil, nil, scan, :values => [:close], :pre_days => 1, :post_days => 30, :keep => true)
     end

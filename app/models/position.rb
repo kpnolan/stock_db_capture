@@ -43,7 +43,7 @@ require 'composite_primary_keys'
 
 class Position < ActiveRecord::Base
 
-  set_primary_keys :ticker_id, :entry_date
+  set_primary_keys :ticker_id, :entry_date, :etind_id
 
   belongs_to :ticker
   belongs_to :entry_trigger
@@ -86,11 +86,22 @@ class Position < ActiveRecord::Base
     # trigger date this can result in a duplicate opening, for which we check first
     #
   def open(entry_time, entry_price, options={})
-      short = options[:short]
-      cmargin = (entry_price - etprice)/etprice
-      update_attributes!(:entry_price => entry_price, :entry_date => entry_time,
-                         :num_shares => 1, :short => short, :consumed_margin => cmargin)
+    parent = options[:parent]
+    short = options[:short]
+    cmargin = (entry_price - etprice)/etprice
+    xttime = self.xttime
+    if entry_time != self.entry_date
+      str = Marshal.dump(self)
+      self.destroy
+      rec = Marshal.load(str)
+      attrs = rec.class.column_names.inject({}) { |hash, name| hash[name] = rec.send(name); hash }
+      attrs.merge!(:entry_date => entry_time, :entry_price => entry_price, :short => short, :consumed_margin => cmargin)
+      parent.positions.create!(attrs) if parent
+    else
+      update_attributes(:entry_price => entry_price, :num_shares => 1, :short => short, :consumed_margin => cmargin)
+      self
     end
+  end
 
   class << self
 

@@ -15,7 +15,7 @@ require 'yaml'
 
 class EntryStrategy < ActiveRecord::Base
 
-  has_many :positions, :dependent => :nullify
+  has_many :positions, :dependent => :nullify, :autosave => true
   has_many :indicator_values, :as => :valuable
 
   validates_presence_of :name

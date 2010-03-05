@@ -14,7 +14,7 @@ analytics do
   desc 'Just use the value of the entry trigger'
   open_position :rvig_confirm do |params|
     rvig = rvig(:result => :first)
-    rvig.diff[0..2].all? { |el| el > 0.0 } ? result_offset+0 : nil  # FIXME this is gross to reach in and group outidx NEED a translate method!!!
+    rvig.diff[0..2].all? { |el| el > 0.0 } ? adj_result_index(0) : nil #FIXME we can look into the past on this one!!!!
   end
 
   #-----------------------------------------------------------------------------------------------------------------

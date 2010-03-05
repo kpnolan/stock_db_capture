@@ -189,6 +189,10 @@ class Timeseries
     @index_range.begin
   end
   alias result_offset outidx
+
+  def adj_result_index(index)
+    result_offset + index
+  end
   #
   # The method was added as a convenience method for generating Lewis's spreadsheets. The idea was that he
   # could select a subset of the values in a bar for reporting on the timesheet. It's basically a hack

@@ -32,7 +32,7 @@ class Backtester
   attr_reader :opening, :closing, :scan, :stop_loss, :tid_array, :date_range, :rsi_id
   attr_reader :position_ts_map
   attr_reader :resolution, :logger
-  attr_reader :chunk_id, :debug
+  attr_reader :chunk_id, :debug, :optimize_passes
 
   #--------------------------------------------------------------------------------------------------------------------
   # A Backtester object is created for every instance of a using(...) statement with the args of that statement along
@@ -42,7 +42,7 @@ class Backtester
     @options = options.reverse_merge :resolution => 1.day, :plot_results => false, :price => :close, :log_flags => :basic,
                                      :days_to_close => 20, :days_to_open => 5, :epass => 0..2, :days_to_optimize => 10,
                                      :pre_buffer => 0, :post_buffer => 0, :repopulate => true, :max_date => (Date.today-1),
-                                     :record_indicators => false, :debug => false
+                                     :record_indicators => false, :debug => false, :optimize_passes => true
     @et_name = trigger_strategy_name
     @es_name = entry_strategy_name
     @xt_name = exit_trigger_name
@@ -57,6 +57,7 @@ class Backtester
     @resolution = self.options.delete :resolution
     @max_date = @options[:max_date]
     @debug = @options[:debug]
+    @optimize_passes = @options[:optimize_passes]
     set_log_level(@options[:log_flags])
 
     raise BacktestException.new("Cannot find entry trigger: #{et_name}")  if et_name && EntryTrigger.find_by_name(et_name).nil?
@@ -82,10 +83,15 @@ class Backtester
     @stop_loss_decl = $analytics.find_stop_loss
 
     @scan           = Scan.find_by_name(scan_name)
-    @entry_trigger  = et_name && EntryTrigger.find_by_name(et_name)
-    @entry_strategy = es_name && EntryStrategy.find_by_name(es_name)
-    @exit_trigger   = xt_name && ExitTrigger.find_by_name(xt_name)
-    @exit_strategy  = xs_name && ExitStrategy.find_by_name(xs_name)
+
+    using_blocks = []
+    using_blocks << @entry_trigger  = et_name && EntryTrigger.find_by_name(et_name)
+    using_blocks << @entry_strategy = es_name && EntryStrategy.find_by_name(es_name)
+    using_blocks << @exit_trigger   = xt_name && ExitTrigger.find_by_name(xt_name)
+    using_blocks << @exit_strategy  = xs_name && ExitStrategy.find_by_name(xs_name)
+
+
+    raise Exception, "undefined scan or trigger name: check using statement against analytics names" if using_blocks.any?(&:nil?)
 
     truncate(self.options[:truncate]) unless self.options[:truncate].nil?
 
@@ -108,7 +114,7 @@ class Backtester
     # varied is a hack (FIXME), which should instead involve the use of three seperate trigger strategies instead of the
     # bastardized one we use here.
     #-------------------------------------------------------------------------------------------------------------------
-    if Position.count(:all, :conditions => { :entry_trigger_id => entry_trigger.id, :scan_id => scan.id }).zero?
+    unless optimize_passes && Position.count(:all, :conditions => { :entry_trigger_id => entry_trigger.id, :scan_id => scan.id }) > 0
       logger.info "(#{chunk_id}) Beginning trigger positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
       primary_indicator = etrigger_decl.params[:result] && etrigger_decl.params[:result].first
@@ -145,6 +151,8 @@ class Backtester
           logger.info "#{e.to_s} -- SKIPPING Ticker"
           #rescue Exception => e
           #  logger.info "Unexpected exception #{e.to_s}"
+        rescue ActiveRecord::StatementInvalid
+          logger.info("Duplicate entry for #{ts.symbol} on #{trigger_date.to_formatted_s(:ymd)} ent_id: #{indicator_id}")
         end
         symbol = Ticker.find(ticker_id).symbol
         $stderr.print "\r#{symbol}    "
@@ -173,7 +181,7 @@ class Backtester
     # OPEN POSITION pass. Iterates through all positions triggered by the previous pass, running a "confirmation" strategy
     # whose mission it is to cull out losers that have been triggered and ones not likely to close.
     #-------------------------------------------------------------------------------------------------------------------
-    if Position.count(:all, :conditions => { :entry_strategy_id => entry_strategy.id, :scan_id => scan.id }).zero?
+    unless optimize_passes && Position.count(:all, :conditions => { :entry_strategy_id => entry_strategy.id, :scan_id => scan.id }) > 0
       logger.info "(#{chunk_id}) Beginning open positions analysis..." if log? :basic
       RubyProf.start  if self.options[:profile]
       startt = Time.now
@@ -207,13 +215,13 @@ class Backtester
               index = confirming_index
               entry_time, entry_price = ts.closing_values_at(index)
               logger.info "#{ts.symbol} etrigger: #{position.ettime.to_formatted_s(:ymd)} entry_date: #{entry_time.to_formatted_s(:ymd)}" if log? :entry
-              position.open(entry_time, entry_price)
+              position = position.open(entry_time, entry_price, :parent => entry_strategy)
               logger.info format("Position %d of %d (%s) %s\t%d\t%3.2f\t%3.2f\t%3.2f",
                                  count, trig_count, position.ticker.symbol,
                                  position.ettime.to_formatted_s(:ymd),
                                  position.entry_delay, position.etprice, position.entry_price,
                                  position.consumed_margin) if log? :entries
-              entry_strategy.positions << position
+              entry_strategy.positions << position if position.entry_strategy_id != entry_strategy.id
               count += 1
             else # Since an entry has already been created, any entry not confirmed should be destroyed
               position.destroy()
@@ -256,7 +264,7 @@ class Backtester
     # forcefully closed (usually at a significant loss). Any positions found with an incomplete set of bars is
     # summarily logged and destroyed.
     #-------------------------------------------------------------------------------------------------------------------
-    if Position.count(:all, :conditions => { :exit_trigger_id => exit_trigger.id, :scan_id => scan.id }).zero?
+    unless optimize_passes && Position.count(:all, :conditions => { :exit_trigger_id => exit_trigger.id, :scan_id => scan.id }) > 0
       logger.info "(#{chunk_id}) Beginning exit trigger analysis..." if log? :basic
       startt = Time.now
 
@@ -346,7 +354,7 @@ class Backtester
     # position. The purpose of this pass is to follow the curse looking for a local maxima and then closing, thus added
     # to our profit.
     #-------------------------------------------------------------------------------------------------------------------
-    if exit_strategy.nil? || Position.count(:all, :conditions => { :exit_strategy_id => exit_trigger.id, :scan_id => scan.id }).zero?
+    unless optimize_passes && exit_strategy.nil? || Position.count(:all, :conditions => { :exit_strategy_id => exit_trigger.id, :scan_id => scan.id }) > 0
       logger.info "(#{chunk_id}) Beginning close position optimization analysis..." if log? :basic
       startt = Time.now
 

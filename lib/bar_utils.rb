@@ -2,6 +2,8 @@
 
 require 'rubygems'
 require 'faster_csv'
+# If was forced into this conditional load because the file was always being loaded twice
+require 'trading_calendar' if $".grep(/trading_calendar/).empty?
 
 module BarUtils
 

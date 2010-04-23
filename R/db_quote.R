@@ -968,7 +968,7 @@ ann <-
     points(target,target, col="red", pch="x")
   }
 
-do.losers()
+#do.losers()
 
 
 

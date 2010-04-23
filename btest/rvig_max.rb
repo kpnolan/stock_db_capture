@@ -35,18 +35,20 @@ analytics do
   end
 
   #-----------------------------------------------------------------------------------------------------------------
-  desc "Find where rvig crosses over rvig_signal"
+  desc "Find where rvig crosses over rvig_signal returing the crossing with the max rgivor"
   exit_trigger :rvig_close, :time_period => 5, :result => [:rvigor, :rvigor_sig], :method => :crosses_over do |params|
     rvig, rvigSig = rvig(:result => params[:result])
     indexes = send(params[:method], rvigSig, rvig)
-    index = indexes.find { |i| result_at(i, :rvigor) >= 10.0 }
+    hash = indexes.inject({}) { |hash, idx| hash[idx] = result_at(idx, :rvigor); hash }
+    max = hash.values.max
+    index = hash.invert[max]
 #    tuples = slope_at_crossing(rvig, rvigSig, dn_crossings).select {  |tuple| tuple.last < 100.0 }
 #    if dn_tuples.empty?
 #      nil
 #    else
 #      [index2time(dn_tuples[0].first), :rvigor, dn_tuples[0].second]
 #    end
-    [index2time(index), :rvigor, result_at(index, :rvigor)] if index
+    [index2time(index), :rvigor, max ]
   end
 
   #-----------------------------------------------------------------------------------------------------------------
@@ -62,7 +64,7 @@ end
 populations do
   liquid = "min(volume) >= 75000"
    $scan_names = returning [] do |scan_vec|
-    (2000..1999).each do |year|
+    (2000..2008).each do |year|
       start_date = Date.civil(year, 1, 1)
       scan_name = "year_#{year}".to_sym
       end_date = start_date + 1.year - 1.day
@@ -74,7 +76,7 @@ populations do
        scan_vec << scan_name
      end
    end
-  # For 2010, since it's incomplete we have to do compute the scan differently by...
+  # For 2009, since it's incomplete we have to do compute the scan differently by...
   # ...find the lastest daily bar in the DB (using IBM as the guiney pig)
   # end date keeps advancing as long as their 30 trading days which is the max hold time
   desc "Population of all stocks with a minimum valume of 75000 for 2009"

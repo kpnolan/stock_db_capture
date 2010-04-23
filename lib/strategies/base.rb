@@ -25,6 +25,7 @@ module Strategies
       ta_props.each_pair do |meth, props|
         return min_time, meth if props[:time] == min_time
       end
+      [nil, nil]
     end
 
     def close_crossing_value(ta_props)

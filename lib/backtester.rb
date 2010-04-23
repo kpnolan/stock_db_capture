@@ -13,7 +13,13 @@ require 'ruby-prof'
 require 'rubygems'
 require 'ruby-debug'
 
-class BacktestException < Exception
+class ConfigtException < Exception
+  def initialize(msg)
+    super(msg)
+  end
+end
+
+class RuntimetException < Exception
   def initialize(msg)
     super(msg)
   end
@@ -22,6 +28,7 @@ end
 class Backtester
 
   extend TradingCalendar
+  extend BacktestException
 
   attr_accessor :ts, :result_hash, :meta_data_hash
 

@@ -39,6 +39,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'rubygems'
+require 'rpctypes'
 require 'composite_primary_keys'
 
 class Position < ActiveRecord::Base
@@ -60,6 +61,11 @@ class Position < ActiveRecord::Base
   named_scope :on_date,  lambda { |clock| { :conditions => ['date(entry_date) = ?', clock.to_date] } }
 
   extend TradingCalendar
+  include Backtest::PositionMixin
+
+  def to_proxy
+    Task::RPCTypes::PositionProxy.new(self)
+  end
 
   def entry_delay
     Position.trading_days_between(entry_date, ettime)
@@ -81,6 +87,14 @@ class Position < ActiveRecord::Base
     Position.trading_days_between(xttime, exit_date)
   end
 
+  def open_using_values(label)
+    @null_result_id ||= Indicator.lookup(:identity).id
+    update_attributes!(:entry_date => ettime, :entry_price => etprice, :entry_ival => etival, :eind_id => @null_result_id)
+  end
+
+  def default_close()
+    close(xttime, xtprice, xtind_id, xtival, :closed => true)
+  end
     #
     # open a position that has been previously triggered. Note that because the entry date may have moved from the
     # trigger date this can result in a duplicate opening, for which we check first
@@ -95,16 +109,85 @@ class Position < ActiveRecord::Base
       self.destroy
       rec = Marshal.load(str)
       attrs = rec.class.column_names.inject({}) { |hash, name| hash[name] = rec.send(name); hash }
-      attrs.merge!(:entry_date => entry_time, :entry_price => entry_price, :short => short, :consumed_margin => cmargin)
+      attrs.merge!(:entry_date => entry_time, :entry_price => entry_price, :short => short, :consumed_margin => cmargin, :pid => Process.pid)
       parent.positions.create!(attrs) if parent
     else
-      update_attributes(:entry_price => entry_price, :num_shares => 1, :short => short, :consumed_margin => cmargin)
+      update_attributes(:entry_price => entry_price, :num_shares => 1, :short => short, :consumed_margin => cmargin, :pid => Process.pid)
       self
     end
   end
 
-  class << self
+  def open_using_trigger_values(options={})
+    short = options[:short]
+    cmargin = 0.0
+    attrs = { :entry_price => self.etprice, :entry_ival => self.etival, :eind_id => self.etind_id, :num_shares => 1, :short => short, :consumed_margin => cmargin }
+    attrs.merge!(:entry_date => self.ettime) if self.entry_date != self.ettime
+    update_attributes!(attrs)
+    self
+  end
 
+  def exit_using_results(exit_time, exit_price, exit_ind_id, exit_ival)
+    update_attributes!({:exit_date => exit_time, :exit_price => exit_price, :exit_ival => exit_ival, :xind_id => exit_ind_id})
+  end
+
+  def trigger_exit(trigger_time, trigger_price, indicator, ival, options={})
+    begin
+      ind_id = indicator.nil? ? nil : indicator.is_a?(Integer) ? indicator : Indicator.lookup(indicator).id
+      closed = options[:closed]
+      ival = nil if ival.nil? or ival.nan?
+      attrs = { :xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed }
+      attrs.merge!(:exit_price => trigger_price, :exit_date => trigger_time)
+      update_attributes! attrs
+    rescue ActiveRecord::RecordInvalid => e
+      raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
+    rescue Exception => e
+      raise e
+    end
+    self
+  end
+
+  def record_filter_vals(time, price, indicator, ival, options = { })
+    ind_id = indicator.nil? ? nil : Indicator.lookup(indicator).id
+    attrs = { :filter_time => time, :filter_price => price, :filter_ival => ival, :filter_id => ind_id }
+    update_attributes!(attrs)
+  end
+
+  def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
+    begin
+      attrs = { :ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival, :entry_date => trigger_time }
+      attrs.merge!(:entry_price => trigger_price)
+      pos = create!(attrs)
+    rescue ActiveRecord::RecordInvalid => e
+      raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
+    end
+    pos
+  end
+
+  def close(exit_date, exit_price, exit_ind, exit_ival, options={})
+    options.reverse_merge! :closed => true
+    days_held = Position.trading_days_between(entry_date, exit_date)
+    exit_status = if exit_price.nil?
+                    roi = rreturn = logr = nreturn = 0.0
+                    true
+                  else
+                    roi = (exit_price - entry_price) / entry_price
+                    rreturn = exit_price / entry_price
+                    logr = Math.log(rreturn.zero? ? 0.0 : rreturn)
+                    nreturn = days_held.zero? ? 0.0 : roi / days_held
+                    nreturn *= -1.0 if short and nreturn != 0.0
+                    false
+                  end
+    closed = options[:closed] == false ? nil : options[:closed]
+    indicator_id = exit_ind.is_a?(Symbol) ? Indicator.lookup(exit_ind).id : exit_ind
+
+    update_attributes!(:exit_price => exit_price, :exit_date => exit_date, :roi => roi,
+                       :xtind_id => indicator_id, :exit_ival => exit_ival, :xind_id => indicator_id,
+                       :days_held => days_held, :nreturn => nreturn, :logr => logr,
+                       :closed => closed)
+    exit_status
+  end
+
+  class << self
     #
     # Trigger and entry event which does not necessarly mean an entry, that is later confirmed. Since positions are not a composite key
     # a dummy entry date is given to the MySql happy
@@ -112,52 +195,14 @@ class Position < ActiveRecord::Base
     def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
       begin
         attrs = { :ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival, :entry_date => trigger_time }
-        attrs.merge!(:entry_price => trigger_price) if options[:next_pass] == false
+        attrs.merge!(:entry_price => trigger_price) if options[:next_block].nil?
         pos = create!(attrs)
       rescue ActiveRecord::RecordInvalid => e
         raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
-        raise e
       end
       pos
     end
 
-    def trigger_exit(position, trigger_time, trigger_price, indicator, ival, options={})
-      begin
-        ind_id = indicator.nil? ? nil : Indicator.lookup(indicator).id
-        closed = options[:closed]
-        ival = nil if ival.nil? or ival.nan?
-        attrs = { :xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed }
-        attrs.merge!(:exit_price => trigger_price, :exit_date => trigger_time)
-        pos = position.update_attributes! attrs
-      rescue ActiveRecord::RecordInvalid => e
-        raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
-        raise e
-      end
-      pos
-    end
-
-    def close(position, exit_date, exit_price, exit_ival, options={})
-      days_held = trading_days_between(position.entry_date, exit_date)
-      exit_status = if exit_price.nil?
-                      roi = rreturn = logr = nreturn = 0.0
-                      true
-                    else
-                      roi = (exit_price - position.entry_price) / position.entry_price
-                      rreturn = exit_price / position.entry_price
-                      logr = Math.log(rreturn.zero? ? 0.0 : rreturn)
-                      nreturn = days_held.zero? ? 0.0 : roi / days_held
-                      nreturn *= -1.0 if position.short and nreturn != 0.0
-                      false
-                    end
-      closed = options[:closed] == false ? nil : options[:closed]
-      indicator_id = options[:indicator] ? Indicator.lookup(options[:indicator]).id : position.xtind_id
-
-      position.update_attributes!(:exit_price => exit_price, :exit_date => exit_date, :roi => roi,
-                                  :xtind_id => indicator_id, :exit_ival => exit_ival,
-                                  :days_held => days_held, :nreturn => nreturn, :logr => logr,
-                                  :closed => closed)
-      exit_status
-    end
 
     def exiting_positions(date)
       find(:all, :conditions => ['date(positions.exit_date) = ?', date.to_date])

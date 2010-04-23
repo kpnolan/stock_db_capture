@@ -35,8 +35,8 @@ class TdaPosition < ActiveRecord::Base
 #  validates_presence_of :exit_price, :exit_date, :unless => lambda { |tda| tda.closed_at.nil? }
   validates_associated :watch_list, :if => lambda { |tda| tda.closed_at.nil? }
 
-  def after_save
-    watch_list.save!
+  def after_save()
+    watch_list.save! unless watch_list.nil?
   end
 
   def update_price(current_price)

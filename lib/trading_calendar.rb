@@ -1,6 +1,5 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'ruby-debug'
 require 'holidays'
 
 module TradingCalendar

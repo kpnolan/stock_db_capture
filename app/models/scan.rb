@@ -94,6 +94,10 @@ class Scan < ActiveRecord::Base
       first(:conditions => { :name => keyword_or_string.to_s.downcase})
     end
 
+    def find_by_year(year)
+      first(:conditions => { :name => "year_#{year}" })
+    end
+
     #--------------------------------------------------------------------------------------------------------------------
     # fromat elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
     # Future revs where we backtest an entire decade we will, no doubt include hours as part of the time base

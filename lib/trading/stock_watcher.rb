@@ -9,8 +9,7 @@ module Trading
 
     include TradingCalendar
 
-    WATCHLIST_NAME = 'Watchlist_2009'
-    PREWATCH_NAME = 'Prewatch_2009'
+    WATCHLIST_NAME = 'Watchlist_2010'
     PRICE_CUTOFF_RATIO = 85.0/100.0
     RSI_OPEN_THRESHOLDS = [20.0, 25.0, 30.0]
     RSI_CUTOFF = 45.0

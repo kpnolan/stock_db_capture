@@ -18,7 +18,8 @@ Rails::Initializer.run do |config|
 
   # Skip frameworks you're not going to use. To use Rails without a database
   # you must remove the Active Record framework.
-  # config.frameworks -= [ :active_record, :active_resource, :action_mailer ]
+#  config.frameworks -= [ :active_resource, :action_mailer, :action_controller, :action_view ]
+  config.frameworks -= [ :active_resource, :action_controller, :action_view ]
 
   # Specify gems that this application depends on.
   # They can then be installed with "rake gems:install" on new installations.
@@ -47,18 +48,18 @@ Rails::Initializer.run do |config|
   # If you change this key, all old sessions will become invalid!
   # Make sure the secret is at least 30 characters and all random,
   # no regular words or you'll be exposed to dictionary attacks.
-  config.action_controller.session = {
-    :session_key => '_stock_db_capture_session',
-    :secret      => 'b44cd5c428ffef1c44c1bb88dccf6cea79dbd7db9434d380391263a6582f5a177473c829b2fc3a0ed9dc02bf5179e3e397f860ccaa1027754623a5358d8830f0'
-  }
+  #config.action_controller.session = {
+  #  :session_key => '_stock_db_capture_session',
+  #  :secret      => 'b44cd5c428ffef1c44c1bb88dccf6cea79dbd7db9434d380391263a6582f5a177473c829b2fc3a0ed9dc02bf5179e3e397f860ccaa1027754623a5358d8830f0'
+  #}
   # FIXME Turn off, for the time being, any forgery detection as this is causing problems for Lewis (who no doubt is not
   # FIXME his own session as a result of loggin in)
-  config.action_controller.allow_forgery_protection = false
+  #config.action_controller.allow_forgery_protection = false
 
   # Use the database for sessions instead of the cookie-based default,
   # which shouldn't be used to store highly confidential information
   # (create the session table with "rake db:sessions:create")
-  config.action_controller.session_store = :active_record_store
+  #config.action_controller.session_store = :active_record_store
 
   # Use SQL instead of Active Record's schema dumper when creating the test database.
   # This is necessary if your schema can't be completely dumped by the schema dumper,
@@ -72,30 +73,27 @@ Rails::Initializer.run do |config|
 
   #Configure Mailer
   # config/environments/development.rb
-  config.action_mailer.raise_delivery_errors = true
-  config.action_mailer.template_root = File.join(RAILS_ROOT, 'app', 'views')
+  #config.action_mailer.raise_delivery_errors = true
+  #config.action_mailer.template_root = File.join(RAILS_ROOT, 'app', 'views')
   # set delivery method to :smtp, :sendmail or :test
-  config.action_mailer.delivery_method = :smtp
+  #config.action_mailer.delivery_method = :smtp
 
   # these options are only needed if you choose smtp delivery
-  config.action_mailer.smtp_settings = {
-    :address        => 'mail.satvatrader.com',
-    :port           => 25,
-    :domain         => 'satvatrader.com',
-    :authentication => :login,
-    :user_name      => 'satvatr',
-    :password       => 'Troika3'
-  }
+  #config.action_mailer.smtp_settings = {
+  #   :address        => 'mail.satvatrader.com',
+  #   :port           => 25,
+  #   :domain         => 'satvatrader.com',
+  #   :authentication => :login,
+  #   :user_name      => 'satvatr',
+  #   :password       => 'Troika3'
+  # }
 end
 
 Time::DATE_FORMATS[:pm] = "%d %b %I:%M"
 Time::DATE_FORMATS[:ymd] = "%Y-%m-%d"
 Time::DATE_FORMATS[:twz] = "%Y-%m-%d %I:%M%p (%Z)"
 
-
 #require 'composite_primary_keys'
-require 'smart_form_builder'
-require 'will_paginate'
 require 'gsl'
 require 'talib'
 require 'yaml'
@@ -103,8 +101,8 @@ require 'convert_talib_meta_info'
 require 'timeseries'
 require 'excel_simulation_dumper'
 require 'ruby-debug'
-require 'yahoo_finance/split_parser'
 autoload :TradingCalendar, 'trading_calendar'
+
 #
 # Monkey patched convenience method to convert a string in date fmt to a local time
 #
@@ -115,9 +113,7 @@ autoload :TradingCalendar, 'trading_calendar'
 #end
 
 ETZ = ActiveSupport::TimeZone['Eastern Time (US & Canada)']
-ActionView::Base.field_error_proc = Proc.new { |html_tag, instance|
-"<span class=\"fieldWithErrors\">#{html_tag}</span>" }
-extend TradingCalendar
+#extend TradingCalendar
 include ExcelSimulationDumper
 
 
@@ -135,32 +131,6 @@ include ExcelSimulationDumper
   TALIB_META_INFO_DICTIONARY = ConvertTalibMetaInfo.import_functions(TALIB_META_INFO_HASH['financial_functions']['financial_function'])
   TALIB_META_INFO_DICTIONARY.merge!(ConvertTalibMetaInfo.import_functions(USER_META_INFO_HASH['financial_functions']['financial_function']))
 
-#ts(:ibm, '1/1/2009'.to_date..'7/1/2009'.to_date, 1.day, :populate => true)
-
-#$sw = Trading::StockWatcher.new  ActiveSupport::BufferedLogger.new(File.join(RAILS_ROOT, 'log', "stock_watch_#{Date.today.to_s(:db)}.log"))
-  #$qt = $sw.qt
-
-  def lookup(symbol, start_date, end_date=nil, options={})
-    options.reverse_merge! :interval => 1.day.seconds
-    begin
-      $qs ||= GoogleFinance::QuoteServer.new
-      start_date = start_date.is_a?(Date) ? start_date : Date.parse(start_date)
-      end_date = end_date.nil? ? start_date : end_date.is_a?(Date) ? end_date : Date.parse(end_date)
-      if options[:interval] == 1.day.seconds
-        td = trading_day_count(start_date, end_date)
-        puts "#{td} trading days in period specified"
-        $qs.dailys_for(symbol, start_date, end_date, options) #unless td.zero?
-      else
-        period = options[:interval] < 60 ? options[:interval] : options[:interval]/60
-        $qs.intraday_for(symbol, start_date, end_date, period, options)
-      end
-    rescue Net::HTTPServerException => e
-      puts "No Data Found for #{symbol}" if e.to_s.split.first == '400'
-    rescue Exception => e
-      puts e.to_s
-    end
-  end
-#end
 
 #$cache = Memcached.new(["kevin-laptop:11211:8", "amd64:11211:2"], :support_cas => true, :show_backtraces => true)
 #$cache = Memcached.new(["amd64:11211:2"], :support_cas => true, :show_backtraces => true)

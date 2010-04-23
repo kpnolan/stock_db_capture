@@ -8,6 +8,7 @@
 #
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'rpctypes'
 require 'date'
 require 'missing_bar_exception'
 
@@ -108,15 +109,16 @@ class Timeseries
   PRECALC_BARS = 50
   POSTCALC_BARS = 30
   DEFAULT_OPTIONS = {
-    DailyBar =>     { :sample_resolution => [ 1.day ], :non_attrs => [ :logr ]   },
-    IntraDayBar =>  { :sample_resolution => [ 30.minutes ], :non_attrs => [ :period, :delta, :seq ] },
-    Snapshot =>     { :sample_resolution => [ 1.minute ], :non_attrs => [ :secmid ] } }
+    DailyBar =>     { :sample_resolution => 1.day , :non_attrs => [ :logr ]   },
+    IntraDayBar =>  { :sample_resolution => 30.minutes, :non_attrs => [ :period, :delta, :seq ] },
+    Snapshot =>     { :sample_resolution => 1.minute, :non_attrs => [ :secmid ] } }
 
   attr_reader :symbol, :ticker_id, :model, :value_hash, :result_hash, :enum_index, :enum_attrs, :model_attrs, :bars_per_day
   attr_reader :begin_time, :end_time, :pre_offset, :post_offset, :utc_offset, :resolution, :options
   attr_reader :attrs, :derived_values, :output_offset, :stride, :stride_offset, :frozen
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
-  attr_reader :expected_bar_count, :logger
+  attr_reader :expected_bar_count
+  attr_accessor :logger
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false, :missing_bar_error => :report, :max_date => Date.today - 1
@@ -168,6 +170,13 @@ class Timeseries
 
   def inspect
     super
+  end
+
+  def to_proxy
+    params = options.dup
+    params.delete(:logger)
+    params[:sample_resolution] = params[:sample_resolution].to_i if params[:sample_resolution]
+    Task::RPCTypes::TimeseriesProxy.new(ticker_id, local_range, resolution, params)
   end
   #
   # Since we don't keep a reference to tickers around, deref the id and
@@ -238,7 +247,12 @@ class Timeseries
     vals = vals.map { |v| value_hash[v][index] }
     vals
   end
-
+  #
+  # Need to define a max_exit_date which we will assume is the end of the local range
+  #
+  def max_exit_date
+    local_range.end
+  end
   #
   # This is like all() only it allows for the specification of parameters that apply to all of the functions
   #
@@ -333,7 +347,7 @@ class Timeseries
   #
   def select_by_resolution(resolution)
     DEFAULT_OPTIONS.each_pair do |key, value|
-      return key, value if value[:sample_resolution].include? resolution
+      return key, value if value[:sample_resolution] == resolution
     end
     raise ArgumentError, "A sampling resolution of #{resolution} is not available"
   end
@@ -615,6 +629,12 @@ class Timeseries
     when index < 0 :  raise ArgumentError, "index [#(index}] is negative"
       raise ArgumentError, "index [#(index}] is ouside of the range of bars, the maximum of which is #{timevec.length-1}"
     end
+  end
+  #
+  #
+  #
+  def rindex2time(index)
+    index2time(index + result_offset)
   end
   #
   # returns the length of this timeseries. Note that this is the "net" length

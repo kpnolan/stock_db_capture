@@ -26,7 +26,8 @@ production:
   encoding: utf8
   username: kevin
   password: Troika3.
-  host: localhost
+#  host: localhost
+  socket: /var/run/mysqld/mysqld.sock
   pool: 10
 
 

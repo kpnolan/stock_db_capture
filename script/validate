@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+# Copyright © Kevin P. Nolan 2009 All Rights Reserved.
+
+require 'rubygems'
+require 'ruby-debug'
+require '../config/mini-environment'
+require 'task/config/compile/dsl'
+
+begin
+  config = Task::Config::Compile::Dsl.load(ARGV[0])
+  config.tsort.each do |name|
+    task = config.lookup_task(name)
+    puts "#{task.name}\t-- input count: #{task.inputs.length} output count: #{task.outputs.length}"
+  end
+  puts "#{ARGV[0]}.cfg: NO COMPLIATION ERRORS"
+rescue Exception => e
+  puts e.message
+  e.backtrace.each do |level|
+    puts "#{level}\n"
+  end
+end
+
+# Local Variables:
+# mode:ruby
+# End:

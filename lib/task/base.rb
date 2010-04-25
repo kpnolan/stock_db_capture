@@ -7,9 +7,8 @@ require 'task/message'
 require 'task/remote_logger'
 require 'task/config/compile/dsl'
 require 'task/config/compile/exceptions'
-
 #
-# Some monkey patching on the Hash class that is too specialized to really go into here
+# Somec monkey patching on the Hash class that is too specialized to really go into here
 #
 class Hash
   include TSort
@@ -53,17 +52,17 @@ module Task
     attr_reader :options, :post_process
     attr_reader :config_basename, :config, :fabric
     attr_reader :threads, :logger
-    attr_accessor :proc_id, :daemon_opts
+    attr_accessor :proc_id
 
     #--------------------------------------------------------------------------------------------------------------------
     # The constructor for a daemon class. Since the worker daemons are forked, they get a copy of the process start which
     # of course includes the state stored here. The serve() method actually invokes a separate process.
     #--------------------------------------------------------------------------------------------------------------------
-    def initialize(config_file, daemon_opts={})
+    def initialize(config_file, proc_id)
       @config_basename = File.basename(config_file)
       @config = Dsl.load(config_file)
-      @options = config.options.reverse_merge :verbose => true
-      @daemon_opts = daemon_opts
+      @proc_id = proc_id
+      @options = config.options.reverse_merge :verbose => true, :logger_type => :remote
       #create readers for each of the above options
       self.extend self.options.to_mod
 
@@ -87,28 +86,19 @@ module Task
       @threads.extend(MonitorMixin)
       Thread.abort_on_exception = false
     end
-
-    #
-    # Is that running as a daemon or on top of he shell?
-    #
-    def on_top?
-      daemon_opts[:ontop]
-    end
     #
     # Set up an appropriate logger destination. If verbose is true we just log to $stderr, otherwise we log to a file
     # containing the proc_id (0..number of procs). Finally if were running as a daemon we bind to the Drb Service
     # that all daeomons write to.
     #
     def initialize_logger()
-      if on_top?
-        if verbose
-          @logger = ActiveSupport::BufferedLogger.new($stderr)
-          @logger.auto_flushing = true
-        else
-          log_path = File.join(RAILS_ROOT, 'log', "#{config_basename}_#{proc_id}.log")
-          system("cat /dev/null > #{log_path}")
-          @logger = ActiveSupport::BufferedLogger.new(log_path)
-        end
+      if verbose
+        @logger = ActiveSupport::BufferedLogger.new($stderr)
+        @logger.auto_flushing = true
+      elsif logger_type == :local
+        log_path = File.join(RAILS_ROOT, 'log', "#{config_basename}.log")
+        system("cat /dev/null > #{log_path}")
+        @logger = ActiveSupport::BufferedLogger.new(log_path)
       else
         @logger = RemoteLogger.new(proc_id)
       end
@@ -122,9 +112,7 @@ module Task
     # often generated to inplement a pass-by-reference protocol. Upon reciept of payloads with Proxy objects they are
     # automatically derefernced into a Heap local object.
     #--------------------------------------------------------------------------------------------------------------------
-    def serve(proc_id, use_tasks=[])
-      @proc_id = proc_id
-
+    def serve(use_tasks=[])
       startt = global_startt = Time.now
       #
       # Create a list of tasks taken from the topoligically sorted chain of tasks, start with the initial task
@@ -169,15 +157,14 @@ module Task
           begin
             #
             # Those task that have no parent are producers only there they don't get trigger by a message, therefore we don't
-            # wait for a message that will never come, instead we start them immediately
+            # wait for a message that will never come, instead we start them immediately. Only one process, however, should
+            # generate activate the producer since threre is no interprocess mutex allocated.
             #
-            if task.parent.nil?
-              #info("Producer #{task.name} invoked")
+            if task.parent.nil? && proc_id.zero?
+              info("Producer invoked", task.name)
               results = task.eval_body([])
             else
-              info "in main loop waiting for #{task.name}" if verbose
               msg = Message.receive(task)
-              info("received (#{proc_id}:#{count}) #{task.name}(#{msg.task_args.inspect})") if verbose
               results = task.eval_body(msg.task_args)
             end
             #
@@ -190,49 +177,38 @@ module Task
             end
             count += 1
           rescue Rinda::RequestExpiredError => e
-            error("Rinda Timeout: #{e}")
+            error("Rinda Timeout: #{e}", task.name)
             endt = Time.now
             delta = endt - startt
-            info "(#{proc_id}): #{task.name} #{count} positions processed -- elapsed time: #{Base.format_et(delta)}"
+            info "#{count} message processed -- elapsed time: #{Base.format_et(delta)}", task.name
             Thread.current.terminate
           rescue Task::Config::Runtime::TypeException => e
-            logger.error("#{e.class}: #{e.message}")
+            logger.error("#{e.class}: #{e.message}", task.name)
           rescue Task::Config::Runtime::TaskException => e
-            logger.error("#{e.class}: #{e.message}")
+            logger.error("#{e.class}: #{e.message}", task.name)
           rescue Task::Config::Runtime::WrapperException => e
-            logger.error("#{e.class}: #{e.message}")
+            logger.error("#{e.class}: #{e.message}", task.name)
           rescue TimeseriesException => e
-            logger.error("#{e.class}: #{e.message}")
+            logger.error("#{e.class}: #{e.message}", task.name)
+          rescue IOError => e
+            logger.error("#{e.class}: #{e.message}", task.name)
+            logger.error(e.backtrace.join("\n"), task.name)
           rescue ArgumentError => e
-            logger.error("#{e.class}: #{e.message}")
+            logger.error("#{e.class}: #{e.message}", task.name)
           rescue Exception => e
-            logger.error("#{e.class}: #{e.message}")
+            logger.error("#{e.class}: #{e.message}", task.name)
+            logger.error(e.backtrace.join("\n"), task.name)
           end
         end
       end
     end
 
-    def Base.run(config_path, daemon_count)
-      options = {
-        :dir_mode => :normal,
-        :dir => File.join(RAILS_ROOT, 'log'),
-        :multiple => true,
-        :log_output => true,
-        :baacktrace => true,
-        :ontop => true
-      }
+    def Base.run(config_path, proc_id)
       #
-      # TODO we might want to go through the hassle of creating ApplicationOjbects and ApplicationsGroups (which have one monitor)
+      # TODO we might want to go through the hassle of creating ApplicationOjbects and ApplicationsGroups (which have one 7monitor)
       #
-      task_names =  [:scan_gen, :timeseries_args, :rsi_trigger_14, :open_rsi_rvi,
-                     :exit_rsirvi, :rsi_rvi_50, :lagged_rsi_difference, :rsirvi_close ]
-      task_groups = []
-      task_names.in_groups(daemon_count) { |group| task_groups << group }
-      daemon_count.times do |i|
-        Daemons.run_proc('task_manager', options) do
-          daemon_options = Daemons.controller ?  Daemons.controller.options : { :ontop => true }
-          server = Base.new(config_path, daemon_options)
-          server.serve(i, task_groups[i])
+      server = Base.new(config_path, proc_id)
+      server.serve()
 #        server.serve(i, [:scan_gen])
 #        server.serve(i, [:timeseries_args])
 #        server.serve(i, [:rsi_trigger_14])
@@ -241,8 +217,8 @@ module Task
 #        server.serve(i, [:exit_rsirvi])
 #        server.serve(i, [:lagged_rsi_difference])
 #        server.serve(i, [:rsirvi_close])
-        end
-      end
+#        end
+#     end
     end
 
     #--------------------------------------------------------------------------------------------------------------------

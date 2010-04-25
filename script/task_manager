@@ -2,23 +2,25 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'rubygems'
-require 'ruby-debug'
-require '../config/mini-environment'
-require 'task/base'
 require 'optparse'
 require 'ostruct'
+require 'daemons'
 
-my_options = ARGV.inject([]) { |ary, el| ary << el if el == '--' || !ary.empty?; ary }.drop(1)
+root_path_ary = File.expand_path(File.dirname(__FILE__)).split('/') + ['..']
+root_dir = File.expand_path(File.join(root_path_ary))
 
-options = OpenStruct.new
-
-if my_options.empty?
-  options.server_count = 1
+def create_task_proc(root_dir, config_file, process_index)
+  lambda do
+    require File.join(root_dir,'config/mini-environment')
+    Task::Base.run(config_file, process_index)
+  end
 end
 
+valid_cmds = [:start, :stop, :status,:zap].map(&:to_s)
+
+options = OpenStruct.new
 optparse = OptionParser.new do |opts|
-  opts.default_argv = my_options
-  opts.banner = "Usage task_manager start -- [options]"
+  opts.banner = "Usage task_manager [start|stop|status|zap] options"
 
   opts.on('-C', '--config FILE', String, "The task config file") do |config_file|
     options.config_file = config_file
@@ -26,7 +28,7 @@ optparse = OptionParser.new do |opts|
 
   options.server_count = 1
   opts.on('-s', '--servers NUMBER', Integer, "Fork NUMBER of task servers") do |s|
-    options.server_count = p
+    options.server_count = s
   end
 
   opts.on('-h', '--help', 'Display this screen') do
@@ -35,12 +37,33 @@ optparse = OptionParser.new do |opts|
   end
 end
 
+puts "invalid command #{ARGV[0]} should be one of #{valid_cmds.join(', ')}" unless valid_cmds.include? ARGV[0]
+
 optparse.parse!
-unless options.config_file
-  puts 'config file is MANDITORY!'
+
+if ARGV[0] == 'start'
+  unless options.config_file
+    puts 'config file is MANDITORY!'
+  else
+    puts "Running #{options.server_count} processes"
+    dopts_options = {
+      :app_name => 'task_manager',
+      :dir_mode => :normal,
+      :dir => File.join(root_dir, 'pids'),
+      :multiple => true,
+      :ontop => false,
+      :backtrace => true,
+      :mode => :proc,
+      :log_output => true
+    }
+    options.server_count.times do |i|
+      proc = create_task_proc(root_dir, options.config_file, i)
+      Daemons.call(dopts_options, &proc)
+      puts 'after call to Daemons'
+    end
+  end
 else
-  puts "Running #{options.server_count} processes"
-  Task::Base.run(options.config_file, options.server_count)  if options.server_count > 0
+  puts 'only start command support so far'
 end
 
 # Local Variables:

@@ -4,15 +4,16 @@ require 'holidays'
 
 module TradingCalendar
 
-  DATEFMT1 = /(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/
-  DATEFMT2 = /(\d{1,2})[-\/](\d{1,2})/
+  unless TradingCalendar.const_defined?("DATEFMT1")
+    DATEFMT1 = /(\d{1,2})[-\/](\d{1,2})[-\/](\d{2,4})/
+    DATEFMT2 = /(\d{1,2})[-\/](\d{1,2})/
 
-  EPOCH = Time.local(1980, 1, 1, 6, 30)             # Jan 1, 1980 6:30AM
-  EPOCH_END = Time.local(2010,12, 31, 6, 30)        # Dec 31, 2010 6:30AM
-  YEAR_SECONDS = 60*60*24*365
-  LEAP_SECONDS = 60*60*24*366
-  DST_CORRECTION = 60*60
-
+    EPOCH = Time.local(1980, 1, 1, 6, 30)             # Jan 1, 1980 6:30AM
+    EPOCH_END = Time.local(2010,12, 31, 6, 30)        # Dec 31, 2010 6:30AM
+    YEAR_SECONDS = 60*60*24*365
+    LEAP_SECONDS = 60*60*24*366
+    DST_CORRECTION = 60*60
+  end
   #
   # Initialize the holidays hash once the first time this module is
   # extended into a class or module

@@ -20,7 +20,7 @@ Rails::Initializer.run do |config|
   # you must remove the Active Record framework.
 #  config.frameworks -= [ :active_resource, :action_mailer, :action_controller, :action_view ]
   config.frameworks -= [ :active_resource, :action_controller, :action_view ]
-
+  config.active_record.allow_concurrency = true
   # Specify gems that this application depends on.
   # They can then be installed with "rake gems:install" on new installations.
   # config.gem "bj"
@@ -98,10 +98,10 @@ require 'gsl'
 require 'talib'
 require 'yaml'
 require 'convert_talib_meta_info'
-require 'timeseries'
+#require 'timeseries'
 require 'excel_simulation_dumper'
 require 'ruby-debug'
-autoload :TradingCalendar, 'trading_calendar'
+#autoload :TradingCalendar, 'trading_calendar'
 
 #
 # Monkey patched convenience method to convert a string in date fmt to a local time

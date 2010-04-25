@@ -85,6 +85,7 @@ Daemons.run_proc('task_logger', daemon_options) {
   logger.level = options.severity
   DRb.start_service(options.uri, logger)
   logger.info("Logging started at #{Time.now}\n")
+  logger.flush
   DRb.thread.join
 }
 

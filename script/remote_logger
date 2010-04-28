@@ -1,13 +1,15 @@
 #!/usr/bin/env ruby
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require '../config/mini-environment'
 require 'rubygems'
-require 'ruby-debug'
+#require 'ruby-debug'
+
+require '../config/micro-environment'
 require 'daemons'
 require 'thread'
 require 'drb'
 require 'ostruct'
+require 'remote_logger_factory'
 
 my_options = ARGV.inject([]) { |ary, el| ary << el if el == '--' || !ary.empty?; ary }.drop(1)
 
@@ -15,47 +17,15 @@ options = OpenStruct.new
 
 if my_options.empty?
   options.uri = 'druby://localhost:9999'
-  options.log_file = 'task.log'
-  options.severity = 0
-  options.clear = true
 end
 
 optparse = OptionParser.new do |opts|
   opts.default_argv = my_options
-  opts.banner = "Usage task_logger cmd flags -- [options]"
+  opts.banner = "Usage remote_logger cmd flags -- [options]"
 
   options.uri = 'druby://localhost:9999'
   opts.on('-U', '--uri STRING', String, "URI to which the server wiill be bound TCP address:port can be used or Unix Socket with the prefix drbunix:<filename> otherwise it defaults to druby://localhost:9999, a TCP socket") do |uri|
     options.uri = uri
-  end
-
-  options.autoflush = 10
-  opts.on('-f', '--flush NUMBER', Integer, "Flush ever NUMBER of log messages (default is 10)") do |f|
-    options.autoflush = f
-  end
-
-  options.log_file = 'task.log'
-  opts.on('-l', '--log-file STRING', String, "name of log file to write incomming messages (defaults to 'task.log')") do |l|
-    options.log_file = d
-  end
-
-  options.keep = false
-  opts.on('-k', '--[no-]keep', String, "name of log file to write incomming messages (defaults to 'task.log')") do |k|
-    options.keep = k
-  end
-
-  options.severity = 0
-  opts.on('-s', '--severity LEVEL', [:debug, :info, :warn, :error, :fatal, :unknown], "severity level below with message will NOT be logged (defaults to debug) ") do |s|
-    options.severity = case  s
-                       when 'debug' then 0
-                       when 'info'  then 1
-                       when 'warn'  then 2
-                       when 'error' then 3
-                       when 'fatal' then 4
-                       when 'unknown' then 5
-                       else
-                         raise ArgumentError, 'severity must be one of debug, info, warn, error, fatal or unknown'
-                       end
   end
 end
 
@@ -69,7 +39,7 @@ end
 pid_dir_path = File.join(RAILS_ROOT, 'pids')
 
 daemon_options = {
-  :app_name => 'task_logger',
+  :app_name => 'remote_logger',
   :dir_mode => :normal,
   :dir => pid_dir_path,
   :multiple => false,
@@ -77,15 +47,9 @@ daemon_options = {
   :monitor => false
 }
 
-Daemons.run_proc('task_logger', daemon_options) {
-  path = File.join(RAILS_ROOT, 'log', options.log_file)
-  system("cat /dev/null > #{path}") unless options.keep
-  logger = ActiveSupport::BufferedLogger.new(path)
-  logger.auto_flushing = options.autoflush
-  logger.level = options.severity
-  DRb.start_service(options.uri, logger)
-  logger.info("Logging started at #{Time.now}\n")
-  logger.flush
+Daemons.run_proc('remote_logger', daemon_options) {
+  logger_factory = Server::RemoteLoggerFactory.new()
+  DRb.start_service(options.uri, logger_factory)
   DRb.thread.join
 }
 

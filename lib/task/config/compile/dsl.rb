@@ -43,7 +43,7 @@ module Task
       #
       TypeDecl = Struct.new(:fqname, :key, :sig, :output, :arity, :basic_type_sig, :converter) do
 
-        cattr_accessor :check, :config
+        cattr_accessor :check, :config, :logger
 
         def initialize(fqname, options, &block)
           self.fqname = fqname
@@ -113,6 +113,9 @@ module Task
 
       TaskDecl = Struct.new(:name, :options, :parent, :params, :targets, :inputs, :outputs, :raw_input_length, :raw_output_length,
                             :input_signature, :result_protocol, :logger, :wrapper_name, :wrapper_proc, :body) do
+
+
+        delegate :info, :error, :debug, :to => :logger
 
         cattr_accessor :config
 

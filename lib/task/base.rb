@@ -100,7 +100,7 @@ module Task
         system("cat /dev/null > #{log_path}")
         @logger = ActiveSupport::BufferedLogger.new(log_path)
       else
-        @logger = RemoteLogger.new(proc_id)
+        @logger = RemoteLogger.new(config_basename, File.join(RAILS_ROOT, 'log'), proc_id)
       end
     end
 
@@ -159,6 +159,10 @@ module Task
             # Those task that have no parent are producers only there they don't get trigger by a message, therefore we don't
             # wait for a message that will never come, instead we start them immediately. Only one process, however, should
             # generate activate the producer since threre is no interprocess mutex allocated.
+            # N.B. This logic depends on the config file containing the producer task does a Thread.terminate
+            # after yielding the producer messages. TODO this should be changed so that no thread knowlege is necessary
+            # in the config files since it breaks encapsulation. However, somehow we need to know when a producer is done.
+            # Perhaps this can be done with a special return value.
             #
             if task.parent.nil? && proc_id.zero?
               info("Producer invoked", task.name)

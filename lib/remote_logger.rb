@@ -1,3 +1,4 @@
+require '../config/micro-environment' if __FILE__ == $0
 require 'drb/drb'
 require 'monitor'
 #
@@ -21,15 +22,10 @@ class RemoteLogger
 
   # Valid options are :autoflush => 5, :keep => false, :deverity => DEBUG
   def initialize(log_name='remote', basedir=File.join(RAILS_ROOT, 'log'), proc_id=0, options={})
-    remote_logger_factory ||= DRbObject.new_with_uri(URI)
+    RemoteLogger.remote_logger_factory ||= DRbObject.new_with_uri(URI)
     @log_name = log_name
     @proc_id = proc_id
-    begin
-      @logger = remote_logger_factory.get_logger(log_name, basedir, options)
-    rescue Exception => e
-      raise if $stderr.closed?
-      $stderr.puts "#{e.class} #{e.message}"
-    end
+    @logger = remote_logger_factory.get_logger(log_name, basedir, options)
     @logger.extend(MonitorMixin)
     ObjectSpace.define_finalizer(self, self.class.method(:finalize).to_proc)
    end
@@ -64,11 +60,19 @@ class RemoteLogger
 
   def close()
     logger.flush()
-    remote_logger_factory.close(log_name)
+    RemoteLogger.remote_logger_factory.close(log_name)
   end
-  # Make sure remote log is closed properly on GC cleanup
-  def RemoteLogger.finalize(id)
-    OjbectSpace._id2ref(id).close()
+
+  class << self
+
+    # Make sure remote log is closed properly on GC cleanup
+    def finalize(id)
+      OjbectSpace._id2ref(id).close()
+    end
+
+    def names
+      remote_logger_factory.nil? ? [:unitialized] : remote_logger_factory.names()
+    end
   end
 end
 #
@@ -78,22 +82,23 @@ end
 if __FILE__ == $0
   threads = []
   threads.extend(MonitorMixin)
+  rl_mutex = Object.new
+  rl_mutex.extend(MonitorMixin)
 
-  tl = RemoteLogger.new(ARGV.first)
   10.times do |i|
-    Thread.new(tl, i) do |tl, i|
+    Thread.new(i) do |i|
       threads.synchronize { threads.push(Thread.current) }
+      $tl = Thread.current['logger'] = rl_mutex.synchronize { RemoteLogger.new(ARGV.first) }
       1000.times do
         case rand(3)
-        when 0 then tl.debug('this is a debug msg', i.to_s)
-        when 1 then tl.info('this is a info msg', i.to_s)
-        when 2 then tl.error('this is a error msg', i.to_s)
-        when 3 then tl.fatal('this is a fatal msg', i.to_s)
+        when 0 then Thread.current['logger'].debug('this is a debug msg', i.to_s)
+        when 1 then Thread.current['logger'].info('this is a info msg', i.to_s)
+        when 2 then Thread.current['logger'].error('this is a error msg', i.to_s)
+        when 3 then Thread.current['logger'].fatal('this is a fatal msg', i.to_s)
         end
       end
     end
   end
   threads.each { |thread| thread.join }
-  t1.close()
+  $tl.close()
 end
-

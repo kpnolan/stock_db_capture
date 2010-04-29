@@ -2,7 +2,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'rubygems'
-#require 'ruby-debug'
+require 'ruby-debug'
 
 require '../config/micro-environment'
 require 'daemons'
@@ -48,6 +48,11 @@ daemon_options = {
 }
 
 Daemons.run_proc('remote_logger', daemon_options) {
+  Signal.trap("TERM") do
+    logger_factory = DRb.front()
+    DRb.stop_service()
+    logger_factory.close_all()
+  end
   logger_factory = Server::RemoteLoggerFactory.new()
   DRb.start_service(options.uri, logger_factory)
   DRb.thread.join

@@ -32,8 +32,10 @@ module Server
     end
 
     def get_logger(log_name, basedir, options={ })
+      raise ArgumentError, "both log_name and basedir (first 2 args) must be specified!" if log_name.nil? || basedir.nil?
+      log_name = log_name.gsub(/[.\/]/, "_").untaint
       if loggers.has_key? log_name
-        if loggers[log_name].basedir == basdir
+        if self.loggers[log_name].basedir == basedir
           loggers[log_name]
         else
           raise ArgumentError, "logger #{log_name} already exits with different directory: #{loggers[log_name].basedir}!"
@@ -43,13 +45,22 @@ module Server
       end
     end
 
+    def names()
+      loggers.keys
+    end
+
     def close(log_name)
       if loggers.has_key? log_name
+        loggers[log_name].info("Logging terminated at #{Time.now}\n")
         loggers[log_name].close()
         loggers.delete log_name
       else
         raise ArgumentError, "no logger named #{log_name} found!"
       end
+    end
+
+    def close_all()
+      loggers.keys.each { |log_name| close(log_name) }
     end
   end
 end

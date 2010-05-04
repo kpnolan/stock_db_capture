@@ -3,8 +3,8 @@ require 'daemons'
 require 'rinda/ring'
 require 'monitor'
 require 'rpctypes'
+require 'remote_logger'
 require 'task/message'
-require 'task/remote_logger'
 require 'task/config/compile/dsl'
 require 'task/config/compile/exceptions'
 #
@@ -62,7 +62,7 @@ module Task
       @config_basename = File.basename(config_file)
       @config = Dsl.load(config_file)
       @proc_id = proc_id
-      @options = config.options.reverse_merge :verbose => true, :logger_type => :remote
+      @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 10
       #create readers for each of the above options
       self.extend self.options.to_mod
 
@@ -73,7 +73,7 @@ module Task
         fabric = Rinda::TupleSpaceProxy.new ts
         Message.bind_to_message_fabric(fabric)
         Message.bind_to_config(config)
-        Message.default_timeout = 10
+        Message.default_timeout = options[:message_timeout]
       rescue Exception => e
         $stderr.puts "Cannot find Rinda Ringserver: please run 'sudo ringserver start' to correct this problem -- aborting"
         raise
@@ -112,7 +112,7 @@ module Task
     # often generated to inplement a pass-by-reference protocol. Upon reciept of payloads with Proxy objects they are
     # automatically derefernced into a Heap local object.
     #--------------------------------------------------------------------------------------------------------------------
-    def serve(use_tasks=[])
+    def serve(*use_tasks)
       startt = global_startt = Time.now
       #
       # Create a list of tasks taken from the topoligically sorted chain of tasks, start with the initial task
@@ -124,7 +124,7 @@ module Task
         tasks = config.tsort.map { |name| use_tasks.include?(name) ? config.lookup_task(name) : nil }
         tasks.compact!
       end
-      info "Number of task: #{tasks.length}"
+      info "Number of tasks: #{tasks.length}"
       #
       # Create a thread for each task in the config file. The semantics of that thread
       # is contained in the task objects runtime Proc (which is built by reading the config file)
@@ -168,7 +168,11 @@ module Task
               info("Producer invoked", task.name)
               results = task.eval_body([])
             else
+              #t = Time.now
+              #info "#{task.name} calling recieve at #{t.strftime('%M:%S')}:#{t.usec}"
               msg = Message.receive(task)
+              #t = Time.now
+              #info "#{task.name} got message at #{t.strftime('%M:%S')}:#{t.usec}"
               results = task.eval_body(msg.task_args)
             end
             #
@@ -181,7 +185,7 @@ module Task
             end
             count += 1
           rescue Rinda::RequestExpiredError => e
-            error("Rinda Timeout: #{e}", task.name)
+            error("(#{task.name}) Rinda Timeout: #{e}", task.name)
             endt = Time.now
             delta = endt - startt
             info "#{count} message processed -- elapsed time: #{Base.format_et(delta)}", task.name
@@ -213,16 +217,17 @@ module Task
       #
       server = Base.new(config_path, proc_id)
       server.serve()
+#      server.serve(:rsi_rvi_50)
+#      server.serve(:scan_gen,:timeseries_args, :rsi_trigger_14)
 #        server.serve(i, [:scan_gen])
 #        server.serve(i, [:timeseries_args])
 #        server.serve(i, [:rsi_trigger_14])
-#        server.serve(i, [:open_rsi_rvi])
 #        server.serve(i, [:rsi_rvi_50])
-#        server.serve(i, [:exit_rsirvi])
-#        server.serve(i, [:lagged_rsi_difference])
-#        server.serve(i, [:rsirvi_close])
+#        server.serve(:lagged_rsi_difference)
 #        end
 #     end
+      summary_str = ResultAnalysis.memoized_thresholds
+      server.info summary_str
     end
 
     #--------------------------------------------------------------------------------------------------------------------
@@ -240,4 +245,3 @@ module Task
     end
   end
 end
-

@@ -111,7 +111,7 @@ module Task
         self.check = ! true_false
       end
 
-      TaskDecl = Struct.new(:name, :options, :parent, :params, :targets, :inputs, :outputs, :raw_input_length, :raw_output_length,
+      TaskDecl = Struct.new(:name, :options, :parent, :params, :targets, :inputs, :outputs, :priority, :raw_input_length, :raw_output_length,
                             :input_signature, :result_protocol, :logger, :wrapper_name, :wrapper_proc, :body) do
 
 
@@ -353,14 +353,14 @@ module Task
           time_span = params[:window]
           resolution = resolution()
           lambda do |position|
-            start_date = position.send(sdate_method).to_date
+            start_date = position.send(sdate_method)
             max_exit_date = Position.trading_date_from(start_date, time_span)
             if max_exit_date > Date.today-1
               ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
               max_exit_date = ticker_max.localtime
             end
             begin
-              ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution)
+              ts = Timeseries.new(position.ticker_id, start_date..end_date, resolution, :logger => task.logger)
               confirming_index = ts.instance_exec(params, position, &block)
               if confirming_index.nil?
                 position.destroy
@@ -382,14 +382,14 @@ module Task
           resolution = resolution()
           lambda do |position|
             begin
-              start_date = position.send(sdate_method).to_date
+              start_date = position.send(sdate_method)
               max_exit_date = Position.trading_date_from(start_date, time_span)
               if max_exit_date > Date.today-1
                 ticker_max = DailyBar.maximum(:bartime, :conditions => { :ticker_id => position.ticker_id } )
                 max_exit_date = ticker_max.localtime
               end
               #puts "calling timeseries with #{position.ticker.symbol} #{start_date}..#{max_exit_date}"
-              ts = Timeseries.new(position.ticker_id, start_date..max_exit_date, resolution, self.options.merge(:logger => logger))
+              ts = Timeseries.new(position.ticker_id, start_date..max_exit_date, resolution, :logger => task.logger)
 
               result = ts.instance_exec(params, position, &block)
               #puts "ts result: #{result.join(', ')}"

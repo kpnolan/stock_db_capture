@@ -42,6 +42,9 @@ module Task
     end
 
     def TimeseriesProxy.to_seconds(time_range)
+      if time_range.begin.is_a?(Date) && time_range.end.is_a?(Date)
+        time_range = time_range.begin.to_time.change(:hour => 6, :min => 30)..time_range.end.to_time.change(:hour => 6, :min => 30)
+      end
       raise ArgumentError, 'arg must be a range of Times' unless time_range.is_a?(Range) && time_range.begin.is_a?(Time) && time_range.end.is_a?(Time)
       time_range.begin.to_i..time_range.end.to_i
     end

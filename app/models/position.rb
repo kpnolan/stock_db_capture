@@ -136,8 +136,7 @@ class Position < ActiveRecord::Base
       closed = options[:closed]
       ival = nil if ival.nil? or ival.nan?
       attrs = { :xtprice => trigger_price, :xttime => trigger_time, :xtind_id => ind_id, :xtival => ival, :closed => closed }
-      attrs.merge!(:exit_price => trigger_price, :exit_date => trigger_time)
-      update_attributes! attrs
+      update_attributes!(attrs)
     rescue ActiveRecord::RecordInvalid => e
       raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
     rescue Exception => e
@@ -150,17 +149,6 @@ class Position < ActiveRecord::Base
     ind_id = indicator.nil? ? nil : Indicator.lookup(indicator).id
     attrs = { :filter_time => time, :filter_price => price, :filter_ival => ival, :filter_id => ind_id }
     update_attributes!(attrs)
-  end
-
-  def trigger_entry(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
-    begin
-      attrs = { :ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time, :entry_pass => pass, :etind_id => ind_id, :etival => ival, :entry_date => trigger_time }
-      attrs.merge!(:entry_price => trigger_price)
-      pos = create!(attrs)
-    rescue ActiveRecord::RecordInvalid => e
-      raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
-    end
-    pos
   end
 
   def close(exit_date, exit_price, exit_ind, exit_ival, options={})
@@ -180,10 +168,8 @@ class Position < ActiveRecord::Base
     closed = options[:closed] == false ? nil : options[:closed]
     indicator_id = exit_ind.is_a?(Symbol) ? Indicator.lookup(exit_ind).id : exit_ind
 
-    update_attributes!(:exit_price => exit_price, :exit_date => exit_date, :roi => roi,
-                       :xtind_id => indicator_id, :exit_ival => exit_ival, :xind_id => indicator_id,
-                       :days_held => days_held, :nreturn => nreturn, :logr => logr,
-                       :closed => closed)
+    update_attributes!(:exit_price => exit_price, :exit_date => exit_date,:xind_id => indicator_id, :exit_ival => exit_ival,
+                       :roi => roi, :days_held => days_held, :nreturn => nreturn, :logr => logr, :closed => closed)
     exit_status
   end
 
@@ -203,6 +189,19 @@ class Position < ActiveRecord::Base
       pos
     end
 
+    def trigger_entry_and_open(ticker_id, trigger_time, trigger_price, ind_id, ival, pass, options={})
+      begin
+        short = options[:short]
+        cmargin = 0.0
+        attrs = { :ticker_id => ticker_id, :etprice => trigger_price, :ettime => trigger_time,:etind_id => ind_id, :etival => ival,
+          :entry_date => trigger_time, :entry_price => trigger_price, :entry_ival => ival, :eind_id => ind_id,
+          :num_shares => 1, :short => short, :consumed_margin => cmargin, :entry_pass => pass }
+        pos = create!(attrs)
+      rescue ActiveRecord::RecordInvalid => e
+        raise e.class, "You have a duplicate record (mostly likely you need to do a truncate of the old strategy) " if e.to_s =~ /already been taken/
+      end
+      pos
+    end
 
     def exiting_positions(date)
       find(:all, :conditions => ['date(positions.exit_date) = ?', date.to_date])

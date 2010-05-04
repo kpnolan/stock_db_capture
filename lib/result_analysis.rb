@@ -3,7 +3,7 @@
 require 'rubygems'
 require 'gsl'
 
-# This module is dependent on two methods begin available in the enclosing environment: vector_for, outidx
+# This module is dependent on two methods begin available in the enclosing environment: vector_for and :outidx
 
 # OPTIMIZE We should have two forms of each of this functions: one finds a vector of crossing and the other finds the first one
 # OPTIMIZE since when closing a position we are generally interested in the first event as opposed to opening positions where
@@ -11,10 +11,25 @@ require 'gsl'
 module ResultAnalysis
   RAD2DEG = (180.0/Math::PI)
   include GSL
+  @@threshold_vec_hash = { }
 
   VALID_OPS = [:gt, :lt, :ge, :le, :eq]
 
   attr_accessor :mode              # this will be used to optimize the where into first or something
+
+  def ResultAnalysis.tvec_alloc(len, threshold)
+    key = [len, threshold]
+    return @@threshold_vec_hash[key] if @@threshold_vec_hash.has_key? key
+    @@threshold_vec_hash[key] = GSL::Vector.alloc(len).set_all(threshold)
+  end
+
+  def ResultAnalysis.memoized_thresholds
+    outstr = ''
+    @@threshold_vec_hash.keys.each do |key|
+      outstr << "threshold: #{key.last} of #{key.first} length\n"
+    end
+    outstr
+  end
 
   def monotonic_sequence(max, vec)
     index = vec.find_index { |n| n < max || (max = n) && false }
@@ -31,7 +46,7 @@ module ResultAnalysis
 
   def threshold_crossing(threshold, vec, op)
     raise ArgumentError, "#{op} not one of #{VALID_OPS.join(', ')}" unless VALID_OPS.include? op
-    tvec = GSL::Vector.alloc(vec.len).set_all(threshold)
+    tvec = ResultAnalysis.tvec_alloc(vec.len, threshold)
     crossing(op, vec, tvec)
   end
 
@@ -74,6 +89,12 @@ module ResultAnalysis
     end
   end
 
+  #
+  # Returns an array of indexes where vector b crosses vector (generally a threshold vector)  the type of crossing is given
+  # by the method argument (:gt, :lt, :ge, :le)  which detects upward crossings and downward crossing.
+  # NB The indexes return ARE OFFSET by OUTIDX so that a crossing a vec[0] is the point given for the beginning of the
+  # timeseries (start_time)
+  #
   def crossing(method, a, b)
     bitmap = a.send(method, b)
     lval = (bitmap[0] == 1)

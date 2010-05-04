@@ -72,6 +72,7 @@ class Timeseries
     end
 
     def missing_bars()
+      debugger
       timevec_as_seconds = timevec.map(&:to_i)
       missing_bars_as_seconds = expected_bars_as_seconds - timevec_as_seconds
       missing_bars_as_seconds.map { |secs| Time.at(secs) }
@@ -598,7 +599,7 @@ class Timeseries
        raise ArgumentError, "first arg must be a Time or a Fixnum, instead was #{time_or_index}"
      end
    rescue Exception => e
-     logger.error "can't find index #{time_or_index} @ slot: #{slot}: #{e.to_s}"
+     logger.error "can't find index #{time_or_index} @ slot: #{slot}: #{e.to_s}" if logger
      return -0.0
    end
  end

@@ -53,7 +53,6 @@ module Strategies
       ta_props.each_pair do |meth, props|
         return min_time, meth, result_at(min_time, props[:result]) if props[:time] == min_time
       end
-      debugger
     end
   end
 

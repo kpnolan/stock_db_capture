@@ -109,14 +109,14 @@ module Task
     payload = fabric.read([name, *task.inputs])
   end
 
-  def Message.dump_all(name, arg_count)
+  def Message.dump_all(name, arg_count, count_only=false)
     raise ArgumentError, "messaging fabric has not been bound" if fabric.nil?
     arg_template = Array.new(arg_count, nil)
     arg_template.unshift(name)
     tuples = fabric.read_all(arg_template)
     count = tuples.length
     tuples.each do |tuple|
-      puts tuple.inspect
+      puts tuple.inspect unless count_only
     end
     if count.zero?
       puts "No :#{name} messages found"

@@ -23,6 +23,16 @@ optparse = OptionParser.new do |opts|
     options.messages = ary.map { |name| name.delete(':').to_sym }
   end
 
+  options.loop = -1
+  opts.on("-l", "--loop SECONDS", Integer, "loop every SECONDS printing the contents of the tuplespace ") do |l|
+    options.loop = l
+  end
+
+  options.count_only = false
+  opts.on("-c", "--count", "Return counts only of each message type") do |c|
+    options.count_only = c
+  end
+
   opts.on('-h', '--help', 'Display this screen') do
     puts opts
     exit
@@ -49,18 +59,22 @@ Task::Message.bind_to_config(config)
 #
 # If message array is empty, dump all messages instead of just the ones specified in --messages
 #
-if options.messages.empty?
-  config.tsort.each do |name|
-    task = config.lookup_task(name)
-    Task::Message.dump_all(task.name, task.inputs.length)
-  end
-else
-  config.tsort.each do |name|
-    if options.messages.include?(name)
+loop do
+  if options.messages.empty?
+    config.tsort.each do |name|
       task = config.lookup_task(name)
-      Task::Message.dump_all(name, task.inputs.length)
+      Task::Message.dump_all(task.name, task.inputs.length, options.count_only)
+    end
+  else
+    config.tsort.each do |name|
+      if options.messages.include?(name)
+        task = config.lookup_task(name)
+        Task::Message.dump_all(name, task.inputs.length, options.count_only)
+      end
     end
   end
+  break if options.loop < 0
+  sleep(options.loop)
 end
 
 # Local Variables:

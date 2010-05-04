@@ -47,7 +47,7 @@ if ARGV[0] == 'start'
   else
     puts "Running #{options.server_count} processes"
     dopts_options = {
-      :app_name => 'task_manager',
+      :app_name => options.config_file,
       :dir_mode => :normal,
       :dir => File.join(root_dir, 'pids'),
       :multiple => true,
@@ -56,9 +56,10 @@ if ARGV[0] == 'start'
       :mode => :proc,
       :log_output => true
     }
-    options.server_count.times do |i|
+    server_count = options.server_count.zero? ? 1 : options.server_count
+    server_count.times do |i|
       proc = create_task_proc(root_dir, options.config_file, i)
-      Daemons.call(dopts_options, &proc)
+      options.server_count.zero? ? proc.call() : Daemons.call(dopts_options, &proc)
       puts 'after call to Daemons'
     end
   end

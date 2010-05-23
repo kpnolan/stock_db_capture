@@ -18,8 +18,8 @@ module CompositeAnalysis
         $deltas << delta
       end
       case
-      when idx1 < idx2    : offset1 += 1
-      when idx1 > idx2    : offset2 += 1
+      when idx1 < idx2 then offset1 += 1
+      when idx1 > idx2 then offset2 += 1
       else
         offset1 += 1
         offset2 += 1

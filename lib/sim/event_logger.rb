@@ -13,9 +13,9 @@ module Sim
       File.truncate(path, 0) if File.exist?(path)
       @logger = ActiveSupport::BufferedLogger.new(path)
       @levels = case cval(:log_level)
-                when 0 : []
-                when 1 : [SimSummary]
-                when 2 : [SimSummay, SimPosition]
+                when 0 then []
+                when 1 then [SimSummary]
+                when 2 then [SimSummay, SimPosition]
                 else
                   []
                 end

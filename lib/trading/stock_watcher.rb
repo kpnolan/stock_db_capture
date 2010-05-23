@@ -1,7 +1,6 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 require 'rubygems'
 require 'ruby-debug'
-require 'faster_csv'
 
 module Trading
 
@@ -214,7 +213,7 @@ module Trading
       datestr = Date.today.to_formatted_s(:ymd)
       basename =  "Entry_List-#{datestr}.csv"
       filename = File.join(RAILS_ROOT, 'tmp', basename)
-      FasterCSV.open(filename, 'w') do |csv|
+      CSV.open(filename, 'w') do |csv|
         csv << [ 'Ticker', 'Percent', 'Price', 'Target Price', 'Volume', 'RSI', 'Threshold', 'Shares@Price' ]
         WatchList.find(:all, :conditions => 'opened_on is NULL', :order => 'price').each do |wl|
           row = []

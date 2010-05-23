@@ -43,9 +43,9 @@ class AnalResults
 
   def vector_for(sym)
     case
-    when result_hash.has_key?(sym)                : result_hash[sym]
-    when timeseries.value_hash.has_key?(sym)      : timeseries.value_hash[sym][index_range].to_gv
-    when timeseries.methods.include?(sym.to_s)    : timeseries.send(sym)[index_range].to_gv
+    when result_hash.has_key?(sym)                then result_hash[sym]
+    when timeseries.value_hash.has_key?(sym)      then timeseries.value_hash[sym][index_range].to_gv
+    when timeseries.methods.include?(sym.to_s)    then timeseries.send(sym)[index_range].to_gv
     else
       raise ArgumentError, "#{function}.#{sym} is not available"
     end

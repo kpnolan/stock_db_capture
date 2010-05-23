@@ -5,10 +5,10 @@ require 'mq'
 
 AMQP.start(:host => 'localhost') {
   amq = MQ.new
-  queue = amq.queue("counts3")
+  queue = amq.queue("counts1")
   $stime = Time.now
   i = 0
-  EM.add_periodic_timer(0.1) do
+  EM.add_periodic_timer(0) do
     10_000.times do
       queue.publish(i.to_s)
       puts "published #{i}"

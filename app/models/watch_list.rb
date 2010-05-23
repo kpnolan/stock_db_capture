@@ -35,8 +35,6 @@
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-#require 'faster_csv'
-
 class WatchList < ActiveRecord::Base
 
   include TradingCalendar
@@ -60,9 +58,9 @@ class WatchList < ActiveRecord::Base
 
   def status()
     @status ||= case
-      when tda_position.nil? && opened_on.nil? : 'W'
-      when tda_position.closed_at              : 'C'
-      when tda_position.opened_at              : 'O'
+      when tda_position.nil? && opened_on.nil? then 'W'
+      when tda_position.closed_at              then 'C'
+      when tda_position.opened_at              then 'O'
     end
   end
 
@@ -208,8 +206,8 @@ class WatchList < ActiveRecord::Base
     def lookup_entry(ticker_id, type)
       cond = "ticker_id = #{ticker_id} and " +
         case type
-        when :open  : 'opened_on IS NULL'
-        when :close : 'opened_on IS NOT NULL'
+        when :open  then 'opened_on IS NULL'
+        when :close then 'opened_on IS NOT NULL'
         else
           raise ArgumentError, "type should be :open or :close"
         end

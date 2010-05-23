@@ -28,7 +28,6 @@ require 'ostruct'
 require 'rubygems'
 require 'pp'
 require 'date'
-require 'faster_csv'
 require 'ruby-debug'
 
 class String
@@ -219,7 +218,7 @@ module YahooFinance
   def YahooFinance.get_realtime_quotes( symbols )
     csvquotes = YahooFinance::get( symbols, REALTIMEHASH.keys.join )
     ret = Hash.new
-    FasterCSV.parse( csvquotes ) do |row|
+    CSV.parse( csvquotes ) do |row|
       qt = RealTimeQuote.new( row )
       if block_given?
         yield qt
@@ -231,7 +230,7 @@ module YahooFinance
   def YahooFinance.get_extended_quotes( symbols )
     csvquotes = YahooFinance::get( symbols, EXTENDEDHASH.keys.join )
     ret = Hash.new
-    FasterCSV.parse( csvquotes ) do |row|
+    CSV.parse( csvquotes ) do |row|
       qt = ExtendedQuote.new( row )
       if block_given?
         yield qt
@@ -245,7 +244,7 @@ module YahooFinance
     csvquotes = YahooFinance::get( symbols, STDHASH.keys.join )
     ret = Hash.new
 #    begin
-      FasterCSV.parse( csvquotes ) do |row|
+      CSV.parse( csvquotes ) do |row|
         qt = StandardQuote.new( row )
         if block_given?
           yield qt
@@ -291,7 +290,7 @@ module YahooFinance
 
     def load_quote( symbol )
       csv = YahooFinance.get( symbol, @formathash.keys.join )
-      parse( FasterCSV.parse_line( csv ) )
+      parse( CSV.parse_line( csv ) )
     end
 
     def valid?()
@@ -490,7 +489,7 @@ module YahooFinance
         return [] if body !~ /Date,Open,High,Low,Close,Volume,Adj Close/
 
         # Parse into an array of arrays.
-        rows = FasterCSV.parse( body )
+        rows = CSV.parse( body )
         # Remove the first array since it is just the field headers.
         rows.shift
         #puts "#{rows.length}"

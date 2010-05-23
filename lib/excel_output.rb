@@ -1,7 +1,6 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'rubygems'
-require 'faster_csv'
 
 module ExcelOutput
 
@@ -31,7 +30,7 @@ module ExcelOutput
     vecs.flatten!
     names.flatten!
 
-    FasterCSV.open('./tmp/xl.csv') do |csv|
+    CSV.open('./tmp/xl.csv') do |csv|
       csv << BAR_LABELS + names
       [date].zip(open, high, low, close, *vecs) do |vec|
         csv << vec

@@ -166,10 +166,10 @@ module Task
         end
 
         def yield_value(value)
-          raise  Task::Config::Runtime::TaskException, "yeild_result called for task not declaring that result protocol" unless result_protocol == :yield
+          raise  Task::Config::Runtime::TaskException, "yield_result called for task not declaring that result protocol" unless result_protocol == :yield
           msg  = value.is_a?(Array) ? Message.new(self, value) : Message.new(self, [value])
           msg.deliver()
-          :ignore
+          nil
         end
         #
         # this is an undocumented feature of Ruby, i.e. passing a proc as a block to instance_exec which

@@ -42,9 +42,9 @@ class Factor < ActiveRecord::Base
   def to_s(format)
     results = TALIB_META_INFO_DICTIONARY[indicator.name.to_sym].stripped_output_names.map { |n| n.downcase }
     header = case
-             when format == :short && result == results.first : result
-             when format == :short && result != results.first : result
-             when :long : "#{indicator.name}.#{result}"
+             when format == :short && result == results.first then result
+             when format == :short && result != results.first then result
+             when :long then "#{indicator.name}.#{result}"
              end
     debugger if header.nil? or header == ''
     header

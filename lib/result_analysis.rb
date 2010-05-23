@@ -82,8 +82,8 @@ module ResultAnalysis
     sign2 = slop2 <=> 0.0
     delta = slope1 - slope2
     case
-    when sign2 != sign2 && delta > 0.1 : -1
-    when sign1 == sign2 && delta < 0.1 :  0
+    when sign2 != sign2 && delta > 0.1 then -1
+    when sign1 == sign2 && delta < 0.1 then  0
     else
       1
     end

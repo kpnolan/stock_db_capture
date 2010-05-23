@@ -15,7 +15,7 @@ module Task
     attr_reader :curr_task, :target_tasks, :options, :payload, :raw_args, :decoded_args
     cattr_accessor :fabric, :config, :logger
     cattr_accessor_with_default :check, true
-    cattr_accessor_with_default :default_timeout, 5
+    cattr_accessor_with_default :default_timeout, 30
 
     delegate :info, :error, :debug, :to => :logger
 
@@ -57,14 +57,10 @@ module Task
 
     def payload=(raw_args)
       @payload = curr_task.encode_payload(raw_args)
-       #debug "Encoded payload: #{@payload.inspect} from #{raw_args.inspect}"
-      @payload
     end
 
     def decoded_args=(raw_array)
       @decoded_args = curr_task.decode_payload(raw_array)
-      #debug "Decoded payload: #{@decoded_args.inspect} from #{raw_array.inspect}"
-      @decoded_args
     end
 
     def to_s
@@ -76,7 +72,6 @@ module Task
       raise Task::Config::Runtime::MsgException,  "Message created w/o specifying any targets" if target_tasks.nil? || target_tasks.empty?
       target_tasks.each do |task|
         payload.unshift(task.name)
-        #debug "delivering: #{payload.inspect}"
         #set_trace_func proc { |event, file, line, id, binding, classname|
         #  printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
         #}
@@ -96,7 +91,7 @@ module Task
     # TODO memoize the Array of nils so that we don't make a lot of garbage
     #
     signature = Array.new(task.proxied_input_signature.length, nil)
-    #logger.debug "Rinda watigin for tuple pattern: #{[task.name, *signature].inspect}"
+    #logger.debug "Rinda wating for tuple pattern: #{[task.name, *signature].inspect}"
     raw_args = fabric.take([task.name, *signature], timeout).drop(1)
     #logger.debug "Got it! #{[task.name, raw_args.inspect]}"
     msg = Message.new(task, raw_args, :transcode => :decode)
@@ -121,9 +116,9 @@ module Task
     if count.zero?
       puts "No :#{name} messages found"
     else
-      puts
+      puts unless count_only
       puts "#{count} :#{name} messages found"
-      puts
+      puts unless count_only
     end
   end
 

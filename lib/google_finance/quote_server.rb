@@ -3,7 +3,6 @@
 require 'rubygems'
 require 'net/http'
 require 'date'
-require 'faster_csv'
 require 'ruby-debug'
 
 module GoogleFinance
@@ -79,7 +78,7 @@ module GoogleFinance
             return [] if body !~ /Date,Open,High,Low,Close,Volume/
 
             # Parse into an array of arrays.
-            rows = FasterCSV.parse( body )
+            rows = CSV.parse( body )
             # Remove the first array since it is just the field headers.
             rows.shift
             #puts "#{rows.length}"

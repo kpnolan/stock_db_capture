@@ -17,7 +17,7 @@ module Server
       system("cat /dev/null > #{path}") unless options[:keep]
       @logger = ActiveSupport::BufferedLogger.new(path)
       @logger.auto_flushing = options[:autoflush]
-      @logger.level = options[:severity] if options[:severity]
+      @logger.level = options[:severity] ? options[:severity] : 0
       logger.info("Logging started at #{Time.now}\n")
       logger.flush
     end

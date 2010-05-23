@@ -1,7 +1,5 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'rubygems'
-require 'faster_csv'
 # If was forced into this conditional load because the file was always being loaded twice
 require 'trading_calendar' if $".grep(/trading_calendar/).empty?
 
@@ -73,12 +71,12 @@ module BarUtils
 
   def nearest_join(ticker_id, date, table, direction)
     case table
-      when 'yahoo_bars'  : b_close = 'b.adj_close'
-      when 'google_bars' : b_close = 'b.close'
+      when 'yahoo_bars'  then b_close = 'b.adj_close'
+      when 'google_bars' then b_close = 'b.close'
     end
     case direction
-      when -1 : relop, sort = '<', 'desc'
-      when  1 : relop, sort = '>', 'asc'
+      when -1 then relop, sort = '<', 'desc'
+      when  1 then relop, sort = '>', 'asc'
     else
       raise ArgumentError, "direction must be -1 or 1"
     end

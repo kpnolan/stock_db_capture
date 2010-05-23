@@ -1,0 +1,17 @@
+#!/usr/bin/env ruby
+# Copyright © Kevin P. Nolan 2009-2010 All Rights Reserved.
+
+prog_name = ARGV[0] || 'proc'
+cmd = %Q{ps -ef | grep -E -e '(#{prog_name})[ ]*$'}
+lines = `#{cmd}`.split("\n").map { |line| line.gsub(/[ ]+/, ' ') }.map { |line| line.split(' ') }
+
+for field_ary in lines
+  if field_ary[0] == 'kevin' && field_ary[7] == prog_name
+    puts "killing #{field_ary[7]} (#{field_ary[1]})"
+    system "kill #{field_ary[1]}"
+  end
+end
+
+# Local Variables:
+# mode:ruby
+# End:

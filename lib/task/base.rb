@@ -2,6 +2,7 @@ require 'rubygems'
 require 'daemons'
 require 'rinda/ring'
 require 'monitor'
+require 'thwait'
 require 'rpctypes'
 require 'remote_logger'
 require 'task/message'
@@ -51,8 +52,8 @@ module Task
 
     attr_reader :options, :post_process
     attr_reader :config_basename, :config, :fabric
-    attr_reader :threads, :logger
-    attr_accessor :proc_id
+    attr_reader :logger
+    attr_accessor :proc_id, :thread_hash
 
     #--------------------------------------------------------------------------------------------------------------------
     # The constructor for a daemon class. Since the worker daemons are forked, they get a copy of the process start which
@@ -62,7 +63,7 @@ module Task
       @config_basename = File.basename(config_file)
       @config = Dsl.load(config_file)
       @proc_id = proc_id
-      @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 10
+      @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 30
       #create readers for each of the above options
       self.extend self.options.to_mod
 
@@ -79,11 +80,13 @@ module Task
         raise
       end
 
-      initialize_logger()
-      Message.attach_logger(logger)
+      @logger = initialize_logger()
+      logger.debug "type: #{logger_type} logger: #{@logger.inspect}" if verbose
 
-      @threads = []
-      @threads.extend(MonitorMixin)
+      Message.attach_logger(logger)
+      Timeseries.attach_logger(logger)
+      @thread_hash = { }
+      @thread_hash.extend(MonitorMixin)
       Thread.abort_on_exception = false
     end
     #
@@ -92,15 +95,19 @@ module Task
     # that all daeomons write to.
     #
     def initialize_logger()
-      if verbose
-        @logger = ActiveSupport::BufferedLogger.new($stderr)
-        @logger.auto_flushing = true
-      elsif logger_type == :local
+      case logger_type
+      when :local
         log_path = File.join(RAILS_ROOT, 'log', "#{config_basename}.log")
         system("cat /dev/null > #{log_path}")
-        @logger = ActiveSupport::BufferedLogger.new(log_path)
+        ActiveSupport::BufferedLogger.new(log_path)
+      when :remote
+        RemoteLogger.new(config_basename, File.join(RAILS_ROOT, 'log'), proc_id)
+      when :stderr
+        logger = ActiveSupport::BufferedLogger.new($stderr)
+        logger.auto_flushing = true
+        logger
       else
-        @logger = RemoteLogger.new(config_basename, File.join(RAILS_ROOT, 'log'), proc_id)
+        raise ArgumentError, "logger_type must be :local,:remote or :stderr"
       end
     end
 
@@ -113,6 +120,7 @@ module Task
     # automatically derefernced into a Heap local object.
     #--------------------------------------------------------------------------------------------------------------------
     def serve(*use_tasks)
+      $stderr.puts "in serve #{proc_id}"
       startt = global_startt = Time.now
       #
       # Create a list of tasks taken from the topoligically sorted chain of tasks, start with the initial task
@@ -133,7 +141,9 @@ module Task
       # Wait until all the threads timeout with either means that there is nothing left to do or some unrecoverable
       # error was encounted
       #
-      threads.each { |thread| thread.join }
+      sleep(0.1) while thread_hash.length < tasks.length
+      ThreadsWait.all_waits(thread_hash.keys()) { |t| info "Task #{thread_hash[t].name} on thread #{t} terminated" if thread_hash.key? t }
+      #threads.each { |thread| thread.join }
       endt = Time.now
       delta = endt - startt
       info "#{options[:app_name]} total elapsed time #{Base.format_et(delta)}"
@@ -150,7 +160,8 @@ module Task
     def task_thread(task, idx)
       task.logger = logger
       Thread.new(task, idx) do |task, idx|
-        threads.synchronize { threads.push(Thread.current) }
+        thread_hash.synchronize { thread_hash[Thread.current] = task }
+        logger.debug "[#{proc_id}] starting thread for task #{idx}: #{task.name}:#{Thread.current}" if verbose
         count = 0
         startt = Time.now
         loop do
@@ -164,8 +175,9 @@ module Task
             # in the config files since it breaks encapsulation. However, somehow we need to know when a producer is done.
             # Perhaps this can be done with a special return value.
             #
+
             if task.parent.nil? && proc_id.zero?
-              info("Producer invoked", task.name)
+              logger.debug "Producer invoked", task.name if verbose
               results = task.eval_body([])
             else
               #t = Time.now
@@ -192,17 +204,22 @@ module Task
             Thread.current.terminate
           rescue Task::Config::Runtime::TypeException => e
             logger.error("#{e.class}: #{e.message}", task.name)
+            logger.error(e.backtrace.join("\n"), task.name)
           rescue Task::Config::Runtime::TaskException => e
             logger.error("#{e.class}: #{e.message}", task.name)
+            logger.error(e.backtrace.join("\n"), task.name)
           rescue Task::Config::Runtime::WrapperException => e
             logger.error("#{e.class}: #{e.message}", task.name)
+            logger.error(e.backtrace.join("\n"), task.name)
           rescue TimeseriesException => e
             logger.error("#{e.class}: #{e.message}", task.name)
+            logger.error(e.backtrace.join("\n"), task.name)
           rescue IOError => e
             logger.error("#{e.class}: #{e.message}", task.name)
             logger.error(e.backtrace.join("\n"), task.name)
           rescue ArgumentError => e
             logger.error("#{e.class}: #{e.message}", task.name)
+            logger.error(e.backtrace.join("\n"), task.name)
           rescue Exception => e
             logger.error("#{e.class}: #{e.message}", task.name)
             logger.error(e.backtrace.join("\n"), task.name)

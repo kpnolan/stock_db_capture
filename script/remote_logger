@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'rubygems'
-require 'ruby-debug'
-
 require '../config/micro-environment'
 require 'daemons'
 require 'thread'

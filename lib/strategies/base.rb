@@ -16,9 +16,9 @@ module Strategies
 
       min_time = time_array.min do |a,b|
         case
-        when a && b : a <=> b
-        when a.nil? && b : 1
-        when b.nil? && a : -1
+        when a && b then a <=> b
+        when a.nil? && b then 1
+        when b.nil? && a then -1
         else 0
         end
       end
@@ -35,8 +35,8 @@ module Strategies
         values = send(meth, props)
 
         case props[:direction]
-        when :under : time_array << props[:time] = index2time(under_threshold(props[:threshold], values).first)
-        when :over : time_array << props[:time] = index2time(over_threshold(props[:threshold], values).first)
+        when :under then time_array << props[:time] = index2time(under_threshold(props[:threshold], values).first)
+        when :over then time_array << props[:time] = index2time(over_threshold(props[:threshold], values).first)
         else
           raise ArgumentError, ":direction must be :over or :under"
         end
@@ -44,9 +44,9 @@ module Strategies
 
       min_time = time_array.min do |a,b|
         case
-        when a && b : a <=> b
-        when a.nil? && b : 1
-        when b.nil? && a : -1
+        when a && b then a <=> b
+        when a.nil? && b then 1
+        when b.nil? && a then -1
         else 0
         end
       end

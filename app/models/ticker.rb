@@ -50,9 +50,9 @@ class Ticker < ActiveRecord::Base
       end
 
       case ticker.exchange.symbol
-      when 'NCM', 'NGM','NasdaqNM'  : :nasdaq
-      when 'AMX', 'NYSE'            : :nyse
-      when 'PCX'                    : :pcx
+      when 'NCM', 'NGM','NasdaqNM'  then :nasdaq
+      when 'AMX', 'NYSE'            then :nyse
+      when 'PCX'                    then :pcx
       else
         raise ArgumenttError, "Cannot find exchange for #{ticker.symbol}"
       end
@@ -62,9 +62,9 @@ class Ticker < ActiveRecord::Base
       #FIXME return actual AR here, not id
       begin
         case ticker_or_sym
-        when Numeric          : find(ticker_or_sym).id
-        when Symbol, String   : lookup(ticker_or_sym).id
-        when Ticker           : ticker_or_sym.id
+        when Numeric          then find(ticker_or_sym).id
+        when Symbol, String   then lookup(ticker_or_sym).id
+        when Ticker           then ticker_or_sym.id
         end
       rescue ActiveRecord::RecordNotFound
         nil

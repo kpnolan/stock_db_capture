@@ -334,12 +334,12 @@ module BacktestConfig
     def start_date_field(curr_label)
       input_node = parent(curr_label)
       case input_node.type
-        when :source : :ettime
-        when :open   : :entry_date
-        when :filter : raise Backtest::ConfigException, "unknown start date for timeseries for Filter Node: #{curr_label}"
-        when :exit   : :xttime
-        when :close  : raise Backtest::ConfigException, "unknown start date for timeseries for Close Node: #{curr_label}"
-        when nil     : raise Backtest::ConfigException, "unknown parent node of #{curr_label}"
+        when :source then :ettime
+        when :open   then :entry_date
+        when :filter then raise Backtest::ConfigException, "unknown start date for timeseries for Filter Node: #{curr_label}"
+        when :exit   then :xttime
+        when :close  then raise Backtest::ConfigException, "unknown start date for timeseries for Close Node: #{curr_label}"
+        when nil     then raise Backtest::ConfigException, "unknown parent node of #{curr_label}"
       end
     end
   end

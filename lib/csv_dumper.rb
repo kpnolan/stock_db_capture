@@ -1,7 +1,6 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'rubygems'
-require 'faster_csv'
 require 'rbgsl'
 
 module CsvDumper
@@ -34,7 +33,7 @@ module CsvDumper
       @values_array << value_hash[attr][@common_range].to_a
     end
     append_technical_indicators(self.derived_values)
-    FasterCSV.open(file_name, "w") do |csv|
+    CSV.open(file_name, "w") do |csv|
       csv << @names_array
       for row in @values_array.transpose
         csv << row

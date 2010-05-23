@@ -1,7 +1,5 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'faster_csv'
-
 module Interpolate
 
   extend TradingCalendar
@@ -64,7 +62,7 @@ module Interpolate
   end
 
   def generate_missing_bar_file()
-    FasterCSV.open(File.join(RAILS_ROOT, 'tmp', 'missing_dates.csv'), "w") do |csv|
+    rCSV.open(File.join(RAILS_ROOT, 'tmp', 'missing_dates.csv'), "w") do |csv|
       tickers = DailyBar.find(:all, :select => :ticker_id, :group => :ticker_id, :include => :ticker, :order => 'tickers.symbol')
       for ticker in tickers
         ticker_id = ticker.ticker_id
@@ -86,7 +84,7 @@ module Interpolate
   end
 
   def read_symbols()
-    symbols = FasterCSV.read(File.join(RAILS_ROOT, 'tmp', 'missing_date.csv')).map(&:first).sort
+    symbols = CSV.read(File.join(RAILS_ROOT, 'tmp', 'missing_date.csv')).map(&:first).sort
   end
 
   def first_and_last_bartime(ticker_id)

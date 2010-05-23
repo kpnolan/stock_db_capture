@@ -232,9 +232,9 @@ module TdAmeritrade
           when Net::HTTPSuccess, Net::HTTPRedirection
             res.read_body do |segment|
               case segment.length
-              when 2: puts segment[0..1]
-              when 8: puts "timestamp"
-              when 10: puts segment[0..1]+' timestamp'
+              when 2 then puts segment[0..1]
+              when 8 then puts "timestamp"
+              when 10 then puts segment[0..1]+' timestamp'
               else
                 puts "quote packet of #{segment.length} starting with #{segment[0..0]}"
               end

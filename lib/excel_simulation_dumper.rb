@@ -1,9 +1,6 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'rubygems'
-require 'faster_csv'
 require 'rbgsl'
-
 require 'set'
 
 module ExcelSimulationDumper
@@ -35,7 +32,7 @@ module ExcelSimulationDumper
 
     csv_suffix = args.last.nil? ? options[:year] : args.last.name
     csv_suffix = '-' + csv_suffix unless csv_suffix.nil?
-    FasterCSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
+    CSV.open(File.join(RAILS_ROOT, 'tmp', "positions#{csv_suffix}.csv"), 'w') do |csv|
       csv << make_header_row(options)
       positions = Position.find(:all, :conditions => conditions, :include => :ticker, :order => 'tickers.symbol, ettime')
       positions.each { |position| csv << field_row(position, options) unless position.entry_date.nil? }

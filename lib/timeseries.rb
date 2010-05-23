@@ -8,6 +8,7 @@
 #
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'ruby-debug'
 require 'rpctypes'
 require 'date'
 require 'missing_bar_exception'
@@ -84,7 +85,7 @@ class Timeseries
 
     def TimeMap.pretty_range(range)
       case range
-        when Range then
+        when Range
         begin_str = range.begin.to_formatted_s(:ymd)
         end_str = range.end.to_formatted_s(:ymd)
         "#{begin_str}..#{end_str}"
@@ -120,6 +121,7 @@ class Timeseries
   attr_reader :timevec, :time_map, :local_range, :price, :index_range, :begin_index, :end_index
   attr_reader :expected_bar_count
   attr_accessor :logger
+  cattr_accessor :global_logger
 
   def initialize(symbol_or_id, local_range, time_resolution=1.day, options={})
     @options = options.reverse_merge :price => :default, :pre_buffer => 0, :populate => false, :post_buffer => 0, :plot_results => false, :missing_bar_error => :report, :max_date => Date.today - 1
@@ -161,6 +163,10 @@ class Timeseries
     self.options.reverse_merge!(DEFAULT_OPTIONS[model])
     remember_params(:none)
     populate() if self.options[:populate]
+  end
+
+  def Timeseries.attach_logger(logger)
+    @@global_logger = logger
   end
   #
   # return a string summarizing the contents of this Timeseries
@@ -317,9 +323,9 @@ class Timeseries
     derived_values.each do |memo|
       case
       when sym_or_pair.is_a?(Symbol) &&
-           memo.result_hash.has_key?(sym_or_pair)                       : return memo.result_hash[sym_or_pair]
+           memo.result_hash.has_key?(sym_or_pair)                       then return memo.result_hash[sym_or_pair]
       when sym_or_pair.is_a?(Array) && sym_or_pair.first == memo.function &&
-           memo.result_hash.hash_key?(sym_or_pair.second)               : return memo.result_hash[sym_or_pair.second]
+           memo.result_hash.hash_key?(sym_or_pair.second)               then return memo.result_hash[sym_or_pair.second]
       end
     end
     if sym_or_pair.is_a?(Symbol) && value_hash.has_key?(sym_or_pair)
@@ -335,11 +341,11 @@ class Timeseries
   #
   def set_price(expression = :default)
     @price = case
-             when expression == :default      : close
-             when expression == :average      : (high+low).scale(0.5)
-             when expression == :all          : (open+close+high+low).scale(0.25)
-             when expression.is_a?(Symbol)    : send(expression)
-             when expression.is_a?(String)    : instance_eval(expression)
+             when expression == :default      then close
+             when expression == :average      then (high+low).scale(0.5)
+             when expression == :all          then (open+close+high+low).scale(0.25)
+             when expression.is_a?(Symbol)    then send(expression)
+             when expression.is_a?(String)    then instance_eval(expression)
              end
   end
 
@@ -489,6 +495,11 @@ class Timeseries
 
 #  private
 
+  def error(msg)
+    logger = self.logger || Timeseries.global_logger
+    logger.error(msg)
+  end
+
   #
   # sets a local variable to the options supplied with the function call.
   #
@@ -592,9 +603,9 @@ class Timeseries
  def result_at(time_or_index, slot)
    begin
      case time_or_index
-     when Time       : result_hash[slot][time2index(time_or_index)-result_offset]
-     when Numeric    : result_hash[slot][time_or_index-result_offset]
-     when NilClass   : nil
+     when Time       then result_hash[slot][time2index(time_or_index)-result_offset]
+     when Numeric    then result_hash[slot][time_or_index-result_offset]
+     when NilClass   then nil
      else
        raise ArgumentError, "first arg must be a Time or a Fixnum, instead was #{time_or_index}"
      end
@@ -606,8 +617,8 @@ class Timeseries
 
  def value_at(time_or_index, slot)
     case time_or_index
-    when Time       : value_hash[slot][time2index(time_or_index)]
-    when Numeric    : value_hash[slot][time_or_index]
+    when Time       then value_hash[slot][time2index(time_or_index)]
+    when Numeric    then value_hash[slot][time_or_index]
     else
       raise ArgumentError, "first arg must be a Time or a Fixnum, instead was #{time_or_index}"
     end
@@ -624,10 +635,10 @@ class Timeseries
   #
   def index2time(index)
     case
-    when index.nil? : nil
-    when model == DailyBar : time_map.index2time(index)
-    when index > 0 && index < timevec.length : timevec[index]
-    when index < 0 :  raise ArgumentError, "index [#(index}] is negative"
+    when index.nil? then nil
+    when model == DailyBar then time_map.index2time(index)
+    when index > 0 && index < timevec.length then timevec[index]
+    when index < 0 then  raise ArgumentError, "index [#(index}] is negative"
       raise ArgumentError, "index [#(index}] is ouside of the range of bars, the maximum of which is #{timevec.length-1}"
     end
   end
@@ -696,16 +707,16 @@ class Timeseries
     @reserved_options ||= %w{ keys memo gv raw first array third, last csv series}.inject({}) { |h, k| h[k.to_sym] = true; h }
     if @reserved_options[options[:result]]
       results = case options[:result]
-                when :keys  : pb.keys
-                when :memo  : pb
-                when :raw   : results
-                when :first : results.first
-                when :last  : results.first && results.first.last
-                when :array : results.first.to_a
-                when :gv    : results.first
-                when :third : results.third
-                when :csv   : pb.generate_csv()
-                when :series : generate_series(results)
+                when :keys  then pb.keys
+                when :memo  then pb
+                when :raw   then results
+                when :first then results.first
+                when :last  then results.first && results.first.last
+                when :array then results.first.to_a
+                when :gv    then results.first
+                when :third then results.third
+                when :csv   then pb.generate_csv()
+                when :series then generate_series(results)
                 end
     elsif options[:result].is_a?(Array)
       raise TimeseriesException, "Invald result key #{@key}" unless options[:result].all? { |sym| @key = sym; pb.result_hash.has_key?(sym) }

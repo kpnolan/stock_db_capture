@@ -20,8 +20,8 @@ module Trading
         raise ArgumentError, "properties has must include :threshold" unless ta_props[meth].has_key? :threshold
         value = ta_props[meth][:value] = send(meth, ta_props[meth])
         ta_props[meth][:delta] = case ta_props[meth][:direction]
-                                 when :under : ta_props[meth][:threshold] - value
-                                 when :over : value - ta_props[meth][:threshold]
+                                 when :under then ta_props[meth][:threshold] - value
+                                 when :over then value - ta_props[meth][:threshold]
                                  else
                                    raise ArgumentError, ":direction must be :over or :under"
                                  end

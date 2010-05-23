@@ -36,9 +36,9 @@ module TableExtract
 
   def ticker_id(ticker)
     case ticker
-    when Fixnum         : ticker
-    when String         : Ticker.lookup(ticker).id
-    when Symbol         : Ticker.lookup(ticker).id
+    when Fixnum         then ticker
+    when String         then Ticker.lookup(ticker).id
+    when Symbol         then Ticker.lookup(ticker).id
     else
       raise ArgumentError, "ticker is a #{ticker.class}, should be Fixnum or String"
     end

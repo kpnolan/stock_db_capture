@@ -181,8 +181,8 @@ module TradingCalendar
       left, right = array.shift, nil
       array.each do |obj|
         case
-        when right && obj == trading_date_from(right, 1) : right = obj
-        when right && left != right : ranges << Range.new(left, right); left = right = obj;
+        when right && obj == trading_date_from(right, 1) ? left = obj : right = obj
+        when right && left != right ? ranges << Range.new(left, right) : left = right = obj
         else
           ranges << left; left = right = obj
         end

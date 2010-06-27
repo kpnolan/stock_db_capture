@@ -174,4 +174,37 @@ module BarUtils
       sub_array.each { |id| yield id }
     end
   end
+
+  class ForkSplitter
+    attr_reader :chunks, :child_count
+    def initialize(id_array)
+      @chunks = []
+      @child_count = extract_children()
+      len = id_array.length
+      chunk_size = len / child_count
+      for index in 0..child_count
+        chunk_start = index * chunk_size
+        chunk_end = ((index == child_count - 1) ? len - 1 : chunk_start + chunk_size - 1)
+        @chunks[index] = id_array[chunk_start..chunk_end]
+      end
+    end
+
+    def part_info
+      return child_count, chunks
+    end
+
+    private
+
+    def extract_children
+      matches = ENV.keys.grep(/^CHILD/)
+      raise ArgumentError, "multiple matches: [#{matches.join(', ')}] for ENV var starting with 'CHILD'" if matches.length > 1
+      return 1 if matches.empty?
+      ENV[matches.first].to_i
+    end
+  end
+
+  def log_status(logger, status_ary)
+    status_objs = status_ary.map(&:second)
+    status_objs.each { |stat| logger.info(stat.to_s) }
+  end
 end

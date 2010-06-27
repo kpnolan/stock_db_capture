@@ -8,7 +8,6 @@
 #
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'ruby-debug'
 require 'rpctypes'
 require 'date'
 require 'missing_bar_exception'
@@ -73,7 +72,6 @@ class Timeseries
     end
 
     def missing_bars()
-      debugger
       timevec_as_seconds = timevec.map(&:to_i)
       missing_bars_as_seconds = expected_bars_as_seconds - timevec_as_seconds
       missing_bars_as_seconds.map { |secs| Time.at(secs) }

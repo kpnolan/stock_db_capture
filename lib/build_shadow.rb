@@ -1,5 +1,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'xmlsimple'
+
 class BuildShadow
 
   INTERNAL_ARGS = %w{ High Low Close Volume Open Close }
@@ -15,20 +17,36 @@ class BuildShadow
   end
 
   def emit_header
-    buffer "module TechnicalAnalysis\n"
+    buffer <<-DONE
+module TechnicalAnalysis
+    UNSTABLE_PERIOD_METHODS = [ :adx, :adxr, :atr, :cmo, :dx, :ema, :ht_dcperiod, :ht_dcphace, :ht_phasor, :ht_sine,
+                             :ht_trendline, :ht_trendmode, :kama, :mama, :mfi, :minus_di, :minus_dm, :natr, :plus_di, :plus_dm,
+                             :rsi, :stoch_rsi, :t3, :all ]
+
+  def self.included(base)
+    base.extend(ClassMethods)
+    base.talib_init()
+  end
+
+  require 'ta_class_methods'
+
+DONE
+
   end
 
   def emit_preamble
     buffer <<-DONE
-    ###############################################################################################################
-    # DON'T EDIT THIS FILE !!!
-    # This file was automatically generated from 'ta_func.xml'
-    # If, for some reason the interface to Talib changes, but the Swig I/F file 'ta_func.swg' must change as well
-    # as 'ta_func.xml'. This file contains the "shadow methods" that the writers of the SWIG I/F deemed unneccessary.
-    # I think the Swig interface is still to low-level and created this higher-level interface that really is designed
-    # to be a mixin to the Timeseries class upon with talib functions operate.
-    ################################################################################################################
-    DONE
+# Copyright Kevin P. Nolan 2009-2010 All Rights Reserved.
+
+###############################################################################################################
+# DON'T EDIT THIS FILE !!!
+# This file was automatically generated from 'ta_func.xml'
+# If, for some reason the interface to Talib changes, but the Swig I/F file 'ta_func.swg' must change as well
+# as 'ta_func.xml'. This file contains the "shadow methods" that the writers of the SWIG I/F deemed unneccessary.
+# I think the Swig interface is still to low-level and created this higher-level interface that really is designed
+# to be a mixin to the Timeseries class upon with talib functions operate.
+################################################################################################################
+DONE
   end
 
   def emit_trailer
@@ -41,7 +59,7 @@ class BuildShadow
 
   def emit_method(name, desc, iargs, oargs, opt_args)
     self.name = name.first.downcase
-    emit_decl(name.first.downcase, desc)
+    emit_decl(name.first.downcase, desc.first)
     emit_input_args(iargs)
     emit_decl_close
     emit_default_options(opt_args)
@@ -58,7 +76,7 @@ class BuildShadow
 
   def emit_decl(name, desc)
     buffer "  ##{desc}\n"
-    buffer "  def #{name}(time_range, "
+    buffer "  def #{name}( "
   end
 
   def emit_decl_close
@@ -68,7 +86,8 @@ class BuildShadow
 
   def emit_prelude(opt_args)
     options = expand_opt_args(opt_args)
-    buffer "    idx_range = calc_indexes(:ta_#{format_name(name)}_lookback, time_range#{options})\n"
+#    options = (',' << options) unless options.empty?
+    buffer "    idx_range = calc_indexes(:ta_#{format_name(name)}_lookback#{options})\n"
   end
 
   def format_name(name)
@@ -81,9 +100,9 @@ class BuildShadow
 
   def emit_post_processing
     if graph_hint
-      buffer "    memoize_result(self, :#{name}, time_range, idx_range, options, result, :#{graph_hint})\n"
+      buffer "    memoize_result(self, :#{name}, idx_range, options, result, :#{graph_hint})\n"
     else
-      buffer "    memoize_result(self, :#{name}, time_range, idx_range, options, result)\n"
+      buffer "    memoize_result(self, :#{name}, idx_range, options, result)\n"
     end
   end
 
@@ -133,9 +152,10 @@ class BuildShadow
       type = arg["Type"] && arg["Type"].first
       default = arg["DefaultValue"] &&  arg["DefaultValue"].first
       default = case type
-                when "Integer": default.to_i
-                when "Double" : default.to_f
-                else default.to_i
+                when "Integer" then default.to_i
+                when "Double" then default.to_f
+                else
+                  default.to_i
                 end
       ":#{name} => #{default}"
     end.join(', ')
@@ -161,5 +181,28 @@ class BuildShadow
 
   def buffer(str)
     self.out_buff << str
+  end
+
+  class << self
+    def generate_shadow_file(basename)
+      File.open(File.join(RAILS_ROOT, 'lib', basename), "w") do |f|
+        shadow = BuildShadow.new(f)
+        shadow.emit_preamble
+        shadow.emit_header
+        config = XmlSimple.xml_in(File.join(RAILS_ROOT, 'lib', 'talib', 'ext', 'ta_func_api.xml'))
+        config['FinancialFunction'].each do |h|
+          name = h['Abbreviation']
+          desc = h['ShortDescription']
+          iargs = h['RequiredInputArguments'].first['RequiredInputArgument']
+          oargs = h['OutputArguments'].first['OutputArgument']
+          optargs = h['OptionalInputArguments'].first['OptionalInputArgument'] if  h['OptionalInputArguments']
+          optargs = [] unless  h['OptionalInputArguments']
+          shadow.meta_info(h)
+          shadow.emit_method(name, desc, iargs, oargs, optargs)
+          shadow.clear
+        end
+        shadow.emit_trailer
+      end
+    end
   end
 end

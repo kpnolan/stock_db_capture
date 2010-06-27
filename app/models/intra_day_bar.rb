@@ -67,6 +67,43 @@ class IntraDayBar < ActiveRecord::Base
       end
     end
 
+    def forked_update(logger)
+      end_date = latest_date()
+      tuples = tickers_with_lagging_intraday(end_date)
+      chunker = ForkSplitter.new(tuples)
+      child_count, chunks = chunker.part_info()
+      child_count.times do |index|
+        chunk = chunks[index]
+        Process.fork do
+          ActiveRecord::Base.connection.reconnect!
+          count = 1
+          for tuple in chunk
+            symbol, max_date = tuple
+            max_date = max_date.to_date
+            td = trading_day_count(max_date, end_date)
+            next if td.zero?
+            start_date = max_date + 1.day
+            begin
+              logger.info "(#{index}) updating #{symbol}\t#{start_date}\t#{end_date}\t#{count} of #{chunk.length}"
+              load_symbol(symbol, start_date, end_date)
+            rescue Net::HTTPServerException => e
+              if e.to_s.split.first == '400'
+                ticker = Ticker.find_by_symbol(symbol)
+                ticker.increment! :retry_count if ticker
+                ticker.toggle! :active if ticker.retry_count == 12
+              end
+            rescue ActiveRecord::StatementInvalid => e
+              logger.error("Duplicate symbol/time #{symbol} skipping...")
+            rescue Exception => e
+              logger.error("#{symbol}\t#{start_date}\t#{start_date} #{e.to_s}")
+            end
+            count += 1
+          end
+        end
+      end
+      log_status(logger, Process.waitall)
+    end
+
     def load_symbol(symbol, start_date, end_date, resolution=30)
       @@qs ||= TdAmeritrade::QuoteServer.new()
       @period = resolution

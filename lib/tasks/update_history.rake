@@ -17,6 +17,12 @@ namespace :active_trader do
     update_intraday(logger)
   end
 
+  desc "Forked Update Intra Day Bars"
+  task :forked_update_intraday => :environment do
+    logger = init_logger(:update_intraday)
+    forked_update_intraday(logger)
+  end
+
   desc "Load TDA"
   task :load_tda => :environment do
     logger = init_logger(:load_tda)

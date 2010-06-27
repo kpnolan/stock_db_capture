@@ -15,7 +15,11 @@ module ConvertTalibMetaInfo
     attr_accessor :name
 
     def initialize(h)
-      self.name = h['name'].underscore
+      if h['name'] == 'open'
+        self.name = 'opening'
+      else
+        self.name = h['name'].underscore
+      end
     end
   end
 

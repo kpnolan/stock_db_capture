@@ -118,6 +118,7 @@ module Trading
               rescue Exception => e
                 logger.info("Dup record #{e.to_s} for #{ts.symbol} at #{rsi_target_price} listed on #{Date.today.to_s(:db)}.")
               end
+              break
             end
           end
         rescue TimeseriesException => e

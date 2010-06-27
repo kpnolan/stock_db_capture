@@ -27,6 +27,7 @@ module LoadBars
   def load_google(logger);      GoogleBar.load(logger);  end
   def update_google(logger);    GoogleBar.update(logger); end
   def update_intraday(logger);  IntraDayBar.update(logger); end
+  def forked_update_intraday(logger);  IntraDayBar.forked_update(logger); end
   def load_splits(logger);      Split.load(logger); end
 
   def load_tda_symbols()

@@ -228,11 +228,25 @@ module Task
       end
     end
 
-    def Base.run(config_path, proc_id)
+    def Base.run(config_path, child_count)
       #
       # TODO we might want to go through the hassle of creating ApplicationOjbects and ApplicationsGroups (which have one 7monitor)
       #
-      server = Base.new(config_path, proc_id)
+      child_count.times do |child_index|
+        Process.fork do
+          ActiveRecord::Base.connection.reconnect!
+          Base.exec(config_path, child_index)
+        end
+      end
+      if child_count > 0
+        p Process.waitall
+      else
+        Base.exec(config_path, 0)
+      end
+    end
+
+    def Base.exec(config_path, child_index)
+      server = Base.new(config_path, child_index)
       server.serve()
 #      server.serve(:rsi_rvi_50)
 #      server.serve(:scan_gen,:timeseries_args, :rsi_trigger_14)
@@ -246,7 +260,6 @@ module Task
       summary_str = ResultAnalysis.memoized_thresholds
       server.info summary_str
     end
-
     #--------------------------------------------------------------------------------------------------------------------
     # format elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.
     # Future revs where we backtest an entire decade we will, no doubt include hours as part of the time base

@@ -8,19 +8,17 @@ require 'daemons'
 
 root_path_ary = File.expand_path(File.dirname(__FILE__)).split('/') + ['..']
 root_dir = File.expand_path(File.join(root_path_ary))
+require File.join(root_dir,'config/mini-environment')
 
-def create_task_proc(root_dir, config_file, process_index)
-  lambda do
-    require File.join(root_dir,'config/mini-environment')
-    Task::Base.run(config_file, process_index)
-  end
-end
 
-valid_cmds = [:start, :stop, :status,:zap].map(&:to_s)
+dd_index = ARGV.index('--')
+my_options = dd_index ? ARGV[dd_index+1..-1] : []       # Extract options after --
+daemon_opts = ARGV[0..(dd_index ? dd_index-1 : -1)]     # Extract options before -- or EOS
 
 options = OpenStruct.new
 optparse = OptionParser.new do |opts|
-  opts.banner = "Usage task_manager [start|stop|status|zap] options"
+  opts.default_argv = my_options
+  opts.banner = "Usage task_manager daemon_args -- options"
 
   opts.on('-C', '--config FILE', String, "The task config file") do |config_file|
     options.config_file = config_file
@@ -33,39 +31,34 @@ optparse = OptionParser.new do |opts|
 
   opts.on('-h', '--help', 'Display this screen') do
     puts opts
-    exit
   end
 end
 
-puts "invalid command #{ARGV[0]} should be one of #{valid_cmds.join(', ')}" unless valid_cmds.include? ARGV[0]
-
 optparse.parse!
 
-if ARGV[0] == 'start'
-  unless options.config_file
-    puts 'config file is MANDITORY!'
-  else
-    puts "Running #{options.server_count} processes"
-    dopts_options = {
-      :app_name => options.config_file,
-      :dir_mode => :normal,
-      :dir => File.join(root_dir, 'pids'),
-      :multiple => options.server_count > 1,
-      :ontop => options.server_count.zero?,
-      :backtrace => true,
-      :mode => :proc,
-      :log_output => true
-    }
-    server_count = options.server_count
-    server_count = 1 if options.server_count.zero?
-    server_count.times do |i|
-      proc = create_task_proc(root_dir, options.config_file, i)
-      options.server_count.zero? ? proc.call() : Daemons.call(dopts_options, &proc)
-      puts 'after call to Daemons'
-    end
-  end
+# Don't bother parsing task_manager specific options (ones after  --) if help or version number only requested for Daemons
+if daemon_opts.find_index { |el| el == '-h' || el == '--help' || el == '--version' }
+  Daemons.run_proc('task_manager', { })
+elsif daemon_opts.index { |el| el == 'start' || el == 'run' } && options.config_file.blank?
+  puts 'config file is MANDITORY!'
 else
-  puts 'only start command support so far'
+  daemon_options = {
+    :dir_mode => :normal,
+    :dir => File.join(root_dir, 'pids'),
+    :multiple => false,
+    :ontop => options.server_count.zero?,
+    :backtrace => true,
+    :log_output => true
+  }
+  server_count = options.server_count
+  server_count = 1 if options.server_count.zero?
+  Daemons.run_proc('task_manager', daemon_options) do
+    loop {
+      puts 'running...'
+      sleep(5)
+    }
+    #Task::Base.run(config_file, server_count)
+  end
 end
 
 # Local Variables:

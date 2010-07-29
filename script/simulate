@@ -6,8 +6,6 @@ require 'optparse/date'
 require 'ostruct'
 require 'pp'
 require 'date'
-#require 'rubygems'
-#require 'ruby-debug'
 
 options = OpenStruct.new
 

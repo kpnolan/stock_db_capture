@@ -102,7 +102,6 @@ require 'yaml'
 require 'convert_talib_meta_info'
 require 'timeseries'
 require 'excel_simulation_dumper'
-require 'ruby-debug'
 require 'yahoo_finance/split_parser'
 autoload :TradingCalendar, 'trading_calendar'
 #

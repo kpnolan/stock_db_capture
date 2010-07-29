@@ -1,9 +1,7 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'rubygems'
 require 'net/http'
 require 'date'
-require 'ruby-debug'
 
 module GoogleFinance
 

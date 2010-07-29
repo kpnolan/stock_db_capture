@@ -1,10 +1,11 @@
 require 'rubygems'
 require 'daemons'
-require 'rinda/ring'
-require 'monitor'
-require 'thwait'
+require 'eventmachine'
+require 'mq'
+require 'amqp'
 require 'rpctypes'
 require 'remote_logger'
+require 'monitor'
 require 'task/message'
 require 'task/config/compile/dsl'
 require 'task/config/compile/exceptions'
@@ -45,15 +46,15 @@ end
 #--------------------------------------------------------------------------------------------------------------------
 module Task
   class Base
-    extend Task
     include Task::Config::Compile
 
     delegate :info, :error, :debug, :to => :logger
 
     attr_reader :options, :post_process
-    attr_reader :config_basename, :config, :fabric
+    attr_reader :config_basename, :config
+    attr_reader :exchange, :delivery_q
     attr_reader :logger
-    attr_accessor :proc_id, :thread_hash
+    attr_accessor :proc_id, :deferred_jobs, :completed_defers, :prev_counts
 
     #--------------------------------------------------------------------------------------------------------------------
     # The constructor for a daemon class. Since the worker daemons are forked, they get a copy of the process start which
@@ -63,30 +64,23 @@ module Task
       @config_basename = File.basename(config_file)
       @config = Dsl.load(config_file)
       @proc_id = proc_id
+      @deferred_jobs = 0
+      @completed_defers = 0
+#      @delivery_q = []
+      @delivery_q = EM::Queue.new
       @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 30
       #create readers for each of the above options
       self.extend self.options.to_mod
 
-      DRb.start_service
-      begin
-        ring_server = Rinda::RingFinger.primary
-        ts = ring_server.read([:name, :TupleSpace, nil, nil])[2]
-        fabric = Rinda::TupleSpaceProxy.new ts
-        Message.bind_to_message_fabric(fabric)
-        Message.bind_to_config(config)
-        Message.default_timeout = options[:message_timeout]
-      rescue Exception => e
-        $stderr.puts "Cannot find Rinda Ringserver: please run 'sudo ringserver start' to correct this problem -- aborting"
-        raise
-      end
+      @exchange = MQ.topic()
+      Message.bind_queue(delivery_q)
+      Message.bind_config(config)
+      Message.default_timeout = options[:message_timeout]
 
       @logger = initialize_logger()
-      logger.debug "type: #{logger_type} logger: #{@logger.inspect}" if verbose
 
       Message.attach_logger(logger)
       Timeseries.attach_logger(logger)
-      @thread_hash = { }
-      @thread_hash.extend(MonitorMixin)
       Thread.abort_on_exception = false
     end
     #
@@ -111,6 +105,21 @@ module Task
       end
     end
 
+    def adjust_deferred_jobs(amt)
+      #jstats_mutex.synchronize { @deferred_jobs + amt }
+      0
+    end
+
+    #
+    # This method and block allow us to abstract the semantics of message publication such that protocol client details
+    # are kept out of the Message class
+    #
+    def publish(task, contents)
+      exchange.publish(contents, :routing_key => task.name.to_s, :immediate => false)
+    end
+
+    publisher = lambda(task, contents) { publish(task, contents) }
+
     #--------------------------------------------------------------------------------------------------------------------
     # The serve function is called as the entry point for any number of worker tasks, each responding to messages and
     # sending out messages along with the results of the given task. Retrun values from one task become the input args
@@ -120,120 +129,124 @@ module Task
     # automatically derefernced into a Heap local object.
     #--------------------------------------------------------------------------------------------------------------------
     def serve(*use_tasks)
-      $stderr.puts "in serve #{proc_id}"
-      startt = global_startt = Time.now
-      #
-      # Create a list of tasks taken from the topoligically sorted chain of tasks, start with the initial task
-      # and ending with the terminal task
-      #
-      if use_tasks.empty?
-        tasks = config.tsort.map { |name| config.lookup_task(name) }
-      else
-        tasks = config.tsort.map { |name| use_tasks.include?(name) ? config.lookup_task(name) : nil }
-        tasks.compact!
+      begin
+        startt = global_startt = Time.now
+        #
+        # Create a list of tasks taken from the topoligically sorted chain of tasks, start with the initial task
+        # and ending with the terminal task
+        #
+        if use_tasks.empty?
+          tasks = config.tsort.map { |name| config.lookup_task(name) }
+        else
+          tasks = config.tsort.map { |name| use_tasks.include?(name) ? config.lookup_task(name) : nil }
+          tasks.compact!
+        end
+
+        info "Number of tasks: #{tasks.length}"
+        #EM.set_quantum(45)
+        EM.error_handler { |e| puts "[#{proc_id}] Error raised during event loop: #{e.message}" }
+        tcount = 0
+        EM.add_periodic_timer(10) do
+#          pqlen = delivery_q.instance_variable_get(:@popq).length
+          iqlen = delivery_q.size
+#          iqlen = delivery_q.length
+          $stderr.puts("[#{proc_id}:#{tcount +=1}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}:#{completed_defers}\t Msg: #{Message.sent_messages}:#{Message.received_messages}")
+#          $stderr.puts("[#{proc_id}:#{tcount +=1}:#{pqlen}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}:#{completed_defers}\t Msg: #{Message.sent_messages}:#{Message.received_messages}")
+          if no_activity?(Message.sent_messages, Message.received_messages, completed_defers)
+            puts "No message activity...initiating stop"
+            finish(startt)
+          end
+        end
+
+        producers = tasks.select { |task| task.parent.nil? && proc_id.zero? }
+        consumers = tasks.select { |task| task.parent }
+        #
+        # Set up the callbacks and the queue for each consumer task
+        #
+        consumers.each do |task|
+          completer = proc do |results|
+            unless task.targets.empty? || task.result_protocol == :yield
+              outgoing_msg = Message.new(task, results)
+              outgoing_msg.deliver(&publisher)
+            end
+            self.completed_defers += 1
+          end
+
+          MQ.queue(task.name.to_s).bind(exchange, :key => task.name.to_s, :nowait => true).subscribe do |str|
+            adjust_deferred_jobs(1)
+            EM.defer(nil, completer) do
+              adjust_deferred_jobs(-1)
+              msg = Message.receive(task, str)
+              begin
+                task.eval_body(msg.task_args) #returns results
+              rescue => e
+                $stderr.puts "#{e.class}: #{e.message}"
+                $stderr.puts(e.backtrace.join("\n"))
+                raise
+              end
+            end
+          end
+        end
+        #
+        # Now run the producers
+        #
+        EM.add_timer(2) {
+        producers.each do |task|
+          logger.debug "Producer #{task.name} invoked" if verbose
+          task.eval_body([])
+        end
+        }
+
+        #EM.add_periodic_timer(0.100) do
+        #  delivery_q.shift.deliver(exchange) unless delivery_q.empty?
+        #end
+
+        #
+        # Now deliver the messages in the delivery queue, i.e. ones that were yelded
+        #
+#        postman = proc { |pair|
+        postman = proc { |msg|
+#          task, value = pair
+#          msg  = value.is_a?(Array) ? Message.new(task, value) : Message.new(task, [value])
+          msg.deliver(&publisher)
+          delivery_q.pop(&postman)
+        }
+        delivery_q.pop(&postman)
+
+      rescue => e
+        $stderr.puts "#{e.class}: #{e.message}"
+        $stderr.puts(e.backtrace.join("\n"))
+        raise
       end
-      info "Number of tasks: #{tasks.length}"
-      #
-      # Create a thread for each task in the config file. The semantics of that thread
-      # is contained in the task objects runtime Proc (which is built by reading the config file)
-      tasks.each_with_index { |task, idx| task_thread(task, idx) }
       #
       # Wait until all the threads timeout with either means that there is nothing left to do or some unrecoverable
       # error was encounted
       #
-      sleep(0.1) while thread_hash.length < tasks.length
-      ThreadsWait.all_waits(thread_hash.keys()) { |t| info "Task #{thread_hash[t].name} on thread #{t} terminated" if thread_hash.key? t }
-      #threads.each { |thread| thread.join }
-      endt = Time.now
-      delta = endt - startt
-      info "#{options[:app_name]} total elapsed time #{Base.format_et(delta)}"
-    end
-    #
-    # A Thread is dedicated to each named block in the configuration file. The threads just wait until
-    # a message shows up with their "name" on it, extra the relavent runtime information and the
-    # call the block of Ruby code associated with that message.  A node has a type with loose describes
-    # is symantas although the actuall clode is a function of the template specified for that
-    # node and the code proper given with the node delarations. Resutls of blocks are treated like
-    # messages, i.e. a code block waits for the result to show up before the code block
-    # and proceed anty further.
-    # TODO rewrite comment
-    def task_thread(task, idx)
-      task.logger = logger
-      Thread.new(task, idx) do |task, idx|
-        thread_hash.synchronize { thread_hash[Thread.current] = task }
-        logger.debug "[#{proc_id}] starting thread for task #{idx}: #{task.name}:#{Thread.current}" if verbose
-        count = 0
-        startt = Time.now
-        loop do
-          begin
-            #
-            # Those task that have no parent are producers only there they don't get trigger by a message, therefore we don't
-            # wait for a message that will never come, instead we start them immediately. Only one process, however, should
-            # generate activate the producer since threre is no interprocess mutex allocated.
-            # N.B. This logic depends on the config file containing the producer task does a Thread.terminate
-            # after yielding the producer messages. TODO this should be changed so that no thread knowlege is necessary
-            # in the config files since it breaks encapsulation. However, somehow we need to know when a producer is done.
-            # Perhaps this can be done with a special return value.
-            #
+      def no_activity?(*counts)
+        self.prev_counts ||= Array.new(counts.length)
+        @repeats ||= 0
+        status = adjust_deferred_jobs(0).zero? && (prev_counts == counts ? true : (self.prev_counts = counts and false))
+        @repeats += 1 if status
+        @repeats == 3
+      end
 
-            if task.parent.nil? && proc_id.zero?
-              logger.debug "Producer invoked", task.name if verbose
-              results = task.eval_body([])
-            else
-              #t = Time.now
-              #info "#{task.name} calling recieve at #{t.strftime('%M:%S')}:#{t.usec}"
-              msg = Message.receive(task)
-              #t = Time.now
-              #info "#{task.name} got message at #{t.strftime('%M:%S')}:#{t.usec}"
-              results = task.eval_body(msg.task_args)
-            end
-            #
-            # If a task is one the tail (no depenencies) their are no results to propagate. Similarly tasks with yield there results
-            # do so on their own. We don't bother with processing the results at all
-            #
-            unless task.targets.empty? || task.result_protocol == :yield
-              outgoing_msg = Message.new(task, results)
-              outgoing_msg.deliver()
-            end
-            count += 1
-          rescue Rinda::RequestExpiredError => e
-            error("(#{task.name}) Rinda Timeout: #{e}", task.name)
-            endt = Time.now
-            delta = endt - startt
-            info "#{count} message processed -- elapsed time: #{Base.format_et(delta)}", task.name
-            Thread.current.terminate
-          rescue Task::Config::Runtime::TypeException => e
-            logger.error("#{e.class}: #{e.message}", task.name)
-            logger.error(e.backtrace.join("\n"), task.name)
-          rescue Task::Config::Runtime::TaskException => e
-            logger.error("#{e.class}: #{e.message}", task.name)
-            logger.error(e.backtrace.join("\n"), task.name)
-          rescue Task::Config::Runtime::WrapperException => e
-            logger.error("#{e.class}: #{e.message}", task.name)
-            logger.error(e.backtrace.join("\n"), task.name)
-          rescue TimeseriesException => e
-            logger.error("#{e.class}: #{e.message}", task.name)
-            logger.error(e.backtrace.join("\n"), task.name)
-          rescue IOError => e
-            logger.error("#{e.class}: #{e.message}", task.name)
-            logger.error(e.backtrace.join("\n"), task.name)
-          rescue ArgumentError => e
-            logger.error("#{e.class}: #{e.message}", task.name)
-            logger.error(e.backtrace.join("\n"), task.name)
-          rescue Exception => e
-            logger.error("#{e.class}: #{e.message}", task.name)
-            logger.error(e.backtrace.join("\n"), task.name)
-          end
-        end
+      def finish(startt)
+        EM.stop_event_loop()
+        endt = Time.now
+        delta = endt - startt
+        MQ.queues.each_value { |q| q.delete(:if_empty => true) }
+        info "#{options[:app_name]} total elapsed time #{Base.format_et(delta)}"
       end
     end
 
-    def Base.run(config_path, child_count)
+    def Base.run(config_path, server_count)
+      Base.env_check()
       #
       # TODO we might want to go through the hassle of creating ApplicationOjbects and ApplicationsGroups (which have one 7monitor)
       #
+      child_count = server_count - 1
       child_count.times do |child_index|
-        Process.fork do
+        EM.fork_reactor do
           ActiveRecord::Base.connection.reconnect!
           Base.exec(config_path, child_index)
         end
@@ -241,24 +254,37 @@ module Task
       if child_count > 0
         p Process.waitall
       else
-        Base.exec(config_path, 0)
+        Signal.trap('INT') { AMQP.stop { EM.stop } }
+        Signal.trap('TERM'){ AMQP.stop { EM.stop } }
+        AMQP.start(:host => 'localhost', :timeout => 30, :logging => true) do
+          Base.exec(config_path, 0)
+        end
       end
     end
 
     def Base.exec(config_path, child_index)
       server = Base.new(config_path, child_index)
       server.serve()
-#      server.serve(:rsi_rvi_50)
-#      server.serve(:scan_gen,:timeseries_args, :rsi_trigger_14)
-#        server.serve(i, [:scan_gen])
-#        server.serve(i, [:timeseries_args])
-#        server.serve(i, [:rsi_trigger_14])
-#        server.serve(i, [:rsi_rvi_50])
-#        server.serve(:lagged_rsi_difference)
-#        end
-#     end
+      #      server.serve(:rsi_rvi_50)
+      #      server.serve(:scan_gen,:timeseries_args, :rsi_trigger_14)
+      #        server.serve(i, [:scan_gen])
+      #        server.serve(i, [:timeseries_args])
+      #        server.serve(i, [:rsi_trigger_14])
+      #        server.serve(i, [:rsi_rvi_50])
+      #        server.serve(:lagged_rsi_difference)
+      #        end
+      #     end
       summary_str = ResultAnalysis.memoized_thresholds
       server.info summary_str
+    end
+    #--------------------------------------------------------------------------------------------------------------------
+    #  Verifies that the preconditions to a successful run are met, print an error msg and exit with a bad status if not
+    #--------------------------------------------------------------------------------------------------------------------
+    def Base.env_check
+      unless Position.count.zero?
+        $stderr.puts "Position table is not empty! (needs to be truncated first)"
+        exit(5)
+      end
     end
     #--------------------------------------------------------------------------------------------------------------------
     # format elasped time values. Does some pretty printing about delegating part of the base unit (seconds) into minutes.

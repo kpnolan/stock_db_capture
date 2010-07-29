@@ -1,3 +1,10 @@
+class Integer
+  def to_proxy; self; end
+  def dereference; self; end
+  def is_proxy?; true; end
+end
+
+
 module Task
   module RPCTypes
     #
@@ -8,22 +15,18 @@ module Task
 
       def initialize(position)
         time = position.entry_date
-        self.ticker_id, self.indicator_id = position.ticker_id, position.etind_id
+        self.ticker_id = position.ticker_id
         self.time_sec = time.acts_like_time? ? time.utc.to_time.to_i : time.acts_like_date? ? time.to_time.localtime.change(:hour => 6, :min => 30).to_i : nil
+        self.indicator_id = position.etind_id
+      end
+
+      def is_proxy?
+        true
       end
 
       def dereference()
         Position.find [ticker_id, Time.at(time_sec).utc, indicator_id]
       end
-    end
-
-    def PositionProxy.from_position(position)
-      position.to_proxy()
-    end
-
-    def PositionProxy.dereference(ary)
-      ary[1] = Time.at(ary.second).utc
-      Position.find(*ary)
     end
 
     TimeseriesProxy = Struct.new(:ticker_id, :time_range_secs, :resolution, :params) do
@@ -35,8 +38,12 @@ module Task
         self.params = params
       end
 
+      def is_proxy?
+        true
+      end
+
       def dereference()
-        time_range_= TimeseriesProxy.to_time(time_range_secs)
+        time_range = TimeseriesProxy.to_time(time_range_secs)
         Timeseries.new(ticker_id, time_range, resolution, params)
       end
     end
@@ -54,19 +61,18 @@ module Task
       Time.at(seconds_range.begin)..Time.at(seconds_range.end)
     end
 
-    def TimeseriesProxy.dereference(ary)
-      ary[1] = TimeseriesProxy.to_time(ary[1])
-      Timeseries.new(*ary)
-    end
-
     Displacement = Struct.new(:time, :price, :indicator_id, :ival) do
 
       def initialize(time, price, symbol_or_id, indicator_value)
         self.time = time.acts_like_time? ? time.to_time : time.is_a?(Date) ? time.to_time.localtime.change(:hour => 6, :min => 30) : nil
-        raise ArgumentError, "first arg(a time): #[time} cannot be converted to a Time" if time.nil?
+        raise ArgumentError, "first arg: #{time} cannot be converted to a Time" if time.nil?
         self.price = price
         self.indicator_id = symbol_or_id.is_a?(Symbol) ? Indicator.lookup(symbol_or_id).id : symbol_or_id
         self.ival = indicator_value
+      end
+
+      def is_prox?
+        false
       end
 
       def to_proxy()
@@ -76,27 +82,25 @@ module Task
 
     DisplacementProxy = Struct.new(:time_sec, :price, :indicator_id, :ival) do
       def initialize(time, price, symbol_or_id, indicator_value)
-        raise ArgumentError, "first arg must be Time or Date time): #[time} cannot be converted to a Time" unless time.acts_like_time? || time.acts_like_date?
         if time.acts_like_time?
           self.time_sec = time.utc.to_time.to_i
         elsif time.acts_like_date?
           self.time_sec = time.to_time.localtime.change(:hour => 6, :min => 30).utc.to_i
         else
-          raise ArgumentError, "first arg must be Time or Date time): #[time} cannot be converted to a Time"
+          raise ArgumentError, "first arg must be Time or DateTime, instead it's #{time} which cannot be converted to a Time" unless time.acts_like_time? || time.acts_like_date?
         end
         self.price = price
         self.indicator_id = symbol_or_id.is_a?(Symbol) ? Indicator.lookup(symbol_or_id).id : symbol_or_id
         self.ival = indicator_value
       end
 
+      def is_proxy?
+        true
+      end
+
       def dereference()
         Displacement.new(Time.at(time_sec).localtime, price, indicator_id, ival)
       end
-    end
-
-    def DisplacementProxy.dereference(ary)
-      ary[0] = Time.at(ary.first).localtime
-      Displacement.new(*ary)
     end
   end
 end

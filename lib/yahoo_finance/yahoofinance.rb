@@ -24,11 +24,8 @@
 require 'net/http'
 require 'optparse'
 require 'ostruct'
-
-require 'rubygems'
 require 'pp'
 require 'date'
-require 'ruby-debug'
 
 class String
 

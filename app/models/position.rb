@@ -67,6 +67,10 @@ class Position < ActiveRecord::Base
     Task::RPCTypes::PositionProxy.new(self)
   end
 
+  def is_proxy?
+    false
+  end
+
   def entry_delay
     Position.trading_days_between(entry_date, ettime)
   end

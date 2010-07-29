@@ -39,7 +39,6 @@ class Scan < ActiveRecord::Base
     logger = options[:logger]
     logger.info "Beginning population scan: #{name}..." if logger
     startt = Time.now
-
     ids = tickers_ids(repopulate, logger)
 
     delta = Time.now - startt

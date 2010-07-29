@@ -28,7 +28,7 @@ class RemoteLogger
     @logger = remote_logger_factory.get_logger(log_name, basedir, options)
     @logger.extend(MonitorMixin)
     ObjectSpace.define_finalizer(self, self.class.method(:finalize).to_proc)
-   end
+  end
 
   private
 

@@ -1,0 +1,81 @@
+= EMJack
+An attempt to wrap portions of the Beanstalk protocol with EventMachine. Every command
+will return a deferrable object. That object will succeed or fail depending on the
+reply returned from Beanstalk.
+
+One thing to keep in mind. The Beanstalk protocol executes all commands serially.
+So, if you send a reserve command and there are no jobs Beanstalk _won't_ process
+any of the commands that come after the reserve until the reserve completes.
+
+This is a bit of a gotcha when sending a series of reserve, delete, etc and there
+are no available jobs.
+
+= Dependencies
+ - EventMachine
+ - RSpec  (to run the tests)
+
+= Examples
+  EM.run {
+    jack = EMJack::Connection.new
+
+    r = jack.use('mytube')
+    r.callback { |tube| puts "Using #{tube}" }
+
+    r = jack.reserve
+    r.callback do |job|
+      puts job.jobid
+
+      r2 = jack.delete(job) { puts "Successfully deleted" }
+    end
+
+    r = jack.put("my message", :ttr => 300) { |jobid| puts "put successful #{jobid}" }
+
+    r = jack.stats
+    r.callback { |stats| puts "Server up for #{stats['uptime']} seconds" }
+
+    r = jack.stats(:tube, "mytube")
+    r.callback { |stats| puts "Total jobs #{stats['total-jobs']}" }
+
+    r = jack.list(:used)
+    r.callback { |tubes| puts "There are #{tubes.length} tubes defined" }
+  }
+
+  Each of the Jack commands allows an optional block to be provided. If the block is given
+  it will be setup as the callback on the deferrable.
+
+  EMJack#each_job is useful for scenarios where the client is a job worker
+  and intended to process jobs continuously as they become available. Once
+  the queue is empty, the client will block and wait for a new job.
+
+  If multiple workers connect to the queue Beanstalkd will round-robin between
+  the workers.
+
+    EM.run {
+      jack = EMJack::Connection.new
+
+      jack.each_job do |job|
+        puts "Got job ##{job.jobid}: #{job}"
+
+        if process(job)
+          r = jack.delete(job)
+          r.callback { puts "*Deleted #{job}*" }
+        else
+        end
+      end
+
+      def process(job)
+        # Some kind of job processing
+      end
+    }
+
+
+= Contact
+If you've got any questions, comments or bugs, please let me know. You can
+contact me by email at dj2 at everburning dot com.
+
+
+= Contributors
+Charles Melbye (cmelbye)
+Peter Kieltyka (pkieltyka)
+Martyn Loughran (mloughran)
+Mike Perham (mperham)

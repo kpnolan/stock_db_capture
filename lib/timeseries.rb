@@ -47,6 +47,10 @@ class Timeseries
       end
     end
 
+    def is_proxy?
+      false
+    end
+
     def index2time(index)
       return TimeMap.index2time(first_index+index) if index < timevec.length
       raise ArgumentError, "index [#{index}] is ouside of the range of bars, the maximum of which is #{timevec.length-1}"

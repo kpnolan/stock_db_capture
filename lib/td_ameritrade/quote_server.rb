@@ -6,8 +6,6 @@ require 'xmlsimple'
 require 'zlib'
 
 require 'tda2ruby'
-require 'rubygems'
-require 'ruby-debug'
 
 module TdAmeritrade
 

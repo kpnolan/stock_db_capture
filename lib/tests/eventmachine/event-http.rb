@@ -1,4 +1,3 @@
-require 'rubygems'
 require 'em-synchrony'
 require 'addressable/uri'
 load '/work/staging/em-synchrony/lib/em-synchrony/em-http.rb'

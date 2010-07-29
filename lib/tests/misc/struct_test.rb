@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'ruby-debug'
 
 TypeDecl = Struct.new(:name, :key, :output, :arity, :convert_block) do
   @@check = true

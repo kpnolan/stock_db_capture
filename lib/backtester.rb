@@ -11,7 +11,6 @@ require 'yaml'
 require 'ruby-prof'
 
 require 'rubygems'
-require 'ruby-debug'
 
 class ConfigtException < Exception
   def initialize(msg)

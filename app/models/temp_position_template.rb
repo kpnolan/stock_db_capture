@@ -27,9 +27,6 @@
 
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-#require 'rubygems'
-#require 'ruby-debug'
-
 class TempPositionTemplate < ActiveRecord::Base
   set_table_name 'temp_position_template'
 

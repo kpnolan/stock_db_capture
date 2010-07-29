@@ -1,5 +1,3 @@
-require 'rubygems'
-require 'ruby-debug'
 require 'rinda/rinda'
 require 'rinda/ring'
 require 'rinda/tuplespace'

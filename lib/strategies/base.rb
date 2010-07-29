@@ -1,5 +1,3 @@
-require 'rubygems'
-require 'ruby-debug'
 require 'strategies/closures'
 
 module Strategies

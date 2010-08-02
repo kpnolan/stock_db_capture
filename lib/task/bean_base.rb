@@ -8,6 +8,8 @@ require 'monitor'
 require 'task/message'
 require 'task/config/compile/dsl'
 require 'task/config/compile/exceptions'
+
+require 'ostruct'
 #
 # Somec monkey patching on the Hash class that is too specialized to really go into here
 #
@@ -46,59 +48,118 @@ end
 module Task
 
   class ConnectionPool
+    #
+    # A Channel know from which Connection Managers (and therefore free list) it came from making
+    # retirement back to the correct free list trivial
+    class Channel
 
-    def initialize()
+      attr_reader :con
+
+      def initialize(manager, con)
+        @mgr = manager
+        @con = con
+      end
+
+      def retire()
+        $stderr.puts "retiring #{self}"
+        @mgr.give_back(self)
+      end
+
+      def to_s
+        "channel for #{@mgr.dir} #{@mgr.tube}"
+      end
+    end
+
+    class ConnectionMgr
+
+      attr_reader :tube, :dir, :free_list, :last_size
+      attr_accessor :round
+
+      def initialize(tube, direction, size)
+        @tube = tube
+        @dir = direction
+        @free_list = populate(size)
+        @last_size = size
+        @round = 0
+      end
+
+      def round_robin()
+        channel = free_list[(@round+=1)%last_size]
+      end
+
+      def take()
+        channel = (c = free_list.pop).nil? ? (populate(last_size*2).pop) : c
+        raise RuntimeError, "free list for #{dir} tube #{tube} is STILL empty" if channel.nil?
+        channel
+      end
+
+      def take1(&block)
+        channel = take()
+        begin
+          result = yield channel
+        ensure
+          give_back(channel)
+        end
+        result
+      end
+
+      def give_back(channel)
+        free_list.push(channel)
+      end
+
+      private
+
+      def alloc_connection(tube, direction)
+        channel =  Channel.new(self, EMJack::Connection.new)
+        case direction
+        when :input then
+          channel.con.watch(tube) { }
+        when :output then
+          channel.con.use(tube) { }
+        end
+        channel
+      end
+
+      def populate(size)
+        $stderr.puts "populated called with size: #{size} for #{dir} tube: #{tube} "
+        @last_size = size
+        @free_list = Array.new(size) { alloc_connection(tube, dir) }
+      end
+    end
+    #
+    # Allocate an input and output connection for each consumer
+    #
+    def initialize(consumers, size)
       @input_map = { }
       @output_map = { }
-      @publisher_map = { }
-    end
 
-    def alloc_connection(tube, direction)
-      con = EMJack::Connection.new
-      case direction
-      when 'i' then
-        con.watch(tube) { |*args| "watch cb args #{args}"}
-      when 'o' then
-        con.use(tube) { |*args| "use cb args #{args}"}
+      consumers.each do |consumer|
+        alloc_connections(consumer, size)
       end
-      con
     end
 
-    def alloc_input(task)
-      connection = alloc_connection(task.name, 'i')
-      (@input_map[task] ||= []) << connection
-      connection
+    def take(task)
+      @input_map[task].take
     end
 
-    def alloc_output(task)
-      connection = alloc_connection(task.name, 'o')
-      (@output_map[task] ||= []) << connection
-      @publisher_map[task] = ->(contents) { apublish(connection, contents) }
-      connection
-    end
-
-    # Syntactic sugar shortcut (looks pretty cool though)
     def [](task)
-      @publisher_map[task]
+      ->(contents) { apublish(task, contents) }
     end
 
-    def input_for(task)
-      @input_map[task].first
+    def alloc_connections(task, size)
+      @input_map[task] ||= ConnectionMgr.new(task.name, :input, size)
+      @output_map[task] ||= ConnectionMgr.new(task.name, :output, size)
     end
 
-    def output_for(task)
-      @output_map[task].first
-    end
-
-    def publish(con, contents)
-      jobid = Fiber.new { con.put(contents, :ttr => 60) }.resume
-      $stderr.puts "putlished #{jobid}"
-    end
-
-    def apublish(con, contents)
-      con.put(contents, :ttr => 600) do |jobid|
-        #$stderr.puts "apublished #{jobid} contents: #{Marshal.load(contents).inspect}"
+    def publish(task, contents)
+      @output_map[task].take do |channel|
+        jobid = Fiber.new { channel.con.put(contents, :ttr => 60) }.resume
       end
+    end
+
+    def apublish(task, contents)
+      channel = @output_map[task].round_robin()
+      channel.con.put(contents, :ttr => 2400) { |jobid| }
     end
 
     def stats()
@@ -113,9 +174,6 @@ module Task
 
   class BeanBase
 
-    INPUT = 1
-    OUTPUT = 2
-
     include Task::Config::Compile
 
     delegate :info, :error, :debug, :to => :logger
@@ -124,7 +182,7 @@ module Task
     attr_reader :config_basename, :config
     attr_reader :incon, :outcon, :con_pool, :delivery_q
     attr_reader :logger
-    attr_accessor :proc_id, :deferred_jobs, :completed_defers, :prev_counts
+    attr_accessor :proc_id, :deferred_jobs, :prev_counts, :consumers
 
     #--------------------------------------------------------------------------------------------------------------------
     # The constructor for a daemon class. Since the worker daemons are forked, they get a copy of the process start which
@@ -136,6 +194,7 @@ module Task
       @proc_id = proc_id
       @deferred_jobs = 0
       @con_pool = nil
+      @consumers = []
       @delivery_q = EM::Queue.new
       @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 30
       #create readers for each of the above options
@@ -176,6 +235,7 @@ module Task
       @deferred_jobs + amt
     end
 
+
     #--------------------------------------------------------------------------------------------------------------------
     # The serve function is called as the entry point for any number of worker tasks, each responding to messages and
     # sending out messages along with the results of the given task. Retrun values from one task become the input args
@@ -190,10 +250,6 @@ module Task
         Signal.trap('TERM'){ con_ppol.shutdown if con_pool; EM.stop; }
 
         startt = global_startt = Time.now
-        #
-        # Set up the connection pool
-        #
-        @con_pool = ConnectionPool.new()
         #
         # Enable fiber away methods
         #
@@ -212,28 +268,20 @@ module Task
         info "Number of tasks: #{tasks.length}"
 
         EM.error_handler { |e| puts "[#{proc_id}] Error raised during event loop: #{e.message}" }
-
-        tcount = 0
-        EM.add_periodic_timer(10) do
-          pqlen = delivery_q.instance_variable_get(:@popq).length
-          iqlen = delivery_q.size
-          $stderr.puts("[#{proc_id}:#{tcount +=1}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}\t "+
-                       "Msg: #{Message.sent_messages}:#{Message.received_messages}")
-          if no_activity?(Message.sent_messages, Message.received_messages, completed_defers)
-            puts "No message activity...initiating stop"
-            finish(startt)
-          end
-        end
+        #
+        # Extract producers and consumers from task topoloty
+        #
+        producers = tasks.select { |task| task.parent.nil? && proc_id.zero? }
+        @consumers = tasks.select { |task| task.parent }
+        #
+        # Set up the connection pool
+        #
+        @con_pool = ConnectionPool.new(consumers, 2)
         #
         # Invode the producers
         #
-        producers = tasks.select { |task| task.parent.nil? && proc_id.zero? }
-        consumers = tasks.select { |task| task.parent }
-        terminals = consumers.select { |task| task.targets.empty? }
-
         EM.add_timer(2) {
           producers.each do |task|
-            con_pool.alloc_output(task)
             logger.debug "Producer #{task.name} invoked" if verbose
             task.eval_body([])
           end
@@ -241,32 +289,59 @@ module Task
         #
         # Set up the callbacks and the queue for each consumer task
         #
-        consumers.each do |task|
-          $stderr.puts "Creating #{task.name} queue"
-          con_pool.alloc_output(task)
-          completer = proc do |results|
-            unless task.targets.empty? || task.result_protocol == :yield
-              outgoing_msg = Message.new(task, results)
-              outgoing_msg.deliver(con_pool)
-            end
-            adjust_deferred_jobs(-1)
-          end
+        @stats_hash = consumers.inject({}) { |m,k| m[k.name] = OpenStruct.new(:recv => 0, :completed => 0); m }
 
-          input_connection = con_pool.alloc_input(task)
-          input_connection.async_each_job do |job|
-            adjust_deferred_jobs(1)
-            msg = Message.receive(task, job.body)
-            job.delete
-            EM.defer(nil, completer) do
-              begin
-                task.eval_body(msg.restored_obj)   #returns results
-              rescue => e
-                $stderr.puts "#{e.class}: #{e.message}"
-                $stderr.puts(e.backtrace.join("\n"))
-                raise
+        2.times do |i|
+          consumers.each do |task|
+            completer = proc do |results|
+             @stats_hash[task.name].completed += 1
+              unless task.targets.empty?
+                if results.respond_to? :each
+                  results.each do |result|
+                    outgoing_msg = Message.new(task, result)
+                    outgoing_msg.deliver(con_pool)
+                  end
+                else
+                  outgoing_msg = Message.new(task, results)
+                  outgoing_msg.deliver(con_pool)
+                end
+              end
+              adjust_deferred_jobs(-1)
+            end
+
+            $stderr.puts "Creating #{task.name} input queue ##{i}"
+            channel = con_pool.take(task)
+            channel.con.async_each_job do |job|
+              adjust_deferred_jobs(1)
+              msg = Message.receive(task, job.body)
+              @stats_hash[task.name].recv += 1
+              job.delete
+              EM.defer(nil, completer) do
+                begin
+                  task.eval_body(msg.restored_obj)   #returns results
+                rescue => e
+                  $stderr.puts "#{e.class}: #{e.message}"
+                  $stderr.puts(e.backtrace.join("\n"))
+                  raise
+                end
               end
             end
           end
+        end
+
+        tcount = 0
+        EM.add_periodic_timer(10) do
+          iqlen = delivery_q.size
+          $stderr.puts("[#{proc_id}:#{tcount +=1}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}\t "+
+                       "Msg: #{Message.sent_messages}:#{Message.received_messages}")
+          if no_activity?(Message.sent_messages, Message.received_messages)
+            puts "No message activity...initiating stop"
+            finish(startt)
+          end
+        end
+
+        EM.add_periodic_timer(5) do
+          print_stats(:timeseries_args, :rsi_trigger_14)
         end
 
         postman = proc { |msg|
@@ -281,6 +356,17 @@ module Task
         raise
       end
     end
+
+    def print_stats(*task_names)
+      task_names = @consumers.map { |t| t.name } if task_names.empty?
+      for name in task_names
+        r = @stats_hash[name].recv
+        c = @stats_hash[name].completed
+        s = Message.to_task_count[name]
+        $stderr.puts "#{name}\t sent to: #{s}\t recv: #{r}\t completed: #{c}"
+      end
+    end
+
     #
     # Wait until all the threads timeout with either means that there is nothing left to do or some unrecoverable
     # error was encounted
@@ -328,15 +414,6 @@ module Task
         server = new(config_path, child_index)
         $stderr.puts "EM.run fiber: #{Fiber.current.inspect}"
         server.serve()
-        #      server.serve(:rsi_rvi_50)
-        #      server.serve(:scan_gen,:timeseries_args, :rsi_trigger_14)
-        #        server.serve(i, [:scan_gen])
-        #        server.serve(i, [:timeseries_args])
-        #        server.serve(i, [:rsi_trigger_14])
-        #        server.serve(i, [:rsi_rvi_50])
-        #        server.serve(:lagged_rsi_difference)
-        #        end
-        #     end
         summary_str = ResultAnalysis.memoized_thresholds
         server.info summary_str
       end

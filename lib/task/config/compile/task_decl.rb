@@ -2,14 +2,9 @@ module Task
   module Config
     module Compile
       class TaskDecl
-
-#      TaskDecl = Struct.new(:name, :options, :parent, :params, :targets, :inputs, :outputs, :priority, :raw_input_length, :raw_output_length,
-#                            :input_signature, :result_protocol, :logger, :wrapper_name, :wrapper_proc, :body)
-
         attr_reader :name, :options, :params, :targets, :inputs, :outputs
         attr_reader :result_protocol, :logger, :wrapper_name, :wrapper_proc, :body
         attr_accessor :parent
-
 
         delegate :info, :error, :debug, :to => :logger
 
@@ -38,7 +33,16 @@ module Task
           raise raise Task::Config::Compile::TaskException, "wrapper function: #{method} do no exist, spelling error?" unless config.respond_to? method
           @wrapper_proc = config.send(method, self, params, &body)
         end
-
+        #
+        # This protocol is used ONLY by the "unmoved mover" the producer that has to tick things off. It should be called only once so that threading
+        # complications cannot ensue
+        #
+        def yield_value(value)
+          raise  Task::Config::Runtime::TaskException, "yield_result called for task not declaring that result protocol" unless result_protocol == :yield
+          msg  = Message.new(self, value)
+          Message.schedule_delivery(msg)
+          nil
+        end
         #
         # Compile time validation. Check to make sure the next task's input sig is output the same as the output sig.
         # Note that this must take into consideration that some output types are proxies. An output proxy must be
@@ -49,13 +53,6 @@ module Task
             msg = "#{target.name}(#{target.inputs.join(', ')} does not match  #{name}(#{outputs.join(', ')})"
             raise Task::Config::Compile::TypeException, msg
           end
-        end
-
-        def yield_value(value)
-          raise  Task::Config::Runtime::TaskException, "yield_result called for task not declaring that result protocol" unless result_protocol == :yield
-          msg  = Message.new(self, value)
-          Message.schedule_delivery(msg)
-          nil
         end
         #
         # this is an undocumented feature of Ruby, i.e. passing a proc as a block to instance_exec which

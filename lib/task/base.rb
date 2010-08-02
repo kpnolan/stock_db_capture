@@ -66,7 +66,6 @@ module Task
       @proc_id = proc_id
       @deferred_jobs = 0
       @completed_defers = 0
-#      @delivery_q = []
       @delivery_q = EM::Queue.new
       @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 30
       #create readers for each of the above options
@@ -106,8 +105,7 @@ module Task
     end
 
     def adjust_deferred_jobs(amt)
-      #jstats_mutex.synchronize { @deferred_jobs + amt }
-      0
+      @deferred_jobs + amt
     end
 
     #
@@ -143,15 +141,11 @@ module Task
         end
 
         info "Number of tasks: #{tasks.length}"
-        #EM.set_quantum(45)
         EM.error_handler { |e| puts "[#{proc_id}] Error raised during event loop: #{e.message}" }
         tcount = 0
         EM.add_periodic_timer(10) do
-#          pqlen = delivery_q.instance_variable_get(:@popq).length
           iqlen = delivery_q.size
-#          iqlen = delivery_q.length
           $stderr.puts("[#{proc_id}:#{tcount +=1}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}:#{completed_defers}\t Msg: #{Message.sent_messages}:#{Message.received_messages}")
-#          $stderr.puts("[#{proc_id}:#{tcount +=1}:#{pqlen}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}:#{completed_defers}\t Msg: #{Message.sent_messages}:#{Message.received_messages}")
           if no_activity?(Message.sent_messages, Message.received_messages, completed_defers)
             puts "No message activity...initiating stop"
             finish(startt)
@@ -165,18 +159,26 @@ module Task
         #
         consumers.each do |task|
           completer = proc do |results|
-            unless task.targets.empty? || task.result_protocol == :yield
-              outgoing_msg = Message.new(task, results)
-              outgoing_msg.deliver(&publisher)
+            unless task.targets.empty?
+              if results.respond_to? :each
+                results.each do |result|
+                  outgoing_msg = Message.new(task, result)
+                  outgoing_msg.deliver(con_pool)
+                end
+              else
+                outgoing_msg = Message.new(task, results)
+                outgoing_msg.deliver(con_pool)
+              end
+              stats_hash[task.name].delivered += 1
             end
-            self.completed_defers += 1
+            adjust_deferred_jobs(-1)
           end
 
           MQ.queue(task.name.to_s).bind(exchange, :key => task.name.to_s, :nowait => true).subscribe do |str|
             adjust_deferred_jobs(1)
+            msg = Message.receive(task, str)
             EM.defer(nil, completer) do
               adjust_deferred_jobs(-1)
-              msg = Message.receive(task, str)
               begin
                 task.eval_body(msg.task_args) #returns results
               rescue => e
@@ -196,19 +198,11 @@ module Task
           task.eval_body([])
         end
         }
-
-        #EM.add_periodic_timer(0.100) do
-        #  delivery_q.shift.deliver(exchange) unless delivery_q.empty?
-        #end
-
         #
         # Now deliver the messages in the delivery queue, i.e. ones that were yelded
         #
-#        postman = proc { |pair|
         postman = proc { |msg|
-#          task, value = pair
-#          msg  = value.is_a?(Array) ? Message.new(task, value) : Message.new(task, [value])
-          msg.deliver(&publisher)
+          msg.deliver(con_pool)
           delivery_q.pop(&postman)
         }
         delivery_q.pop(&postman)

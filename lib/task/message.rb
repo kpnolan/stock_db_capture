@@ -18,6 +18,7 @@ module Task
 
     cattr_accessor :delivery_q, :config, :logger
     cattr_accessor_with_default :sent_messages, 0
+    cattr_accessor_with_default :to_task_count, { }
     cattr_accessor_with_default :received_messages, 0
     cattr_accessor_with_default :check, true
     cattr_accessor_with_default :default_timeout, 30
@@ -60,14 +61,16 @@ module Task
     end
 
     # Send this message to the tasks provided at contruction with the passed args encoded as the payload
-    def deliver(publishers)
+    def deliver(pool)
       raise Task::Config::Runtime::MsgException,  "Message created w/o specifying any targets" if target_tasks.nil? || target_tasks.empty?
       target_tasks.each do |task|
         #set_trace_func proc { |event, file, line, id, binding, classname|
         #  printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
         #}
         Message.sent_messages += 1
-        publishers[task][payload]
+        pool[task][payload]
+        @@to_task_count[task.name] ||= 0
+        @@to_task_count[task.name] += 1
       end
     end
   end

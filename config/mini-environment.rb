@@ -21,6 +21,7 @@ Rails::Initializer.run do |config|
 #  config.frameworks -= [ :active_resource, :action_mailer, :action_controller, :action_view ]
   config.frameworks -= [ :active_resource, :action_controller, :action_view ]
   config.active_record.allow_concurrency = true
+  config.threadsafe!
   # Specify gems that this application depends on.
   # They can then be installed with "rake gems:install" on new installations.
   # config.gem "bj"

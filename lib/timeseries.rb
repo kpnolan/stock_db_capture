@@ -11,6 +11,17 @@
 require 'rpctypes'
 require 'date'
 require 'missing_bar_exception'
+require 'technical_analysis'
+require 'user_analysis'
+require 'gnuplot'
+require 'composite_analysis'
+require 'result_analysis'
+require 'csv_dumper'
+require  'strategies/base'
+require 'trading/strategies'
+require 'ts_persistence'
+require 'trading_calendar'
+require 'anal_results'
 
 class Time
   def bod?; hour == 6 && min == 30;end

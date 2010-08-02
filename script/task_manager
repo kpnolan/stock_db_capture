@@ -5,6 +5,13 @@ require 'optparse'
 require 'ostruct'
 require 'daemons'
 
+def add_to_load_path(*args)
+  root = File.expand_path('..')
+  args.each { |dir| $:.unshift(File.join(root, dir)) }
+end
+
+add_to_load_path('lib', 'lib/task' , 'lib/task/config/compile', 'lib/task/config/config_files', 'app/models')
+
 root_path_ary = File.expand_path(File.dirname(__FILE__)).split('/') + ['..']
 root_dir = File.expand_path(File.join(root_path_ary))
 
@@ -52,10 +59,12 @@ else
   # Only way you can use the debugger
   if options.server_count == 1
     require File.join(root_dir,'config/mini-environment')
+    require 'bean_base'
     Task::BeanBase.run(options.config_file, 1)
   else
     Daemons.run_proc('task_manager', daemon_options) do
       require File.join(root_dir,'config/mini-environment')
+      require 'bean_base'
       Task::BeanBase.run(options.config_file, options.server_count)
     end
   end

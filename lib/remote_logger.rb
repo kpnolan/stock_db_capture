@@ -1,6 +1,7 @@
 require '../config/micro-environment' if __FILE__ == $0
 require 'drb/drb'
 require 'monitor'
+require 'class_helpers'
 #
 # Encapsulates the "remote logger" drb protocol. A RemoteLogger is is a DrbObject which is generate by the remote_logger
 # daemon. The main idea is that when we are running distributed applicatons we want each one to send messages to one

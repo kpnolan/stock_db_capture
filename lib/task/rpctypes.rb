@@ -11,13 +11,33 @@ module Task
     # PositionProxy is a reference to a position, i.e. the elements of the composite key to that it can travel across a wire
     # an be de-referenced to yield the referred Position DB record
     #
-    PositionProxy = Struct.new(:ticker_id, :time_sec, :indicator_id) do
+    # PositionProxy = Struct.new(:ticker_id, :time_sec, :indicator_id) do
+
+    #   def initialize(position)
+    #     time = position.entry_date
+    #     self.ticker_id = position.ticker_id
+    #     self.time_sec = time.acts_like_time? ? time.utc.to_time.to_i : time.acts_like_date? ? time.to_time.localtime.change(:hour => 6, :min => 30).to_i : nil
+    #     self.indicator_id = position.etind_id
+    #   end
+
+    #   def is_proxy?
+    #     true
+    #   end
+
+    #   def dereference()
+    #     key = [ticker_id, Time.at(time_sec).utc]
+    #     begin
+    #       pos = Position.find(*key)
+    #     rescue Exception => e
+    #       raise e
+    #     end
+    #   end
+    # end
+
+    PositionProxy = Struct.new(:pos_id) do
 
       def initialize(position)
-        time = position.entry_date
-        self.ticker_id = position.ticker_id
-        self.time_sec = time.acts_like_time? ? time.utc.to_time.to_i : time.acts_like_date? ? time.to_time.localtime.change(:hour => 6, :min => 30).to_i : nil
-        self.indicator_id = position.etind_id
+        self.pos_id = position.id
       end
 
       def is_proxy?
@@ -25,7 +45,15 @@ module Task
       end
 
       def dereference()
-        Position.find [ticker_id, Time.at(time_sec).utc, indicator_id]
+        begin
+          $stderr.puts "Position fetching #{pos_id}"; $stderr.flush
+          caller(0).each { |frame| $stderr.puts frame; $stderr.flush }
+          pos = Position.find(pos_id)
+          $stderr.puts "Position fetched!"; $stderr.flush
+          pos
+        rescue Exception => e
+          raise e
+        end
       end
     end
 

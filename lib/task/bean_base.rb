@@ -1,10 +1,9 @@
 require 'eventmachine'
 require 'em-jack/lib/em-jack'
 require 'daemons'
-require 'fiber'
-require 'rpctypes'
+require 'thread'
 require 'remote_logger'
-require 'monitor'
+require 'task/rpctypes'
 require 'task/message'
 require 'task/config/compile/dsl'
 require 'task/config/compile/exceptions'
@@ -180,9 +179,9 @@ module Task
 
     attr_reader :options, :post_process
     attr_reader :config_basename, :config
-    attr_reader :incon, :outcon, :con_pool, :delivery_q
+    attr_reader :incon, :outcon, :con_pool, :delivery_q, :connection_count, :fiber_pool
     attr_reader :logger
-    attr_accessor :proc_id, :deferred_jobs, :prev_counts, :consumers
+    attr_accessor :proc_id, :deferred_jobs, :prev_counts, :consumers, :thread_pool
 
     #--------------------------------------------------------------------------------------------------------------------
     # The constructor for a daemon class. Since the worker daemons are forked, they get a copy of the process start which
@@ -194,8 +193,10 @@ module Task
       @proc_id = proc_id
       @deferred_jobs = 0
       @con_pool = nil
+      @connection_count = 1
       @consumers = []
-      @delivery_q = EM::Queue.new
+      @spawned_procs = []
+      @delivery_q = ::Queue.new
       @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 30
       #create readers for each of the above options
       self.extend self.options.to_mod
@@ -248,7 +249,10 @@ module Task
       begin
         Signal.trap('INT') { con_pool.shutdown if con_pool; EM.stop; }
         Signal.trap('TERM'){ con_ppol.shutdown if con_pool; EM.stop; }
-
+        #
+        #
+        #
+        @connection_count = 10
         startt = global_startt = Time.now
         #
         # Enable fiber away methods
@@ -276,7 +280,7 @@ module Task
         #
         # Set up the connection pool
         #
-        @con_pool = ConnectionPool.new(consumers, 2)
+        @con_pool = ConnectionPool.new(consumers, connection_count)
         #
         # Invode the producers
         #
@@ -289,23 +293,28 @@ module Task
         #
         # Set up the callbacks and the queue for each consumer task
         #
-        @stats_hash = consumers.inject({}) { |m,k| m[k.name] = OpenStruct.new(:recv => 0, :completed => 0); m }
+        @stats_hash = consumers.inject({}) { |m,k| m[k.name] = OpenStruct.new(:recv => 0, :completed => 0, :results_len => 0); m }
 
         2.times do |i|
           consumers.each do |task|
             completer = proc do |results|
-             @stats_hash[task.name].completed += 1
               unless task.targets.empty?
-                if results.respond_to? :each
-                  results.each do |result|
-                    outgoing_msg = Message.new(task, result)
-                    outgoing_msg.deliver(con_pool)
-                  end
-                else
+                if results.respond_to?(:each) && results.length > 0
+                  @stats_hash[task.name].results_len += results.length
+                   @spawned_procs <<
+                     [ EM.spawn { |task, con_pool, results|
+                           results.each do |result|
+                             outgoing_msg = Message.new(task, result)
+                             outgoing_msg.deliver(con_pool)
+                           end
+                       }, task, con_pool, results ]
+                elsif not results.is_a? Enumerable
+                  @stats_hash[task.name].results_len += 1
                   outgoing_msg = Message.new(task, results)
                   outgoing_msg.deliver(con_pool)
                 end
               end
+              @stats_hash[task.name].completed += 1
               adjust_deferred_jobs(-1)
             end
 
@@ -329,6 +338,17 @@ module Task
           end
         end
 
+        EM.add_periodic_timer(0.01) do
+          while (tuple = @spawned_procs.shift) do
+            sproc, task, con_pool, results = tuple
+            sproc.notify(task, con_pool, results)
+          end
+        end
+
+        stat_timer = EM.add_periodic_timer(5) do
+          print_stats(:timeseries_args, :rsi_trigger_14)
+        end
+
         tcount = 0
         EM.add_periodic_timer(10) do
           iqlen = delivery_q.size
@@ -336,12 +356,9 @@ module Task
                        "Msg: #{Message.sent_messages}:#{Message.received_messages}")
           if no_activity?(Message.sent_messages, Message.received_messages)
             puts "No message activity...initiating stop"
+            stat_timer.cancel
             finish(startt)
           end
-        end
-
-        EM.add_periodic_timer(5) do
-          print_stats(:timeseries_args, :rsi_trigger_14)
         end
 
         postman = proc { |msg|
@@ -362,8 +379,9 @@ module Task
       for name in task_names
         r = @stats_hash[name].recv
         c = @stats_hash[name].completed
+        l = @stats_hash[name].results_len
         s = Message.to_task_count[name]
-        $stderr.puts "#{name}\t sent to: #{s}\t recv: #{r}\t completed: #{c}"
+        $stderr.puts "#{name}\t sent to: #{s}\t recv: #{r}\t completed: #{c}\t r len: #{l}"
       end
     end
 
@@ -412,7 +430,6 @@ module Task
 
       def exec(config_path, child_index)
         server = new(config_path, child_index)
-        $stderr.puts "EM.run fiber: #{Fiber.current.inspect}"
         server.serve()
         summary_str = ResultAnalysis.memoized_thresholds
         server.info summary_str

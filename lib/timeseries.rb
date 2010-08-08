@@ -8,7 +8,7 @@
 #
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
-require 'rpctypes'
+require 'task/rpctypes'
 require 'date'
 require 'missing_bar_exception'
 require 'technical_analysis'
@@ -204,6 +204,10 @@ class Timeseries
   #
   def ticker
     Ticker.find ticker_id
+  end
+
+  def year()
+    local_range.begin.year
   end
 
   #

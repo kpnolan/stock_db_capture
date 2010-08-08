@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
+require 'rubygems'                                             #1.8.7
 require 'optparse'
 require 'ostruct'
 require 'daemons'
@@ -59,13 +60,13 @@ else
   # Only way you can use the debugger
   if options.server_count == 1
     require File.join(root_dir,'config/mini-environment')
-    require 'bean_base'
-    Task::BeanBase.run(options.config_file, 1)
+    require 'beansync'
+    Task::Base.run(options.config_file, 1)
   else
     Daemons.run_proc('task_manager', daemon_options) do
       require File.join(root_dir,'config/mini-environment')
-      require 'bean_base'
-      Task::BeanBase.run(options.config_file, options.server_count)
+      require 'beansync'
+      Task::Base.run(options.config_file, options.server_count)
     end
   end
 end

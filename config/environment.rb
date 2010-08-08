@@ -93,7 +93,7 @@ Time::DATE_FORMATS[:ymd] = "%Y-%m-%d"
 Time::DATE_FORMATS[:twz] = "%Y-%m-%d %I:%M%p (%Z)"
 
 
-#require 'composite_primary_keys'
+require 'composite_primary_keys'
 require 'smart_form_builder'
 require 'will_paginate'
 require 'gsl'

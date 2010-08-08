@@ -4,7 +4,7 @@ require 'yaml'
 require 'tsort'
 require 'thread'
 require 'singleton'
-require 'rpctypes'
+require 'task/rpctypes'
 require 'task/config/compile/task_decl'
 require 'task/config/compile/exceptions'
 
@@ -141,8 +141,9 @@ module Task
           sdate_method = params[:start_date]
           time_span = params[:window]
           resolution = resolution()
-          lambda do |position|
+          lambda do |pos_id|
             begin
+              position = Position.find pos_id
               start_date = position.send(sdate_method)
               max_exit_date = Position.trading_date_from(start_date, time_span)
               if max_exit_date > Date.today-1

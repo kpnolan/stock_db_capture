@@ -1,11 +1,13 @@
-require 'rubygems'
+require 'rubygems'                                  #1.8.7
 require 'daemons'
 require 'beanstalk-client'
-require 'thread_pool'
-require 'rpctypes'
 require 'remote_logger'
-require 'monitor'
+require 'task/rpctypes'
+require 'task/thread_pool'
 require 'task/message'
+require 'task/consumer'
+require 'task/producer'
+require 'task/connection_pool'
 require 'task/config/compile/dsl'
 require 'task/config/compile/exceptions'
 #
@@ -52,12 +54,13 @@ module Task
 
     include Task::Config::Compile
     include Beanstalk
+    extend Beanstalk
 
     delegate :info, :error, :debug, :to => :logger
 
     attr_reader :options, :post_process
     attr_reader :config_basename, :config
-    attr_reader :con_pool, :delivery_q, :ip_addrs, :thpool
+    attr_reader :con_pool, :ip_addrs, :thpool, :ptasks, :ctasks, :consumers, :producers, :jobq
     attr_reader :logger
     attr_accessor :proc_id, :deferred_jobs, :completed_defers, :prev_counts
 
@@ -72,21 +75,16 @@ module Task
       @thpool = ThreadPool.new(THREAD_POOL_SIZE)
       @deferred_jobs = 0
       @completed_defers = 0
-      @uthreads = []
-      @delivery_q = ::Queue
-      @ip_addrs = generate_socket_addrs()
-      @con_pool = Beanstalk::Pool.new(ip_addrs)
+      @jobq = ::Queue.new
+      @ip_addrs = nil
+      @con_pool = nil
       @options = config.options.reverse_merge :verbose => false, :logger_type => :remote, :message_timeout => 30
       #create readers for each of the above options
       self.extend self.options.to_mod
 
-      Message.bind_queue(delivery_q)
-      Message.bind_config(config)
-      Message.default_timeout = options[:message_timeout]
-      Message.push_task = true
-
       @logger = initialize_logger()
 
+      Message.bind_config(config)
       Message.attach_logger(logger)
       Timeseries.attach_logger(logger)
       Thread.abort_on_exception = false
@@ -103,7 +101,7 @@ module Task
         system("cat /dev/null > #{log_path}")
         ActiveSupport::BufferedLogger.new(log_path)
       when :remote
-        RemoteLogger.new(config_basename, File.join(RAILS_ROOT, 'log'), proc_id)
+       RemoteLogger.new(config_basename, File.join(RAILS_ROOT, 'log'), proc_id)
       when :stderr
         logger = ActiveSupport::BufferedLogger.new($stderr)
         logger.auto_flushing = true
@@ -113,20 +111,7 @@ module Task
       end
     end
 
-    def adjust_deferred_jobs(amt)
-      #jstats_mutex.synchronize { @deferred_jobs + amt }
-      0
-    end
-
     #
-    # This method and block allow us to abstract the semantics of message publication such that protocol client details
-    # are kept out of the Message class
-    #
-    def publish(task, contents)
-      con_pool.put(contents, :ttr => 60)
-    end
-    publisher = lambda(task, contents) { publish(task, contents) }
-
     #--------------------------------------------------------------------------------------------------------------------
     # The serve function is called as the entry point for any number of worker tasks, each responding to messages and
     # sending out messages along with the results of the given task. Retrun values from one task become the input args
@@ -136,6 +121,7 @@ module Task
     # automatically derefernced into a Heap local object.
     #--------------------------------------------------------------------------------------------------------------------
     def serve(*use_tasks)
+      Thread.current[:name] = 'main'
       begin
         startt = global_startt = Time.now
         #
@@ -151,101 +137,96 @@ module Task
 
         info "Number of tasks: #{tasks.length}"
 
-#        tcount = 0
-#        EM.add_periodic_timer(10) do
-#          pqlen = delivery_q.instance_variable_get(:@popq).length
-#          iqlen = delivery_q.size
-#          iqlen = delivery_q.length
-#          $stderr.puts("[#{proc_id}:#{tcount +=1}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}:#{completed_defers}\t Msg: #{Message.sent_messages}:#{Message.received_messages}")
-#          $stderr.puts("[#{proc_id}:#{tcount +=1}:#{pqlen}:#{iqlen}] Defers: #{adjust_deferred_jobs(0)}:#{completed_defers}\t Msg: #{Message.sent_messages}:#{Message.received_messages}")
-
-#          if no_activity?(Message.sent_messages, Message.received_messages, completed_defers)
-#            puts "No message activity...initiating stop"
-#            finish(startt)
-#          end
-#        end
-
-        producers = tasks.select { |task| task.parent.nil? && proc_id.zero? }
-        consumers = tasks.select { |task| task.parent }
         #
-        # Now run the producers
+        # Extract producers and consumers from task topoloty
         #
-        producers.each do |task|
-          logger.debug "Producer #{task.name} invoked" if verbose
-          task.eval_body([])
-        end
+        @ptasks = tasks.select { |task| task.parent.nil? && proc_id.zero? }
+        @ctasks = tasks.select { |task| task.parent }
         #
-        # Job processing
+        # Set up the connection pool
         #
-        loop do
-          begin
-            thpool.run_defered_callbacks()
-            job = con_pool.reserve(10)
-            puts "recieved jobid: #{job.id}"
-            job.delete
-          rescue Beanstalk::Timeout => e
-            $stderr.puts "timed out waiting for jobs"
-            $stderr.puts e.inspect
-            break
-          rescue Beanstalk::UnexpectedResponse => e
-            $stderr.puts e.inspect
-            raise
-          rescue Exception => e
-            $stderr.puts e.inspect
-            raise
-          end
-          msg = Message.receive(nil, job.body)
-          task = msg.task
-          completer = lambda(results) do
-            adjust_deferred_jobs(-1)
-            unless task.targets.empty? || task.result_protocol == :yield
-              outgoing_msg = Message.new(task, results)
-              outgoing_msg.deliver(&publisher)
-            end
-          end
-          thpool.defer(nil, completer) do
-            adjust_deferred_jobs(1)
-            args = msg.task_args
+        @con_pool = ConnectionPool.new(ctasks.map(&:name), 1)
+        #
+        # Set up the main Producer and Consumer objects
+        #
+        @consumers = @ctasks.map { |task| Consumer.new(task, con_pool, jobq) }
+        @producers = @ptasks.map { |task| Producer.new(task, con_pool, thpool) }
+        #
+        # Invoke the producers
+        #
+        producers.each { |p| p.start }
+        #
+        # Fire up the consumers
+        #
+        consumers.each { |c| c.start }
+        #
+        # Print statistics every 10 secs
+        #
+        @stats_thread = Thread.fork(0) { |tcount|
+          Thread.current[:name] = 'stats'
+          loop do
+            sleep(10)
             begin
-              task.eval_body(args) #returns results
-            rescue => e
-              $stderr.puts "#{e.class}: #{e.message}"
+              total_defers = 0
+              sent_to = Message.to_task_count.dup
+              consumers.each do |c|
+                name = c.task.name
+                defers = c.stats.deferred
+                recv = c.stats.recv
+                rcnt = c.stats.results_len
+                sent = sent_to.include?(name) ? sent_to[name] : 0
+                total_defers += defers
+                str = format('[%1d:%2d]%22s  Defers: %5d Messages sent:recv %5d:%5d:%d', proc_id, tcount, name, defers,sent,recv,rcnt)
+                puts str
+              end
+              sent = Message.sent_messages
+              recv = Message.received_messages
+              str = format('[%1d:%2d] %37sMessages sent:recv %5d:%5d   Jobs:Queued:Results %5d:%5d:%5d',
+                           proc_id, tcount, ' ',sent, recv, jobq.size, thpool.job_count, thpool.result_count)
+              puts str
+              puts "Find thread status: #{$t.status}" if $t
+              puts ''
+              $stdout.flush
+            rescue Exception => e
+              $stderr.puts e
               $stderr.puts(e.backtrace.join("\n"))
-              raise
             end
+
+            #if no_activity?(Message.sent_messages, Message.received_messages, total_defers)
+            #  puts "No message activity...initiating stop"
+            #  finish(startt)
+            #end
+            tcount += 1
           end
-        end
-
-        #EM.add_periodic_timer(0.100) do
-        #  delivery_q.shift.deliver(exchange) unless delivery_q.empty?
-        #end
-
-        #
-        # Now deliver the messages in the delivery queue, i.e. ones that were yelded
-        #
-#        postman = proc { |pair|
-        postman = proc { |msg|
-#          task, value = pair
-#          msg  = value.is_a?(Array) ? Message.new(task, value) : Message.new(task, [value])
-          msg.deliver(&publisher)
-          delivery_q.pop(&postman)
         }
-        delivery_q.pop(&postman)
-
+        #
+        # Main loop
+        #
+        puts "Entering Main Loop"; $stdout.flush
+        loop {
+          thpool.run_deferred_callbacks()
+          thpool.defer(*jobq.pop) until jobq.empty?
+          sleep(0.001)
+        }
+        #
+        # And that's all folks...
+        #
       rescue => e
         $stderr.puts "#{e.class}: #{e.message}"
         $stderr.puts(e.backtrace.join("\n"))
         raise
       end
+
       #
       # Wait until all the threads timeout with either means that there is nothing left to do or some unrecoverable
       # error was encounted
       #
       def no_activity?(*counts)
         self.prev_counts ||= Array.new(counts.length)
+        defers = counts.last
         @repeats ||= 0
-        status = adjust_deferred_jobs(0).zero? && (prev_counts == counts ? true : (self.prev_counts = counts and false))
-        @repeats += 1 if status
+        status = defers.zero? && (prev_counts == counts ? true : (self.prev_counts = counts and false))
+        status ? @repeats += 1 : repeats = 0
         @repeats == 3
       end
 
@@ -287,8 +268,8 @@ module Task
     def Base.exec(config_path, child_index)
       server = Base.new(config_path, child_index)
       server.serve()
+      #server.serve(:starter, :scan_gen)#,:timeseries_args, :rsi_trigger_14)
       #      server.serve(:rsi_rvi_50)
-      #      server.serve(:scan_gen,:timeseries_args, :rsi_trigger_14)
       #        server.serve(i, [:scan_gen])
       #        server.serve(i, [:timeseries_args])
       #        server.serve(i, [:rsi_trigger_14])

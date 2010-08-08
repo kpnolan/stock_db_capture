@@ -3,14 +3,15 @@
 #
 # Table name: positions
 #
-#  ticker_id         :integer(4)      default(0), not null
+#  id                :integer(4) not null primary key
+#  ticker_id         :integer(4)
 #  ettime            :datetime
 #  etprice           :float
 #  etival            :float
 #  xttime            :datetime
 #  xtprice           :float
 #  xtival            :float
-#  entry_date        :datetime        not null
+#  entry_date        :datetime
 #  entry_price       :float
 #  entry_ival        :float
 #  exit_date         :datetime
@@ -26,10 +27,6 @@
 #  num_shares        :integer(4)
 #  etind_id          :integer(4)
 #  xtind_id          :integer(4)
-#  entry_trigger_id  :integer(4)
-#  entry_strategy_id :integer(4)
-#  exit_trigger_id   :integer(4)
-#  exit_strategy_id  :integer(4)
 #  scan_id           :integer(4)
 #  consumed_margin   :float
 #  eind_id           :integer(4)
@@ -39,22 +36,18 @@
 # Copyright © Kevin P. Nolan 2009 All Rights Reserved.
 
 require 'rubygems'
-require 'rpctypes'
-require 'composite_primary_keys'
+require 'task/rpctypes'
+#require 'composite_primary_keys'
 
 class Position < ActiveRecord::Base
 
-  set_primary_keys :ticker_id, :entry_date, :etind_id
+#  set_primary_keys :ticker_id, :entry_date#, :etind_id
 
   belongs_to :ticker
-  belongs_to :entry_trigger
-  belongs_to :exit_trigger
-  belongs_to :entry_strategy
-  belongs_to :exit_strategy
   belongs_to :scan
   belongs_to :etind, :class_name => 'Indicator'
   belongs_to :xtind, :class_name => 'Indicator'
-  has_many :indicator_values, :foreign_key => [:ticker_id, :entry_date]
+#  has_many :indicator_values, :foreign_key => [:ticker_id, :entry_date]
 
   named_scope :filtered, lambda { |*pred| { :conditions => pred.first } }
   named_scope :ordered,  lambda { |*sort| { :order => sort.first } }

@@ -33,8 +33,8 @@ class RemoteLogger
 
   private
 
-  def log(msg, task_name, method)
-    logger.synchronize { logger.send(method, "#{method.to_s.upcase}\t[#{proc_id}:#{task_name}] #{msg}") }
+  def log(msg, task_name, level, from=caller(2).first)
+    logger.synchronize { logger.send(level, "#{method.to_s.upcase}\t[#{proc_id}:#{task_name}:#{from}] #{msg}") }
   end
 
   public

@@ -2,7 +2,7 @@ module Task
   module Config
     module Compile
       class TaskDecl
-        attr_reader :name, :options, :params, :targets, :inputs, :outputs
+        attr_reader :name, :options, :params, :targets, :inputs, :outputs, :flow
         attr_reader :result_protocol, :logger, :wrapper_name, :wrapper_proc, :body
         attr_accessor :parent
 
@@ -22,6 +22,7 @@ module Task
           @targets = opts.delete(:targets) { raise Task::Config::Compile::TaskException, "a (possibly empty) array as the value of :targets must be specified for #{name}"; nil }
           @inputs = opts.delete(:inputs) { raise Task::Config::Compile::TaskException, "a (possibly empty) array as the value of :inputs must be specified for #{name}"; nil }
           @outputs = opts.delete(:outputs) { raise Task::Config::Compile::TaskException, "a (possibly empty) array as the value of :outputs must be specified for #{name}"; nil }
+          @flow = opts.delete(:flow) { raise Task::Config::Compile::TaskException, "a :flow option must be specified the for consumer: #{name}" unless inputs.empty?; nil }
           @wrapper_name = opts.delete(:wrapper)
           @params = opts.delete(:params)
           @result_protocol = opts.delete(:result_protocol)
@@ -32,16 +33,6 @@ module Task
           method = "#{wrapper_name}_proc".to_sym
           raise raise Task::Config::Compile::TaskException, "wrapper function: #{method} do no exist, spelling error?" unless config.respond_to? method
           @wrapper_proc = config.send(method, self, params, &body)
-        end
-        #
-        # This protocol is used ONLY by the "unmoved mover" the producer that has to tick things off. It should be called only once so that threading
-        # complications cannot ensue
-        #
-        def yield_value(value)
-          raise  Task::Config::Runtime::TaskException, "yield_result called for task not declaring that result protocol" unless result_protocol == :yield
-          msg  = Message.new(self, value)
-          Message.schedule_delivery(msg)
-          nil
         end
         #
         # Compile time validation. Check to make sure the next task's input sig is output the same as the output sig.
@@ -61,17 +52,20 @@ module Task
         #
         def eval_body(input_object)
           if wrapper_proc
-            results = self.instance_exec(input_object, &wrapper_proc)
+            Thread.current[:results] = self.instance_exec(input_object, &wrapper_proc)
           else
-            results = self.instance_exec(input_object, &body)
+            Thread.current[:results] = self.instance_exec(input_object, &body)
           end
         end
         #
         # Nice clean uncomplicated
         #
         def decode_proxy(proxy)
-          return proxy.dereference if proxy.respond_to? :dereference
-          raise  Task::Config::Runtime::TypeException, "#{proxy.class} does not support :dereference"
+          if proxy.respond_to?(:dereference)
+            obj = proxy.dereference
+          else
+            raise  Task::Config::Runtime::TypeException, "#{proxy.class} does not support :dereference"
+          end
         end
         #
         # Nice, clean, uncomplicated

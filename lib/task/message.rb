@@ -1,4 +1,3 @@
-require 'eventmachine'
 require 'class_helpers'
 
 module Task
@@ -16,19 +15,18 @@ module Task
   class Message
     attr_reader :task, :target_tasks, :options, :payload, :proxy, :restored_obj, :opaque_obj
 
-    cattr_accessor :delivery_q, :config, :logger
+    cattr_accessor :config, :logger
     cattr_accessor_with_default :sent_messages, 0
     cattr_accessor_with_default :to_task_count, { }
     cattr_accessor_with_default :received_messages, 0
     cattr_accessor_with_default :check, true
-    cattr_accessor_with_default :default_timeout, 30
 
     delegate :info, :error, :debug, :to => :logger
 
     def initialize(task, opaque_obj, options={})
       raise ArgumentError, "configuration has not been bound" if config.nil?
       @opaque_obj = opaque_obj
-      @options = options.reverse_merge :transcode => :encode, :timeout => default_timeout
+      @options = options.reverse_merge :transcode => :encode
       @task = task
       @target_tasks = task.targets.map do |task_name|
         task = config.lookup_task(task_name)
@@ -64,13 +62,11 @@ module Task
     def deliver(pool)
       raise Task::Config::Runtime::MsgException,  "Message created w/o specifying any targets" if target_tasks.nil? || target_tasks.empty?
       target_tasks.each do |task|
-        #set_trace_func proc { |event, file, line, id, binding, classname|
-        #  printf "%8s %s:%-2d %10s %8s\n", event, file, line, id, classname
-        #}
+        name = task.name
         Message.sent_messages += 1
-        pool[task][payload]
-        @@to_task_count[task.name] ||= 0
-        @@to_task_count[task.name] += 1
+        pool[name][payload]
+        @@to_task_count[name] ||= 0
+        @@to_task_count[name] += 1
       end
     end
   end
@@ -79,16 +75,6 @@ module Task
     self.received_messages += 1
     proxy = Marshal.load(marshaled_str)
     msg = Message.new(task, proxy, :transcode => :decode)
-  end
-
-  def Message.bind_queue(queue)
-    self.delivery_q = queue
-  end
-
-  def Message.schedule_delivery(msg)
-    EM.schedule do
-      Message.delivery_q.push(msg)
-    end
   end
 
   def Message.attach_logger(logger)

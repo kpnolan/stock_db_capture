@@ -1,3 +1,4 @@
+require 'rubygems'                      #1.8.7
 require 'beanstalk-client'
 require 'thread'
 

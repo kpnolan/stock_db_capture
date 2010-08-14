@@ -1,62 +1,13 @@
-class Integer
-  def to_proxy; self; end
-  def dereference; self; end
-  def is_proxy?; true; end
-end
-
+require 'task/rcprime'
 
 module Task
   module RPCTypes
     #
-    # PositionProxy is a reference to a position, i.e. the elements of the composite key to that it can travel across a wire
-    # an be de-referenced to yield the referred Position DB record
+    # NB! Positions used to have a proxy object but dereferencing it reliably in a multi-threaded environment became problematic.
+    # Instead, I change the previous composite key to a autoincremented ID column just like the way Rails wants and the "proxy" is
+    # simply the value of this ID column as an Integer which can be looked up on no time flat. Using an single primary key makes partitioning
+    # more difficult, but more on that later...
     #
-    # PositionProxy = Struct.new(:ticker_id, :time_sec, :indicator_id) do
-
-    #   def initialize(position)
-    #     time = position.entry_date
-    #     self.ticker_id = position.ticker_id
-    #     self.time_sec = time.acts_like_time? ? time.utc.to_time.to_i : time.acts_like_date? ? time.to_time.localtime.change(:hour => 6, :min => 30).to_i : nil
-    #     self.indicator_id = position.etind_id
-    #   end
-
-    #   def is_proxy?
-    #     true
-    #   end
-
-    #   def dereference()
-    #     key = [ticker_id, Time.at(time_sec).utc]
-    #     begin
-    #       pos = Position.find(*key)
-    #     rescue Exception => e
-    #       raise e
-    #     end
-    #   end
-    # end
-
-    PositionProxy = Struct.new(:pos_id) do
-
-      def initialize(position)
-        self.pos_id = position.id
-      end
-
-      def is_proxy?
-        true
-      end
-
-      def dereference()
-        begin
-          $stderr.puts "Position fetching #{pos_id}"; $stderr.flush
-          caller(0).each { |frame| $stderr.puts frame; $stderr.flush }
-          pos = Position.find(pos_id)
-          $stderr.puts "Position fetched!"; $stderr.flush
-          pos
-        rescue Exception => e
-          raise e
-        end
-      end
-    end
-
     TimeseriesProxy = Struct.new(:ticker_id, :time_range_secs, :resolution, :params) do
 
       def initialize(ticker_id, time_range, resolution=1.day, params={ })
@@ -99,7 +50,7 @@ module Task
         self.ival = indicator_value
       end
 
-      def is_prox?
+      def is_proxy?
         false
       end
 

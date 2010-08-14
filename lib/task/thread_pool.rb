@@ -30,6 +30,10 @@ module Task
       end
     end
 
+    def members()
+      @threadpool
+    end
+
     def result_count()
       @resultqueue.size
     end

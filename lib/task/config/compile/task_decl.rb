@@ -1,12 +1,14 @@
+require 'task/message'
+
 module Task
   module Config
     module Compile
       class TaskDecl
         attr_reader :name, :options, :params, :targets, :inputs, :outputs, :flow
-        attr_reader :result_protocol, :logger, :wrapper_name, :wrapper_proc, :body
+        attr_reader :result_protocol, :wrapper_name, :wrapper_proc, :body
         attr_accessor :parent
 
-        delegate :info, :error, :debug, :to => :logger
+        delegate :info, :error, :debug, :flush, :to => :@@logger
 
         cattr_accessor :config
 
@@ -27,6 +29,14 @@ module Task
           @params = opts.delete(:params)
           @result_protocol = opts.delete(:result_protocol)
           raise Task::Config::Compile::TaskException, "unknown options #{opts.inspect} declared for task " unless opts.empty?
+        end
+
+        def producer?
+          parent.nil?
+        end
+
+        def consumer?
+          parent != nil
         end
 
         def process_wrapper_name()
@@ -50,11 +60,17 @@ module Task
         # somehow require self to be the first are to work. Even though self is supposed to be
         # implicitly passed to a block
         #
-        def eval_body(input_object)
+        def eval_body(input_object, id=nil)
+          Message.job_stats.eval_thread(id, Thread.current[:name]) if id
+          Message.job_stats.eval_start(id) if id
           if wrapper_proc
             Thread.current[:results] = self.instance_exec(input_object, &wrapper_proc)
+            Message.job_stats.eval_complete(id) if id
+            Thread.current[:results]
           else
             Thread.current[:results] = self.instance_exec(input_object, &body)
+            Message.job_stats.eval_complete(id) if id
+            Thread.current[:results]
           end
         end
         #
@@ -84,6 +100,10 @@ module Task
 
           def bind_to_config(config)
             @@config = config
+          end
+
+          def attach_logger(logger)
+            @@logger = logger
           end
         end
       end

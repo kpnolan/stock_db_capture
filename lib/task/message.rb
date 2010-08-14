@@ -1,4 +1,5 @@
 require 'class_helpers'
+require 'task/job_tracker'
 
 module Task
   #
@@ -13,18 +14,20 @@ module Task
   # given position.
   #
   class Message
-    attr_reader :task, :target_tasks, :options, :payload, :proxy, :restored_obj, :opaque_obj
+    attr_reader :id, :task, :target_tasks, :options, :payload, :proxy, :restored_obj, :opaque_obj
 
     cattr_accessor :config, :logger
     cattr_accessor_with_default :sent_messages, 0
     cattr_accessor_with_default :to_task_count, { }
     cattr_accessor_with_default :received_messages, 0
+    cattr_accessor_with_default :job_stats, TrackerContainer.new()
     cattr_accessor_with_default :check, true
 
     delegate :info, :error, :debug, :to => :logger
 
     def initialize(task, opaque_obj, options={})
       raise ArgumentError, "configuration has not been bound" if config.nil?
+      @id = options[:id]
       @opaque_obj = opaque_obj
       @options = options.reverse_merge :transcode => :encode
       @task = task
@@ -48,6 +51,10 @@ module Task
       send(method, opaque_obj)
     end
 
+    def name
+      task.name
+    end
+
     def payload=(opaque_obj)
       @proxy = task.encode_proxy(opaque_obj)
       @payload = Marshal.dump(proxy)
@@ -64,17 +71,19 @@ module Task
       target_tasks.each do |task|
         name = task.name
         Message.sent_messages += 1
-        pool[name][payload]
+        @id = pool[name][payload]
+        @@job_stats.sent(self)
         @@to_task_count[name] ||= 0
         @@to_task_count[name] += 1
       end
     end
   end
 
-  def Message.receive(task, marshaled_str)
+  def Message.receive(task, job)
     self.received_messages += 1
-    proxy = Marshal.load(marshaled_str)
-    msg = Message.new(task, proxy, :transcode => :decode)
+    Message.job_stats.received(job.id)
+    proxy = Marshal.load(job.body)
+    msg = Message.new(task, proxy, :id => job.id, :transcode => :decode)
   end
 
   def Message.attach_logger(logger)

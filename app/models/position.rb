@@ -54,7 +54,6 @@ class Position < ActiveRecord::Base
   named_scope :on_date,  lambda { |clock| { :conditions => ['date(entry_date) = ?', clock.to_date] } }
 
   extend TradingCalendar
-  include Backtest::PositionMixin
 
   def to_proxy
     Task::RPCTypes::PositionProxy.new(self)

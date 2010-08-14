@@ -1,6 +1,3 @@
-#require 'rubygems'                          #1.8.7
-#require 'ruby-debug'
-
 require 'thread'
 require 'forwardable'
 require 'beanstalk-client'
@@ -26,31 +23,31 @@ module Task
     def_delegators :@con, :stats, :peek_ready, :peek_delayed, :peek_buried, :peek_job, :delete
     def_delegators :@con, :connect, :close, :list_tubes, :ignore, :job_stats, :list_tubes_used, :list_tubes_watched
 
+    attr_reader :mgr, :con, :copts
 
-    attr_reader :con
-
-    def initialize(manager, con)
+    def initialize(manager, con, cattrs)
       @mgr = manager
       @con = con
+      @copts = cattrs
     end
 
-    def put(body, opts={})
-      opts.reverse_merge! :pri => 65536, :delay => 0, :ttr => 120
+    def put(body, opts=copts)
+      opts.reverse_merge! :pri => 65536, :delay => 0, :ttr => 160
       con.put(body, *opts.splat(:pri, :delay, :ttr))
     end
 
-    def release(id, opts={})
+    def release(id, opts=copts)
       opts.reverse_merge! :pri => 65536, :delay => 0
       con.release(id, *opts.splat(:pri, :delay))
     end
 
-    def yput(obj, opts={})
+    def yput(obj, opts=copts)
       opts.reverse_merge! :pri => 65536, :delay => 0, :ttr => 120
       con.yput(body, *opts.splat(:pri, :delay, :ttr))
     end
 
     def stats_tube(tube=@mgr.tube)
-      con.stats_tube(tube)
+      str = con.stats_tube(tube)
     end
 
     def retire()
@@ -58,32 +55,42 @@ module Task
     end
 
     def to_s
-      "channel for #{@mgr.dir} #{@mgr.tube}"
+      "channel for #{@mgr.dir} #{@mgr.tube} settings: #{copts}"
     end
   end
   #
   class OutputChannel < Channel
-    def initialize(manager, con)
-      super(manager, con)
+    def initialize(manager, con, csettings)
+      super(manager, con, csettings)
     end
   end
   #
   class InputChannel < Channel
 
-    def initialize(manager, con)
-      super(manager, con)
+    def initialize(manager, con, csettings)
+     super(manager, con, csettings)
     end
 
-    def reserve(timeout=0)
+    def reserve(timeout=copts[:timeout])
+      timeout ||= 60
+      retries = 0
+      $stderr.puts "begin reserve with time out #{timeout} on tube: #{mgr.tube}" #if [:task3,:task4,:task5].include? mgr.tube
       begin
         job = con.reserve(timeout)
+        $stderr.puts "reserveed job #{job.id} time out #{timeout} on tube: #{mgr.tube}" #if [:task3,:task4,:task5].include? mgr.tube
+        job
       rescue Beanstalk::TimedOut, Beanstalk::WaitingForJobError => e
-        $stderr.puts "#{@mgr.tube} reserve: #{e}"
+        $stderr.puts "timed out on tube: #{mgr.tube}"
+        retries +=1
+        copts[:retries] && retries <= copts[:retries] && (h = stats_tube(@mgr.tube)) && h['current-jobs-ready'] > 0 &&
+          peak_ready() and retry
+        raise e unless copts[:no_raise]
+        nil
       end
     end
 
-    def ingnore()
-      super(tube) if tube
+    def ignore()
+      super(mgr.tube) if mgr.tube
     end
 
     def close()
@@ -93,7 +100,7 @@ module Task
 
     def sync_each()
       while true
-        job = reserve(0)
+        job = reserve()
         return job if job.nil?
         yield job
         job.delete
@@ -103,12 +110,13 @@ module Task
   #
   class ConnectionMgr
 
-    attr_reader :tube, :dir, :free_list, :in_use, :size
+    attr_reader :tube, :dir, :free_list, :in_use, :size, :cattrs
     attr_accessor :round
 
-    def initialize(tube, direction, size)
+    def initialize(tube, direction, size, csettings)
       @tube = tube
       @dir = direction
+      @cattrs = csettings
       @free_list = populate(size)
       @in_use = []
       @round = 0
@@ -125,16 +133,6 @@ module Task
       channel
     end
 
-    def take1(&block)
-      channel = take()
-      begin
-        result = yield channel
-      ensure
-        give_back(channel)
-      end
-      result
-    end
-
     def give_back(channel)
       free_list.push(channel)
       if in_use.last == channel
@@ -144,14 +142,18 @@ module Task
       end
     end
 
+    def close()
+      (free_list+in_use).each { |channel| channel.close }
+    end
+
     private
 
     def alloc_connection(tube, direction)
       case direction
       when :input then
-        channel = InputChannel.new(self, Beanstalk::Connection.new('127.0.0.1:11300', tube))
+        channel = InputChannel.new(self, Beanstalk::Connection.new('127.0.0.1:11300', tube), cattrs)
       when :output then
-        channel = OutputChannel.new(self, Beanstalk::Connection.new('127.0.0.1:11300', tube))
+        channel = OutputChannel.new(self, Beanstalk::Connection.new('127.0.0.1:11300', tube), cattrs)
       end
     end
 
@@ -159,45 +161,57 @@ module Task
       @size = size
       @free_list = Array.new(size) { alloc_connection(tube, dir) }
     end
-
-    def close()
-      (free_list+in_use).each { |channel| channel.close }
-    end
   end
   #
   class ConnectionPool
+    attr_reader :csettings
     #
     # A Channel know from which Connection Managers (and therefore free list) it came from making
     # retirement back to the correct free list trivial
     #
     # Allocate an input and output connection for each consumer
     #
-    def initialize(names, size)
+    def initialize(names, size, csettings={})
       @input_map = { }
       @output_map = { }
+      @csettings = csettings
 
       names.each do |name|
-        alloc_connections(name, size)
+        alloc_connections(name, size, csettings[name])
       end
     end
 
-    def take(name)
-      @input_map[name].take
+    def take(name, dir=:input)
+      case dir
+        when :input then @input_map[name].take
+        when :output then @output_map[name].take
+      else
+        raise ArgumentError, 'dir must be :input or :output'
+      end
+    end
+
+    def ytake(name, dir, &block)
+      channel = take(name, dir)
+      begin
+        result = yield channel
+      ensure
+        channel.retire
+      end
+      result
     end
 
     def [](name)
       ->(contents) { publish(name, contents) }                #1.9.2
-#      lambda(contents) { publish(name, contents) }                #1.8.7
     end
 
-    def alloc_connections(name, size)
-      @input_map[name] ||= ConnectionMgr.new(name, :input, size)
-      @output_map[name] ||= ConnectionMgr.new(name, :output, size)
+    def alloc_connections(name, size, cattrs)
+      @input_map[name] ||= ConnectionMgr.new(name, :input, size, cattrs)
+      @output_map[name] ||= ConnectionMgr.new(name, :output, size, cattrs)
     end
 
     def publish(name, contents)
       channel = @output_map[name].round_robin()
-      jobid = channel.put(contents, :ttr => 2400)
+      jobid = channel.put(contents)
     end
 
     def shutdown
@@ -213,34 +227,51 @@ end
 #
 if __FILE__ == $0
 
-  names = [:scan_gen, :timeseries_args, :rsi_trigger_14, :rsi_rvi_50]
-  cpool = Task::ConnectionPool.new(names, 2)
+  names = [:scan_gen, :timeseries_args, :rsi_trigger_14, :rsi_rvi_50, :lagged_rsi_difference]
 
+  ct = []
+  channel = []
+  csettings = {
+    scan_gen:              { pri: 1, timeout: 3,  retries: 0,  ttr: 5,  no_raise: true },
+    timeseries_args:       { pri: 2, timeout: 3,  retries: 0,  ttr: 5,  no_raise: true },
+    rsi_trigger_14:        { pri: 3, timeout: 3,  retries: 0,  ttr: 5,  no_raise: true },
+    rsi_rvi_50:            { pri: 4, timeout: 3,  retries: 0,  ttr: 5,  no_raise: true },
+    lagged_rsi_difference: { pri: 5, timeout: 3,  retries: 0,  ttr: 5,  no_raise: true },
+  }
+  cpool = Task::ConnectionPool.new(names, 1, csettings)
+  cpool
+
+  nlen = names.length
   startt = Time.now
+
   count = 100_000
-  t1 = Thread.new(cpool) { |cpool|
-    for count in 1..count
-      jobid = cpool.publish(names.first, Marshal.dump(count+=1))
+  acount = Array.new(nlen, 0)
+  pt = Thread.new(cpool) { |cpool|
+    count.times do |i|
+      nlen.times { |j| cpool.publish(names[j], Marshal.dump(i)) }
     end
   }
-
-  t2 = Thread.new(cpool) { |cpool|
-    channel = cpool.take(names.first)
-    begin
-      channel.sync_each do |job|
-        break if Marshal.load(job.body) == count
-        job.delete()
+  #
+  # create 5 threads to model what the backtester actually does to see if it 'loses' records
+  #
+  nlen.times do |i|
+    ct[i] = Thread.new(cpool, i) { |cpool, i|
+      channel[i] = cpool.take(names[i], :input)
+      begin
+        channel[i].sync_each do |job|
+          acount[i] += 1
+        end
+      rescue Exception => e
+        $stderr.puts e
+        $stderr.puts "count: #{acount}"
       end
-    rescue Exception => e
-      $stderr.puts e
-      $stderr.puts "count: #{count}"
-    end
-  }
+    }
+  end
 
-  t1.join
-  t2.join
-
+  pt.join
+  ct.each { |t| t.join }
+  actual_count = acount.inject(&:+)
   dt = Time.now-startt
   msglen = 4
-  puts "#{count} messages of length #{msglen} in #{dt} seconds #{count/dt} messages/sec"
+  puts "#{actual_count} messages of length #{msglen} in #{dt} seconds #{actual_count/dt} messages/sec"
 end

@@ -29,7 +29,7 @@ module Task
     end
 
     def start()
-      results = task.eval_body(nil)
+      results = task.eval_body(nil, nil)
       send(results)
     end
   end

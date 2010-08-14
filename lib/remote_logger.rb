@@ -19,7 +19,7 @@ class RemoteLogger
   attr_reader :logger, :proc_id, :log_name
 
   cattr_accessor :remote_logger_factory
-  delegate :level, :level=, :autoflushing, :autoflushing=, :to => :logger
+  delegate :level, :level=, :autoflushing, :autoflushing=, :flush, :to => :logger
 
   # Valid options are :autoflush => 5, :keep => false, :deverity => DEBUG
   def initialize(log_name='remote', basedir=File.join(RAILS_ROOT, 'log'), proc_id=0, options={})
@@ -33,34 +33,42 @@ class RemoteLogger
 
   private
 
-  def log(msg, task_name, level, from=caller(2).first)
-    logger.synchronize { logger.send(level, "#{method.to_s.upcase}\t[#{proc_id}:#{task_name}:#{from}] #{msg}") }
+  def log(msg, task_name, level, from=caller(3).first)
+    logger.synchronize { logger.send(level, "#{level.to_s.upcase}\t[#{proc_id}:#{task_name}:#{from}] #{msg}") }
+  end
+
+  def raw_send(msg)
+    logger.synchronize { logger.send(:info, msg); logger.flush() }
   end
 
   public
 
   def debug(msg, task_name='?')
     log(msg, task_name, :debug)
+    flush()
   end
 
   def info(msg, task_name='?')
     log(msg, task_name, :info)
+    flush()
   end
 
   def error(msg, task_name='?')
     log(msg, task_name, :error)
+    flush()
   end
 
   def fatal(msg, task_name='?')
     log(msg, task_name, :fatal)
+    flush()
   end
 
-  def flush()
-    logger.flush
+  def raw(msg)
+    raw_send(msg)
   end
 
   def close()
-    logger.flush()
+    flush()
     RemoteLogger.remote_logger_factory.close(log_name)
   end
 

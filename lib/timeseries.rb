@@ -185,7 +185,7 @@ class Timeseries
   # return a string summarizing the contents of this Timeseries
   #
   def to_s
-    "#{symbol} #{local_range.begin}-#{local_range.end} #{timevec.length} data values"
+    "#{symbol} #{local_range.begin}-#{local_range.end} #{timevec.length}"
   end
 
   def inspect

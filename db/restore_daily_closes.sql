@@ -1,1 +1,0 @@
-insert into daily_closes(ticker_id, date, open, close, high, low, adj_close, volume, week, month, return, log_return, alr) select ticker_id, date, open, close, high, low, adj_close, volume, week, month, return, log_return, alr from daily_closes_backup order by ticker_id, date;

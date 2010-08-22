@@ -1,339 +1,98 @@
-== Welcome Stock Info Database Capture
-
-my %fields = (
-x              'Symbol'                          =>  's',        # old default
-x              'Name'                            =>  'n',        # old default
-s              'Last Trade (With Time)'          =>  'l',
-s              'Last Trade (Price Only)'         =>  'l1',       # old default
-s              'Last Trade Date'                 =>  'd1',       # old default
-s              'Last Trade Time'                 =>  't1',       # old default
-s              'Last Trade Size'                 =>  'k3',
-?              'Change and Percent Change'       =>  'c',
-s              'Change'                          =>  'c1',       # old default
-s              'Change in Percent'               =>  'p2',       # old default
-s              'Ticker Trend'                    =>  't7',
-s              'Volume'                          =>  'v',        # old default
-s              'Average Daily Volume'            =>  'a2',       # old default
-?              'More Info'                       =>  'i',
-?              'Trade Links'                     =>  't6',
-s              'Bid'                             =>  'b',        # old default
-s              'Bid Size'                        =>  'b6',
-s              'Ask'                             =>  'a',        # old default
-s              'Ask Size'                        =>  'a5',
-s              'Previous Close'                  =>  'p',        # old default
-s              'Open'                            =>  'o',        # old default
-s              "Day's Range"                     =>  'm',        # old default
-x              '52-week Range'                   =>  'w',        # old default
-x              'Change From 52-wk Low'           =>  'j5',
-x              'Pct Chg From 52-wk Low'          =>  'j6',
-x              'Change From 52-wk High'          =>  'k4',
-x              'Pct Chg From 52-wk High'         =>  'k5',
-x              'Earnings/Share'                  =>  'e',        # old default
-x              'P/E Ratio'                       =>  'r',        # old default
-x              'Short Ratio'                     =>  's7',
-x              'Dividend Pay Date'               =>  'r1',       # old default
-x              'Ex-Dividend Date'                =>  'q',
-x              'Dividend/Share'                  =>  'd',        # old default
-x              'Dividend Yield'                  =>  'y',        # old default
-!              'Float Shares'                    =>  'f6',
-x              'Market Capitalization'           =>  'j1',       # old default
-x              '1yr Target Price'                =>  't8',
-x              'EPS Est. Current Yr'             =>  'e7',
-x              'EPS Est. Next Year'              =>  'e8',
-x              'EPS Est. Next Quarter'           =>  'e9',
-x              'Price/EPS Est. Current Yr'       =>  'r6',
-x              'Price/EPS Est. Next Yr'          =>  'r7',
-x              'PEG Ratio'                       =>  'r5',
-x              'Book Value'                      =>  'b4',
-x              'Price/Book'                      =>  'p6',
-x              'Price/Sales'                     =>  'p5',
-x              'EBITDA'                          =>  'j4',
-x              '50-day Moving Avg'               =>  'm3',
-x              'Change From 50-day Moving Avg'   =>  'm7',
-x              'Pct Chg From 50-day Moving Avg'  =>  'm8',
-x              '200-day Moving Avg'              =>  'm4',
-x              'Change From 200-day Moving Avg'  =>  'm5',
-x              'Pct Chg From 200-day Moving Avg' =>  'm6',
-N              'Shares Owned'                    =>  's1',
-N              'Price Paid'                      =>  'p1',
-N              'Commission'                      =>  'c3',
-N              'Holdings Value'                  =>  'v1',
-N              "Day's Value Change"              =>  'w1',
-N              'Holdings Gain Percent'           =>  'g1',
-N              'Holdings Gain'                   =>  'g4',
-N              'Trade Date'                      =>  'd2',
-N              'Annualized Gain'                 =>  'g3',
-N              'High Limit'                      =>  'l2',
-N              'Low Limit'                       =>  'l3',
-?              'Notes'                           =>  'n4',
-?              'Last Trade (Real-time) with Time'=>  'k1',
-r              'Bid (Real-time)'                 =>  'b3',
-r              'Ask (Real-time)'                 =>  'b2',
-r              'Change Percent (Real-time)'      =>  'k2',
-r              'Change (Real-time)'              =>  'c6',
-?              'Holdings Value (Real-time)'      =>  'v7',
-?              "Day's Value Change (Real-time)"  =>  'w4',
-?              'Holdings Gain Pct (Real-time)'   =>  'g5',
-?              'Holdings Gain (Real-time)'       =>  'g6',
-?              "Day's Range (Real-time)"         =>  'm2',
-?              'Market Cap (Real-time)'          =>  'j3',
-?              'P/E (Real-time)'                 =>  'r2',
-?              'After Hours Change (Real-time)'  =>  'c8',
-?             'Order Book (Real-time)'          =>  'i5',
-x              'Stock Exchange'                  =>  'x'         # old default
-             );
-This is a change that will get logged as a commit under lewis as a test to see if it works!
-Rails is a web-application framework that includes everything needed to create
-database-backed web applications according to the Model-View-Control pattern.
-
-This pattern splits the view (also called the presentation) into "dumb" templates
-that are primarily responsible for inserting pre-built data in between HTML tags.
-The model contains the "smart" domain objects (such as Account, Product, Person,
-Post) that holds all the business logic and knows how to persist themselves to
-a database. The controller handles the incoming requests (such as Save New Account,
-Update Product, Show Post) by manipulating the model and directing data to the view.
-
-In Rails, the model is handled by what's called an object-relational mapping
-layer entitled Active Record. This layer allows you to present the data from
-database rows as objects and embellish these data objects with business logic
-methods. You can read more about Active Record in
-link:files/vendor/rails/activerecord/README.html.
-
-The controller and view are handled by the Action Pack, which handles both
-layers by its two parts: Action View and Action Controller. These two layers
-are bundled in a single package due to their heavy interdependence. This is
-unlike the relationship between the Active Record and Action Pack that is much
-more separate. Each of these packages can be used independently outside of
-Rails.  You can read more about Action Pack in
-link:files/vendor/rails/actionpack/README.html.
-
-
-== Getting Started
-
-1. At the command prompt, start a new Rails application using the <tt>rails</tt> command
-   and your application name. Ex: rails myapp
-2. Change directory into myapp and start the web server: <tt>script/server</tt> (run with --help for options)
-3. Go to http://localhost:3000/ and get "Welcome aboard: You're riding the Rails!"
-4. Follow the guidelines to start developing your application
+﻿The name of this project is really a misnomer. Initially this project
+was concerned with finding a robust way to gather OHLCV bars on on
+trading days. There are several "free" data-sources available: yahoo
+finance, Google finance, and TDameritrade (which is not exactly free
+-- you have to have an account). Since we did have a Tdameritrade
+account we used their data-source because we could not only get daily
+bar but also intraday bars at 5,10, 15,30, minute
+intervals. TDameritrade also had a "live" feed where we could easily
+get snapshot information down to the minute. They also offer Level I
+and Level II streams. This is where the "capture" term in the project
+came from. The project grew from that very quickly into one where we
+could design strategies, backtest them over the 10 years of daily bars
+we had in the DB form which a sequence of positions were generated,
+the opening and closing of which was determined by the strategy being
+used for backtesting purposes.
+
+A collection of positions is not quite enough information to simulate
+an actual trading strategy. A collection of Positions does not include
+real-life limitation like the amount of money available to invest on
+any given day, nor the investment meta-strategy where returns are
+re-invested into the market as opposed to taking the ROI out in cash
+to produce an income. Doing so, obviously, does not allow for any
+compounding of funds, but in real life that may be a requirement.
+
+In the end the stock_db_capture was designed to:
+
+1.Capture Daily and Intraday data on a regular basis (via cron running
+  rake tasks)
+
+2.Support the design of trading strategies of arbitrary complexity and
+  the backtesting of them
+
+3.From the collection of positions generated in #2, simulate the
+  execution of trades using finite resources
+
+4.Provide for a "stock watcher" which triggered entries on a list of
+  stocks which met a certain criterion from which a user could open a
+  position, which would then be watched to see when the closing criteria
+  was met.
+
+5.The results from backtest could also be feed into R to produce
+  wonderful graphs which helped "tune" the strategy.
+
+6.Several months of "paper trading" using an RSI/RVI driven strategy
+  produced favorable results but the evolving ROI was still victim to
+  overall market sentiment.
+
+The backtester was the utility which went though the most change
+throughout the project. Initially it relied on a DSL which make
+defining strategies really easily, but the kinds of strategies were
+limited.
+
+Once it was recognized that this was a serious limitation of the
+backtest I went with a message passing architecture. Numerous
+frameworks were used to facilitate the message passing protocol. They
+were in order:
+
+1.Rinda -- simple, reliable, and slow. The deal-breaker came when the
+  Ring Finger was unable to locate a tuple-server anymore.
+
+2.EventMachine + RabbitMQ -- relatively simple, advertised as
+  reliable, but way too slow for our needs. The RabbitMQ server would
+  become simply overwhelmed at a message publishing rate of less the
+  100ms/message.
+
+3.EventMachine + Beanstalk - fast, reliable but had some quicks, most
+  likely due to the rather unsophisticated EM-Jack layer. The end result
+  was lost messages which was intolerable. Backtests HAVE to be
+  repeatable to be of any use whatsoever.
+
+4.A synchronous version of the Beanstalk protocol resting upon
+  beanstalk-client library which is a synchronous library. The proved
+  stable yet under certain (often) conditions it would lose the first 12
+  messages generated from the producer/consumers. This was a consistent
+  pattern.
+
+5.Which leads to the present, we do not have a message-based
+  backtester that is robust. It is my hope that somebody who know
+  EventMachine much better than I will be able to suss this out. Trying
+  to debug this using ruby-1.9.2 w/o a debugger proved to by a
+  nightmare. The symptoms are that when as the body of a task (a task is
+  a stage in a multistage strategy where each stage computes something
+  and passes on to the next stage)is executed on a 'defer' to a
+  theadpool, the completion callback is never call...but only for 12
+  messages which is not a magic number. The number of threads in the
+  pool is 20.
+
+To begin any serious work on this project you will need to populate your DB.
+I am using MySQL and can provide dumps of all the relevant tables. Since
+this is my first github project, I don't know th policy of upload huge
+sql dump files.
+
+
+Best Regards,
+
+Kevin Nolan
+kpnolan@comcast.net
 
-
-== Web Servers
-
-By default, Rails will try to use Mongrel and lighttpd if they are installed, otherwise
-Rails will use WEBrick, the webserver that ships with Ruby. When you run script/server,
-Rails will check if Mongrel exists, then lighttpd and finally fall back to WEBrick. This ensures
-that you can always get up and running quickly.
-
-Mongrel is a Ruby-based webserver with a C component (which requires compilation) that is
-suitable for development and deployment of Rails applications. If you have Ruby Gems installed,
-getting up and running with mongrel is as easy as: <tt>gem install mongrel</tt>.
-More info at: http://mongrel.rubyforge.org
-
-If Mongrel is not installed, Rails will look for lighttpd. It's considerably faster than
-Mongrel and WEBrick and also suited for production use, but requires additional
-installation and currently only works well on OS X/Unix (Windows users are encouraged
-to start with Mongrel). We recommend version 1.4.11 and higher. You can download it from
-http://www.lighttpd.net.
-
-And finally, if neither Mongrel or lighttpd are installed, Rails will use the built-in Ruby
-web server, WEBrick. WEBrick is a small Ruby web server suitable for development, but not
-for production.
-
-But of course its also possible to run Rails on any platform that supports FCGI.
-Apache, LiteSpeed, IIS are just a few. For more information on FCGI,
-please visit: http://wiki.rubyonrails.com/rails/pages/FastCGI
-
-
-== Apache .htaccess example
-
-# General Apache options
-AddHandler fastcgi-script .fcgi
-AddHandler cgi-script .cgi
-Options +FollowSymLinks +ExecCGI
-
-# If you don't want Rails to look in certain directories,
-# use the following rewrite rules so that Apache won't rewrite certain requests
-#
-# Example:
-#   RewriteCond %{REQUEST_URI} ^/notrails.*
-#   RewriteRule .* - [L]
-
-# Redirect all requests not available on the filesystem to Rails
-# By default the cgi dispatcher is used which is very slow
-#
-# For better performance replace the dispatcher with the fastcgi one
-#
-# Example:
-#   RewriteRule ^(.*)$ dispatch.fcgi [QSA,L]
-RewriteEngine On
-
-# If your Rails application is accessed via an Alias directive,
-# then you MUST also set the RewriteBase in this htaccess file.
-#
-# Example:
-#   Alias /myrailsapp /path/to/myrailsapp/public
-#   RewriteBase /myrailsapp
-
-RewriteRule ^$ index.html [QSA]
-RewriteRule ^([^.]+)$ $1.html [QSA]
-RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^(.*)$ dispatch.cgi [QSA,L]
-
-# In case Rails experiences terminal errors
-# Instead of displaying this message you can supply a file here which will be rendered instead
-#
-# Example:
-#   ErrorDocument 500 /500.html
-
-ErrorDocument 500 "<h2>Application error</h2>Rails application failed to start properly"
-
-
-== Debugging Rails
-
-Sometimes your application goes wrong.  Fortunately there are a lot of tools that
-will help you debug it and get it back on the rails.
-
-First area to check is the application log files.  Have "tail -f" commands running
-on the server.log and development.log. Rails will automatically display debugging
-and runtime information to these files. Debugging info will also be shown in the
-browser on requests from 127.0.0.1.
-
-You can also log your own messages directly into the log file from your code using
-the Ruby logger class from inside your controllers. Example:
-
-  class WeblogController < ActionController::Base
-    def destroy
-      @weblog = Weblog.find(params[:id])
-      @weblog.destroy
-      logger.info("#{Time.now} Destroyed Weblog ID ##{@weblog.id}!")
-    end
-  end
-
-The result will be a message in your log file along the lines of:
-
-  Mon Oct 08 14:22:29 +1000 2007 Destroyed Weblog ID #1
-
-More information on how to use the logger is at http://www.ruby-doc.org/core/
-
-Also, Ruby documentation can be found at http://www.ruby-lang.org/ including:
-
-* The Learning Ruby (Pickaxe) Book: http://www.ruby-doc.org/docs/ProgrammingRuby/
-* Learn to Program: http://pine.fm/LearnToProgram/  (a beginners guide)
-
-These two online (and free) books will bring you up to speed on the Ruby language
-and also on programming in general.
-
-
-== Debugger
-
-Debugger support is available through the debugger command when you start your Mongrel or
-Webrick server with --debugger. This means that you can break out of execution at any point
-in the code, investigate and change the model, AND then resume execution!
-You need to install ruby-debug to run the server in debugging mode. With gems, use 'gem install ruby-debug'
-Example:
-
-  class WeblogController < ActionController::Base
-    def index
-      @posts = Post.find(:all)
-      debugger
-    end
-  end
-
-So the controller will accept the action, run the first line, then present you
-with a IRB prompt in the server window. Here you can do things like:
-
-  >> @posts.inspect
-  => "[#<Post:0x14a6be8 @attributes={\"title\"=>nil, \"body\"=>nil, \"id\"=>\"1\"}>,
-       #<Post:0x14a6620 @attributes={\"title\"=>\"Rails you know!\", \"body\"=>\"Only ten..\", \"id\"=>\"2\"}>]"
-  >> @posts.first.title = "hello from a debugger"
-  => "hello from a debugger"
-
-...and even better is that you can examine how your runtime objects actually work:
-
-  >> f = @posts.first
-  => #<Post:0x13630c4 @attributes={"title"=>nil, "body"=>nil, "id"=>"1"}>
-  >> f.
-  Display all 152 possibilities? (y or n)
-
-Finally, when you're ready to resume execution, you enter "cont"
-
-
-== Console
-
-You can interact with the domain model by starting the console through <tt>script/console</tt>.
-Here you'll have all parts of the application configured, just like it is when the
-application is running. You can inspect domain models, change values, and save to the
-database. Starting the script without arguments will launch it in the development environment.
-Passing an argument will specify a different environment, like <tt>script/console production</tt>.
-
-To reload your controllers and models after launching the console run <tt>reload!</tt>
-
-== dbconsole
-
-You can go to the command line of your database directly through <tt>script/dbconsole</tt>.
-You would be connected to the database with the credentials defined in database.yml.
-Starting the script without arguments will connect you to the development database. Passing an
-argument will connect you to a different database, like <tt>script/dbconsole production</tt>.
-Currently works for mysql, postgresql and sqlite.
-
-== Description of Contents
-
-app
-  Holds all the code that's specific to this particular application.
-
-app/controllers
-  Holds controllers that should be named like weblogs_controller.rb for
-  automated URL mapping. All controllers should descend from ApplicationController
-  which itself descends from ActionController::Base.
-
-app/models
-  Holds models that should be named like post.rb.
-  Most models will descend from ActiveRecord::Base.
-
-app/views
-  Holds the template files for the view that should be named like
-  weblogs/index.html.erb for the WeblogsController#index action. All views use eRuby
-  syntax.
-
-app/views/layouts
-  Holds the template files for layouts to be used with views. This models the common
-  header/footer method of wrapping views. In your views, define a layout using the
-  <tt>layout :default</tt> and create a file named default.html.erb. Inside default.html.erb,
-  call <% yield %> to render the view using this layout.
-
-app/helpers
-  Holds view helpers that should be named like weblogs_helper.rb. These are generated
-  for you automatically when using script/generate for controllers. Helpers can be used to
-  wrap functionality for your views into methods.
-
-config
-  Configuration files for the Rails environment, the routing map, the database, and other dependencies.
-
-db
-  Contains the database schema in schema.rb.  db/migrate contains all
-  the sequence of Migrations for your schema.
-
-doc
-  This directory is where your application documentation will be stored when generated
-  using <tt>rake doc:app</tt>
-
-lib
-  Application specific libraries. Basically, any kind of custom code that doesn't
-  belong under controllers, models, or helpers. This directory is in the load path.
-
-public
-  The directory available for the web server. Contains subdirectories for images, stylesheets,
-  and javascripts. Also contains the dispatchers and the default HTML files. This should be
-  set as the DOCUMENT_ROOT of your web server.
-
-script
-  Helper scripts for automation and generation.
-
-test
-  Unit and functional tests along with fixtures. When using the script/generate scripts, template
-  test files will be generated for you and placed in this directory.
-
-vendor
-  External libraries that the application depends on. Also includes the plugins subdirectory.
-  If the app has frozen rails, those gems also go here, under vendor/rails/.
-  This directory is in the load path.

@@ -1,62 +1,91 @@
 ﻿The name of this project is really a misnomer. Initially this project
-was concerned with finding a robust way to gather OHLCV bars on on
-trading days. There are several "free" data-sources available: yahoo
+was concerned with finding a robust way to gather OHLCV bars on
+trading days. There are several "free" data-sources available: Yahoo
 finance, Google finance, and TDameritrade (which is not exactly free
--- you have to have an account). Since we did have a Tdameritrade
+-- you have to have an account). Since we did have a TDAmeritrade
 account we used their data-source because we could not only get daily
-bar but also intraday bars at 5,10, 15,30, minute
-intervals. TDameritrade also had a "live" feed where we could easily
+bars but also intraday bars at 5,10, 15, and 30 minute
+intervals. TDAmeritrade also had a "live" feed where we could easily
 get snapshot information down to the minute. They also offer Level I
 and Level II streams. This is where the "capture" term in the project
 came from. The project grew from that very quickly into one where we
 could design strategies, backtest them over the 10 years of daily bars
-we had in the DB form which a sequence of positions were generated,
+we had in the DB form which a collection of positions are generated,
 the opening and closing of which was determined by the strategy being
 used for backtesting purposes.
 
 A collection of positions is not quite enough information to simulate
 an actual trading strategy. A collection of Positions does not include
-real-life limitation like the amount of money available to invest on
+real-life limitations like the amount of money available to invest on
 any given day, nor the investment meta-strategy where returns are
-re-invested into the market as opposed to taking the ROI out in cash
-to produce an income. Doing so, obviously, does not allow for any
-compounding of funds, but in real life that may be a requirement.
+re-invested into the market as opposed to taking the excess returns
+out in cash to produce an income. Doing so, obviously, does not allow
+for any compounding of funds, but in real life that may be a requirement.
 
 In the end the stock_db_capture was designed to:
 
 1.Capture Daily and Intraday data on a regular basis (via cron running
-  rake tasks)
+  rake tasks). Currently daily and 30 minute intra day bars are captured.
+  It should be also noted that for at least TDAmeritrades data-sources,
+  it's possible for there to be "missing" bars, i.e. trading days for
+  which a daily bar was not captured on their end and thus shows up
+  as missing on our end. Fortunately, I've written have a very intellgent
+  timeseries class which detects these "holes" and rejects the timeseries.
+  I have written rake tasks which can fill these holes with Google or Yahoo bars,
+  the union of which fills nearly (over 98%) of all holes. Aditionally,
+  I detect splits by scrubing certain web pages the results of which are
+  stored in a DB table. At present, nothing is done with this information
+  to back propagate split information.
 
 2.Support the design of trading strategies of arbitrary complexity and
-  the backtesting of them
+  the backtesting of them.
 
 3.From the collection of positions generated in #2, simulate the
-  execution of trades using finite resources
+  execution of trades using finite resources. Finite resources include
+  the amount of cash on hand for that day AND the number of positions
+  available that day. Depending on market conditions it is very possible
+  to be either "cash starved" or "position starved" on any given day.
+  Without this kind of simulation it would be impossible to know that.
 
-4.Provide for a "stock watcher" which triggered entries on a list of
-  stocks which met a certain criterion from which a user could open a
-  position, which would then be watched to see when the closing criteria
-  was met.
+4.Provide for a "stock watcher" which triggers entries of a list of
+  stocks which met a certain criterion for opening a positon (assuming
+  you can from a cash standpoint). Once openned the Position is then
+  tracked daily and making it possible to know just how close the
+  is to meeting the establish "closing" criteria. Of course the position
+  can be closed (sold) at any time. The closing criteria is computed
+  from the results of backtests and therefore show a certain optimum
+  condition.
 
-5.The results from backtest could also be feed into R to produce
-  wonderful graphs which helped "tune" the strategy.
+5.The results from backtest can also be fed into R to produce
+  wonderful graphs which help "tune" the strategy. The R econometics
+  packages are, in themselves, very sophisticated. One can to "quant-like"
+  analysis in R.
 
 6.Several months of "paper trading" using an RSI/RVI driven strategy
   produced favorable results but the evolving ROI was still victim to
-  overall market sentiment.
+  overall market sentiment.RSI = Relative Strength Index, RVI = Relative
+  Volatility Index. Current strategys try to take advantage of volatility,
+  and as such have relatively short hold times (appox. mean of 11 days).
 
-The backtester was the utility which went though the most change
-throughout the project. Initially it relied on a DSL which make
-defining strategies really easily, but the kinds of strategies were
-limited.
+The backtester was the facility which went though the most change
+throughout the course of the project. Initially it relied upon a high-level
+DSL which, while making strategies relatively easy to design, it came
+at the price of limited expressiveness and complexity.
 
 Once it was recognized that this was a serious limitation of the
-backtest I went with a message passing architecture. Numerous
-frameworks were used to facilitate the message passing protocol. They
-were in order:
+backtester I went with a message passing architecture. This decision
+was motivated by two forces that I saw acting on sophisticated backtests.
+One, they were getting significantly more complex and, two the amount of
+data upon which they had to crunch was going way up. The only way out of
+this computational morass was to go parallel. The design had to scale
+the number of cores available and the number of computers available on
+a Gigabit Ethernet. Some form of distrubed message passing kernel seemed
+the most appropriate. Additionally, this had become a well known
+problem with a multitude of solutions and/or libraries or frameworks.
+The ones tried so far with varying degrees of sucess were:
 
 1.Rinda -- simple, reliable, and slow. The deal-breaker came when the
-  Ring Finger was unable to locate a tuple-server anymore.
+  Ring Finger was unable to locate a tuple-server anymore -- ever.
 
 2.EventMachine + RabbitMQ -- relatively simple, advertised as
   reliable, but way too slow for our needs. The RabbitMQ server would
@@ -70,25 +99,39 @@ were in order:
 
 4.A synchronous version of the Beanstalk protocol resting upon
   beanstalk-client library which is a synchronous library. The proved
-  stable yet under certain (often) conditions it would lose the first 12
-  messages generated from the producer/consumers. This was a consistent
-  pattern.
+  stable yet under certain and consistent conditions it would lose the
+  first 12 messages generated from the producer/consumers. Interestingly,
+  I see this exact same pattern using EM-Jack. Since for the synchronous
+  version I "borrowed" the EM.defer(op,cb) protocol for executing the bodies
+  of sub-tasts withing a strategy it seemed likely that the problem followed
+  EM.defer. I have been through every line of code, however, an I cannot
+  see a problem. That plus the fact the EM.defer is in use in probably a
+  hundred successful implementations using EventMachine the logic didn't
+  seem to fly.
 
-5.Which leads to the present, we do not have a message-based
-  backtester that is robust. It is my hope that somebody who know
-  EventMachine much better than I will be able to suss this out. Trying
-  to debug this using ruby-1.9.2 w/o a debugger proved to by a
-  nightmare. The symptoms are that when as the body of a task (a task is
-  a stage in a multistage strategy where each stage computes something
-  and passes on to the next stage)is executed on a 'defer' to a
-  theadpool, the completion callback is never call...but only for 12
-  messages which is not a magic number. The number of threads in the
-  pool is 20.
+5.Which leads to the present. I do not have a message-based
+  backtester that is robust. It is my hope that somebody who knows
+  EventMachine much better than I will be able to suss this problem out.
+  Trying to debug this using ruby-1.9.2 w/o a debugger proved to by a
+  nightmare. Messaging systems by their very nature are difficult to
+  trouble shoot as they have non-deterministic message patterns.
+  What it looks like, as unlikely as it seems, is that defers complete,
+  but the completion callback is not called. I have coded extremely
+  hi-res and accurate instrumentation in the messaging code and the
+  numbers consistently point out this 12 event pattern of completion
+  callbacks not being called. Twelve is not a magic number: the
+  The number of threads in the pool is 20.
 
 To begin any serious work on this project you will need to populate your DB.
 I am using MySQL and can provide dumps of all the relevant tables. Since
 this is my first github project, I don't know th policy of upload huge
 sql dump files.
+
+Participation in this project does have a significant upside, you could, if
+you choose use this software to make very intelligent trades. All trading
+packages of which I am familiar only focus on 1 issue (stock) at a time or
+at most a portfolio. This system scans, every trading day, over 7500 stocks
+looking for buy and sell patterns.
 
 
 Best Regards,

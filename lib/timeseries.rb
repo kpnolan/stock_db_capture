@@ -22,9 +22,9 @@
 #++
 # Class: Timeseries
 #
-# This is the work-horse class for the entire reset of the system.
+# This is the work-horse class for the entire rest of the system.
 # Every sample of bar data is eventually converted to a timeseries
-# upon with every indicator must operate.
+# upon which every technical indicator must operate.
 # An element of a Timeseries is an entire bar (OHLCV) + logr (log return).
 # A Timerseries can have gaps and can have multiple resolutions, e.g. daily, intraday(5,6,15,30)
 #
